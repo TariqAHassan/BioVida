@@ -15,19 +15,19 @@ information on human diseases from public databases.
 
    1. Images
    
-        - from the NIH's *Open-i* Database (and perhaps others)
+   - from the NIH's *Open-i* Database (and perhaps others)
         
-        - these images will be automatically processed to make them amenable to machine learning algorithms.
+   - these images will be automatically processed to make them amenable to machine learning algorithms.
 
    2. Genomic Data
    
-        - likely from the NIH's *Genome* database
+   - likely from the NIH's *Genome* database
     
    3. Diagnostic Data
    
-        - symptom information
+   - symptom information
         
-        - source currently unclear
+   - source currently unclear
         
 
 Ultimately, the goal of this project is to develop a tool which simply asks 
