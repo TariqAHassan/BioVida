@@ -6,6 +6,7 @@
 
 """
 # Imports
+import re
 import inflect
 from itertools import chain
 
@@ -50,3 +51,26 @@ def num_word_to_int(input_str):
             input_str = input_str.replace(case, str(i))
     return input_str
 
+def cln(i, extent=1, strip=True):
+    """
+
+    String white space 'cleaner'.
+
+    :param i: input str
+    :type i: ``str``
+    :param extent: 1 --> all white space reduced to length 1; 2 --> removal of all white space.
+    :param strip: call str.strip()
+    :tyoe strip: ``bool``
+    :return: cleaned string
+    :rtype: ``str``
+    """
+    to_return = ""
+    if isinstance(i, str) and i != "":
+        if extent == 1:
+            to_return = re.sub(r"\s\s+", " ", i)
+        elif extent == 2:
+            to_return = re.sub(r"\s+", "", i)
+    else:
+        return i
+
+    return to_return.strip() if strip else to_return

@@ -6,6 +6,12 @@
 
 
 """
+# Imports
+from biovida.images.openi_support_tools import cln
+from biovida.images.openi_support_tools import item_extract
+from biovida.images.openi_support_tools import filter_unnest
+from biovida.images.openi_support_tools import extract_float
+from biovida.images.openi_support_tools import num_word_to_int
 
 
 def mexpix_info_extract(abstract):
@@ -14,8 +20,8 @@ def mexpix_info_extract(abstract):
     :param abstract:
     :return:
     """
-    flags = ['Diagnosis', 'History', 'Findings']
-    return {i: item_extract(re.findall('<p><b>' + i + ': </b>(.*?)</p><p>', cln(abstract))) for i in flags}
+    features = ['Diagnosis', 'History', 'Findings']
+    return {i: item_extract(re.findall('<p><b>' + i + ': </b>(.*?)</p><p>', cln(abstract))) for i in features}
 
 
 def patient_sex_guess(abstract):
@@ -89,9 +95,9 @@ def patient_age_guess(abstract):
     hist_matches_flat = filter_unnest(hist_matches)
 
     if len(hist_matches_flat):
-        cleaned_abstract = num_word_to_int(cln(" ".join([abstract.replace(r, "") for r in hist_matches_flat])).strip())
+        cleaned_abstract = num_word_to_int(" ".join([abstract.replace(r, "") for r in hist_matches_flat])).strip()
     else:
-        cleaned_abstract = num_word_to_int(cln(abstract))
+        cleaned_abstract = num_word_to_int(abstract)
 
     # Block processing of empty strings
     if not len(cleaned_abstract):
@@ -104,7 +110,7 @@ def patient_age_guess(abstract):
     return age_refine(front_finds) if len(front_finds) else None
 
 
-def flag_extract(x):
+def feature_extract(x):
     """
 
     To Harvest:
