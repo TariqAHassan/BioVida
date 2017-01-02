@@ -5,8 +5,6 @@
 
     URL: https://openi.nlm.nih.gov.
 
-    Need to extract Image Type (i.e., mark as: X-Ray, CT, PET, MRI, etc.)
-
 """
 # Imports
 import os
@@ -32,11 +30,7 @@ from easymoney.easy_pandas import pandas_pretty_print # faze out
 from biovida.images.openi_parameters import openi_image_type_dict
 
 # Tool for extracting features from text
-from biovida.images.text_feature_extraction import mexpix_info_extract
-from biovida.images.text_feature_extraction import patient_sex_guess
-from biovida.images.text_feature_extraction import age_refine
-from biovida.images.text_feature_extraction import patient_age_guess
-from biovida.images.text_feature_extraction import feature_extract
+from biovida.images.openi_text_feature_extraction import feature_extract
 
 # BioVida Support Tools
 from biovida.images.openi_support_tools import cln
@@ -47,6 +41,7 @@ from biovida.images.openi_support_tools import item_extract
 from biovida.images.openi_support_tools import extract_float
 from biovida.images.openi_support_tools import filter_unnest
 from biovida.images.openi_support_tools import num_word_to_int
+from biovida.images.openi_support_tools import camel_to_snake_case
 from biovida.images.openi_support_tools import openi_bounds_formatter
 
 # To install scipy: brew install gcc; pip3 install Pillow
@@ -86,10 +81,10 @@ def openi_bounds(total, req_limit=30):
 
     # Floor the number of steps and loop
     for i in range(n_steps):
-        bounds.append((end, end + 29))
-        end += 30
+        bounds.append((end, end + (req_limit - 1)))
+        end += req_limit
 
-    # Compute remainder
+    # Compute the remainder
     remainder = total % req_limit
 
     # Add remaining part, if nonzero
@@ -117,35 +112,35 @@ def date_format(date_dict, date_format="%d/%m/%Y"):
     return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(date_format)
 
 
-def openi_block_harvest(url, bound, root_url):
+def harvest_vect(request_rslt):
     """
 
-    To Harvest:
-      - title
-      - affiliate
-      - articleType
-      - authors
-      - uid
-      - pmcid
-      - journal_date (join these).
-      - journal_title
-      - licenseType
-      - MeSH
-          -- major
-          -- minor
-      - Problems
-      - abstract
-      - link: 'https://openi.nlm.nih.gov/' + imgLarge
-      - fulltext_html_url
-      - image
-          -- captions
-          -- id
-          -- mention
-          -- modalityMajor
+    Defines the terms to harvest from the results returned by the Open-i API.
+    Assumes a maximum of one nest (i.e., request_rslt[key]: {key: value...}).
+
+    :param request_rslt: Request Data from the server
+    :return:
+    """
+    to_harvest = list()
+    for k, v in request_rslt.items():
+        if isinstance(v, str):
+            to_harvest.append(k)
+        elif isinstance(v, dict) and any(dmy in map(lambda x: x.lower(), v.keys()) for dmy in ['day', 'month', 'year']):
+            to_harvest.append(k)
+        elif isinstance(v, dict):
+            for i in v.keys():
+                to_harvest.append((k, i))
+
+    return to_harvest
+
+
+def openi_block_harvest(url, bound, root_url, to_harvest):
+    """
 
     :param url:
     :param bound:
     :param root_url:
+    :param to_harvest:
     :return:
     """
     # Init
@@ -154,25 +149,19 @@ def openi_block_harvest(url, bound, root_url):
     # Extract the starting point
     start = int(re.findall('&m=(.+?)&', bound)[0])
 
-    # Define Items to harvest
-    to_harvest = ['title', 'affiliate', 'articleType', 'authors', 'uid', 'pmcid',
-                  'journal_date', 'journal_title', 'licenseType',
-                  ('MeSH', 'major'), ('MeSH', 'minor'), 'Problems',
-                  'abstract', 'imgLarge', 'fulltext_html_url', ('image', 'captions'),
-                  ('image', 'id'), ('image', 'mention'), ('image', 'modalityMajor')]
-
-    # Request Data from the server
+    # Request data from the Open-i servers
     req = requests.get(url + bound).json()['list']
 
     # Loop
     list_of_dicts = list()
     for e, item in enumerate(req):
-        # Init
+
+        # Create an item_dict the dict
         item_dict = {"req_no": start + e}
 
         # Populate current `item_dict`
         for j in to_harvest:
-            if isinstance(j, tuple):
+            if isinstance(j, (list, tuple)):
                 item_dict[iter_join(j)] = null_convert(item.get(j[0], {}).get(j[1], None))
             elif j == 'journal_date':
                 item_dict[j] = null_convert(date_format(item.get(j, None)))
@@ -186,7 +175,7 @@ def openi_block_harvest(url, bound, root_url):
     return list_of_dicts
 
 
-def openi_harvest(bounds_list, joined_url, root_url, sleep_mini=(2, 5), sleep_main=(50, 300), verbose=True):
+def openi_harvest(bounds_list, joined_url, root_url, to_harvest, sleep_mini=(2, 5), sleep_main=(50, 300), verbose=True):
     """
 
     :param bounds_list:
@@ -198,9 +187,9 @@ def openi_harvest(bounds_list, joined_url, root_url, sleep_mini=(2, 5), sleep_ma
     :return:
     """
     harvested_data = list()
-    print("---------------\nDownloading...\n---------------\n")
+    print("\n---------------\nDownloading...\n---------------\n")
     for e, bound in enumerate(bounds_list, start=1):
-        if verbose:
+        if verbose: # try printing every x downloads.
             print("Block %s of %s." % (e, len(bounds_list)))
         if e % sleep_mini[0] == 0:
             sleep(abs(sleep_mini[1] + np.random.normal()))
@@ -210,7 +199,7 @@ def openi_harvest(bounds_list, joined_url, root_url, sleep_mini=(2, 5), sleep_ma
             sleep(abs(sleep_main[1] + np.random.normal()))
 
         # Harvest
-        harvested_data += openi_block_harvest(joined_url, bound, root_url)
+        harvested_data += openi_block_harvest(joined_url, bound, root_url, to_harvest)
 
     # Return
     return harvested_data
@@ -230,16 +219,19 @@ def openi_kinesin(search_query, req_limit=30, n_bounds_limit=5, verbose=True):
     root_url = 'https://openi.nlm.nih.gov/'
     joined_url = root_url + search_query
 
+    # Get a sample request
+    sample = requests.get(joined_url + "&m=1&n=1").json()
+
     # Get the total number of results
-    total = requests.get(joined_url + "&m=1&n=1").json()['total']
+    total = sample['total']
 
     # Block progress if no results found
     if total < 1:
-        raise ValueError("No Results Found.")
+        raise ValueError("No Results Found. Please Try Refining your Search Query.")
 
     # Print number of results found
     if verbose:
-        print("Results Found: %s." % ('{:,.0f}'.format(total)))
+        print("\nResults Found: %s." % ('{:,.0f}'.format(total)))
 
     # Compute a list of search ranges to harvest
     bounds_list = openi_bounds_formatter(openi_bounds(total, req_limit=req_limit))
@@ -247,22 +239,24 @@ def openi_kinesin(search_query, req_limit=30, n_bounds_limit=5, verbose=True):
     # Define Extract Limit
     trunc_bounds = bounds_list[0:n_bounds_limit] if isinstance(n_bounds_limit, int) else bounds_list
 
+    # Learn the data returned by the API
+    to_harvest = harvest_vect(sample['list'][0])
+
     # Harvest
-    harvested_data = openi_harvest(trunc_bounds, joined_url, root_url)
+    harvested_data = openi_harvest(trunc_bounds, joined_url, root_url, to_harvest)
 
     # Convert to a DataFrame
     df = pd.DataFrame(harvested_data).fillna(np.NaN)
-
-    # Lower the columns
-    df.columns = list(map(lambda x: x.lower(), df.columns))
 
     # Return
     return df
 
 
+
 # ---------------------------------------------------------------------------------------------
 # Construct Database
 # ---------------------------------------------------------------------------------------------
+
 
 def post_processing(data_frame):
     """
@@ -270,13 +264,16 @@ def post_processing(data_frame):
     :param data_frame:
     :return:
     """
+    # Change camel case to snake case and lower
+    data_frame.columns = list(map(lambda x: x.replace("me_sh", "mesh"), map(camel_to_snake_case, data_frame.columns)))
+
     # Run Feature Extracting Tool and Join with `data_frame`.
     pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
     data_frame = df.join(pp, how='left')
 
     # Make the type of Imaging technology type human-readable
-    data_frame['imaging_tech'] = data_frame['image_modalitymajor'].map(lambda x: openi_image_type_dict.get(x, np.NaN))
-    del data_frame['image_modalitymajor']
+    data_frame['imaging_tech'] = data_frame['image_modality_major'].map(lambda x: openi_image_type_dict.get(x, np.NaN))
+    del data_frame['image_modality_major']
 
     return data_frame
 
@@ -286,13 +283,14 @@ df = openi_kinesin(search_query, n_bounds_limit=5)
 # Run Post Processing
 df = post_processing(df)
 
-# Start tqdm
-tqdm.pandas(desc="status")
+
 
 # ---------------------------------------------------------------------------------------------
 # Image Harvesting
 # ---------------------------------------------------------------------------------------------
 
+# Start tqdm
+tqdm.pandas(desc="status")
 
 def img_harvest(image_address, db_mapping, save_location='images/', lag=5.5):
     """Harvest Pics from a URL and save to disk"""
@@ -319,7 +317,7 @@ def img_harvest(image_address, db_mapping, save_location='images/', lag=5.5):
     return True
 
 
-def bulk_img_harvest(data_frame, col1, db_map, log_save_loc="images/logs/", save_interval=25):
+def bulk_img_harvest(data_frame, col1, db_map, log_save_loc="images/logs/", log_save_interval=25):
     """
 
     Bulk download of a set of images from the database
@@ -328,7 +326,7 @@ def bulk_img_harvest(data_frame, col1, db_map, log_save_loc="images/logs/", save
     :param col1:
     :param db_map: column that can be used to map images back to a row in the database.
     :param log_save_loc:
-    :param save_interval:
+    :param log_save_interval:
     :return:
     """
     # Download the images
@@ -336,7 +334,7 @@ def bulk_img_harvest(data_frame, col1, db_map, log_save_loc="images/logs/", save
     result_log = list()
     for x in tqdm(zip(data_frame[col1], data_frame[db_map])):
         result_log.append((x[1], img_harvest(x[0], db_mapping=x[1])))
-        if x[1] % save_interval == 0:
+        if x[1] % log_save_interval == 0:
             pd.DataFrame(result_log, columns=[db_map, 'sucessful']).to_csv(log_save_loc + save_name() + "img_log.csv")
 
 
