@@ -26,7 +26,7 @@ from pprint import pprint
 from itertools import chain
 from datetime import datetime
 from easymoney.support_tools import cln
-from scipy.ndimage import imread as scipy_imre1ad
+from scipy.ndimage import imread as scipy_imread
 from easymoney.easy_pandas import pandas_pretty_print
 
 # Tools used below
