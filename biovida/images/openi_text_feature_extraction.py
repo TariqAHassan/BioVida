@@ -7,6 +7,10 @@
 
 """
 # Imports
+import re
+from itertools import chain
+
+# Import tools from Open-i support tools
 from biovida.images.openi_support_tools import cln
 from biovida.images.openi_support_tools import item_extract
 from biovida.images.openi_support_tools import filter_unnest
@@ -136,4 +140,5 @@ def feature_extract(x):
     # Guess Age
     d['age'] = patient_age_guess(guess_string)
 
-    return d
+    # Lower keys and return
+    return {k.lower(): v for k, v in d.items()}
