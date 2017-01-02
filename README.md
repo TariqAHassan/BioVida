@@ -25,7 +25,7 @@ public databases.
    3. Diagnostic Data
    
      - symptom information
-        k
+        
      - source currently unclear
         
 
