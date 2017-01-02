@@ -11,7 +11,6 @@
 # Imports
 import os
 import re
-import inflect
 import requests
 import numpy as np
 import pandas as pd
@@ -27,11 +26,17 @@ from itertools import chain
 from datetime import datetime
 from easymoney.support_tools import cln
 from scipy.ndimage import imread as scipy_imread
-from easymoney.easy_pandas import pandas_pretty_print
+from easymoney.easy_pandas import pandas_pretty_print # faze out
 
-# Tools used below
-non_decimal = re.compile(r'[^\d.]+')
-p = inflect.engine()
+# BioVida Tools
+from biovida.images.openi_support_tools import iter_join
+from biovida.images.openi_support_tools import null_convert
+from biovida.images.openi_support_tools import url_combine
+from biovida.images.openi_support_tools import item_extract
+from biovida.images.openi_support_tools import extract_float
+from biovida.images.openi_support_tools import filter_unnest
+from biovida.images.openi_support_tools import num_word_to_int
+from biovida.images.openi_support_tools import openi_bounds_formatter
 
 # To install scipy: brew install gcc; pip3 install Pillow
 
@@ -40,40 +45,10 @@ p = inflect.engine()
 # ---------------------------------------------------------------------------------------------
 
 search_query = 'retrieve.php?q=&it=c,m,mc,p,ph,u,x'
-age_dict = {p.number_to_words(i): i for i in range(1, 135)}
 
 # ---------------------------------------------------------------------------------------------
 # Pulling Data from the NIH's Open-i API
 # ---------------------------------------------------------------------------------------------
-
-
-def openi_bounds_formatter(bounds):
-    """Format the computed bounds for the Open-i API."""
-    return ["&m={0}&n={1}".format(i[0], i[1]) for i in bounds]
-
-def iter_join(t, join_on="_"):
-    return join_on.join(t) if isinstance(t, (list, tuple)) else i
-
-def null_convert(i):
-    return None if not i else i
-
-def url_combine(url1, url2):
-    return None if any(x is None for x in [url1, url2]) else (url1[:-1] if url1.endswith("/") else url1) + url2
-
-def item_extract(i, list_len=1):
-    """Extract the first item in a list or tuple, else return None"""
-    return i[0] if isinstance(i, (list, tuple)) and len(i) == list_len else None
-
-def extract_float(i):
-    """http://stackoverflow.com/a/947789/4898004"""
-    return non_decimal.sub('', i)
-
-def num_word_to_int(input_str):
-    """Replace natural numbers from 1 to 130 with intigers."""
-    for w, i in age_dict.items():
-        for case in [w.upper(), w.lower(), w.title()]: # not perfect, but should do
-            input_str = input_str.replace(case, str(i))
-    return input_str
 
 
 def openi_bounds(total, req_limit=30):
@@ -96,7 +71,7 @@ def openi_bounds(total, req_limit=30):
         return [(1, total)]
 
     # Compute the number of steps
-    n_steps = total/req_limit
+    n_steps = int(total/req_limit)
 
     # Floor the number of steps and loop
     for i in range(int(n_steps)):
@@ -104,7 +79,7 @@ def openi_bounds(total, req_limit=30):
         end += 30
 
     # Compute remainder
-    remainder = total - (int(n_steps) * req_limit)
+    remainder = total % req_limit
 
     # Add remaining part, if nonzero
     if remainder != 0:
@@ -221,6 +196,8 @@ def openi_harvest(bounds_list, joined_url, root_url, sleep_mini=(2, 5), sleep_ma
             if verbose:
                 print("Sleeping for %s seconds..." % sleep_main[1])
             sleep(abs(sleep_main[1] + np.random.normal()))
+
+        # Harvest
         harvested_data += openi_block_harvest(joined_url, bound, root_url)
 
     # Return
@@ -354,19 +331,19 @@ def patient_age_guess(abstract):
 
     # Clean and recompose the string
     cleaned_abstract = cln(" ".join([abstract.replace(r, "") for r in chain(*filter(None, hist_matches))])).strip()
-    hist_matches_flat = list(chain(*filter(None, hist_matches)))
+    hist_matches_flat = filter_unnest(hist_matches)
 
     if len(hist_matches_flat):
-        cleaned_abstract = num_word_to_int(cln(" ".join([abstract.replace(r, "") for r in hist_matches_flat])).strip())
+        cleaned_abstract = num_word_to_int(" ".join([abstract.replace(r, "") for r in hist_matches_flat])).strip()
     else:
-        cleaned_abstract = num_word_to_int(cln(abstract))
+        cleaned_abstract = num_word_to_int(abstract)
 
     # Block processing of empty strings
     if not len(cleaned_abstract):
         return None
 
-    # Try front
-    front_finds = list(chain(*filter(None, [re.findall(r'\d+' + b, cleaned_abstract) for b in back])))
+    # Try back
+    front_finds = filter_unnest([re.findall(r'\d+' + b, cleaned_abstract) for b in back])
 
     # Return
     return age_refine(front_finds) if len(front_finds) else None
@@ -385,7 +362,7 @@ def flag_extract(x):
     """
     d = dict.fromkeys(['Diagnosis', 'History', 'Findings'], None)
 
-    # ToDo: expand Diagnosis harvesting to other sources.
+    # ToDo: expand Diagnosis information harvesting to other sources.
     if 'medpix' in x['journal_title'].lower():
         d = mexpix_info_extract(x['abstract'])
 
