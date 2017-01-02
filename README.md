@@ -7,9 +7,8 @@ BioVida: Curating BioMedical Information
 Publicly available online repositories currently store enormous amounts of data on numerous human diseases. However, 
 these databases are often built to serve wildly different purposes, making it difficult to explore connections between 
 them. This project aims to tame this problem and integrate several of these public sources together.
-
-This project aims to develop an easy-to-use API which will harvest the latest 
-information on human diseases from public databases.  
+Specifically, it aims to develop an easy-to-use API which will harvest the latest information on human diseases from 
+public databases.  
 
 **Objectives**:
 
