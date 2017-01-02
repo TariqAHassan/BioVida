@@ -38,7 +38,7 @@ def item_extract(i, list_len=1):
     return i[0] if isinstance(i, (list, tuple)) and len(i) == list_len else None
 
 def extract_float(i):
-    """see: http://stackoverflow.com/a/947789/4898004"""
+    """Source: http://stackoverflow.com/a/947789/4898004"""
     return non_decimal.sub('', i)
 
 def filter_unnest(l, filter_for=None):
@@ -50,6 +50,11 @@ def num_word_to_int(input_str):
         for case in [w.upper(), w.lower(), w.title()]: # not perfect, but should do
             input_str = input_str.replace(case, str(i))
     return input_str
+
+def camel_to_snake_case(name):
+    """Source: http://stackoverflow.com/a/1176023/4898004"""
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 def cln(i, extent=1, strip=True):
     """
