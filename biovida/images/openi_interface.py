@@ -260,10 +260,10 @@ def openi_search(query
 
 
 # ---------------------------------------------------------------------------------------------
-# Pulling Data from the NIH's Open-i API
+# Pull Records from the NIH's Open-i API
 # ---------------------------------------------------------------------------------------------
 
-class _OpeniPull(object):
+class _OpeniRecords(object):
     """
 
     Tools to Pull Records from the Open-i API.
@@ -478,7 +478,6 @@ class _OpeniPull(object):
 
         # Harvest and Convert to a DataFrame
         return pd.DataFrame(self.openi_harvest(trunc_bounds, search_query, root_url, to_harvest)).fillna(np.NaN)
-
 
 
 # ---------------------------------------------------------------------------------------------
