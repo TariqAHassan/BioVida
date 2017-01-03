@@ -24,14 +24,14 @@ def _parser(s):
     # Define a lambda to clean the values
     lower_join = lambda x: '_'.join(cln(x).split()).strip().lower()
 
-    # generate the dict
+    # Generate the dict
     return {cln(k[1]).strip(): lower_join(k[0]) for k in split_string if set(k) != set([''])}
 
 
 
 openi_video_params = {
-    '0': 'False',
-    '1': 'True'
+    '0': 'false',
+    '1': 'true'
 }
 
 
@@ -43,7 +43,9 @@ openi_image_type_params = {
     'p': 'pet',
     'ph': 'photograph',
     'u': 'ultrasound',
-    'x': 'x-ray'
+    'x': 'x-ray',
+    'xg': 'exclude_graphics', # blocks graphics
+    'xm': 'exclude_multipanel' # blocks multipanel
 }
 
 
@@ -144,11 +146,13 @@ def openi_search_information():
     :return: search information for the Open-i API.
     :rtype: ``dict``
     """
+    ordered_params = ['q', '&it', '&favor', '&sub', '&coll', '&fields', '&sp']
+
     # Define a lambda to reverse a dict
     dict_reverse = lambda d: {v: k for k, v in d.items()}
 
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
-    return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}
+    return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
 
 
 
