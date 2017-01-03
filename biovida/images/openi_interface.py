@@ -18,6 +18,7 @@ from math import floor
 from time import sleep
 from scipy import misc
 from pathlib import Path
+from copy import deepcopy
 from pprint import pprint
 from itertools import chain
 from datetime import datetime
@@ -28,7 +29,8 @@ from easymoney.easy_pandas import pandas_pretty_print # faze out
 from biovida.init import _package_cache_creator
 
 # Open-i API Parameters Information
-from biovida.images.openi_parameters import openi_image_type_dict
+from biovida.images.openi_parameters import openi_image_type_params
+from biovida.images.openi_parameters import openi_search_information
 
 # Tool for extracting features from text
 from biovida.images.openi_text_feature_extraction import feature_extract
@@ -46,6 +48,7 @@ from biovida.images.openi_support_tools import filter_unnest
 from biovida.images.openi_support_tools import num_word_to_int
 from biovida.images.openi_support_tools import url_path_extract
 from biovida.images.openi_support_tools import camel_to_snake_case
+from biovida.images.openi_support_tools import list_to_bulletpoints
 from biovida.images.openi_support_tools import openi_bounds_formatter
 
 # To install scipy: brew install gcc; pip3 install Pillow
@@ -56,11 +59,203 @@ root_img_path, created_img_dirs = _package_cache_creator(sub_dir="image",
                                                          to_create=['raw', 'processed'])
 
 
+# ToDo:
+#   - Add option to cache a search.
+
+
+
+def _openi_search_special_case(search_param, blocked, passed):
+    """
+
+    :param search_param: one of 'video', 'image_type'...
+    :param blocked: muturally exclusive (i.e., all these items cannot be passed together).
+    :param passed: values actually passed to `search_param`.
+    :return:
+    """
+    if all(b in passed for b in blocked):
+        raise ValueError("`%s` can only contain one of:\n%s" % (search_param, list_to_bulletpoints(blocked)))
+
+
+def _openi_search_check(search_arguments, search_dict):
+    """
+
+    :param args:
+    :return: ``None``
+    """
+    general_error_msg = "'{0}' is not valid for `{1}`.\n`{1}` must be one of:\n{2}"
+
+    # Check `query`
+    if not isinstance(search_arguments['query'], str):
+        raise ValueError("`query` must be a string.")
+
+    # Check all other params
+    for k, v in search_arguments.items():
+        # Hault if query or `v` is NoneType
+        if k != 'query' and v is not None:
+
+            # Check type
+            if not isinstance(v, (list, tuple)) and v is not None:
+                raise ValueError("Only `lists`, `tuples` or `None` may be passed to `%s`." % (k))
+
+            # Loop though items in `v`
+            for i in v:
+                if not isinstance(i, str):
+                    raise ValueError("`tuples` or `lists` passed to `%s` must only contain strings." % (k))
+                # Check if `i` can be converted to a param understood by the Open-i API
+                if i not in search_dict[k][1].keys():
+                    raise ValueError(general_error_msg.format(i, k, list_to_bulletpoints(search_dict[k][1].keys())))
+
+            # Block contradictory requests
+            if k == 'video':
+                _openi_search_special_case(k, blocked=['true', 'false'], passed=v)
+            if k == 'rankby':
+                _openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
+
+
+def _url_formatter(api_search_transform, ordered_params):
+    """
+
+    :param ordered_params:
+    :param api_search_transform:
+    :return:
+    """
+    search_term = ""
+    for p in ordered_params:
+        if p in api_search_transform:
+            search_term += "{0}{1}={2}".format(("?" if p == 'q' else ""), p, api_search_transform[p])
+
+    return "https://openi.nlm.nih.gov/retrieve.php{0}".format(search_term)
+
+
+def _exclusions_img_type_merge(args, exclusions):
+    """Merge Image type with Exclusions"""
+    # Check `exclusions` is an acceptable type
+    if not isinstance(exclusions, (list, tuple)) and exclusions is not None:
+        raise ValueError('`exclusions` must be a `list`, `tuple` or `None`.')
+
+    # Return if there is nothing to check
+    if exclusions is None or (isinstance(exclusions, (list, tuple)) and not len(exclusions)):
+        return args
+
+    # Check exclusions only contains allowed types
+    if any(e not in ['graphics', 'multipanel'] for e in exclusions):
+        raise ValueError("`exclusions` must only include one or all of: 'graphics', 'multipanel'.")
+
+    # Handle handle tuples, then `None`s.
+    args['image_type'] = list(args['image_type']) if isinstance(args['image_type'], (list, tuple)) else []
+
+    # Merge `exclusions` with `imgage_type`
+    args['image_type'] += list(map(lambda x: 'exclude_{0}'.format(x), exclusions))
+
+    return args
+
+
+def openi_search_options(option, print_options=True):
+    """
+
+    Options for parameters of `openi_search()`.
+
+    :param option: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields', 'specialties', 'video'.
+    :param print: if True, pretty print the options, else return.
+    :return:
+    """
+    # Terms to blocked from displaying
+    blocked = ['exclude_graphics', 'exclude_multipanel']
+
+    # Get the relevant dict of params
+    search_dict = openi_search_information()[0].get(cln(option).strip().lower(), None)
+
+    # Report invalid `option`
+    if search_dict is None:
+        raise ValueError("'{0}' is not a valid option for the Open-i API".format(option))
+
+    # Remove blocked term
+    opts = [i for i in search_dict[1].keys() if i not in blocked]
+    if not len(opts):
+        raise ValueError("Relevant options for '{0}'.".format(option))
+
+    # Print or Return
+    if print_options:
+        print(list_to_bulletpoints(opts))
+    else:
+        return list(opts)
+
+
+def openi_search(query
+                 , image_type=None
+                 , rankby=None
+                 , subset=None
+                 , collection=None
+                 , fields=None
+                 , specialties=None
+                 , video=['false']
+                 , exclusions=['graphics']):
+    """
+
+    Tool to generate search terms for the NIH's Open-i API.
+
+    :param query: a search term. ``None`` will converter to an empty string.
+    :type query: ``str`` or ``None``
+    :param image_type: see `search_options('image_type')` for valid values.
+    :type image_type: ``list``, ``tuple`` or ``None``.
+    :param rankby: see `search_options('rankby')` for valid values.
+    :type rankby: ``list``, ``tuple`` or ``None``.
+    :param subset: see `search_options('subset')` for valid values.
+    :type subset: ``list``, ``tuple`` or ``None``.
+    :param collection: see `search_options('collection')` for valid values.
+    :type collection: ``list``, ``tuple`` or ``None``.
+    :param fields: see `search_options('fields')` for valid values.
+    :type fields: ``list``, ``tuple`` or ``None``.
+    :param specialties: see `search_options('specialties')` for valid values.
+    :type specialties: ``list``, ``tuple`` or ``None``.
+    :param video: see `search_options('video')` for valid values. Defaults to ['false'].
+    :type video: ``list``, ``tuple`` or ``None``.
+    :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ['graphics'].
+    :type exclusions: ``list``, ``tuple`` or ``None``
+    :return: search url for the Open-i API.
+    :rtype: ``str``
+    """
+    # Block blank searchers
+    if not len(list(filter(None, locals().values()))):
+        raise ValueError("No Search Criterion Detected. Please specify criterion to narrow your search.")
+
+    # Extract the function arguments
+    args = {k: v for k, v in deepcopy(locals()).items() if k != 'exclusions'}
+
+    # Merge Image type with Exclusions
+    args = _exclusions_img_type_merge(args, exclusions)
+
+    # Define a lambda to clean the search terms
+    search_clean = lambda k, v: [cln(i).strip().replace(' ', '_').lower() for i in v] if k != 'query' and v is not None else v
+
+    # Get the arguments
+    search_arguments = {k: '' if k == 'query' and v is None else search_clean(k, v) for k, v in args.items()}
+
+    # Get Open-i Search Params
+    search_dict, ordered_params = openi_search_information()
+
+    # Add check for all search terms
+    _openi_search_check(search_arguments, search_dict)
+
+    # Convert argument names into a form the API will understand
+    api_url_param = lambda x: search_dict[x][0] if x != 'query' else 'q'
+
+    # Convert values passed into a form the API will understand
+    api_url_terms = lambda k, v: ','.join([search_dict[k][1][i] for i in v]) if k != 'query' else v
+
+    # Perform transformation
+    api_search_transform = {api_url_param(k): api_url_terms(k, v) for k, v in search_arguments.items() if v is not None}
+
+    # Format `api_search_transform` and return
+    return _url_formatter(api_search_transform, ordered_params)
+
+
+
 # ---------------------------------------------------------------------------------------------
 # General Terms
 # ---------------------------------------------------------------------------------------------
 
-search_query = 'retrieve.php?q=&it=c,m,mc,p,ph,u,x'
+search_query = 'https://openi.nlm.nih.gov/retrieve.php?q=&it=c,m,mc,p,ph,u,x'
 
 # ---------------------------------------------------------------------------------------------
 # Pulling Data from the NIH's Open-i API
@@ -226,11 +421,8 @@ def openi_kinesin(search_query, req_limit=30, n_bounds_limit=5, verbose=True):
     :param verbose: print information.
     :return:
     """
-    root_url = 'https://openi.nlm.nih.gov/'
-    joined_url = root_url + search_query
-
     # Get a sample request
-    sample = requests.get(joined_url + "&m=1&n=1").json()
+    sample = requests.get(search_query + "&m=1&n=1").json()
 
     # Get the total number of results
     total = sample['total']
@@ -253,7 +445,7 @@ def openi_kinesin(search_query, req_limit=30, n_bounds_limit=5, verbose=True):
     to_harvest = harvest_vect(sample['list'][0])
 
     # Harvest and Convert to a DataFrame
-    return pd.DataFrame(openi_harvest(trunc_bounds, joined_url, root_url, to_harvest)).fillna(np.NaN)
+    return pd.DataFrame(openi_harvest(trunc_bounds, search_query, root_url, to_harvest)).fillna(np.NaN)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -403,24 +595,25 @@ def post_processing(data_frame):
     data_frame = data_frame.join(pp, how='left')
 
     # Make the type of Imaging technology type human-readable
-    data_frame['imaging_tech'] = data_frame['image_modality_major'].map(lambda x: openi_image_type_dict.get(x, np.NaN))
+    data_frame['imaging_tech'] = data_frame['image_modality_major'].map(lambda x: openi_image_type_params.get(x, np.NaN))
     del data_frame['image_modality_major']
 
     return data_frame
 
 
-def interface(search_query, image_quality='large', n_bounds_limit=1, verbose=False):
+def openi_pull(search_query, image_quality='large', n_bounds_limit=1, verbose=False):
     """
 
 
     :param search_query:
-    :param image_quality: one of: large, grid150, thumb, thumb_large.
+    :param image_quality: one of: large, grid150, thumb, thumb_large or ``None``. Defaults to Large.
+                          If None, Images will not be harvested.
     :param n_bounds_limit:
     :param verbose:
     :return:
     """
     allowed_image_quality_types = ['large', 'grid150', 'thumb', 'thumb_large']
-    if image_quality not in allowed_image_quality_types:
+    if image_quality is not None and image_quality not in allowed_image_quality_types:
         raise ValueError("`image_quality` must be one of: %s" % \
                          (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
 
@@ -431,12 +624,32 @@ def interface(search_query, image_quality='large', n_bounds_limit=1, verbose=Fal
     data_frame = post_processing(data_frame)
 
     # Download Images
-    data_frame['extracted'] = bulk_img_harvest(data_frame, "img_{0}".format(image_quality))
+    if image_quality is not None:
+        data_frame['img_extracted'] = bulk_img_harvest(data_frame, "img_{0}".format(image_quality))
 
     return data_frame
 
 
-interface(search_query)
+class OpenInterface(object):
+    """
+
+    """
+    def __init__(self):
+        """
+
+        """
+
+    def search(self):
+        """
+
+        :return:
+        """
+
+    def pull(self):
+        """
+
+        :return:
+        """
 
 
 
