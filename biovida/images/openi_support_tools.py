@@ -68,6 +68,9 @@ def header(string):
     sep_line = "".join(["-"] * len(string))
     print("\n{0}\n{1}\n{2}\n".format(sep_line, string, sep_line))
 
+def list_to_bulletpoints(l):
+    return "".join(map(lambda x: "  - '{0}'\n".format(x), list(l)))[:-1]
+
 def cln(i, extent=1, strip=True):
     """
 
