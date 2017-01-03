@@ -43,7 +43,7 @@ def _created_notice(created_list, system_path):
     """
     if len(created_list):
         print("The following directories were created:\n\n%s\nin: '%s'." % \
-              ("".join(["  - " + i + "\n" for i in created_list]), system_path + "/"))
+              ("".join(["  - " + i + "\n" for i in created_list]), system_path + os.sep))
         print("\n")
 
 
@@ -142,6 +142,7 @@ def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
 
     # Return full path & the above mapping
     return sub_dir_full_path, record_dict
+
 
 
 
