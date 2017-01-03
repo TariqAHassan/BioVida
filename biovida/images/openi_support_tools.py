@@ -9,6 +9,7 @@
 import re
 import inflect
 from itertools import chain
+from urllib.parse import urlsplit # handle python 2
 
 
 # Other Tools
@@ -41,6 +42,9 @@ def extract_float(i):
     """Source: http://stackoverflow.com/a/947789/4898004"""
     return non_decimal.sub('', i)
 
+def numb_extract(string, join_on=""):
+    return join_on.join(re.findall(r'[0-9]+', string))
+
 def filter_unnest(l, filter_for=None):
     return list(chain(*filter(filter_for, l)))
 
@@ -55,6 +59,9 @@ def camel_to_snake_case(name):
     """Source: http://stackoverflow.com/a/1176023/4898004"""
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+def url_path_extract(url):
+    return urlsplit(url).path[1:].replace("/", "__")
 
 def cln(i, extent=1, strip=True):
     """
