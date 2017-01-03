@@ -3,6 +3,7 @@
     BioVida Init
     ~~~~~~~~~~~~
 
+    Contains the tools required to construct the caches needed by BioVida.
 
 """
 # Imports
@@ -16,18 +17,19 @@ def _sub_directory_creator(root_path, to_create):
     :param to_create:
     :return:
     """
-    created_dirs = list()
+    # Init
     trunc_path = None
+    created_dirs = dict()
 
     # Create sub directories
     for sub_dir in to_create:
         if not os.path.isdir(os.path.join(root_path, sub_dir)):
             # Create sub_dir
             os.makedirs(os.path.join(root_path, sub_dir))
-            # Trunc sub_dir
-            trunc_path = (os.sep).join(os.path.join(root_path, sub_dir).split(os.sep)[-2:])
-            # Note its creation
-            created_dirs.append(trunc_path)
+            # Record sub_dir's full path
+            created_dirs[(sub_dir, True)] = (os.sep).join(os.path.join(root_path, sub_dir).split(os.sep)[-2:])
+        else:
+            created_dirs[(sub_dir, False)] = (os.sep).join(os.path.join(root_path, sub_dir).split(os.sep)[-2:])
 
     return created_dirs
 
@@ -94,7 +96,10 @@ def _directory_creator(cache_path=None, verbose=True):
         created_dirs.append("biovida_cache")
 
     # Check if 'image', 'genomic' and 'diagnostic' caches exist, if not create them.
-    created_dirs += _sub_directory_creator(root_path, ['search_cache', 'image_cache', 'genomic_cache', 'diagnostic_cache'])
+    sub_dirs_made = _sub_directory_creator(root_path, ['search_cache', 'image_cache', 'genomic_cache', 'diagnostic_cache'])
+
+    # Record Created Dirs
+    created_dirs += {k: v for k, v in sub_dirs_made.items() if k[1] is True}.values()
 
     # Print results, if verbose is True
     if verbose and len(created_dirs):
@@ -103,27 +108,40 @@ def _directory_creator(cache_path=None, verbose=True):
     return root_path
 
 
-def _package_cache_creator(sub_dir, cache_path=None, to_create=None, verbose=True):
+def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     """
 
     :param sub_dir: e.g., 'image' (do not include "_cache").
+                    Must be one of: 'search_cache', 'image_cache', 'genomic_cache', 'diagnostic_cache'.
     :param cache_path:
     :param to_create:
     :param verbose:
     :return:
     """
+    if not isinstance(to_create, (list, tuple)) or not len(to_create):
+        raise AttributeError("`to_create` must be an iterable with a nonzero length.")
+
     # Create main
     root_path = _directory_creator(cache_path, verbose)
 
-    # Create
-    if to_create is not None:
-        package_created_dirs = _sub_directory_creator(os.path.join(root_path, sub_dir + "_cache"), to_create)
-    else:
-        package_created_dirs = []
+    # The full path to the
+    sub_dir_full_path = os.path.join(root_path, sub_dir.replace("/", "").strip() + "_cache")
 
-    # Print record of files created
-    _created_notice(package_created_dirs, root_path)
+    # Ask for sub directories to be created
+    package_created_dirs = _sub_directory_creator(sub_dir_full_path, to_create)
 
+    # New dirs created
+    new = {k: v for k, v  in package_created_dirs.items() if k[1] is True}
+
+    # Print record of files created, if verbose is True
+    if verbose and len(new.values()):
+        _created_notice(new.values(), root_path)
+
+    # Render a hash map of `cache_path` - to - local address
+    record_dict = {k[0]: os.path.join(sub_dir_full_path, v.split(os.sep)[-1]) for k, v in package_created_dirs.items()}
+
+    # Return full path & the above mapping
+    return sub_dir_full_path, record_dict
 
 
 
