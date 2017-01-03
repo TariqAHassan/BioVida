@@ -18,10 +18,6 @@ non_decimal = re.compile(r'[^\d.]+')
 age_dict = {p.number_to_words(i): i for i in range(1, 135)}
 
 
-def openi_bounds_formatter(bounds):
-    """Format the computed bounds for the Open-i API."""
-    return ["&m={0}&n={1}".format(i[0], i[1]) for i in bounds]
-
 def iter_join(t, join_on="_"):
     return join_on.join(t) if isinstance(t, (list, tuple)) else i
 
