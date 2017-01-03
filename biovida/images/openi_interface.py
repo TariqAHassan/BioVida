@@ -12,8 +12,6 @@ import re
 import requests
 import numpy as np
 import pandas as pd
-# import matplotlib.pyplot as plt
-# import matplotlib.image as mpimg
 
 from tqdm import tqdm
 from math import floor
@@ -37,6 +35,7 @@ from biovida.images.openi_text_feature_extraction import feature_extract
 
 # BioVida Support Tools
 from biovida.images.openi_support_tools import cln
+from biovida.images.openi_support_tools import header
 from biovida.images.openi_support_tools import iter_join
 from biovida.images.openi_support_tools import url_combine
 from biovida.images.openi_support_tools import null_convert
@@ -52,9 +51,10 @@ from biovida.images.openi_support_tools import openi_bounds_formatter
 # To install scipy: brew install gcc; pip3 install Pillow
 
 # Create Directories needed by the image package.
-_package_cache_creator(sub_dir="image",
-                       cache_path="/Users/tariq/Google Drive/Programming Projects/BioVida",
-                       to_create=['raw', 'processed'])
+root_img_path, created_img_dirs = _package_cache_creator(sub_dir="image",
+                                                         cache_path="/Users/tariq/Google Drive/Programming Projects/BioVida",
+                                                         to_create=['raw', 'processed'])
+
 
 # ---------------------------------------------------------------------------------------------
 # General Terms
@@ -197,7 +197,7 @@ def openi_harvest(bounds_list, joined_url, root_url, to_harvest, sleep_mini=(2, 
     :return:
     """
     harvested_data = list()
-    print("\n---------------\nDownloading...\n---------------\n")
+    header("Downloading Records... ")
     for e, bound in enumerate(bounds_list, start=1):
         if verbose: # try printing every x downloads.
             print("Block %s of %s." % (e, len(bounds_list)))
@@ -256,44 +256,12 @@ def openi_kinesin(search_query, req_limit=30, n_bounds_limit=5, verbose=True):
     return pd.DataFrame(openi_harvest(trunc_bounds, joined_url, root_url, to_harvest)).fillna(np.NaN)
 
 
-
-# ---------------------------------------------------------------------------------------------
-# Construct Database
-# ---------------------------------------------------------------------------------------------
-
-def post_processing(data_frame):
-    """
-
-    :param data_frame:
-    :return:
-    """
-    # Change camel case to snake case and lower
-    data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
-
-    # Run Feature Extracting Tool and Join with `data_frame`.
-    pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
-    data_frame = df.join(pp, how='left')
-
-    # Make the type of Imaging technology type human-readable
-    data_frame['imaging_tech'] = data_frame['image_modality_major'].map(lambda x: openi_image_type_dict.get(x, np.NaN))
-    del data_frame['image_modality_major']
-
-    return data_frame
-
-# Pull Data
-df = openi_kinesin(search_query, n_bounds_limit=5)
-
-# Run Post Processing
-df = post_processing(df)
-
 # ---------------------------------------------------------------------------------------------
 # Image Harvesting
 # ---------------------------------------------------------------------------------------------
 
 # Start tqdm
 tqdm.pandas(desc="status")
-
-# thumb_reg; thumb_large; grid150; large
 
 
 def img_name_abbrev(data_frame):
@@ -320,17 +288,12 @@ def img_name_abbrev(data_frame):
     return {k: fmt(k) for k in img_types}
 
 
-img_abbreviations = img_name_abbrev(df)
-
-
-def _img_titler(number, img_name, img_type, x_res, y_res, assumed_format='png'):
+def _img_titler(number, img_name, img_type, assumed_format='png'):
     """
 
-    :param numbr:
+    :param number:
     :param img_type:
     :param img_name:
-    :param x_res:
-    :param y_res:
     :return:
     """
     # Get Name
@@ -340,120 +303,149 @@ def _img_titler(number, img_name, img_type, x_res, y_res, assumed_format='png'):
     img_name_format = img_name.split(".")[1] if len(img_name.split(".")) == 2 else assumed_format
 
     # Generate the name
-    new_name = "_".join(map(str, [number, img_name_title, img_type, x_res, y_res]))
+    new_name = "__".join(map(str, [number, img_name_title, img_type]))
 
     # Return
     return "{0}.{1}".format(new_name, img_name_format)
 
 
+def img_harvest(img_title, image_web_address, image_save_location, lag=5.5):
+    """
 
-def img_harvest(image_address, save_location, lag=5.5):
-    """Harvest Pics from a URL and save to disk"""
-    # Save location
-    save_address = "".join(map(str, [save_location, "__", image_address.split("/")[-1]]))
+    Harvest Pics from a URL and save to disk.
 
-    # Check if the file already exists
-    # If not, download and save it.
+    :param image_web_address:
+    :param image_save_location:
+    :param lag:
+    :return:
+    """
+    # Init
     page = None
-    if not Path(save_address).is_file():
+
+    # Define the save path
+    image_save_path = os.path.join(image_save_location, img_title)
+
+    # Check if the file already exists; if not, download and save it.
+    if not Path(image_save_path).is_file():
         try:
-            page = requests.get(image_address)
+            # Get the image
+            page = requests.get(image_web_address)
+
+            # Sleep
+            sleep(abs(lag + np.random.normal()))
+
+            # Save to disk
+            with open(image_save_path, 'wb') as img:
+                img.write(page.content)
         except:
             return False
-
-        # Sleep
-        sleep(abs(lag + np.random.normal()))
-
-        # Save
-        with open(save_address, 'wb') as img: # add resolution.
-            img.write(page.content)
 
     return True
 
 
-
-def bulk_img_harvest(data_frame, col1, db_map, save_location='images/'):
+def bulk_img_harvest(data_frame, image_column, image_save_location=created_img_dirs['raw'], verbose=False):
     """
 
-    Bulk download of a set of images from the database
+    Bulk download of a set of images from the database.
 
     :param data_frame:
-    :param col1:
-    :param db_map: column that can be used to map images back to a row in the database.
+    :param image_column:
+    :param image_save_location:
+    :param verbose:
     :return:
     """
+    # Log of Sucessess
+    result_log = dict()
+
+    # Get the abbreviation for the image type being downloaded
+    img_type = img_name_abbrev(data_frame)[image_column]
+
     # Download the images
-    result_log = list()
-    for x in tqdm(data_frame[col1]):
-        result_log.append(img_harvest(x, save_location))
+    header("Downloading Images... ")
+    for img_address in tqdm(data_frame[image_column]):
+        # Name the image
+        img_title = _img_titler(number=1, img_name=img_address.split("/")[-1], img_type=img_type)
 
+        # Try download and log whether or not Download was sucessful.
+        result_log[img_address] = img_harvest(img_title, img_address, image_save_location)
 
-    # result_log = data_frame[col1].progress_map(lambda x: (x[1], img_harvest(x[0], db_mapping=x[1])), na_action='ignore')
+    if verbose:
+        failed_downloads = {k: v for k, v in result_log.items() if v is False}
+        if len(failed_downloads.values()):
+            header("Failed Downloads: ")
+            for k in failed_downloads.keys():
+                print(" - " + k)
+        else:
+            print("All Images Sucessfully Extracted.")
 
+    # Map record of download sucess to img_address (URLs).
+    sucesses_log = data_frame[image_column].map(lambda x: result_log.get(x, np.NaN) if pd.notnull(x) else np.NaN)
 
-# x = url_path_extract(data_frame[col1][0])
+    # Return sucesses log
+    return sucesses_log.rename("extracted")
+
 
 # ---------------------------------------------------------------------------------------------
-# Pull Pictures and Represent them as numpy arrays.
+# Construct Database
 # ---------------------------------------------------------------------------------------------
 
+def post_processing(data_frame):
+    """
 
-# Run the Harvesting tool
-# bulk_img_harvest(data_frame=df, col1='img_large', db_map='req_no')
+    :param data_frame:
+    :return:
+    """
+    # Change camel case to snake case and lower
+    data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
+    # Run Feature Extracting Tool and Join with `data_frame`.
+    pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
+    data_frame = data_frame.join(pp, how='left')
 
+    # Make the type of Imaging technology type human-readable
+    data_frame['imaging_tech'] = data_frame['image_modality_major'].map(lambda x: openi_image_type_dict.get(x, np.NaN))
+    del data_frame['image_modality_major']
 
-# Scheme: No_ImgType_ImageName_Resolution
-# thumb_reg; thumb_large; grid150; large
-
-
-
-
-
-# _img_titler("1",  "MPX1000.png", "T", "250", "302")
-
-
-
-
-
-
+    return data_frame
 
 
+def interface(search_query, image_quality='large', n_bounds_limit=1, verbose=False):
+    """
 
 
+    :param search_query:
+    :param image_quality: one of: large, grid150, thumb, thumb_large.
+    :param n_bounds_limit:
+    :param verbose:
+    :return:
+    """
+    allowed_image_quality_types = ['large', 'grid150', 'thumb', 'thumb_large']
+    if image_quality not in allowed_image_quality_types:
+        raise ValueError("`image_quality` must be one of: %s" % \
+                         (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
+
+    # Pull Data
+    data_frame = openi_kinesin(search_query, n_bounds_limit=n_bounds_limit, verbose=verbose)
+
+    # Run Post Processing
+    data_frame = post_processing(data_frame)
+
+    # Download Images
+    data_frame['extracted'] = bulk_img_harvest(data_frame, "img_{0}".format(image_quality))
+
+    return data_frame
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-df.img_grid150[pd.isnull(df.img_grid150)]
+interface(search_query)
 
 
 
 
-df.img_large[35]
-df.img_grid150[35]
+
+
+
+
+
 
 
 
