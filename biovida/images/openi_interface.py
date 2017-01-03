@@ -26,6 +26,9 @@ from datetime import datetime
 from scipy.ndimage import imread as scipy_imread
 from easymoney.easy_pandas import pandas_pretty_print # faze out
 
+# Tool to create required caches
+from biovida.init import _package_cache_creator
+
 # Open-i API Parameters Information
 from biovida.images.openi_parameters import openi_image_type_dict
 
@@ -35,16 +38,23 @@ from biovida.images.openi_text_feature_extraction import feature_extract
 # BioVida Support Tools
 from biovida.images.openi_support_tools import cln
 from biovida.images.openi_support_tools import iter_join
-from biovida.images.openi_support_tools import null_convert
 from biovida.images.openi_support_tools import url_combine
+from biovida.images.openi_support_tools import null_convert
+from biovida.images.openi_support_tools import numb_extract
 from biovida.images.openi_support_tools import item_extract
 from biovida.images.openi_support_tools import extract_float
 from biovida.images.openi_support_tools import filter_unnest
 from biovida.images.openi_support_tools import num_word_to_int
+from biovida.images.openi_support_tools import url_path_extract
 from biovida.images.openi_support_tools import camel_to_snake_case
 from biovida.images.openi_support_tools import openi_bounds_formatter
 
 # To install scipy: brew install gcc; pip3 install Pillow
+
+# Create Directories needed by the image package.
+_package_cache_creator(sub_dir="image",
+                       cache_path="/Users/tariq/Google Drive/Programming Projects/BioVida",
+                       to_create=['raw', 'processed'])
 
 # ---------------------------------------------------------------------------------------------
 # General Terms
@@ -165,7 +175,7 @@ def openi_block_harvest(url, bound, root_url, to_harvest):
                 item_dict[iter_join(j)] = null_convert(item.get(j[0], {}).get(j[1], None))
             elif j == 'journal_date':
                 item_dict[j] = null_convert(date_format(item.get(j, None)))
-            elif j == 'imgLarge':
+            elif 'img_' in camel_to_snake_case(j):
                 item_dict[j] = url_combine(root_url, null_convert(item.get(j, None)))
             else:
                 item_dict[j] = null_convert(item.get(j, None))
@@ -242,21 +252,14 @@ def openi_kinesin(search_query, req_limit=30, n_bounds_limit=5, verbose=True):
     # Learn the data returned by the API
     to_harvest = harvest_vect(sample['list'][0])
 
-    # Harvest
-    harvested_data = openi_harvest(trunc_bounds, joined_url, root_url, to_harvest)
-
-    # Convert to a DataFrame
-    df = pd.DataFrame(harvested_data).fillna(np.NaN)
-
-    # Return
-    return df
+    # Harvest and Convert to a DataFrame
+    return pd.DataFrame(openi_harvest(trunc_bounds, joined_url, root_url, to_harvest)).fillna(np.NaN)
 
 
 
 # ---------------------------------------------------------------------------------------------
 # Construct Database
 # ---------------------------------------------------------------------------------------------
-
 
 def post_processing(data_frame):
     """
@@ -265,7 +268,7 @@ def post_processing(data_frame):
     :return:
     """
     # Change camel case to snake case and lower
-    data_frame.columns = list(map(lambda x: x.replace("me_sh", "mesh"), map(camel_to_snake_case, data_frame.columns)))
+    data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
     # Run Feature Extracting Tool and Join with `data_frame`.
     pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
@@ -283,8 +286,6 @@ df = openi_kinesin(search_query, n_bounds_limit=5)
 # Run Post Processing
 df = post_processing(df)
 
-
-
 # ---------------------------------------------------------------------------------------------
 # Image Harvesting
 # ---------------------------------------------------------------------------------------------
@@ -292,17 +293,70 @@ df = post_processing(df)
 # Start tqdm
 tqdm.pandas(desc="status")
 
-def img_harvest(image_address, db_mapping, save_location='images/', lag=5.5):
+# thumb_reg; thumb_large; grid150; large
+
+
+def img_name_abbrev(data_frame):
+    """
+
+    Returns a mapping of img types supplied by the Open-i API to abreviations
+
+    Typical Results:
+         - img_large: L
+         - img_thumb: T
+         - img_grid150: G150
+         - img_thumb_large: TL
+
+    :param data_frame: a dataframe returned by ``post_processing()``
+    :return:
+    """
+    # Get the columns that contain df
+    img_types = [i for i in data_frame.columns if "img_" in i]
+
+    # Define a lambda to extract the first letter of all non 'img' 'words'.
+    fmt = lambda x: "".join([j[0] + numb_extract(j) for j in x.split("_") if j != 'img']).upper()
+
+    # Return a hash mapping
+    return {k: fmt(k) for k in img_types}
+
+
+img_abbreviations = img_name_abbrev(df)
+
+
+def _img_titler(number, img_name, img_type, x_res, y_res, assumed_format='png'):
+    """
+
+    :param numbr:
+    :param img_type:
+    :param img_name:
+    :param x_res:
+    :param y_res:
+    :return:
+    """
+    # Get Name
+    img_name_title = img_name.split(".")[0]
+
+    # Get image format (assume png if none)
+    img_name_format = img_name.split(".")[1] if len(img_name.split(".")) == 2 else assumed_format
+
+    # Generate the name
+    new_name = "_".join(map(str, [number, img_name_title, img_type, x_res, y_res]))
+
+    # Return
+    return "{0}.{1}".format(new_name, img_name_format)
+
+
+
+def img_harvest(image_address, save_location, lag=5.5):
     """Harvest Pics from a URL and save to disk"""
     # Save location
-    save_address = "".join(map(str, [save_location, db_mapping, "__", image_address.split("/")[-1]]))
+    save_address = "".join(map(str, [save_location, "__", image_address.split("/")[-1]]))
 
     # Check if the file already exists
     # If not, download and save it.
     page = None
     if not Path(save_address).is_file():
         try:
-            # Get the image
             page = requests.get(image_address)
         except:
             return False
@@ -311,13 +365,14 @@ def img_harvest(image_address, db_mapping, save_location='images/', lag=5.5):
         sleep(abs(lag + np.random.normal()))
 
         # Save
-        with open(save_address, 'wb') as img:
+        with open(save_address, 'wb') as img: # add resolution.
             img.write(page.content)
 
     return True
 
 
-def bulk_img_harvest(data_frame, col1, db_map, log_save_loc="images/logs/", log_save_interval=25):
+
+def bulk_img_harvest(data_frame, col1, db_map, save_location='images/'):
     """
 
     Bulk download of a set of images from the database
@@ -325,18 +380,18 @@ def bulk_img_harvest(data_frame, col1, db_map, log_save_loc="images/logs/", log_
     :param data_frame:
     :param col1:
     :param db_map: column that can be used to map images back to a row in the database.
-    :param log_save_loc:
-    :param log_save_interval:
     :return:
     """
     # Download the images
-    save_name = lambda: datetime.now().strftime("%d-%m-%Y_%H:%M:%S_%s")
     result_log = list()
-    for x in tqdm(zip(data_frame[col1], data_frame[db_map])):
-        result_log.append((x[1], img_harvest(x[0], db_mapping=x[1])))
-        if x[1] % log_save_interval == 0:
-            pd.DataFrame(result_log, columns=[db_map, 'sucessful']).to_csv(log_save_loc + save_name() + "img_log.csv")
+    for x in tqdm(data_frame[col1]):
+        result_log.append(img_harvest(x, save_location))
 
+
+    # result_log = data_frame[col1].progress_map(lambda x: (x[1], img_harvest(x[0], db_mapping=x[1])), na_action='ignore')
+
+
+# x = url_path_extract(data_frame[col1][0])
 
 # ---------------------------------------------------------------------------------------------
 # Pull Pictures and Represent them as numpy arrays.
@@ -344,7 +399,18 @@ def bulk_img_harvest(data_frame, col1, db_map, log_save_loc="images/logs/", log_
 
 
 # Run the Harvesting tool
-# bulk_img_harvest(df, col1='imglarge', db_map='req_no')
+# bulk_img_harvest(data_frame=df, col1='img_large', db_map='req_no')
+
+
+
+# Scheme: No_ImgType_ImageName_Resolution
+# thumb_reg; thumb_large; grid150; large
+
+
+
+
+
+# _img_titler("1",  "MPX1000.png", "T", "250", "302")
 
 
 
@@ -379,6 +445,15 @@ def bulk_img_harvest(data_frame, col1, db_map, log_save_loc="images/logs/", log_
 
 
 
+
+
+df.img_grid150[pd.isnull(df.img_grid150)]
+
+
+
+
+df.img_large[35]
+df.img_grid150[35]
 
 
 
