@@ -63,6 +63,11 @@ def camel_to_snake_case(name):
 def url_path_extract(url):
     return urlsplit(url).path[1:].replace("/", "__")
 
+def header(string):
+    """"""
+    sep_line = "".join(["-"] * len(string))
+    print("\n{0}\n{1}\n{2}\n".format(sep_line, string, sep_line))
+
 def cln(i, extent=1, strip=True):
     """
 
