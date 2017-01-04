@@ -62,7 +62,9 @@ def url_path_extract(url):
 def header(string):
     """Generate a Header String"""
     sep_line = "".join(["-"] * len(string))
+    print("\n")
     print("\n{0}\n{1}\n{2}\n".format(sep_line, string, sep_line))
+    print("\n")
 
 def list_to_bulletpoints(l):
     return "".join(map(lambda x: "  - '{0}'\n".format(x), list(l)))[:-1]

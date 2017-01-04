@@ -329,14 +329,24 @@ class _OpeniRecords(object):
         :param bound:
         :return:
         """
+        # Init
+        c = 1
         harvested_data = list()
+
+        # Print Header
         header("Downloading Records... ")
-        for e, bound in enumerate(bounds_list, start=1):
-            if self.verbose: # try printing every x downloads.
-                print("Block %s of %s." % (e, len(bounds_list)))
-            if e % self.sleep_mini[0] == 0:
+
+        # Print updates
+        if self.verbose:
+            print("\nNumber of Records to Download: {0} (block size: {1} rows max).".format(
+                str(int(self.req_limit * len(bounds_list))), str(self.req_limit))
+            )
+
+        for bound in tqdm(bounds_list):
+            c += 1
+            if c % self.sleep_mini[0] == 0:
                 sleep(abs(self.sleep_mini[1] + np.random.normal()))
-            elif e % self.sleep_main[0] == 0:
+            elif c % self.sleep_main[0] == 0:
                 if self.verbose:
                     print("Sleeping for %s seconds..." % self.sleep_main[1])
                 sleep(abs(self.sleep_main[1] + np.random.normal()))
@@ -683,7 +693,7 @@ class OpenInterface(object):
                , print_results=True):
         """
 
-        Tool to generate search terms for the NIH's Open-i API.
+        Tool to generate a search term for the NIH's Open-i API.
 
         :param query: a search term. ``None`` will converter to an empty string.
         :type query: ``str`` or ``None``
@@ -699,19 +709,19 @@ class OpenInterface(object):
         :type fields: ``list``, ``tuple`` or ``None``.
         :param specialties: see `OpenInterface().search_options('specialties')` for valid values.
         :type specialties: ``list``, ``tuple`` or ``None``.
-        :param video: see `OpenInterface().search_options('video')` for valid values. Defaults to None.
+        :param video: see `OpenInterface().search_options('video')` for valid values. Defaults to ``None``.
         :type video: ``list``, ``tuple`` or ``None``.
         :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ['graphics'].      -- Working?
         :type exclusions: ``list``, ``tuple`` or ``None``
         :param print_results: if ``True``, print the number of search results.
         :type print_results: ``bool``
-        :return: search url for the Open-i API.
+        :return: search URL for the Open-i API.
         :rtype: ``str``
         """
         # Remove 'self' from locals
         args_cleaned = {k: v for k, v in deepcopy(locals()).items() if k not in ['self', 'print_results']}
 
-        # Block blank searchers
+        # Block blank searches
         if not len(list(filter(None, args_cleaned.values()))):
             raise ValueError("No Search Criterion Detected. Please specify criterion to narrow your search.")
 
@@ -748,7 +758,7 @@ class OpenInterface(object):
         # Format `api_search_transform`
         formatted_search = _url_formatter(api_search_transform, ordered_params)
 
-        # Save formatted_search to `self`.
+        # Save `formatted_search`
         self.current_search_url = formatted_search
         self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
 
@@ -781,6 +791,10 @@ class OpenInterface(object):
             warn("\nNo attempt was made to download images because `image_quality` is `None`.")
 
         return data_frame
+
+
+
+
 
 
 
