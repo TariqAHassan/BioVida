@@ -91,11 +91,11 @@ class DisgenetInterface(object):
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                        Default to ``None`` (which will generate a cache in the home folder).
     :type cache_path: ``str`` or ``None``
-    :param verbose: If True, print notice when downloading database.
+    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.
     :type verbose: ``bool``
     """
 
-    def __init__(self, cache_path=None, verbose=False):
+    def __init__(self, cache_path=None, verbose=True):
         """
 
         Initialize the ``DisgenetInterface()`` Class.
@@ -105,25 +105,30 @@ class DisgenetInterface(object):
 
         # Cache Creation
         ppc = _package_cache_creator(sub_dir='genomic', cache_path=cache_path, to_create=['disgenet'])
-        self._root_gene_path, self._created_gene_dirs = ppc
+        self.root_path, self._created_gene_dirs = ppc
 
         # Check if a readme exists.
         _disgenet_readme(self._created_gene_dirs)
 
         # Container for the most recently requested database.
         self.current_database = None
+        self.current_database_name = None
+        self.current_database_full_name = None
+        self.current_database_description = None
 
     def _disgenet_delimited_databases_key_error(self, database):
         """
 
-        :param database:
-        :return:
+        Raises an error when an reference is made to a database not in `_disgenet_delimited_databases.keys()`.
+
+        :param database: `erroneous` database reference.
+        :type database: ``str``
         """
         if database not in _disgenet_delimited_databases:
             raise ValueError("'{0}' is an invalid value for `database`.\n`database` must be one of:\n{1}".format(
                 str(database), list_to_bulletpoints(_disgenet_delimited_databases.keys())))
 
-    def disgenet_options(self, database, pretty_print=False):
+    def options(self, database=None, pretty_print=True):
         """
 
         Disgenet databases which can be downloaded
@@ -131,11 +136,12 @@ class DisgenetInterface(object):
 
         :param database: A database to review. Must be one of: 'all', 'curated', 'snp_disgenet' or ``None``.
                          If a specific database is given, the database's full name and description will be provided.
-                         If ``None``, a list of databases which can be downloaded will be returned (or printed) .
+                         If ``None``, a list of databases which can be downloaded will be returned (or printed).
+                         Defaults to ``None``.
         :type database: ``str``
-        :param pretty_print: pretty print the information.
+        :param pretty_print: pretty print the information. Defaults to True.
         :type pretty_print: ``bool``
-        :return: a ``list`` if `database` is ``None``, else ``dict`` with the database's full name and description.
+        :return: a ``list`` if `database` is ``None``, else a ``dict`` with the database's full name and description.
         :rtype: ``list`` or ``dict``
         """
         if database is None:
@@ -154,14 +160,16 @@ class DisgenetInterface(object):
         else:
             return info
 
-    def disgenet_database(self, database, download_override=False, snake_case_col_names=False):
+    def pull(self, database, download_override=False, snake_case_col_names=False):
         """
 
-        Tool to download a DisGeNET Database.
+        Pull (i.e., download) a DisGeNET Database.
 
+        Note: if a database is already cached, it will be used instead of downloading
+        (the `download_override` argument can be used override this behaviour).
 
         :param database: A database to download. Must be one of: 'all', 'curated', 'snp_disgenet' or ``None``.
-                         See ``disgenet_options()`` for more information.
+                         See ``options()`` for more information.
         :type database: ``str``
         :param download_override: If True, override any existing database currently cached and download a new one.
                                   Defaults to False.
@@ -199,19 +207,11 @@ class DisgenetInterface(object):
 
         # Cache the database
         self.current_database = df
+        self.current_database_name = database
+        self.current_database_full_name = _disgenet_delimited_databases[database]['full_name']
+        self.current_database_description = _disgenet_delimited_databases[database]['description']
 
         return df
-
-
-
-
-
-
-
-
-
-
-
 
 
 

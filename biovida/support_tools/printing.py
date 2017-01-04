@@ -35,7 +35,7 @@ def _key_padding(s, len_longest_key):
     return "{0}:{1}".format(cln(s).replace("_", " ").title(), " " * abs(len_longest_key - len(s)))
 
 
-def _value_padding(s, len_longest_key):
+def _value_padding(s, len_longest_key, print_mold):
     """
 
     Add padding a value in a dict. for `dict_pretty_printer()`.
@@ -64,7 +64,7 @@ def _char_in_braces(full_s, char_position):
     :return: ``True`` if yes, else ``False``
     :rtype: bool
     """
-    if not isinstance(s, str):
+    if not isinstance(full_s, str):
         raise ValueError('`full_s` must be a string.')
 
     if not isinstance(char_position, int):
@@ -77,7 +77,7 @@ def _char_in_braces(full_s, char_position):
         return False
 
 
-def _value_correction(s, len_longest_key, max_value_lenght):
+def _value_correction(s, len_longest_key, max_value_lenght, print_mold):
     """
 
     Formats a value in a dict. for `dict_pretty_printer()`.
@@ -85,6 +85,7 @@ def _value_correction(s, len_longest_key, max_value_lenght):
     :param s:
     :param len_longest_key:
     :param max_value_lenght:
+    :param print_mold:
     :return:
     """
     if not isinstance(s, str):
@@ -94,7 +95,7 @@ def _value_correction(s, len_longest_key, max_value_lenght):
 
     # Return if the string is shorter than the `max_value_lenght`.
     if len(s_cleaned) < max_value_lenght:
-        return _value_padding(s_cleaned, len_longest_key)
+        return _value_padding(s_cleaned, len_longest_key, print_mold)
 
     # Get the position of all spaces in the cleaned string -- spaces inside braces are excluded.
     spaces = [i for i, c in enumerate(s_cleaned) if c == " " and not _char_in_braces(s_cleaned, i)]
@@ -110,7 +111,7 @@ def _value_correction(s, len_longest_key, max_value_lenght):
     else:
         formatted_string = s_cleaned
 
-    return _value_padding(formatted_string, len_longest_key)
+    return _value_padding(formatted_string, len_longest_key, print_mold)
 
 
 def dict_pretty_printer(d, max_value_lenght=70):
@@ -134,7 +135,8 @@ def dict_pretty_printer(d, max_value_lenght=70):
     # Compute the length of the longest key
     len_longest_key = len(max(list(d.keys()), key=len))
 
-    new_dict = {_key_padding(k, len_longest_key): _value_correction(v, len_longest_key, max_value_lenght) for k, v in deepcopy(d).items()}
+    new_dict = {_key_padding(k, len_longest_key): _value_correction(v, len_longest_key, max_value_lenght, print_mold) \
+                for k, v in deepcopy(d).items()}
 
     # Print the dict
     for k, v in new_dict.items():
