@@ -51,20 +51,20 @@ BioVida requires: [inflect], [pandas], [numpy], [requests] and [tqdm].
 ###Examples
 
 
-####Image Harvesting
+###Image Harvesting
 
 
-#####Import the Interface for the NIH's Open-i API.
+####Import the Interface for the NIH's Open-i API.
 ```python
 from biovida.images.openi_interface import OpenInterface
 ```
 
-#####Create an Instance of the Tool
+####Create an Instance of the Tool
 ```python
 opi = OpenInterface()
 ```
 
-#####Perform a Search
+####Perform a Search
 ```python
 opi.search("caudate nucleus", image_type=['mri', 'pet', 'ct'])
 
@@ -96,7 +96,7 @@ opi.current_search_total
 # 1165
 ```
 
-#####Pull the data
+####Pull the data
 ```python
 df = opi.pull()
 ```
@@ -114,20 +114,22 @@ opi.current_search_dataframe
 <sup>†</sup>*Note*: by default, data harvesting is truncated after the first 60 results.
 
 
-####Genomic Data from DisGeNET
+------------------------------------------------------------------------
+
+###Genomic Data from DisGeNET
 
 
-#####Import the Interface for DisGeNET.
+####Import the Interface for DisGeNET.
 ```python
 from biovida.genomics.disgenet_interface import DisgenetInterface
 ```
 
-#####Create an Instance of the Tool
+####Create an Instance of the Tool
 ```python
 dna = DisgenetInterface()
 ```
 
-#####Options: Explore Available Databases
+####Options: Explore Available Databases
 ```python
 dna.options()
 
@@ -143,7 +145,7 @@ dna.options('curated')
 #                 ClinVar, Orphanet, and the GWAS Catalog.
 ```
 
-#####Pull the data
+####Pull the data
 ```python
 df = dna.pull('curated')
 ```
@@ -174,7 +176,7 @@ dna.current_database_description
 
 ------------------------------------------------------------------------
 
-##Resources
+###Resources
 
 Images:
 
