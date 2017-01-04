@@ -16,12 +16,11 @@ import pandas as pd
 from tqdm import tqdm
 from math import floor
 from time import sleep
-from scipy import misc
+# from scipy import misc
 from pathlib import Path
 from warnings import warn
 from copy import deepcopy
 from pprint import pprint
-from itertools import chain
 from datetime import datetime
 # from scipy.ndimage import imread as scipy_imread
 from easymoney.easy_pandas import pandas_pretty_print # faze out
@@ -43,11 +42,6 @@ from biovida.images.openi_support_tools import iter_join
 from biovida.images.openi_support_tools import url_combine
 from biovida.images.openi_support_tools import null_convert
 from biovida.images.openi_support_tools import numb_extract
-from biovida.images.openi_support_tools import item_extract
-from biovida.images.openi_support_tools import extract_float
-from biovida.images.openi_support_tools import filter_unnest
-from biovida.images.openi_support_tools import num_word_to_int
-from biovida.images.openi_support_tools import url_path_extract
 from biovida.images.openi_support_tools import camel_to_snake_case
 from biovida.images.openi_support_tools import list_to_bulletpoints
 
@@ -58,9 +52,6 @@ tqdm.pandas(desc='status')
 
 
 # ToDo: Add the ability to cache a search.
-
-# test search
-search_query = 'https://openi.nlm.nih.gov/retrieve.php?q=&it=c,m,mc,p,ph,u,x'
 
 # ---------------------------------------------------------------------------------------------
 # Open-i Searching
@@ -178,7 +169,7 @@ class _OpeniRecords(object):
         :param n_bounds_limit:                                      Suggested: 5
         :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
         :param sleep_main: (interval, sleep time in seconds)        Suggested: (50, 300)
-        :param verbose: print additional detail.                    Suggested: True
+        :param verbose: print additional details.                   Suggested: True
         :param req_limit: Defaults to 30.                           Required by Open-i: 30
         """
         self.root_url = root_url
@@ -252,6 +243,7 @@ class _OpeniRecords(object):
             info = [int(i) if i.isdigit() else None for i in [date_dict['year'], date_dict['month'], date_dict['day']]]
         except:
             return None
+
         if info[0] is None or (info[1] is None and info[2] is not None):
             return None
 
@@ -338,7 +330,7 @@ class _OpeniRecords(object):
 
         # Print updates
         if self.verbose:
-            print("\nNumber of Records to Download: {0} (block size: {1} rows max).".format(
+            print("\nNumber of Records to Download: {0} (block size: {1} rows).".format(
                 str(int(self.req_limit * len(bounds_list))), str(self.req_limit))
             )
 
@@ -611,7 +603,7 @@ class OpenInterface(object):
         pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
         data_frame = data_frame.join(pp, how='left')
 
-        # Make the type of Imaging technology type human-readable
+        # Make the type of Imaging technology type human-readable. ToDo: check the other image_modality.
         data_frame['imaging_tech'] = data_frame['image_modality_major'].map(
             lambda x: openi_image_type_params.get(x, np.NaN)
         )
@@ -791,6 +783,14 @@ class OpenInterface(object):
             warn("\nNo attempt was made to download images because `image_quality` is `None`.")
 
         return data_frame
+
+
+
+
+
+
+
+
 
 
 
