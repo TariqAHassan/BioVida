@@ -335,7 +335,6 @@ class _OpeniRecords(object):
             )
 
         for bound in tqdm(bounds_list):
-            c += 1
             if c % self.sleep_mini[0] == 0:
                 sleep(abs(self.sleep_mini[1] + np.random.normal()))
             elif c % self.sleep_main[0] == 0:
@@ -345,6 +344,9 @@ class _OpeniRecords(object):
 
             # Harvest
             harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
+
+            # Update counter
+            c += 1
 
         # Return
         return harvested_data
@@ -585,6 +587,7 @@ class OpenInterface(object):
         self.current_search = None
         self.current_search_url = None
         self.current_search_total = None
+        self.current_search_data_frame = None
         self._current_search_to_harvest = None
 
 
@@ -767,6 +770,9 @@ class OpenInterface(object):
         if self.current_search_url is None:
             raise ValueError("A search has not been defined. Please call `OpenInterface().search()`.")
 
+        # Reset self.current_search_data_frame
+        self.current_search_data_frame = None
+
         # Pull Data
         data_frame = self._OpeniRecords.openi_kinesin(self.current_search_url
                                                       , to_harvest=self._current_search_to_harvest
@@ -781,6 +787,9 @@ class OpenInterface(object):
             data_frame['img_extracted'] = self._OpeniImages.bulk_img_harvest(data_frame, image_column=image_col)
         elif self._verbose:
             warn("\nNo attempt was made to download images because `image_quality` is `None`.")
+
+        # Save data_frame
+        self.current_search_data_frame = data_frame
 
         return data_frame
 
