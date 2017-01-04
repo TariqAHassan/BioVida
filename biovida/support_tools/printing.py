@@ -88,15 +88,16 @@ def _value_correction(s, len_longest_key, max_value_length, print_mold):
     """
     if not isinstance(s, str):
         return s
+
     # Clean the input
     s_cleaned = cln(s).replace("\n", " ")
 
-    # Return if the string is shorter than the `max_value_length`.
-    if len(s_cleaned) < max_value_length:
-        return _value_padding(s_cleaned, len_longest_key, print_mold)
-
     # Get the position of all spaces in the cleaned string -- spaces inside braces are excluded.
     spaces = [i for i, c in enumerate(s_cleaned) if c == " " and not _char_in_braces(s_cleaned, i)]
+
+    # Return if the string is shorter than the `max_value_length` or there are no space.
+    if len(s_cleaned) < max_value_length or not len(spaces):
+        return _value_padding(s_cleaned, len_longest_key, print_mold)
 
     # Identify ideal points for a line break, w.r.t. max_value_length.
     ideal_break_points = [i for i in range(len(s_cleaned)) if i % max_value_length == 0 and i != 0]
