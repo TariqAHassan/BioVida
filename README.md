@@ -139,6 +139,12 @@ dna.current_database_description
 
 ------------------------------------------------------------------------
 
+###Documentation
+
+For documentation please click [here].
+
+------------------------------------------------------------------------
+
 ###Resources
 
 Images:
@@ -165,8 +171,7 @@ Genomics:
 [tqdm]: https://github.com/tqdm/tqdm
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
-
-
+[here]: https://tariqahassan.github.io/BioVida/index.html
 
 
 
