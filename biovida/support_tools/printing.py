@@ -8,13 +8,112 @@
 # Imports
 import pandas as pd
 
+from copy import deepcopy
+
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import pstr
 from biovida.support_tools.support_tools import items_null
 
 
-def dict_pretty_printer(d):
+# ---------------------------------------------------------------------------------------------
+# Dictionary Printing
+# ---------------------------------------------------------------------------------------------
+
+
+def _key_padding(s, len_longest_key):
+    """
+
+    Add padding a key in a dict. for `dict_pretty_printer()`.
+
+    :param s:
+    :param len_longest_key:
+    :return:
+    """
+    if not isinstance(s, str):
+        return s
+    return "{0}:{1}".format(cln(s).replace("_", " ").title(), " " * abs(len_longest_key - len(s)))
+
+
+def _value_padding(s, len_longest_key):
+    """
+
+    Add padding a value in a dict. for `dict_pretty_printer()`.
+
+    :param s:
+    :param len_longest_key:
+    :return:
+    """
+    if not isinstance(s, str):
+        return s
+    padding = len_longest_key + (len(print_mold) - 3) + 2  # 2 = 1 space for the colon + 1 space added by `print()`.
+    return s.replace("\n", "\n{0}".format(" " * padding))
+
+
+def _char_in_braces(full_s, char_position):
+    """
+
+    Checks if a given position in a string lies between braces.
+
+    Note: rough solution -- but sufficent. Robust solution would require a state machine.
+
+    :param full_s: a string.
+    :type full_s: ``str``
+    :param char_position: a position in the string.
+    :type char_position: ``int``
+    :return: ``True`` if yes, else ``False``
+    :rtype: bool
+    """
+    if not isinstance(s, str):
+        raise ValueError('`full_s` must be a string.')
+
+    if not isinstance(char_position, int):
+        raise ValueError('`char_position` must be an int.')
+
+    for pair in ('()', '[]', '{}'):
+        if pair[0] in full_s[:char_position] and pair[1] in full_s[char_position:]:
+            return True
+    else:
+        return False
+
+
+def _value_correction(s, len_longest_key, max_value_lenght):
+    """
+
+    Formats a value in a dict. for `dict_pretty_printer()`.
+
+    :param s:
+    :param len_longest_key:
+    :param max_value_lenght:
+    :return:
+    """
+    if not isinstance(s, str):
+        return s
+    # Clean the input
+    s_cleaned = cln(s).replace("\n", " ")
+
+    # Return if the string is shorter than the `max_value_lenght`.
+    if len(s_cleaned) < max_value_lenght:
+        return _value_padding(s_cleaned, len_longest_key)
+
+    # Get the position of all spaces in the cleaned string -- spaces inside braces are excluded.
+    spaces = [i for i, c in enumerate(s_cleaned) if c == " " and not _char_in_braces(s_cleaned, i)]
+
+    # Identify ideal points for a line break, w.r.t. max_value_lenght.
+    ideal_break_points = [i for i in range(len(s_cleaned)) if i % max_value_lenght == 0 and i != 0]
+
+    # Get the possible break points
+    true_break_points = [min(spaces, key=lambda x: abs(x - ideal)) for ideal in ideal_break_points]
+
+    if len(true_break_points):
+        formatted_string = "".join([c if e not in true_break_points else "\n" for e, c in enumerate(s_cleaned)])
+    else:
+        formatted_string = s_cleaned
+
+    return _value_padding(formatted_string, len_longest_key)
+
+
+def dict_pretty_printer(d, max_value_lenght=70):
     """
 
     Pretty prints a dictionary with vertically aligned values.
@@ -30,17 +129,21 @@ def dict_pretty_printer(d):
     :param d: a dictionary
     :type d: ``dict``
     """
-    # ToDo: keep values aligned when there are line breaks.
+    print_mold = " - {0} "
 
     # Compute the length of the longest key
     len_longest_key = len(max(list(d.keys()), key=len))
 
-    # Tool to add padding to other keys
-    def key_padding(x): return "{0}:{1}".format(cln(x).replace("_", " ").title(), " " * abs(len_longest_key - len(x)))
+    new_dict = {_key_padding(k, len_longest_key): _value_correction(v, len_longest_key, max_value_lenght) for k, v in deepcopy(d).items()}
 
     # Print the dict
-    for k, v in {key_padding(k): v for k, v in d.items()}.items():
-        print(" - {0} ".format(k), v)
+    for k, v in new_dict.items():
+        print(print_mold.format(k), v)
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Pandas Printing Suit
+# ----------------------------------------------------------------------------------------------------------
 
 
 def _padding(s, amount, justify):
