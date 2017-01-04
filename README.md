@@ -89,13 +89,6 @@ df = opi.pull()
 The DataFrame created above, `df`, contains data from all fields provided by the Open-i API.<sup>†</sup>
 Images referenced in the DataFrame will automatically be harvested (unless specified otherwise).
 
-
-The most recent dataframe obtained by `OpenInterface().pull()` is also saved as an attribute of the class instance.
-This dataframe be accessed as follows:
-```python
-opi.current_search_dataframe
-```
-
 <sup>†</sup>*Note*: by default, data harvesting is truncated after the first 60 results.
 
 ------------------------------------------------------------------------
@@ -132,7 +125,6 @@ dna.options('curated')
 df = dna.pull('curated')
 ```
 This database will be cached to allow to fast access in the future.
-
 
 As with the `OpenInterface()` above, it is easy to gain access to the most recent `pull` and related information.
 
