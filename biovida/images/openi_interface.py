@@ -531,6 +531,7 @@ class OpenInterface(object):
 
     Python Interface for the NIH's Open-i API.
 
+
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                        Default to None (which will generate a cache in the home folder).
     :type cache_path: ``str`` or ``None``
@@ -538,7 +539,7 @@ class OpenInterface(object):
                            If ``None``, no limit will be imposed (not recommended). Defaults to 2.
     :type n_bounds_limit: ``int``
     :param img_sleep_time: time to sleep (in seconds) between requests for images. Noise is added on each call
-                           by pulling a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5.5 seconds.
+                           by adding a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5.5 seconds.
     :type img_sleep_time: ``int`` or ``float``
     :param image_quality: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
                           If ``None``, no attempt will be made to download images.
@@ -606,7 +607,7 @@ class OpenInterface(object):
         self.current_search = None
         self.current_search_url = None
         self.current_search_total = None
-        self.current_search_data_frame = None
+        self.current_search_dataframe = None
         self._current_search_to_harvest = None
 
 
@@ -790,8 +791,8 @@ class OpenInterface(object):
         if self.current_search_url is None:
             raise ValueError("A search has not been defined. Please call `OpenInterface().search()`.")
 
-        # Reset self.current_search_data_frame
-        self.current_search_data_frame = None
+        # Reset self.current_search_dataframe
+        self.current_search_dataframe = None
 
         # Pull Data
         data_frame = self._OpeniRecords.openi_kinesin(self.current_search_url
@@ -809,7 +810,7 @@ class OpenInterface(object):
             warn("\nNo attempt was made to download images because `image_quality` is `None`.")
 
         # Save data_frame
-        self.current_search_data_frame = data_frame
+        self.current_search_dataframe = data_frame
 
         return data_frame
 
