@@ -64,32 +64,20 @@ opi = OpenInterface()
 ####Perform a Search
 ```python
 opi.search("caudate nucleus", image_type=['mri', 'pet', 'ct'])
-
 # Results Found: 1,165.
 ```
 
 The values accepted by the `image_type` argument above can easily be reviewed:
 ```python
 opi.options(search_parameter='image_type')
-
-# - 'ct'
-# - 'graphic'
-# - 'mri'
-# - 'microscopy'
-# - 'pet'
-# - 'photograph'
-# - 'ultrasound'
-# - 'x-ray'
 ```
 
 Additionally, searches can easily be reviewed:
 ```python
 opi.current_search
-
 # {'image_type': ['mri', 'pet', 'ct', 'exclude_graphics'], 'query': 'caudate nucleus'}
 
 opi.current_search_total
-
 # 1165
 ```
 
@@ -128,14 +116,12 @@ dna = DisgenetInterface()
 ####Options: Explore Available Databases
 ```python
 dna.options()
-
 # Available Databases:
 #   - 'all'
 #   - 'curated'
 #   - 'snp_disgenet'
 
 dna.options('curated')
-
 # - Full Name:    Curated Gene-Disease Associations
 # - Description:  The file contains gene-disease associations from UNIPROT, CTD (human subset),
 #                 ClinVar, Orphanet, and the GWAS Catalog.
@@ -158,15 +144,12 @@ dna.current_database
 Information about the database:
 ```python
 dna.current_database_name
-
 # 'curated'
 
 dna.current_database_full_name
-
 # 'Curated Gene-Disease Associations'
 
 dna.current_database_description
-
 # 'The file contains gene-disease associations from...'
 ```
 
