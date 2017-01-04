@@ -16,7 +16,7 @@ def _parser(s):
     :return:
     :rtype: ``dict``
     """
-    from biovida.images.openi_support_tools import cln
+    from biovida.support_tools.support_tools import cln
 
     # Split the string into keys and values
     split_string = [i.split('(') for i in cln(s).split(')')]

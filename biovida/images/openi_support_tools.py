@@ -51,44 +51,34 @@ def num_word_to_int(input_str):
             input_str = input_str.replace(case, str(i))
     return input_str
 
-def camel_to_snake_case(name):
-    """Source: http://stackoverflow.com/a/1176023/4898004"""
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-
 def url_path_extract(url):
     return urlsplit(url).path[1:].replace("/", "__")
-
-def header(string):
-    """Generate a Header String"""
-    sep_line = "".join(["-"] * len(string))
-    print("\n")
-    print("\n{0}\n{1}\n{2}\n".format(sep_line, string, sep_line))
-    print("\n")
 
 def list_to_bulletpoints(l):
     return "".join(map(lambda x: "  - '{0}'\n".format(x), list(l)))[:-1]
 
-def cln(i, extent=1, strip=True):
-    """
 
-    String white space 'cleaner'.
 
-    :param i: input str
-    :type i: ``str``
-    :param extent: 1 --> all white space reduced to length 1; 2 --> removal of all white space.
-    :param strip: call str.strip()
-    :tyoe strip: ``bool``
-    :return: cleaned string
-    :rtype: ``str``
-    """
-    to_return = ""
-    if isinstance(i, str) and i != "":
-        if extent == 1:
-            to_return = re.sub(r"\s\s+", " ", i)
-        elif extent == 2:
-            to_return = re.sub(r"\s+", "", i)
-    else:
-        return i
 
-    return to_return.strip() if strip else to_return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

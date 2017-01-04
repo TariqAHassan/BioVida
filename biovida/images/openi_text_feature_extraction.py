@@ -17,12 +17,14 @@ import re
 import numpy as np
 from itertools import chain
 
-# Import tools from Open-i support tools
-from biovida.images.openi_support_tools import cln
+# Image Support Tools
 from biovida.images.openi_support_tools import item_extract
 from biovida.images.openi_support_tools import filter_unnest
 from biovida.images.openi_support_tools import extract_float
 from biovida.images.openi_support_tools import num_word_to_int
+
+# General Support Tools
+from biovida.support_tools.support_tools import cln
 
 
 def mexpix_info_extract(abstract):
