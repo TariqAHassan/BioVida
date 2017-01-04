@@ -118,7 +118,7 @@ df = dna.pull('curated')
 ```
 This database will be cached to allow to fast access in the future.
 
-As with the `OpenInterface()` above, it is easy to gain access to the most recent `pull` and related information.
+As with the `OpenInterface()` class above, it is easy to gain access to the most recent `pull` and related information.
 
 The database its self:
 ```python
