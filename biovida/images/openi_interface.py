@@ -43,7 +43,6 @@ from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
-from biovida.support_tools.printing import pandas_pretty_print
 
 # To install scipy: brew install gcc; pip3 install Pillow
 
@@ -162,7 +161,6 @@ class _OpeniRecords(object):
 
     """
 
-
     def __init__(self, root_url, date_format, n_bounds_limit, sleep_mini, sleep_main, verbose, req_limit=30):
         """
 
@@ -181,7 +179,6 @@ class _OpeniRecords(object):
         self.sleep_main = sleep_main
         self.verbose = verbose
         self.req_limit = req_limit
-
 
     def openi_bounds(self, total):
         """
@@ -218,7 +215,6 @@ class _OpeniRecords(object):
 
         return bounds
 
-
     def openi_bounds_formatter(self, bounds):
         """
 
@@ -229,7 +225,6 @@ class _OpeniRecords(object):
         :rtype: ``list``
         """
         return ["&m={0}&n={1}".format(i[0], i[1]) for i in bounds]
-
 
     def date_formater(self, date_dict):
         """
@@ -252,7 +247,6 @@ class _OpeniRecords(object):
         cleaned_info = [1 if i is None or i < 1 else i for i in info]
         return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(self.date_format)
 
-
     def harvest_vect(self, request_rslt):
         """
 
@@ -273,7 +267,6 @@ class _OpeniRecords(object):
                     to_harvest.append((k, i))
 
         return to_harvest
-
 
     def openi_block_harvest(self, url, bound, to_harvest):
         """
@@ -314,7 +307,6 @@ class _OpeniRecords(object):
 
         return list_of_dicts
 
-
     def openi_harvest(self, bounds_list, joined_url, to_harvest):
         """
 
@@ -353,7 +345,6 @@ class _OpeniRecords(object):
         # Return
         return harvested_data
 
-
     def openi_kinesin(self, search_query, to_harvest, total):
         """
 
@@ -387,7 +378,6 @@ class _OpeniImages(object):
     """
 
 
-
     def __init__(self, assumed_img_format, sleep_time, image_save_location, verbose):
         """
 
@@ -401,7 +391,6 @@ class _OpeniImages(object):
         self.sleep_time = sleep_time
         self.image_save_location = image_save_location
         self.verbose = verbose
-
 
     def img_name_abbrev(self, data_frame):
         """
@@ -426,7 +415,6 @@ class _OpeniImages(object):
         # Return a hash mapping
         return {k: fmt(k) for k in img_types}
 
-
     def img_titler(self, number, img_name, img_type):
         """
 
@@ -446,7 +434,6 @@ class _OpeniImages(object):
 
         # Return
         return "{0}.{1}".format(new_name, img_name_format)
-
 
     def img_harvest(self, img_title, image_web_address):
         """
@@ -479,7 +466,6 @@ class _OpeniImages(object):
                 return False
 
         return True
-
 
     def bulk_img_harvest(self, data_frame, image_column):
         """
@@ -531,9 +517,8 @@ class OpenInterface(object):
 
     Python Interface for the NIH's Open-i API.
 
-
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
-                       Default to None (which will generate a cache in the home folder).
+                       Default to ``None`` (which will generate a cache in the home folder).
     :type cache_path: ``str`` or ``None``
     :param n_bounds_limit: max. number of blocks to download (1 block = 30 records/rows).
                            If ``None``, no limit will be imposed (not recommended). Defaults to 2.
@@ -555,7 +540,6 @@ class OpenInterface(object):
     :param verbose: print additional details.
     :type verbose: ``bool``
     """
-
 
     def __init__(self
                  , cache_path=None
@@ -587,7 +571,7 @@ class OpenInterface(object):
 
         # Generate Required Caches
         pcc = _package_cache_creator(sub_dir='image', cache_path=cache_path, to_create=['raw', 'processed'])
-        self._root_img_path, self._created_img_dirs = pcc
+        self.root_path, self._created_img_dirs = pcc
 
         # Create an instance of the _OpeniRecords() Class
         self._OpeniRecords = _OpeniRecords(root_url=root_url
@@ -609,7 +593,6 @@ class OpenInterface(object):
         self.current_search_total = None
         self.current_search_dataframe = None
         self._current_search_to_harvest = None
-
 
     def _post_processing_text(self, data_frame):
         """
@@ -633,7 +616,6 @@ class OpenInterface(object):
         del data_frame['image_modality_major']
 
         return data_frame
-
 
     def _search_probe(self, search_query, print_results):
         """
@@ -663,8 +645,7 @@ class OpenInterface(object):
 
         return total, sample['list'][0]
 
-
-    def search_options(self, option, print_options=True):
+    def options(self, option, print_options=True):
         """
 
         Options for parameters of `openi_search()`.
@@ -695,7 +676,6 @@ class OpenInterface(object):
         else:
             return opts
 
-
     def search(self
                , query
                , image_type=None
@@ -713,19 +693,19 @@ class OpenInterface(object):
 
         :param query: a search term. ``None`` will converter to an empty string.
         :type query: ``str`` or ``None``
-        :param image_type: see `OpenInterface().search_options('image_type')` for valid values.
+        :param image_type: see `OpenInterface().options('image_type')` for valid values.
         :type image_type: ``list``, ``tuple`` or ``None``.
-        :param rankby: see `OpenInterface().search_options('rankby')` for valid values.
+        :param rankby: see `OpenInterface().options('rankby')` for valid values.
         :type rankby: ``list``, ``tuple`` or ``None``.
-        :param subset: see `OpenInterface().search_options('subset')` for valid values.
+        :param subset: see `OpenInterface().options('subset')` for valid values.
         :type subset: ``list``, ``tuple`` or ``None``.
-        :param collection: see `OpenInterface().search_options('collection')` for valid values.
+        :param collection: see `OpenInterface().options('collection')` for valid values.
         :type collection: ``list``, ``tuple`` or ``None``.
-        :param fields: see `OpenInterface().search_options('fields')` for valid values.
+        :param fields: see `OpenInterface().options('fields')` for valid values.
         :type fields: ``list``, ``tuple`` or ``None``.
-        :param specialties: see `OpenInterface().search_options('specialties')` for valid values.
+        :param specialties: see `OpenInterface().options('specialties')` for valid values.
         :type specialties: ``list``, ``tuple`` or ``None``.
-        :param video: see `OpenInterface().search_options('video')` for valid values. Defaults to ``None``.
+        :param video: see `OpenInterface().options('video')` for valid values. Defaults to ``None``.
         :type video: ``list``, ``tuple`` or ``None``.
         :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ['graphics'].      -- Working?
         :type exclusions: ``list``, ``tuple`` or ``None``
@@ -778,7 +758,6 @@ class OpenInterface(object):
         self.current_search_url = formatted_search
         self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
 
-
     def pull(self):
         """
 
@@ -813,10 +792,6 @@ class OpenInterface(object):
         self.current_search_dataframe = data_frame
 
         return data_frame
-
-
-
-
 
 
 

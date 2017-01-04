@@ -63,7 +63,7 @@ def _disgenet_readme(created_gene_dirs):
 
     Writes the DisGeNET README to disk.
 
-    :param created_gene_dirs:
+    :param created_gene_dirs: the dictionary of directories returned by ``_package_cache_creator()``
     :type created_gene_dirs: ``dict``
     """
     # URL to DisGeNET README
