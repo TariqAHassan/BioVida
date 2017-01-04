@@ -7,7 +7,6 @@
 """
 # Imports
 import pandas as pd
-
 from copy import deepcopy
 
 # General Support Tools
@@ -54,8 +53,7 @@ def _char_in_braces(full_s, char_position):
     """
 
     Checks if a given position in a string lies between braces.
-
-    Note: rough solution -- but sufficent. Robust solution would require a state machine.
+    Note: This is a rough solution, but more than sufficent. A robust solution would require a state machine.
 
     :param full_s: a string.
     :type full_s: ``str``
@@ -77,14 +75,14 @@ def _char_in_braces(full_s, char_position):
         return False
 
 
-def _value_correction(s, len_longest_key, max_value_lenght, print_mold):
+def _value_correction(s, len_longest_key, max_value_length, print_mold):
     """
 
     Formats a value in a dict. for `dict_pretty_printer()`.
 
     :param s:
     :param len_longest_key:
-    :param max_value_lenght:
+    :param max_value_length:
     :param print_mold:
     :return:
     """
@@ -93,15 +91,15 @@ def _value_correction(s, len_longest_key, max_value_lenght, print_mold):
     # Clean the input
     s_cleaned = cln(s).replace("\n", " ")
 
-    # Return if the string is shorter than the `max_value_lenght`.
-    if len(s_cleaned) < max_value_lenght:
+    # Return if the string is shorter than the `max_value_length`.
+    if len(s_cleaned) < max_value_length:
         return _value_padding(s_cleaned, len_longest_key, print_mold)
 
     # Get the position of all spaces in the cleaned string -- spaces inside braces are excluded.
     spaces = [i for i, c in enumerate(s_cleaned) if c == " " and not _char_in_braces(s_cleaned, i)]
 
-    # Identify ideal points for a line break, w.r.t. max_value_lenght.
-    ideal_break_points = [i for i in range(len(s_cleaned)) if i % max_value_lenght == 0 and i != 0]
+    # Identify ideal points for a line break, w.r.t. max_value_length.
+    ideal_break_points = [i for i in range(len(s_cleaned)) if i % max_value_length == 0 and i != 0]
 
     # Get the possible break points
     true_break_points = [min(spaces, key=lambda x: abs(x - ideal)) for ideal in ideal_break_points]
@@ -114,13 +112,12 @@ def _value_correction(s, len_longest_key, max_value_lenght, print_mold):
     return _value_padding(formatted_string, len_longest_key, print_mold)
 
 
-def dict_pretty_printer(d, max_value_lenght=70):
+def dict_pretty_printer(d, max_value_length=70):
     """
 
     Pretty prints a dictionary with vertically aligned values.
 
     Example:
-
         - Key1:       Value1
         - Key12:      Value12
         - Key123:     Value123
@@ -129,13 +126,18 @@ def dict_pretty_printer(d, max_value_lenght=70):
 
     :param d: a dictionary
     :type d: ``dict``
+    :param max_value_length: max. number of characters in a string before a line break.
+                            This is a fuzzy threshold because the algorithm above will only insert
+                            line breaks where there are already spaces and will not insert line breaks
+                            between braces.
+    :type max_value_length: ``int``
     """
     print_mold = " - {0} "
 
     # Compute the length of the longest key
     len_longest_key = len(max(list(d.keys()), key=len))
 
-    new_dict = {_key_padding(k, len_longest_key): _value_correction(v, len_longest_key, max_value_lenght, print_mold) \
+    new_dict = {_key_padding(k, len_longest_key): _value_correction(v, len_longest_key, max_value_length, print_mold)
                 for k, v in deepcopy(d).items()}
 
     # Print the dict
@@ -230,14 +232,18 @@ def pandas_print_full(pd_df, full_rows=False, full_cols=True):
     :param full_cols: print all columns side-by-side if True. Defaults to True.
     :type full_cols: ``bool``
     """
-    if full_rows: pd.set_option('display.max_rows', len(pd_df))
-    if full_cols: pd.set_option('expand_frame_repr', False)
+    if full_rows:
+        pd.set_option('display.max_rows', len(pd_df))
+    if full_cols:
+        pd.set_option('expand_frame_repr', False)
 
     # Print the data frame
     print(pd_df)
 
-    if full_rows: pd.reset_option('display.max_rows')
-    if full_cols: pd.set_option('expand_frame_repr', True)
+    if full_rows:
+        pd.reset_option('display.max_rows')
+    if full_cols:
+        pd.set_option('expand_frame_repr', True)
 
 
 def pandas_pretty_print(data_frame, col_align='right', header_align='center', full_rows=True, full_cols=True):
@@ -261,6 +267,21 @@ def pandas_pretty_print(data_frame, col_align='right', header_align='center', fu
     pd.set_option('colheader_justify', header_align)
     pandas_print_full(aligned_df.fillna(""), full_rows, full_cols)
     pd.set_option('colheader_justify', 'right')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
