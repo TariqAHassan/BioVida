@@ -48,9 +48,6 @@ BioVida requires: [inflect], [pandas], [numpy], [requests] and [tqdm].
 
 ------------------------------------------------------------------------
 
-###Examples
-
-
 ###Image Harvesting
 
 
@@ -113,7 +110,7 @@ opi.current_search_dataframe
 
 <sup>†</sup>*Note*: by default, data harvesting is truncated after the first 60 results.
 
-
+------------------------------------------------------------------------
 
 ###Genomic Data from DisGeNET
 
