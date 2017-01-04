@@ -87,19 +87,19 @@ Images referenced in the DataFrame will automatically be harvested (unless speci
 
 Images:
 
-    - The [Open-i] BioMedical Image Search Engine (NIH)
+   - The [Open-i] BioMedical Image Search Engine (NIH)
 
 Genomics:
 
-    - [DisGeNET]:
-    
-        Janet Piñero, Àlex Bravo, Núria Queralt-Rosinach, Alba Gutiérrez-Sacristán, Jordi Deu-Pons, Emilio Centeno, 
-        Javier García-García, Ferran Sanz, and Laura I. Furlong. DisGeNET: a comprehensive platform integrating 
-        information on human disease-associated genes and variants. Nucl. Acids Res. (2016) doi:10.1093/nar/gkw943
-    
-        Janet Piñero, Núria Queralt-Rosinach, Àlex Bravo, Jordi Deu-Pons, Anna Bauer-Mehren, Martin Baron, 
-        Ferran Sanz, Laura I. Furlong. DisGeNET: a discovery platform for the dynamical exploration of human 
-        diseases and their genes. Database (2015) doi:10.1093/database/bav028
+   - [DisGeNET]:
+
+      * Janet Piñero, Àlex Bravo, Núria Queralt-Rosinach, Alba Gutiérrez-Sacristán, Jordi Deu-Pons, Emilio Centeno, 
+      Javier García-García, Ferran Sanz, and Laura I. Furlong. DisGeNET: a comprehensive platform integrating 
+      information on human disease-associated genes and variants. Nucl. Acids Res. (2016) doi:10.1093/nar/gkw943
+      
+      * Janet Piñero, Núria Queralt-Rosinach, Àlex Bravo, Jordi Deu-Pons, Anna Bauer-Mehren, Martin Baron, 
+      Ferran Sanz, Laura I. Furlong. DisGeNET: a discovery platform for the dynamical exploration of human 
+      diseases and their genes. Database (2015) doi:10.1093/database/bav028
 
 
 [inflect]: https://pypi.python.org/pypi/inflect
