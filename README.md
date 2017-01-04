@@ -85,7 +85,7 @@ Images referenced in the DataFrame will automatically be harvested (unless speci
 
 ------------------------------------------------------------------------
 
-###Genomic Data from DisGeNET
+###Genomic Data
 
 
 ####Import the Interface for DisGeNET.
