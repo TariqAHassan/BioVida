@@ -14,7 +14,7 @@ setup(
     version='0.1',
     author='Tariq A. Hassan',
     author_email='laterallattice@gmail.com',
-    description=('Automated BioMedical Information Harvesting for Machine Learning Applications.'),
+    description=('Automated BioMedical Information Curation for Machine Learning Applications.'),
     long_description=read('docs/README.md'),
     license='BSD',
     keywords='medicine, biological sciences, machine learning, data science',
