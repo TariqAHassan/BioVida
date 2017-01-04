@@ -99,13 +99,11 @@ def _openi_search_check(search_arguments, search_dict):
                     raise ValueError(general_error_msg.format(i, k, list_to_bulletpoints(search_dict[k][1].keys())))
 
             # Block contradictory requests
-            if k == 'video':
-                _openi_search_special_case(k, blocked=['true', 'false'], passed=v)
             if k == 'rankby':
                 _openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
 
 
-def _url_formatter(api_search_transform, ordered_params):
+def _search_url_formatter(api_search_transform, ordered_params):
     """
 
     :param ordered_params:
@@ -652,6 +650,7 @@ class OpenInterface(object):
         :param option: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields', 'specialties', 'video'.
         :param print: if True, pretty print the options, else return as a ``list``.
         :return:
+        :rtype: ``list``
         """
         # Terms to blocked from displaying to users
         blocked = ['exclude_graphics', 'exclude_multipanel']
@@ -751,7 +750,7 @@ class OpenInterface(object):
         api_search_transform = {api_url_param(k): api_url_terms(k, v) for k, v in search_arguments.items() if v is not None}
 
         # Format `api_search_transform`
-        formatted_search = _url_formatter(api_search_transform, ordered_params)
+        formatted_search = _search_url_formatter(api_search_transform, ordered_params)
 
         # Save `formatted_search`
         self.current_search_url = formatted_search
@@ -792,6 +791,8 @@ class OpenInterface(object):
         self.current_search_data_frame = data_frame
 
         return data_frame
+
+
 
 
 
