@@ -40,7 +40,7 @@ _disgenet_delimited_databases = {
     'curated': {
         'full_name': 'Curated Gene-Disease Associations',
         'url': 'http://www.disgenet.org/ds/DisGeNET/results/curated_gene_disease_associations.tsv.gz',
-        'description': 'The file contains gene-disease associations\nfrom UNIPROT, CTD (human subset), ClinVar, Orphanet,'
+        'description': 'The file contains gene-disease associations from UNIPROT, CTD (human subset), ClinVar, Orphanet,'
                        ' and the GWAS Catalog.',
         'header': 21
     },
@@ -110,7 +110,7 @@ class DisgenetInterface(object):
         # Check if a readme exists.
         _disgenet_readme(self._created_gene_dirs)
 
-        # Container for the most recently requested database.
+        # Containers for the most recently requested database.
         self.current_database = None
         self.current_database_name = None
         self.current_database_full_name = None
