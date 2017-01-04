@@ -71,7 +71,32 @@ opi.search("caudate nucleus", image_type=['mri', 'pet', 'ct'])
 # Results Found: 1,165.
 ```
 
-#####Pull the data from the API
+The values accepted by the `image_type` argument above can easily be reviewed:
+```python
+opi.options(search_parameter='image_type')
+
+# - 'ct'
+# - 'graphic'
+# - 'mri'
+# - 'microscopy'
+# - 'pet'
+# - 'photograph'
+# - 'ultrasound'
+# - 'x-ray'
+```
+
+Additionally, searches can easily be reviewed:
+```python
+opi.current_search
+
+# {'image_type': ['mri', 'pet', 'ct', 'exclude_graphics'], 'query': 'caudate nucleus'}
+
+opi.current_search_total
+
+# 1165
+```
+
+#####Pull the data
 ```python
 df = opi.pull()
 ```
@@ -79,7 +104,73 @@ df = opi.pull()
 The DataFrame created above, `df`, contains data from all fields provided by the Open-i API.<sup>†</sup>
 Images referenced in the DataFrame will automatically be harvested (unless specified otherwise).
 
+
+The most recent dataframe obtained by `OpenInterface().pull()` is also saved as an attribute of the class instance.
+This dataframe be accessed as follows:
+```python
+opi.current_search_dataframe
+```
+
 <sup>†</sup>*Note*: by default, data harvesting is truncated after the first 60 results.
+
+
+####Genomic Data from DisGeNET
+
+
+#####Import the Interface for DisGeNET.
+```python
+from biovida.genomics.disgenet_interface import DisgenetInterface
+```
+
+#####Create an Instance of the Tool
+```python
+dna = DisgenetInterface()
+```
+
+#####Options: Explore Available Databases
+```python
+dna.options()
+
+# Available Databases:
+#   - 'all'
+#   - 'curated'
+#   - 'snp_disgenet'
+
+dna.options('curated')
+
+# - Full Name:    Curated Gene-Disease Associations
+# - Description:  The file contains gene-disease associations from UNIPROT, CTD (human subset),
+#                 ClinVar, Orphanet, and the GWAS Catalog.
+```
+
+#####Pull the data
+```python
+df = dna.pull('curated')
+```
+This database will be cached to allow to fast access in the future.
+
+
+As with the `OpenInterface()` above, it is easy to gain access to the most recent `pull` and related information.
+
+The database its self:
+```python
+dna.current_database
+```
+
+Information about the database:
+```python
+dna.current_database_name
+
+# 'curated'
+
+dna.current_database_full_name
+
+# 'Curated Gene-Disease Associations'
+
+dna.current_database_description
+
+# 'The file contains gene-disease associations from...'
+```
 
 ------------------------------------------------------------------------
 
@@ -109,7 +200,6 @@ Genomics:
 [tqdm]: https://github.com/tqdm/tqdm
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
-
 
 
 
