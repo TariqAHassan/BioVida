@@ -9,8 +9,38 @@
 import pandas as pd
 
 # General Support Tools
+from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import pstr
 from biovida.support_tools.support_tools import items_null
+
+
+def dict_pretty_printer(d):
+    """
+
+    Pretty prints a dictionary with vertically aligned values.
+
+    Example:
+
+        - Key1:       Value1
+        - Key12:      Value12
+        - Key123:     Value123
+        - Key1234:    Value1234
+        - Key12345:   Value12345
+
+    :param d: a dictionary
+    :type d: ``dict``
+    """
+    # ToDo: keep values aligned when there are line breaks.
+
+    # Compute the length of the longest key
+    len_longest_key = len(max(list(d.keys()), key=len))
+
+    # Tool to add padding to other keys
+    def key_padding(x): return "{0}:{1}".format(cln(x).replace("_", " ").title(), " " * abs(len_longest_key - len(x)))
+
+    # Print the dict
+    for k, v in {key_padding(k): v for k, v in d.items()}.items():
+        print(" - {0} ".format(k), v)
 
 
 def _padding(s, amount, justify):
@@ -35,6 +65,7 @@ def _padding(s, amount, justify):
         return "%s%s%s" % (pad[:int(amount/2)], pstr(s), pad[int(amount/2):])
     else:
         return s
+
 
 def _pandas_series_alignment(pandas_series, justify):
     """
