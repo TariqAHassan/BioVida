@@ -1,4 +1,4 @@
-BioVida: Curating BioMedical Information
+BioVida
 ===
 
 
@@ -10,7 +10,59 @@ them. This project aims to tame this problem and integrate several of these publ
 Specifically, it aims to develop an easy-to-use API which will harvest the latest information on human diseases from 
 public databases.  
 
-**Objectives**:
+
+###Installation
+
+Latest Build:
+```bash
+$ pip install git+git://github.com/TariqAHassan/BioVida@master
+```
+
+------------------------------------------------------------------------
+
+###Dependencies
+
+BioVida requires: inflect, pandas, numpy and tqdm.
+
+------------------------------------------------------------------------
+
+###Examples
+
+
+####Image Harvesting
+
+
+#####Import the Interface for the NIH's Open-i API.
+```python
+from biovida.images.openi_interface import OpenInterface
+```
+
+#####Create an Instance of the Tool
+```python
+io = OpenInterface()
+```
+
+#####Perform a Search
+```python
+io.search("caudate nucleus", image_type=['mri', 'pet', 'ct'])
+
+# Results Found: 1,165.
+```
+
+#####Pull the data from the API
+```python
+df = io.pull()
+```
+
+The DataFrame created above, `df`, contains data from all fields provided by the Open-i API<sup>†</sup>.
+Images referenced in the DataFrame will automatically be harvested (unless specified otherwise).
+
+<sup>†</sup>*Note*: by default results are truncated to the first 60 results.
+
+------------------------------------------------------------------------
+
+
+**Outline of Objectives**:
 
    1. Images
    
@@ -28,12 +80,6 @@ public databases.
         
      - source currently unclear
         
-
-Ultimately, the goal of this project is to develop a tool which simply asks 
-the user for the name of a disease and will return a database of information on that illness.
-
-
-
 
 
 
