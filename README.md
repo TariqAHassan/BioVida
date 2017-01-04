@@ -13,22 +13,14 @@ data to make machine learning tractable.
 
 ------------------------------------------------------------------------
 
-###Outline of Objectives
+###Outstanding Objectives
 
    1. Images
    
-     - from the NIH's [Open-i] database (and perhaps others)
-        
-     - these images will be automatically processed (likely using neural nets) to make them amenable to machine learning algorithms.
-
-   2. Genomic Data
-   
-     - from the [DisGeNET] database
+     - automatically clean images (likely using neural nets) to make them amenable to machine learning algorithms.
     
-   3. Diagnostic Data
+   2. Diagnostic Data
    
-     - symptom information
-        
      - source currently unclear
 
 ------------------------------------------------------------------------
