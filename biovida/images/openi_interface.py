@@ -18,11 +18,12 @@ from math import floor
 from time import sleep
 from scipy import misc
 from pathlib import Path
+from warnings import warn
 from copy import deepcopy
 from pprint import pprint
 from itertools import chain
 from datetime import datetime
-from scipy.ndimage import imread as scipy_imread
+# from scipy.ndimage import imread as scipy_imread
 from easymoney.easy_pandas import pandas_pretty_print # faze out
 
 # Tool to create required caches
@@ -55,16 +56,10 @@ from biovida.images.openi_support_tools import list_to_bulletpoints
 # Start tqdm
 tqdm.pandas(desc='status')
 
-# Create Directories needed by the image package, if needed.
-root_img_path, created_img_dirs = _package_cache_creator(sub_dir='image',
-                                                         cache_path='/Users/tariq/Google Drive/Programming Projects/BioVida',
-                                                         to_create=['raw', 'processed'])
 
+# ToDo: Add the ability to cache a search.
 
-# ToDo:
-#   - Add option to cache a search.
-
-
+# test search
 search_query = 'https://openi.nlm.nih.gov/retrieve.php?q=&it=c,m,mc,p,ph,u,x'
 
 # ---------------------------------------------------------------------------------------------
@@ -126,11 +121,18 @@ def _url_formatter(api_search_transform, ordered_params):
     :param api_search_transform:
     :return:
     """
+    # Format query
+    if 'query' in api_search_transform:
+        api_search_transform['query'] = cln(api_search_transform['query']).replace(' ', '+')
+    else:
+        raise ValueError("No `query` detected.")
+
     search_term = ""
     for p in ordered_params:
         if p in api_search_transform:
-            search_term += "{0}{1}={2}".format(("?" if p == 'q' else ""), p, api_search_transform[p])
+            search_term += "{0}{1}={2}".format(("?" if p == 'query' else ""), p, api_search_transform[p])
 
+    # ToDo: change to root_url
     return "https://openi.nlm.nih.gov/retrieve.php{0}".format(search_term)
 
 
@@ -148,7 +150,7 @@ def _exclusions_img_type_merge(args, exclusions):
     if any(e not in ['graphics', 'multipanel'] for e in exclusions):
         raise ValueError("`exclusions` must only include one or all of: 'graphics', 'multipanel'.")
 
-    # Handle handle tuples, then `None`s.
+    # Handle handle tuples, then `None`s (with the 'else []').
     args['image_type'] = list(args['image_type']) if isinstance(args['image_type'], (list, tuple)) else []
 
     # Merge `exclusions` with `imgage_type`
@@ -168,20 +170,24 @@ class _OpeniRecords(object):
     """
 
 
-    def __init__(self, req_limit=30, date_format="%d/%m/%Y", sleep_mini=(2, 5), sleep_main=(50, 300), verbose=True):
+    def __init__(self, root_url, date_format, n_bounds_limit, sleep_mini, sleep_main, verbose, req_limit=30):
         """
 
-        :param req_limit: Defaults to 30 (limit imposed by Open-i).
-        :param date_format: Defaults to '%d/%m/%Y'                  <-- (consider leaving these as datatimes).
-        :param sleep_mini: (interval, sleep time in seconds)
-        :param sleep_main: (interval, sleep time in seconds)
-        :param verbose: print additional detail. Defaults to True
+        :param root_url:                                            Suggested: 'https://openi.nlm.nih.gov'
+        :param date_format: Defaults to '%d/%m/%Y'                  Suggested: "%d/%m/%Y" (consider leaving as datatime)
+        :param n_bounds_limit:                                      Suggested: 5
+        :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
+        :param sleep_main: (interval, sleep time in seconds)        Suggested: (50, 300)
+        :param verbose: print additional detail.                    Suggested: True
+        :param req_limit: Defaults to 30.                           Required by Open-i: 30
         """
-        self.req_limit = req_limit
+        self.root_url = root_url
         self.date_format = date_format
+        self.n_bounds_limit = n_bounds_limit
         self.sleep_mini = sleep_mini
         self.sleep_main = sleep_main
         self.verbose = verbose
+        self.req_limit = req_limit
 
 
     def openi_bounds(self, total):
@@ -227,6 +233,7 @@ class _OpeniRecords(object):
 
         :param bounds: as returned by `_OpeniPull().openi_bounds()`
         :return:
+        :rtype: ``list``
         """
         return ["&m={0}&n={1}".format(i[0], i[1]) for i in bounds]
 
@@ -241,7 +248,10 @@ class _OpeniRecords(object):
         if not date_dict:
             return None
 
-        info = [int(i) if i.isdigit() else None for i in [date_dict['year'], date_dict['month'], date_dict['day']]]
+        try:
+            info = [int(i) if i.isdigit() else None for i in [date_dict['year'], date_dict['month'], date_dict['day']]]
+        except:
+            return None
         if info[0] is None or (info[1] is None and info[2] is not None):
             return None
 
@@ -271,12 +281,11 @@ class _OpeniRecords(object):
         return to_harvest
 
 
-    def openi_block_harvest(self, url, bound, root_url, to_harvest):
+    def openi_block_harvest(self, url, bound, to_harvest):
         """
 
         :param url:
         :param bound:
-        :param root_url:
         :param to_harvest:
         :return:
         """
@@ -303,7 +312,7 @@ class _OpeniRecords(object):
                 elif j == 'journal_date':
                     item_dict[j] = null_convert(self.date_formater(item.get(j, None)))
                 elif 'img_' in camel_to_snake_case(j):
-                    item_dict[j] = url_combine(root_url, null_convert(item.get(j, None)))
+                    item_dict[j] = url_combine(self.root_url, null_convert(item.get(j, None)))
                 else:
                     item_dict[j] = null_convert(item.get(j, None))
 
@@ -312,13 +321,12 @@ class _OpeniRecords(object):
         return list_of_dicts
 
 
-    def openi_harvest(self, bounds_list, joined_url, root_url, to_harvest):
+    def openi_harvest(self, bounds_list, joined_url, to_harvest):
         """
 
         :param bounds_list:
         :param joined_url:
         :param bound:
-        :param root_url:
         :return:
         """
         harvested_data = list()
@@ -334,46 +342,33 @@ class _OpeniRecords(object):
                 sleep(abs(self.sleep_main[1] + np.random.normal()))
 
             # Harvest
-            harvested_data += self.openi_block_harvest(joined_url, bound, root_url, to_harvest)
+            harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
 
         # Return
         return harvested_data
 
 
-    def openi_kinesin(self, search_query, n_bounds_limit=5):
+    def openi_kinesin(self, search_query, to_harvest, total):
         """
 
         'Walk' along the search query and harvest the data.
 
         :param search_query:
-        :param n_bounds_limit: temp.
+        :param total:
         :return:
         """
-        # Get a sample request
-        sample = requests.get(search_query + "&m=1&n=1").json()
-
-        # Get the total number of results
-        total = sample['total']
-
-        # Block progress if no results found
-        if total < 1:
-            raise ValueError("No Results Found. Please Try Refining your Search Query.")
-
-        # Print number of results found
-        if self.verbose:
-            print("\nResults Found: %s." % ('{:,.0f}'.format(total)))
-
         # Compute a list of search ranges to harvest
         bounds_list = self.openi_bounds_formatter(self.openi_bounds(total))
 
         # Define Extract Limit
-        trunc_bounds = bounds_list[0:n_bounds_limit] if isinstance(n_bounds_limit, int) else bounds_list
+        trunc_bounds = bounds_list[0:self.n_bounds_limit] if isinstance(self.n_bounds_limit, int) else bounds_list
 
         # Learn the data returned by the API
-        to_harvest = self.harvest_vect(sample['list'][0])
+        to_harvest = self.harvest_vect(to_harvest)
 
         # Harvest and Convert to a DataFrame
-        return pd.DataFrame(self.openi_harvest(trunc_bounds, search_query, root_url, to_harvest)).fillna(np.NaN)
+        return pd.DataFrame(self.openi_harvest(trunc_bounds, search_query, to_harvest)).fillna(np.NaN)
+
 
 # ---------------------------------------------------------------------------------------------
 # Image Harvesting
@@ -386,17 +381,19 @@ class _OpeniImages(object):
 
 
 
-    def __init__(self, assumed_img_format='png', sleep_time=5.5, image_save_location=created_img_dirs['raw']):
+    def __init__(self, assumed_img_format, sleep_time, image_save_location, verbose):
         """
 
 
-        :param assumed_img_format:
-        :param sleep_time:
-        :param image_save_location:
+        :param assumed_img_format: suggested: 'png'
+        :param sleep_time: suggested: 5.5
+        :param image_save_location: suggested: created_img_dirs['raw'])
+        :param verbose:
         """
         self.assumed_img_format = assumed_img_format
         self.sleep_time = sleep_time
         self.image_save_location = image_save_location
+        self.verbose = verbose
 
 
     def img_name_abbrev(self, data_frame):
@@ -499,19 +496,19 @@ class _OpeniImages(object):
             img_title = self.img_titler(number=1, img_name=img_address.split("/")[-1], img_type=img_type)
 
             # Try download and log whether or not Download was sucessful.
-            result_log[img_address] = self.img_harvest(img_title, img_address, self.image_save_location)
+            result_log[img_address] = self.img_harvest(img_title, img_address)
 
-        if verbose:
+        if self.verbose:
             failed_downloads = {k: v for k, v in result_log.items() if v is False}
             if len(failed_downloads.values()):
                 header("Failed Downloads: ")
                 for k in failed_downloads.keys():
                     print(" - " + k)
             else:
-                print("All Images Sucessfully Extracted.")
+                print("\nAll Images Sucessfully Extracted.")
 
         # Map record of download sucess to img_address (URLs).
-        sucesses_log = data_frame[image_column].map(lambda x: result_log.get(x, np.NaN) if pd.notnull(x) else np.NaN)
+        sucesses_log = data_frame[image_column].map(lambda x: result_log.get(x, None) if pd.notnull(x) else None)
 
         # Return sucesses log
         return sucesses_log.rename("extracted")
@@ -526,17 +523,77 @@ class OpenInterface(object):
     """
 
 
-    def __init__(self, n_bounds_limit=1, verbose=False):
+    def __init__(self
+                 , cache_path=None
+                 , n_bounds_limit=2
+                 , img_sleep_time=5.5
+                 , image_quality='large'
+                 , date_format="%d/%m/%Y"
+                 , assumed_img_format='png'
+                 , records_sleep_mini=(2, 5)
+                 , records_sleep_main=(50, 300)
+                 , verbose=True):
         """
 
-        """
 
-    def _post_processing(self, data_frame):
+        :param cache_path:
+        :param n_bounds_limit: max. number of blocks to download (1 block = 30 records/rows).
+                               If ``None``, no limit will be imposed (not recommended). Defaults to 2.
+        :param img_sleep_time:
+        :param image_quality: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
+                              If ``None``, no attempt will be made to download images.
+        :param date_format:
+        :param assumed_img_format:
+        :param records_sleep_mini:
+        :param records_sleep_main:
+        :param verbose:
+        """
+        self._n_bounds_limit = n_bounds_limit
+        self._verbose = verbose
+        root_url = 'https://openi.nlm.nih.gov'
+
+        # Define allowed image types to pull
+        allowed_image_quality_types = ['large', 'grid150', 'thumb', 'thumb_large']
+
+        # Check `image_quality` is valid
+        if image_quality is not None and image_quality not in allowed_image_quality_types:
+            raise ValueError("`image_quality` must be one of: %s" % \
+                             (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
+        self._image_quality = image_quality
+
+        # Generate Required Caches
+        pcc = _package_cache_creator(sub_dir='image', cache_path=cache_path, to_create=['raw', 'processed'])
+        self._root_img_path, self._created_img_dirs = pcc
+
+        # Create an instance of the _OpeniRecords() Class
+        self._OpeniRecords = _OpeniRecords(root_url=root_url
+                                           , date_format=date_format
+                                           , n_bounds_limit=n_bounds_limit
+                                           , sleep_mini=records_sleep_mini
+                                           , sleep_main=records_sleep_main
+                                           , verbose=verbose)
+
+        # Create an instance of the _OpeniImages() Class
+        self._OpeniImages = _OpeniImages(assumed_img_format=assumed_img_format
+                                         , sleep_time=img_sleep_time
+                                         , image_save_location=self._created_img_dirs['raw']
+                                         , verbose=verbose)
+
+        # Define the current search term
+        self.current_search = None
+        self.current_search_url = None
+        self.current_search_total = None
+        self._current_search_to_harvest = None
+
+
+    def _post_processing_text(self, data_frame):
         """
 
         :param data_frame:
         :return:
         """
+        # ToDo: add 'article_type' to dict. look-up
+
         # Change camel case to snake case and lower
         data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
@@ -553,16 +610,45 @@ class OpenInterface(object):
         return data_frame
 
 
+    def _search_probe(self, search_query, print_results):
+        """
+
+        :param search_query:
+        :type search_query: ``str``
+        :param print_results:
+        :type print_results: ``bool``
+        :return:
+        """
+        # Get a sample request
+        sample = requests.get(search_query + "&m=1&n=1").json()
+
+        # Get the total number of results
+        try:
+            total = int(float(sample['total']))
+        except:
+            raise ValueError("Could not obtain total number of results from the Open-i API.")
+
+        # Block progress if no results found
+        if total < 1:
+            raise ValueError("No Results Found. Please Try Refining your Search.")
+
+        # Print number of results found
+        if print_results:
+            print("\nResults Found: %s." % ('{:,.0f}'.format(total)))
+
+        return total, sample['list'][0]
+
+
     def search_options(self, option, print_options=True):
         """
 
         Options for parameters of `openi_search()`.
 
         :param option: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields', 'specialties', 'video'.
-        :param print: if True, pretty print the options, else return.
+        :param print: if True, pretty print the options, else return as a ``list``.
         :return:
         """
-        # Terms to blocked from displaying
+        # Terms to blocked from displaying to users
         blocked = ['exclude_graphics', 'exclude_multipanel']
 
         # Get the relevant dict of params
@@ -592,58 +678,66 @@ class OpenInterface(object):
                , collection=None
                , fields=None
                , specialties=None
-               , video=['false']
-               , exclusions=['graphics']):
+               , video=None
+               , exclusions=['graphics']
+               , print_results=True):
         """
 
         Tool to generate search terms for the NIH's Open-i API.
 
         :param query: a search term. ``None`` will converter to an empty string.
         :type query: ``str`` or ``None``
-        :param image_type: see `search_options('image_type')` for valid values.
+        :param image_type: see `OpenInterface().search_options('image_type')` for valid values.
         :type image_type: ``list``, ``tuple`` or ``None``.
-        :param rankby: see `search_options('rankby')` for valid values.
+        :param rankby: see `OpenInterface().search_options('rankby')` for valid values.
         :type rankby: ``list``, ``tuple`` or ``None``.
-        :param subset: see `search_options('subset')` for valid values.
+        :param subset: see `OpenInterface().search_options('subset')` for valid values.
         :type subset: ``list``, ``tuple`` or ``None``.
-        :param collection: see `search_options('collection')` for valid values.
+        :param collection: see `OpenInterface().search_options('collection')` for valid values.
         :type collection: ``list``, ``tuple`` or ``None``.
-        :param fields: see `search_options('fields')` for valid values.
+        :param fields: see `OpenInterface().search_options('fields')` for valid values.
         :type fields: ``list``, ``tuple`` or ``None``.
-        :param specialties: see `search_options('specialties')` for valid values.
+        :param specialties: see `OpenInterface().search_options('specialties')` for valid values.
         :type specialties: ``list``, ``tuple`` or ``None``.
-        :param video: see `search_options('video')` for valid values. Defaults to ['false'].
+        :param video: see `OpenInterface().search_options('video')` for valid values. Defaults to None.
         :type video: ``list``, ``tuple`` or ``None``.
-        :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ['graphics'].
+        :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ['graphics'].      -- Working?
         :type exclusions: ``list``, ``tuple`` or ``None``
+        :param print_results: if ``True``, print the number of search results.
+        :type print_results: ``bool``
         :return: search url for the Open-i API.
         :rtype: ``str``
         """
+        # Remove 'self' from locals
+        args_cleaned = {k: v for k, v in deepcopy(locals()).items() if k not in ['self', 'print_results']}
+
         # Block blank searchers
-        if not len(list(filter(None, locals().values()))):
+        if not len(list(filter(None, args_cleaned.values()))):
             raise ValueError("No Search Criterion Detected. Please specify criterion to narrow your search.")
 
         # Extract the function arguments
-        args = {k: v for k, v in deepcopy(locals()).items() if k != 'exclusions'}
+        args = {k: v for k, v in args_cleaned.items() if k != 'exclusions'}
 
-        # Merge Image type with Exclusions
+        # Merge `image_type` with `exclusions`
         args = _exclusions_img_type_merge(args, exclusions)
 
         # Define a lambda to clean the search terms
-        search_clean = lambda k, v: [cln(i).strip().replace(' ', '_').lower() for i in
-                                     v] if k != 'query' and v is not None else v
+        search_clean = lambda k, v: [cln(i).replace(' ', '_').lower() for i in v] if k != 'query' and v is not None else v
 
         # Get the arguments
         search_arguments = {k: '' if k == 'query' and v is None else search_clean(k, v) for k, v in args.items()}
 
-        # Get Open-i Search Params
+        # Save search query
+        self.current_search = {k: v for k, v in deepcopy(search_arguments).items() if v is not None}
+
+        # Get Open-i search params
         search_dict, ordered_params = openi_search_information()
 
         # Add check for all search terms
         _openi_search_check(search_arguments, search_dict)
 
-        # Convert argument names into a form the API will understand
-        api_url_param = lambda x: search_dict[x][0] if x != 'query' else 'q'
+        # Convert param names into a form the API will understand
+        api_url_param = lambda x: search_dict[x][0] if x != 'query' else 'query'
 
         # Convert values passed into a form the API will understand
         api_url_terms = lambda k, v: ','.join([search_dict[k][1][i] for i in v]) if k != 'query' else v
@@ -651,42 +745,42 @@ class OpenInterface(object):
         # Perform transformation
         api_search_transform = {api_url_param(k): api_url_terms(k, v) for k, v in search_arguments.items() if v is not None}
 
-        # Format `api_search_transform` and return
-        return _url_formatter(api_search_transform, ordered_params)
+        # Format `api_search_transform`
+        formatted_search = _url_formatter(api_search_transform, ordered_params)
+
+        # Save formatted_search to `self`.
+        self.current_search_url = formatted_search
+        self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
 
 
-    def pull(self, image_quality='large', n_bounds_limit=1, verbose=False):
+    def pull(self):
         """
 
-        - solve: search_query
+        Pull the current search.
 
-        :param image_quality: one of: large, grid150, thumb, thumb_large or ``None``. Defaults to Large.
-                              If None, Images will not be harvested.
-        :param n_bounds_limit:
-        :param verbose:
-        :return:
+        :return: a DataFrame with the record information.
+                 If `image_quality` is not None, images will also be harvested and cached.
+        :rtype: ``Pandas DataFrame``
         """
-        allowed_image_quality_types = ['large', 'grid150', 'thumb', 'thumb_large']
-        if image_quality is not None and image_quality not in allowed_image_quality_types:
-            raise ValueError("`image_quality` must be one of: %s" % \
-                             (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
+        if self.current_search_url is None:
+            raise ValueError("A search has not been defined. Please call `OpenInterface().search()`.")
 
         # Pull Data
-        data_frame = openi_kinesin(search_query, n_bounds_limit=n_bounds_limit, verbose=verbose)
+        data_frame = self._OpeniRecords.openi_kinesin(self.current_search_url
+                                                      , to_harvest=self._current_search_to_harvest
+                                                      , total=self.current_search_total)
 
         # Run Post Processing
-        data_frame = self._post_processing(data_frame)
+        data_frame = self._post_processing_text(data_frame)
 
         # Download Images
-        if image_quality is not None:
-            data_frame['img_extracted'] = bulk_img_harvest(data_frame, "img_{0}".format(image_quality))
+        if self._image_quality is not None:
+            image_col = "img_{0}".format(self._image_quality)
+            data_frame['img_extracted'] = self._OpeniImages.bulk_img_harvest(data_frame, image_column=image_col)
+        elif self._verbose:
+            warn("\nNo attempt was made to download images because `image_quality` is `None`.")
 
         return data_frame
-
-
-
-
-
 
 
 
