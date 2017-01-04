@@ -30,7 +30,6 @@ def _parser(s):
 
 
 openi_video_params = {
-    '0': 'false',
     '1': 'true'
 }
 
@@ -44,8 +43,8 @@ openi_image_type_params = {
     'ph': 'photograph',
     'u': 'ultrasound',
     'x': 'x-ray',
-    'xg': 'exclude_graphics', # blocks graphics
-    'xm': 'exclude_multipanel' # blocks multipanel
+    'xg': 'exclude_graphics',
+    'xm': 'exclude_multipanel'
 }
 
 
@@ -146,13 +145,15 @@ def openi_search_information():
     :return: search information for the Open-i API.
     :rtype: ``dict``
     """
-    ordered_params = ['q', '&it', '&favor', '&sub', '&coll', '&fields', '&sp']
+    # Params in the order the Open-i API expects
+    ordered_params = ['query', '&it', '&favor', '&vid', '&sub', '&coll', '&fields', '&sp']
 
     # Define a lambda to reverse a dict
     dict_reverse = lambda d: {v: k for k, v in d.items()}
 
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
     return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
+
 
 
 
