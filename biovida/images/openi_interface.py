@@ -645,30 +645,30 @@ class OpenInterface(object):
 
         return total, sample['list'][0]
 
-    def options(self, option, print_options=True):
+    def options(self, search_parameter, print_options=True):
         """
 
         Options for parameters of `openi_search()`.
 
-        :param option: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields', 'specialties', 'video'.
+        :param search_parameter: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields', 'specialties', 'video'.
         :param print: if True, pretty print the options, else return as a ``list``.
-        :return: a list of valid values for a given search `option`.
+        :return: a list of valid values for a given search `search_parameter`.
         :rtype: ``list``
         """
         # Terms to blocked from displaying to users
         blocked = ['exclude_graphics', 'exclude_multipanel']
 
         # Get the relevant dict of params
-        search_dict = openi_search_information()[0].get(cln(option).strip().lower(), None)
+        search_dict = openi_search_information()[0].get(cln(search_parameter).strip().lower(), None)
 
-        # Report invalid `option`
+        # Report invalid `search_parameter`
         if search_dict is None:
-            raise ValueError("'{0}' is not a valid option for the Open-i API".format(option))
+            raise ValueError("'{0}' is not a valid value for the Open-i API".format(search_parameter))
 
         # Remove blocked term
         opts = [i for i in search_dict[1].keys() if i not in blocked]
         if not len(opts):
-            raise ValueError("Relevant options for '{0}'.".format(option))
+            raise ValueError("Relevant options for '{0}'.".format(search_parameter))
 
         # Print or Return
         if print_options:
