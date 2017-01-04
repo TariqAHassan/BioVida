@@ -12,6 +12,26 @@ public databases.
 
 ------------------------------------------------------------------------
 
+###Outline of Objectives:
+
+   1. Images
+   
+     - from the NIH's *Open-i* Database (and perhaps others)
+        
+     - these images will be automatically processed to make them amenable to machine learning algorithms.
+
+   2. Genomic Data
+   
+     - likely from the NIH's *Genome* database
+    
+   3. Diagnostic Data
+   
+     - symptom information
+        
+     - source currently unclear
+
+------------------------------------------------------------------------
+
 ###Installation
 
 Latest Build:
@@ -23,7 +43,7 @@ $ pip install git+git://github.com/TariqAHassan/BioVida@master
 
 ###Dependencies
 
-BioVida requires: inflect, pandas, numpy and tqdm.
+BioVida requires: [inflect], [pandas], [numpy], [requests] and [tqdm].
 
 ------------------------------------------------------------------------
 
@@ -62,26 +82,16 @@ Images referenced in the DataFrame will automatically be harvested (unless speci
 
 ------------------------------------------------------------------------
 
-###Outline of Objectives:
+##Resources
 
-   1. Images
-   
-     - from the NIH's *Open-i* Database (and perhaps others)
-        
-     - these images will be automatically processed to make them amenable to machine learning algorithms.
+Images: the NIH's [Open-i] BioMedical Image Search Engine
 
-   2. Genomic Data
-   
-     - likely from the NIH's *Genome* database
-    
-   3. Diagnostic Data
-   
-     - symptom information
-        
-     - source currently unclear
-        
-
-
+[inflect]: https://pypi.python.org/pypi/inflect
+[pandas]: http://pandas.pydata.org
+[numpy]: http://www.numpy.org
+[requests]: http://docs.python-requests.org/en/master/
+[tqdm]: https://github.com/tqdm/tqdm
+[Open-i]: https://openi.nlm.nih.gov
 
 
 
