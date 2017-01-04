@@ -3,7 +3,7 @@
     Harvest Data from the NIH's Open-i API
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    URL: https://openi.nlm.nih.gov.
+    See: https://openi.nlm.nih.gov.
 
 """
 # Imports
@@ -17,7 +17,6 @@ from tqdm import tqdm
 from math import floor
 from time import sleep
 # from scipy import misc
-from pathlib import Path
 from warnings import warn
 from copy import deepcopy
 from pprint import pprint
@@ -35,15 +34,17 @@ from biovida.images.openi_parameters import openi_search_information
 # Tool for extracting features from text
 from biovida.images.openi_text_feature_extraction import feature_extract
 
-# BioVida Support Tools
-from biovida.images.openi_support_tools import cln
-from biovida.images.openi_support_tools import header
+# Image Support Tools
 from biovida.images.openi_support_tools import iter_join
 from biovida.images.openi_support_tools import url_combine
 from biovida.images.openi_support_tools import null_convert
 from biovida.images.openi_support_tools import numb_extract
-from biovida.images.openi_support_tools import camel_to_snake_case
 from biovida.images.openi_support_tools import list_to_bulletpoints
+
+# General Support Tools
+from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import header
+from biovida.support_tools.support_tools import camel_to_snake_case
 
 # To install scipy: brew install gcc; pip3 install Pillow
 
@@ -459,7 +460,7 @@ class _OpeniImages(object):
         image_save_path = os.path.join(self.image_save_location, img_title)
 
         # Check if the file already exists; if not, download and save it.
-        if not Path(image_save_path).is_file():
+        if not os.path.isfile(image_save_path):
             try:
                 # Get the image
                 page = requests.get(image_web_address)
@@ -530,7 +531,7 @@ class OpenInterface(object):
                  , n_bounds_limit=2
                  , img_sleep_time=5.5
                  , image_quality='large'
-                 , date_format="%d/%m/%Y"
+                 , date_format='%d/%m/%Y'
                  , assumed_img_format='png'
                  , records_sleep_mini=(2, 5)
                  , records_sleep_main=(50, 300)
@@ -544,14 +545,14 @@ class OpenInterface(object):
         :param img_sleep_time:
         :param image_quality: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
                               If ``None``, no attempt will be made to download images.
-        :param date_format:
+        :param date_format: Defaults to '%d/%m/%Y'.
         :param assumed_img_format:
         :param records_sleep_mini:
         :param records_sleep_main:
         :param verbose:
         """
-        self._n_bounds_limit = n_bounds_limit
         self._verbose = verbose
+        self._n_bounds_limit = n_bounds_limit
         root_url = 'https://openi.nlm.nih.gov'
 
         # Define allowed image types to pull
@@ -618,7 +619,7 @@ class OpenInterface(object):
 
         :param search_query:
         :type search_query: ``str``
-        :param print_results:
+        :param print_results: print the number of results found
         :type print_results: ``bool``
         :return:
         """
@@ -760,7 +761,7 @@ class OpenInterface(object):
     def pull(self):
         """
 
-        Pull the current search.
+        Pull (i.e., download) the current search.
 
         :return: a DataFrame with the record information.
                  If `image_quality` is not None, images will also be harvested and cached.
