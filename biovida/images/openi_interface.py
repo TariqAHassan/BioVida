@@ -22,7 +22,6 @@ from copy import deepcopy
 from pprint import pprint
 from datetime import datetime
 # from scipy.ndimage import imread as scipy_imread
-from easymoney.easy_pandas import pandas_pretty_print # faze out
 
 # Tool to create required caches
 from biovida.init import _package_cache_creator
@@ -45,6 +44,7 @@ from biovida.images.openi_support_tools import list_to_bulletpoints
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import camel_to_snake_case
+from biovida.support_tools.printing import pandas_pretty_print
 
 # To install scipy: brew install gcc; pip3 install Pillow
 

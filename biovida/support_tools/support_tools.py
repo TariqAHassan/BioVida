@@ -9,6 +9,37 @@
 import re
 
 
+def pstr(s):
+    """
+
+    Convert to any obect to a string using pandas.
+    Source: https://github.com/TariqAHassan/EasyMoney
+
+    :param s: item to be converted to a string.
+    :type s: ``any``
+    :return: a string
+    :rtype: ``str``
+    """
+    return pd.Series([s]).astype('unicode')[0]
+
+
+def items_null(element):
+    """
+
+    Check if an object is a NaN, including all the elements in an iterable.
+    Source: https://github.com/TariqAHassan/EasyMoney
+
+    :param element: a python object.
+    :type element: ``any``
+    :return: assessment of whether or not `element` is a NaN.
+    :rtype: ``bool``
+    """
+    if isinstance(element, (list, tuple, type(np.array))):
+        return True if all(pd.isnull(i) for i in element) else False
+    else:
+        return pd.isnull(element)
+
+
 def header(string, flank=True):
     """
 
