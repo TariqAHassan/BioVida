@@ -66,19 +66,22 @@ def _disgenet_readme(created_gene_dirs):
     :param created_gene_dirs: the dictionary of directories returned by ``_package_cache_creator()``
     :type created_gene_dirs: ``dict``
     """
-    # URL to DisGeNET README
-    readme_url = 'http://www.disgenet.org/ds/DisGeNET/results/readme.txt'
-
-    # Resquest
-    r = requests.get(readme_url, stream=True)
-
     # Save address
     save_address = os.path.join(created_gene_dirs['disgenet'], 'DisGeNET_README.txt')
 
     # Write if the file does not exist
     if not os.path.isfile(save_address):
+        # Resquest
+        r = requests.get(readme_url, stream=True)
+
+        # URL to DisGeNET README
+        readme_url = 'http://www.disgenet.org/ds/DisGeNET/results/readme.txt'
+
+        # Notice
         header("The DisGeNET README has been downloaded to:\n\n {0}\n\n"
                "Please take the time to review this document.".format(save_address))
+
+        # Write
         with open(save_address, 'wb') as f:
             f.write(r.content)
 
