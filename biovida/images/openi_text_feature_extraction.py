@@ -4,10 +4,16 @@
     Post Processing of Text Information
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    ToDo:
+        1. search abstract for diagnostic information.
+        2. search the 'problems' column for diagnosis information.
+        3. mine abstract for imaging_tech information
+        4. group images by patient
 
 """
 # Imports
 import re
+import numpy as np
 from itertools import chain
 
 # Import tools from Open-i support tools
@@ -132,13 +138,18 @@ def feature_extract(x):
         d = mexpix_info_extract(x['abstract'])
 
     # Define string to use when trying to harvest sex and age information.
-    guess_string = x['abstract'].lower() if d['History'] is None else d['History'].lower()
+    if not isinstance(x['abstract'], str):
+        guess_string = None
+    elif d['History'] is None:
+        guess_string = x['abstract'].lower()
+    else:
+        guess_string = d['History'].lower()
 
     # Guess Sex
-    d['sex'] = patient_sex_guess(guess_string)
+    d['sex'] = patient_sex_guess(guess_string) if isinstance(guess_string, str) else np.NaN
 
     # Guess Age
-    d['age'] = patient_age_guess(guess_string)
+    d['age'] = patient_age_guess(guess_string) if isinstance(guess_string, str) else np.NaN
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
