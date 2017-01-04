@@ -7,8 +7,9 @@
     ToDo:
         1. search abstract for diagnostic information.
         2. search the 'problems' column for diagnosis information.
-        3. mine abstract for imaging_tech information
+        3. mine abstract for imaging_tech (or 'image_caption' column)
         4. group images by patient
+
 
 """
 # Imports
