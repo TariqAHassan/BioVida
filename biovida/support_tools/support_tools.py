@@ -40,6 +40,19 @@ def items_null(element):
         return pd.isnull(element)
 
 
+def list_to_bulletpoints(l):
+    """
+
+    Convert a list to bullet points.
+
+    :param l: a list (in the colloquial sense) of strings.
+    :type l: ``list`` or ``tuple``
+    :return: list itmes formatted as a string of bullet points (with line breaks).
+    :rtype: ``str``
+    """
+    return "".join(map(lambda x: "  - '{0}'\n".format(x), list(l)))[:-1]
+
+
 def header(string, flank=True):
     """
 

@@ -54,8 +54,6 @@ def num_word_to_int(input_str):
 def url_path_extract(url):
     return urlsplit(url).path[1:].replace("/", "__")
 
-def list_to_bulletpoints(l):
-    return "".join(map(lambda x: "  - '{0}'\n".format(x), list(l)))[:-1]
 
 
 

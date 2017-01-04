@@ -38,12 +38,12 @@ from biovida.images.openi_support_tools import iter_join
 from biovida.images.openi_support_tools import url_combine
 from biovida.images.openi_support_tools import null_convert
 from biovida.images.openi_support_tools import numb_extract
-from biovida.images.openi_support_tools import list_to_bulletpoints
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import camel_to_snake_case
+from biovida.support_tools.support_tools import list_to_bulletpoints
 from biovida.support_tools.printing import pandas_pretty_print
 
 # To install scipy: brew install gcc; pip3 install Pillow

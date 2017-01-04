@@ -19,7 +19,7 @@ from biovida.support_tools.support_tools import camel_to_snake_case
 
 # Cache Creation
 cache_path = '/Users/tariq/Google Drive/Programming Projects/BioVida'
-root_gene_path, created_gene_dirs = _package_cache_creator(sub_dir='genomics', cache_path=cache_path, to_create=['disgenet'])
+root_gene_path, created_gene_dirs = _package_cache_creator(sub_dir='genomic', cache_path=cache_path, to_create=['disgenet'])
 
 
 def disgenet_disclaimer(print_disclaimer=True):
@@ -85,7 +85,7 @@ def _disgenet_readme():
             f.write(r.content)
 
 
-def disgenet_database(verbose=False, download_override=False):
+def disgenet_database(verbose=False, download_override=False, snake_case_col_names=False):
     """
 
     Tool to download a DisGeNET Database.
@@ -97,7 +97,9 @@ def disgenet_database(verbose=False, download_override=False):
     :param download_override: If True, override any existing database currently cached and download a new one.
                               Defaults to False.
     :type download_override: ``bool``
-    :return: the DisGeNET 'All Gene Disease Associations' Database
+    :param snake_case_col_names: if True, convert column names to 'snake case' (e.g., 'this_is_snake_case').
+    :type snake_case_col_names: ``bool``
+    :return: a DisGeNET database
     :rtype: ``Pandas DataFrame``
     """
     # Save address
@@ -107,24 +109,20 @@ def disgenet_database(verbose=False, download_override=False):
     db_url = 'http://www.disgenet.org/ds/DisGeNET/results/all_gene_disease_associations.tsv.gz'
 
     # Download or simply load from cache
-    if not os.path.isfile(save_address) and not download_override:
+    if download_override or not os.path.isfile(save_address):
         if verbose:
             header("Downloading DisGeNET Database... ", flank=False)
-        # Harvest, Rename Columns and Save
+        # Harvest and Save
         df = pd.read_csv(db_url, sep='\t', header=21, compression='gzip')
-        df.columns = list(map(camel_to_snake_case, df.columns))
         df.to_csv(save_address, index=False)
     else:
         df = pd.read_csv(save_address)
 
+    #  Rename Columns, if requested
+    if snake_case_col_names:
+        df.columns = list(map(camel_to_snake_case, df.columns))
+
     return df
-
-
-
-
-
-
-
 
 
 

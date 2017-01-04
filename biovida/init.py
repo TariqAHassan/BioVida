@@ -9,6 +9,9 @@
 # Imports
 import os
 
+# General Support Tools
+from biovida.support_tools.support_tools import list_to_bulletpoints
+
 
 def _sub_directory_creator(root_path, to_create):
     """
@@ -118,6 +121,12 @@ def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     :param verbose:
     :return:
     """
+    # Check `sub_dir` is an allowed type
+    allowed_sub_dirs = ['search', 'image', 'genomic', 'diagnostic']
+    if sub_dir not in allowed_sub_dirs:
+        raise ValueError("`sub_dir` must be one of:\n{0}".format(list_to_bulletpoints(allowed_sub_dirs)))
+
+    # Check `to_create` is a ``list`` or ``tuple`` with nonzero length
     if not isinstance(to_create, (list, tuple)) or not len(to_create):
         raise AttributeError("`to_create` must be an iterable with a nonzero length.")
 
@@ -142,6 +151,7 @@ def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
 
     # Return full path & the above mapping
     return sub_dir_full_path, record_dict
+
 
 
 
