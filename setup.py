@@ -18,7 +18,7 @@ setup(
     long_description=read('docs/README.md'),
     license='BSD',
     keywords='medicine, biological sciences, machine learning, data science',
-    url='https://github.com/TariqAHassan/EasyMoney.git',
+    url='https://github.com/TariqAHassan/BioVida.git',
     packages=find_packages(),
     data_files=[('', ['LICENSE.md'])],
     install_requires=['inflect', 'pandas', 'numpy', 'tqdm'],
