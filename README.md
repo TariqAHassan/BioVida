@@ -2,7 +2,7 @@ BioVida
 ===
 
 
-###Overview:
+###Overview
 
 Publicly available online repositories currently store enormous amounts of data on numerous human diseases. However, 
 these databases are often built to serve wildly different purposes, making it difficult to explore connections between 
@@ -12,7 +12,7 @@ public databases.
 
 ------------------------------------------------------------------------
 
-###Outline of Objectives:
+###Outline of Objectives
 
    1. Images
    
