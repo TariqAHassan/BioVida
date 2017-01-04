@@ -54,50 +54,6 @@ _disgenet_delimited_databases = {
 }
 
 
-def disgenet_disclaimer(print_disclaimer=True):
-    """
-
-    Prints or Returns the DisGeNET Disclaimer.
-
-    :param print_disclaimer: if True, print the disclaimer else return.
-    :type print_disclaimer: ``bool``
-    :return: the DisGeNET Disclaimer.
-    :rtype: ``str``
-    """
-    disclaimer = """
-
-    Disclaimer
-
-    Except where expressly provided otherwise, the site, and all content, materials, information, software, products
-    and services provided on the site, are provided on an "as is" and "as available" basis.
-    The IBIgroup expressly disclaims all warranties of any kind, whether express or implied, including, but not
-    limited to, the implied warranties of merchantability, fitness for a particular purpose and non-infringement.
-    The IBI group makes no warranty that:
-
-        a. the site will meet your requirements
-
-        b. the site will be available on an uninterrupted, timely, secure, or error-free basis (though IBI will
-           undertake best-efforts to ensure continual uptime and availability of its content)
-
-        c. the results that may be obtained from the use of the site or any services offered through the site will
-           be accurate or reliable
-
-        d. the quality of any products, services, information, or other material obtained by you through the site
-           will meet your expectations
-
-    Any content, materials, information or software downloaded or otherwise obtained through the use of the site is
-    done at your own discretion and risk. The IBI group shall have no responsibility for any damage to your computer
-    system or loss of data that results from the download of any content, materials, information or software.
-    The IBI group reserves the right to make changes or updates to the site at any time without notice.
-
-    If you have any further questions, please email us at support@disgenet.org
-    """
-    if print_disclaimer:
-        print(disclaimer)
-    else:
-        return disclaimer
-
-
 def _disgenet_readme():
     """
     Writes the DisGeNET README to disk.
