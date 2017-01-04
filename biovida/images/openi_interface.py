@@ -3,7 +3,6 @@
     Harvest Data from the NIH's Open-i API
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    See: https://openi.nlm.nih.gov.
 
 """
 # Imports
@@ -54,9 +53,11 @@ tqdm.pandas(desc='status')
 
 # ToDo: Add the ability to cache a search.
 
+
 # ---------------------------------------------------------------------------------------------
 # Open-i Searching
 # ---------------------------------------------------------------------------------------------
+
 
 def _openi_search_special_case(search_param, blocked, passed):
     """
@@ -148,9 +149,11 @@ def _exclusions_img_type_merge(args, exclusions):
 
     return args
 
+
 # ---------------------------------------------------------------------------------------------
 # Pull Records from the NIH's Open-i API
 # ---------------------------------------------------------------------------------------------
+
 
 class _OpeniRecords(object):
     """
@@ -377,6 +380,7 @@ class _OpeniRecords(object):
 # Image Harvesting
 # ---------------------------------------------------------------------------------------------
 
+
 class _OpeniImages(object):
     """
 
@@ -516,13 +520,39 @@ class _OpeniImages(object):
         # Return sucesses log
         return sucesses_log.rename("extracted")
 
+
 # ---------------------------------------------------------------------------------------------
 # Construct Database
 # ---------------------------------------------------------------------------------------------
 
+
 class OpenInterface(object):
     """
 
+    Python Interface for the NIH's Open-i API.
+
+    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
+                       Default to None (which will generate a cache in the home folder).
+    :type cache_path: ``str`` or ``None``
+    :param n_bounds_limit: max. number of blocks to download (1 block = 30 records/rows).
+                           If ``None``, no limit will be imposed (not recommended). Defaults to 2.
+    :type n_bounds_limit: ``int``
+    :param img_sleep_time: time to sleep (in seconds) between requests for images. Noise is added on each call
+                           by pulling a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5.5 seconds.
+    :type img_sleep_time: ``int`` or ``float``
+    :param image_quality: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
+                          If ``None``, no attempt will be made to download images.
+    :type image_quality: ``str`` or ``None``
+    :param date_format: Defaults to '%d/%m/%Y'.
+    :type date_format: ``str``
+    :param assumed_img_format: Assumed format of images on Open-i if this information cannot be determined. Defaults to 'png'.
+    :type assumed_img_format: ``str``
+    :param records_sleep_mini: Tuple of the form: (every x downloads, short peroid of time [seconds]). Defaults to (2, 5).
+    :type records_sleep_mini: ``tuple``
+    :param records_sleep_main: Tuple of the form: (every x downloads, long peroid of time [seconds]). Defaults to (50, 300)
+    :type records_sleep_main: ``tuple``
+    :param verbose: print additional details.
+    :type verbose: ``bool``
     """
 
 
@@ -538,18 +568,8 @@ class OpenInterface(object):
                  , verbose=True):
         """
 
+        Initialize the ``OpenInterface()`` Class.
 
-        :param cache_path:
-        :param n_bounds_limit: max. number of blocks to download (1 block = 30 records/rows).
-                               If ``None``, no limit will be imposed (not recommended). Defaults to 2.
-        :param img_sleep_time:
-        :param image_quality: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
-                              If ``None``, no attempt will be made to download images.
-        :param date_format: Defaults to '%d/%m/%Y'.
-        :param assumed_img_format:
-        :param records_sleep_mini:
-        :param records_sleep_main:
-        :param verbose:
         """
         self._verbose = verbose
         self._n_bounds_limit = n_bounds_limit
@@ -650,7 +670,7 @@ class OpenInterface(object):
 
         :param option: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields', 'specialties', 'video'.
         :param print: if True, pretty print the options, else return as a ``list``.
-        :return:
+        :return: a list of valid values for a given search `option`.
         :rtype: ``list``
         """
         # Terms to blocked from displaying to users
@@ -792,6 +812,29 @@ class OpenInterface(object):
         self.current_search_data_frame = data_frame
 
         return data_frame
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
