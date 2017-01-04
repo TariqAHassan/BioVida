@@ -53,7 +53,7 @@ def _char_in_braces(full_s, char_position):
     """
 
     Checks if a given position in a string lies between braces.
-    Note: This is a rough solution, but more than sufficent. A robust solution would require a state machine.
+    Note: This is a rough solution, but more than sufficient. A robust solution would require a state machine.
 
     :param full_s: a string.
     :type full_s: ``str``
