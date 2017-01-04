@@ -55,10 +55,10 @@ io.search("caudate nucleus", image_type=['mri', 'pet', 'ct'])
 df = io.pull()
 ```
 
-The DataFrame created above, `df`, contains data from all fields provided by the Open-i API<sup>†</sup>.
+The DataFrame created above, `df`, contains data from all fields provided by the Open-i API.<sup>†</sup>
 Images referenced in the DataFrame will automatically be harvested (unless specified otherwise).
 
-<sup>†</sup>*Note*: by default results are truncated to the first 60 results.
+<sup>†</sup>*Note*: by default, data harvesting is truncated after the first 60 results.
 
 ------------------------------------------------------------------------
 
