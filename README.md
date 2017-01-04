@@ -8,8 +8,8 @@ Publicly available online repositories currently store enormous amounts of data 
 these databases are often built to serve wildly different purposes, making it difficult to explore connections between 
 them. This project aims to tame this problem and integrate several of these public sources together.
 Specifically, it aims to develop an easy-to-use API which will harvest the latest information on human diseases from 
-public databases. These tools will be complimented by means to automate the processing of the harvested data 
-(where applicable).
+public databases. These capabilties will be complimented by other tools to automate the post-processing of the harvest 
+data to make machine learning tractable.
 
 ------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ public databases. These tools will be complimented by means to automate the proc
    
      - from the NIH's [Open-i] database (and perhaps others)
         
-     - these images will be automatically processed (likely using Neural Networks) to make them amenable to machine learning algorithms.
+     - these images will be automatically processed (likely using neural nets) to make them amenable to machine learning algorithms.
 
    2. Genomic Data
    
