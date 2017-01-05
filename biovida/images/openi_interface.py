@@ -702,7 +702,7 @@ class OpenInterface(object):
         :return: search URL for the Open-i API.
         :rtype: ``str``
         """
-        # Remove 'self' from locals
+        # Remove 'self' and 'print_results' from locals
         args_cleaned = {k: v for k, v in deepcopy(locals()).items() if k not in ['self', 'print_results']}
 
         # Block blank searches
