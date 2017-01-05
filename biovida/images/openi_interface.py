@@ -854,8 +854,8 @@ class OpenInterface(object):
                                 AND return the database. Conversely, if `return_request` is ``False``, the database
                                 will simply be restored to ``self.current_search_dataframe``.
         :type return_request: ``bool``
-        :return: a DataFrame or list of currently cached databases.
-        :rtype: ``Pandas DataFrame`` or ``None``
+        :return: list of currently cached databases or a cached DataFrame.
+        :rtype: ``list``, ``Pandas DataFrame`` or ``None``
         """
         # Check for [some] invalid requests.
         databases_found = self._cache_method_checker(database_name, action)
