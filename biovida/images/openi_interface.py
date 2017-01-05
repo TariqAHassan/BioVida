@@ -563,7 +563,7 @@ class OpenInterface(object):
                 if k == 'rankby':
                     self._openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
 
-    def _exclusions_img_type_merge(args, exclusions):
+    def _exclusions_img_type_merge(self, args, exclusions):
         """Merge Image type with Exclusions"""
         # Check `exclusions` is an acceptable type
         if not isinstance(exclusions, (list, tuple)) and exclusions is not None:
