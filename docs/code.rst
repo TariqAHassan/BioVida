@@ -7,7 +7,7 @@ API
 .. automodule:: biovida.images.image_processing
 	:members:	
 
-.. automodule:: biovida.images.openi_text_feature_extraction
+.. automodule:: biovida.images.text_processing
 	:members:	
 
 .. automodule:: biovida.genomics.disgenet_interface

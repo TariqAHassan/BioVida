@@ -26,10 +26,10 @@ biovida.images.image_processing module
     :undoc-members:
     :show-inheritance:
 
-biovida.images.openi_text_feature_extraction module
+biovida.images.text_processing module
 ---------------------------------------------------
 
-.. automodule:: biovida.images.openi_text_feature_extraction
+.. automodule:: biovida.images.text_processing
     :members:
     :undoc-members:
     :show-inheritance:
