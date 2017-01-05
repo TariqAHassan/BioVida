@@ -798,30 +798,18 @@ class OpenInterface(object):
 
         return data_frame
 
-    def cache(self, database_name=None, action=None, return_request=True):
+    def _cache_method_checker(self, database_name, action):
         """
 
-        Cache a database or restore a cached database to ``self.current_search_dataframe``.
+        This method checks for some forms of invalid requests to
+        the ``OpenInterface().cache()`` method.
 
-        :param database_name: if `action` is 'save': the name for the database to be saved.
-                              if `action` is 'restore': the name of the database to be restored.
-                              if `action` is '!DELETE!': the database to delete.
-                              if `database_name` is ``None``, a list of current saved database will be provided.
-                              Defaults to ``None``.
+        :param database_name: see ``OpenInterface().cache()``
         :type database_name: ``str`` or ``None``
-        :param action: 'save' to cache the current database.
-                       'restore' to retore an existing database.
-                       '!DELETE!' to delete an existing database.
-                       Defaults to `None`.
-        :type action: ``str``
-        :param return_request:  if `database_name` is None and `return_request` is ``True``, return a list of databases
-                                currently cached, else pretty print the list.
-                                if `action` is 'restore' and `return_request` is ``True``, ``self.current_search_dataframe``
-                                AND return the database. Conversely, if `return_request` is ``False``, the database
-                                will simply be restored to ``self.current_search_dataframe``.
-        :type return_request: ``bool``
-        :return: a DataFrame or list of currently cached databases.
-        :rtype: ``Pandas DataFrame`` or ``None``
+        :param action: see ``OpenInterface().cache()``
+        :type action: ``str`` or ``None``
+        :return: a list of databases found in ``self._search_cache_path``
+        :rtype: ``list``
         """
         if self.current_search_dataframe is None and action == 'save':
             raise AttributeError("A dataframe has not yet been harvested using `pull()`.")
@@ -841,6 +829,36 @@ class OpenInterface(object):
             raise ValueError("if `database_name` is None, `action` must also be None")
         if isinstance(database_name, str) and action is None:
             raise ValueError("`action` cannot be None if `database` is not None")
+
+        return databases_found
+
+    def cache(self, database_name=None, action=None, return_request=True):
+        """
+
+        Cache a database or restore a cached database to ``self.current_search_dataframe``.
+
+        :param database_name: if `action` is 'save': the name for the database to be saved.
+                              if `action` is 'restore': the name of the database to be restored.
+                              if `action` is '!DELETE!': the database to delete.
+                              if `database_name` is ``None``, a list of current saved database will be provided.
+                              Defaults to ``None``.
+        :type database_name: ``str`` or ``None``
+        :param action: 'save' to cache the current database.
+                       'restore' to retore an existing database.
+                       '!DELETE!' to delete an existing database.
+                       Defaults to `None`.
+        :type action: ``str`` or ``None``
+        :param return_request:  if `database_name` is None and `return_request` is ``True``, return a list of databases
+                                currently cached, else pretty print the list.
+                                if `action` is 'restore' and `return_request` is ``True``, ``self.current_search_dataframe``
+                                AND return the database. Conversely, if `return_request` is ``False``, the database
+                                will simply be restored to ``self.current_search_dataframe``.
+        :type return_request: ``bool``
+        :return: a DataFrame or list of currently cached databases.
+        :rtype: ``Pandas DataFrame`` or ``None``
+        """
+        # Check for [some] invalid requests.
+        databases_found = self._cache_method_checker(database_name, action)
 
         if all(x == None or x is None for x in [database_name, action]):
             if not len(databases_found):
@@ -874,9 +892,6 @@ class OpenInterface(object):
                 if self._verbose:
                     warn("The database entitled {0} was deleted from:\n '{1}'.".format(
                         database_name, self._search_cache_path))
-
-
-
 
 
 
