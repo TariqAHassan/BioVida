@@ -247,7 +247,7 @@ def pandas_print_full(pd_df, full_rows=False, full_cols=True):
         pd.set_option('expand_frame_repr', True)
 
 
-def pandas_pretty_print(data_frame, col_align='right', header_align='center', full_rows=True, full_cols=True):
+def pandas_pretty_print(data_frame, col_align='right', header_align='center', full_rows=False, full_cols=True):
     """
 
     Pretty Print a Pandas DataFrame.
