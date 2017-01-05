@@ -147,11 +147,11 @@ For documentation please click [here].
 
 ###Resources
 
-Images:
+Images
 
    - The [Open-i] BioMedical Image Search Engine (NIH)
 
-Genomics:
+Genomics
 
    - [DisGeNET]:
 
