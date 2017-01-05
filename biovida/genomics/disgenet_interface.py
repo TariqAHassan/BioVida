@@ -12,7 +12,7 @@ import pandas as pd
 from pprint import pprint
 
 # Tool to create required caches
-from biovida.init import _package_cache_creator
+from biovida.support_tools._cache_management import _package_cache_creator
 
 # BioVida Support Tools
 from biovida.support_tools.support_tools import header
