@@ -21,7 +21,7 @@ from pprint import pprint
 from datetime import datetime
 
 # Tool to create required caches
-from biovida.init import _package_cache_creator
+from biovida.support_tools._cache_management import _package_cache_creator
 
 # Open-i API Parameters Information
 from biovida.images.openi_parameters import openi_image_type_params
@@ -46,9 +46,6 @@ from biovida.support_tools.support_tools import list_to_bulletpoints
 
 # Start tqdm
 tqdm.pandas(desc='status')
-
-
-# ToDo: Add the ability to cache a search.
 
 
 # ---------------------------------------------------------------------------------------------
@@ -490,6 +487,9 @@ class OpenInterface(object):
         pcc = _package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['raw', 'processed'])
         self.root_path, self._created_img_dirs = pcc
 
+        pcc2 = _package_cache_creator(sub_dir='search', cache_path=cache_path, to_create=['search_databases_images'])[1]
+        self._search_cache_path = pcc2['search_databases_images']
+
         # Create an instance of the _OpeniRecords() Class
         self._OpeniRecords = _OpeniRecords(root_url=self._root_url
                                            , date_format=date_format
@@ -798,22 +798,82 @@ class OpenInterface(object):
 
         return data_frame
 
+    def cache(self, database_name=None, action=None, return_request=True):
+        """
 
+        Cache a database or restore a cached database to ``self.current_search_dataframe``.
 
+        :param database_name: if `action` is 'save': the name for the database to be saved.
+                              if `action` is 'restore': the name of the database to be restored.
+                              if `action` is '!DELETE!': the database to delete.
+                              if `database_name` is ``None``, a list of current saved database will be provided.
+                              Defaults to ``None``.
+        :type database_name: ``str`` or ``None``
+        :param action: 'save' to cache the current database.
+                       'restore' to retore an existing database.
+                       '!DELETE!' to delete an existing database.
+                       Defaults to `None`.
+        :type action: ``str``
+        :param return_request:  if `database_name` is None and `return_request` is ``True``, return a list of databases
+                                currently cached, else pretty print the list.
+                                if `action` is 'restore' and `return_request` is ``True``, ``self.current_search_dataframe``
+                                AND return the database. Conversely, if `return_request` is ``False``, the database
+                                will simply be restored to ``self.current_search_dataframe``.
+        :type return_request: ``bool``
+        :return: a DataFrame or list of currently cached databases.
+        :rtype: ``Pandas DataFrame`` or ``None``
+        """
+        if self.current_search_dataframe is None and action == 'save':
+            raise AttributeError("A dataframe has not yet been harvested using `pull()`.")
 
+        if action not in ['save', 'restore', '!DELETE!', None]:
+            raise ValueError("`action` must be one of: 'save', 'restore', '!DELETE!' or `None`.")
 
+        # Find databases
+        databases_found = [f for f in os.listdir(self._search_cache_path) if f.endswith(".p")]
 
+        # Raise if no databases found and action is not 'save'.
+        if not len(databases_found) and (action == 'restore' or action == '!DELETE!'):
+            raise FileNotFoundError("No databases currently cached.")
 
+        # Get files current cached
+        if database_name is None and action is not None:
+            raise ValueError("if `database_name` is None, `action` must also be None")
+        if isinstance(database_name, str) and action is None:
+            raise ValueError("`action` cannot be None if `database` is not None")
 
+        if all(x == None or x is None for x in [database_name, action]):
+            if not len(databases_found):
+                raise FileNotFoundError("No databases currently cached.")
+            if return_request:
+                return databases_found
+            else:
+                header("Cached Databases: ", flank=False)
+                print(list_to_bulletpoints(databases_found))
+                return None
 
+        # Path to the database
+        db_path = "{0}.p".format(os.path.join(self._search_cache_path, database_name.replace(os.sep, "")))
 
-
-
-
-
-
-
-
+        if not os.path.isfile(db_path):
+            if action == 'save':
+                self.current_search_dataframe.to_pickle(db_path)
+            elif action == 'restore' or action == '!DELETE!':
+                raise FileNotFoundError("Could not find a database entitled '{0}' in:\n '{1}'.".format(
+                    database_name, self._search_cache_path))
+        elif os.path.isfile(db_path):
+            if action == 'save':
+                raise AttributeError("A database named '{0}' already exists in:\n '{1}'.".format(
+                    database_name, self._search_cache_path))
+            elif action == 'restore':
+                self.current_search_dataframe = pd.read_pickle(db_path)
+                if return_request:
+                    return self.current_search_dataframe
+            elif action == '!DELETE!':
+                os.remove(db_path)
+                if self._verbose:
+                    warn("The database entitled {0} was deleted from:\n '{1}'.".format(
+                        database_name, self._search_cache_path))
 
 
 
