@@ -1,7 +1,7 @@
 """
 
-    Tools to Process Images for Machine Learning
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Image Processing
+    ~~~~~~~~~~~~~~~~
 
 
 """

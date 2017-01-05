@@ -1,7 +1,7 @@
 """
 
-    Harvest Data from the NIH's Open-i API
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Open-i Interface
+    ~~~~~~~~~~~~~~~~
 
 
 """

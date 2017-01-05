@@ -1,7 +1,7 @@
 """
 
-    Support Tools for the `openi_interface.py` module
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Support Tools for the `images` subpackage
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 """
