@@ -104,28 +104,6 @@ def _openi_search_check(search_arguments, search_dict):
                 _openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
 
 
-def _search_url_formatter(api_search_transform, ordered_params):
-    """
-
-    :param ordered_params:
-    :param api_search_transform:
-    :return:
-    """
-    # Format query
-    if 'query' in api_search_transform:
-        api_search_transform['query'] = cln(api_search_transform['query']).replace(' ', '+')
-    else:
-        raise ValueError("No `query` detected.")
-
-    search_term = ""
-    for p in ordered_params:
-        if p in api_search_transform:
-            search_term += "{0}{1}={2}".format(("?" if p == 'query' else ""), p, api_search_transform[p])
-
-    # ToDo: change to root_url
-    return "https://openi.nlm.nih.gov/retrieve.php{0}".format(search_term)
-
-
 def _exclusions_img_type_merge(args, exclusions):
     """Merge Image type with Exclusions"""
     # Check `exclusions` is an acceptable type
@@ -558,7 +536,7 @@ class OpenInterface(object):
         """
         self._verbose = verbose
         self._n_bounds_limit = n_bounds_limit
-        root_url = 'https://openi.nlm.nih.gov'
+        self._root_url = 'https://openi.nlm.nih.gov'
 
         # Define allowed image types to pull
         allowed_image_quality_types = ['large', 'grid150', 'thumb', 'thumb_large']
@@ -574,7 +552,7 @@ class OpenInterface(object):
         self.root_path, self._created_img_dirs = pcc
 
         # Create an instance of the _OpeniRecords() Class
-        self._OpeniRecords = _OpeniRecords(root_url=root_url
+        self._OpeniRecords = _OpeniRecords(root_url=self._root_url
                                            , date_format=date_format
                                            , n_bounds_limit=n_bounds_limit
                                            , sleep_mini=records_sleep_mini
@@ -616,6 +594,26 @@ class OpenInterface(object):
         del data_frame['image_modality_major']
 
         return data_frame
+
+    def _search_url_formatter(self, api_search_transform, ordered_params):
+        """
+
+        :param ordered_params:
+        :param api_search_transform:
+        :return:
+        """
+        # Format query
+        if 'query' in api_search_transform:
+            api_search_transform['query'] = cln(api_search_transform['query']).replace(' ', '+')
+        else:
+            raise ValueError("No `query` detected.")
+
+        search_term = ""
+        for p in ordered_params:
+            if p in api_search_transform:
+                search_term += "{0}{1}={2}".format(("?" if p == 'query' else ""), p, api_search_transform[p])
+
+        return "{0}/retrieve.php{1}".format(self._root_url, search_term)
 
     def _search_probe(self, search_query, print_results):
         """
@@ -752,7 +750,7 @@ class OpenInterface(object):
         api_search_transform = {api_url_param(k): api_url_terms(k, v) for k, v in search_arguments.items() if v is not None}
 
         # Format `api_search_transform`
-        formatted_search = _search_url_formatter(api_search_transform, ordered_params)
+        formatted_search = self._search_url_formatter(api_search_transform, ordered_params)
 
         # Save `formatted_search`
         self.current_search_url = formatted_search
