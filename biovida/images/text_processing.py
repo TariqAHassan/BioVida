@@ -27,6 +27,11 @@ from biovida.images.openi_support_tools import num_word_to_int
 from biovida.support_tools.support_tools import cln
 
 
+# ToDo:
+#   - add ethnicity feature extraction
+#   - handle ethnicity and sex extraction (e.g., WF = white, female)
+#   - add extraction of illness length (e.g., 'x month history of...')
+
 def mexpix_info_extract(abstract):
     """
 

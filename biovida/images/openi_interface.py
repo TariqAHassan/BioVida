@@ -28,7 +28,7 @@ from biovida.images.openi_parameters import openi_image_type_params
 from biovida.images.openi_parameters import openi_search_information
 
 # Tool for extracting features from text
-from biovida.images.openi_text_feature_extraction import feature_extract
+from biovida.images.text_processing import feature_extract
 
 # Image Support Tools
 from biovida.images.openi_support_tools import iter_join
@@ -238,7 +238,7 @@ class _OpeniRecords(object):
         for bound in tqdm(bounds_list):
             if c % self.sleep_mini[0] == 0:
                 sleep(abs(self.sleep_mini[1] + np.random.normal()))
-            elif c % self.sleep_main[0] == 0:
+            elif c % self.sleep_main[0] == 0: # ToDo: main sleep not working...
                 if self.verbose:
                     print("Sleeping for %s seconds..." % self.sleep_main[1])
                 sleep(abs(self.sleep_main[1] + np.random.normal()))
