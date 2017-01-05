@@ -835,7 +835,8 @@ class OpenInterface(object):
     def cache(self, database_name=None, action=None, return_request=True):
         """
 
-        Cache a database or restore a cached database to ``self.current_search_dataframe``.
+        Cache a database, restore a cached database to ``self.current_search_dataframe``
+        or delete a database.
 
         :param database_name: if `action` is 'save': the name for the database to be saved.
                               if `action` is 'restore': the name of the database to be restored.
