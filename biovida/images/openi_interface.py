@@ -386,6 +386,9 @@ class _OpeniImages(object):
         # Log of Sucessess
         result_log = dict()
 
+        # Log of Names
+        img_title_log = list()
+
         # Get the abbreviation for the image type being downloaded
         img_type = self.img_name_abbrev(data_frame)[image_column]
 
@@ -396,7 +399,14 @@ class _OpeniImages(object):
             img_title = self.img_titler(number=1, img_name=img_address.split("/")[-1], img_type=img_type)
 
             # Try download and log whether or not Download was sucessful.
-            result_log[img_address] = self.img_harvest(img_title, img_address)
+            pull_success = self.img_harvest(img_title, img_address)
+            result_log[img_address] = pull_success
+
+            # ToDo: make more robust (?)
+            if pull_success:
+                img_title_log.append(img_title)
+            else:
+                img_title_log.append(None)
 
         if self.verbose:
             failed_downloads = {k: v for k, v in result_log.items() if v is False}
@@ -411,7 +421,7 @@ class _OpeniImages(object):
         sucesses_log = data_frame[image_column].map(lambda x: result_log.get(x, None) if pd.notnull(x) else None)
 
         # Return sucesses log
-        return sucesses_log.rename("extracted")
+        return sucesses_log.rename("extracted"), img_title_log
 
 
 # ---------------------------------------------------------------------------------------------
@@ -777,7 +787,9 @@ class OpenInterface(object):
         # Download Images
         if self._image_quality is not None:
             image_col = "img_{0}".format(self._image_quality)
-            data_frame['img_extracted'] = self._OpeniImages.bulk_img_harvest(data_frame, image_column=image_col)
+            bih = self._OpeniImages.bulk_img_harvest(data_frame, image_column=image_col)
+            data_frame['img_extracted'] = bih[0]
+            data_frame['img_cache_name'] = bih[1]
         elif self._verbose:
             warn("\nNo attempt was made to download images because `image_quality` is `None`.")
 
