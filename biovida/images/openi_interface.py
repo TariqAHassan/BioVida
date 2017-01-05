@@ -15,12 +15,10 @@ import pandas as pd
 from tqdm import tqdm
 from math import floor
 from time import sleep
-# from scipy import misc
 from warnings import warn
 from copy import deepcopy
 from pprint import pprint
 from datetime import datetime
-# from scipy.ndimage import imread as scipy_imread
 
 # Tool to create required caches
 from biovida.init import _package_cache_creator
@@ -51,80 +49,6 @@ tqdm.pandas(desc='status')
 
 
 # ToDo: Add the ability to cache a search.
-
-
-# ---------------------------------------------------------------------------------------------
-# Open-i Searching
-# ---------------------------------------------------------------------------------------------
-
-
-def _openi_search_special_case(search_param, blocked, passed):
-    """
-
-    :param search_param: one of 'video', 'image_type'...
-    :param blocked: muturally exclusive (i.e., all these items cannot be passed together).
-    :param passed: values actually passed to `search_param`.
-    :return:
-    """
-    if all(b in passed for b in blocked):
-        raise ValueError("`%s` can only contain one of:\n%s" % (search_param, list_to_bulletpoints(blocked)))
-
-
-def _openi_search_check(search_arguments, search_dict):
-    """
-
-    :param args:
-    :return: ``None``
-    """
-    general_error_msg = "'{0}' is not valid for `{1}`.\n`{1}` must be one of:\n{2}"
-
-    # Check `query`
-    if not isinstance(search_arguments['query'], str):
-        raise ValueError("`query` must be a string.")
-
-    # Check all other params
-    for k, v in search_arguments.items():
-        # Hault if query or `v` is NoneType
-        if k != 'query' and v is not None:
-
-            # Check type
-            if not isinstance(v, (list, tuple)) and v is not None:
-                raise ValueError("Only `lists`, `tuples` or `None` may be passed to `%s`." % (k))
-
-            # Loop though items in `v`
-            for i in v:
-                if not isinstance(i, str):
-                    raise ValueError("`tuples` or `lists` passed to `%s` must only contain strings." % (k))
-                # Check if `i` can be converted to a param understood by the Open-i API
-                if i not in search_dict[k][1].keys():
-                    raise ValueError(general_error_msg.format(i, k, list_to_bulletpoints(search_dict[k][1].keys())))
-
-            # Block contradictory requests
-            if k == 'rankby':
-                _openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
-
-
-def _exclusions_img_type_merge(args, exclusions):
-    """Merge Image type with Exclusions"""
-    # Check `exclusions` is an acceptable type
-    if not isinstance(exclusions, (list, tuple)) and exclusions is not None:
-        raise ValueError('`exclusions` must be a `list`, `tuple` or `None`.')
-
-    # Return if there is nothing to check
-    if exclusions is None or (isinstance(exclusions, (list, tuple)) and not len(exclusions)):
-        return args
-
-    # Check exclusions only contains allowed types
-    if any(e not in ['graphics', 'multipanel'] for e in exclusions):
-        raise ValueError("`exclusions` must only include one or all of: 'graphics', 'multipanel'.")
-
-    # Handle handle tuples, then `None`s (with the 'else []').
-    args['image_type'] = list(args['image_type']) if isinstance(args['image_type'], (list, tuple)) else []
-
-    # Merge `exclusions` with `imgage_type`
-    args['image_type'] += list(map(lambda x: 'exclude_{0}'.format(x), exclusions))
-
-    return args
 
 
 # ---------------------------------------------------------------------------------------------
@@ -595,6 +519,72 @@ class OpenInterface(object):
 
         return data_frame
 
+    def _openi_search_special_case(self, search_param, blocked, passed):
+        """
+
+        :param search_param: one of 'video', 'image_type'...
+        :param blocked: muturally exclusive (i.e., all these items cannot be passed together).
+        :param passed: values actually passed to `search_param`.
+        :return:
+        """
+        if all(b in passed for b in blocked):
+            raise ValueError("`%s` can only contain one of:\n%s" % (search_param, list_to_bulletpoints(blocked)))
+
+    def _openi_search_check(self, search_arguments, search_dict):
+        """
+
+        :param args:
+        :return: ``None``
+        """
+        general_error_msg = "'{0}' is not valid for `{1}`.\n`{1}` must be one of:\n{2}"
+
+        # Check `query`
+        if not isinstance(search_arguments['query'], str):
+            raise ValueError("`query` must be a string.")
+
+        # Check all other params
+        for k, v in search_arguments.items():
+            # Hault if query or `v` is NoneType
+            if k != 'query' and v is not None:
+
+                # Check type
+                if not isinstance(v, (list, tuple)) and v is not None:
+                    raise ValueError("Only `lists`, `tuples` or `None` may be passed to `%s`." % (k))
+
+                # Loop though items in `v`
+                for i in v:
+                    if not isinstance(i, str):
+                        raise ValueError("`tuples` or `lists` passed to `%s` must only contain strings." % (k))
+                    # Check if `i` can be converted to a param understood by the Open-i API
+                    if i not in search_dict[k][1].keys():
+                        raise ValueError(general_error_msg.format(i, k, list_to_bulletpoints(search_dict[k][1].keys())))
+
+                # Block contradictory requests
+                if k == 'rankby':
+                    self._openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
+
+    def _exclusions_img_type_merge(args, exclusions):
+        """Merge Image type with Exclusions"""
+        # Check `exclusions` is an acceptable type
+        if not isinstance(exclusions, (list, tuple)) and exclusions is not None:
+            raise ValueError('`exclusions` must be a `list`, `tuple` or `None`.')
+
+        # Return if there is nothing to check
+        if exclusions is None or (isinstance(exclusions, (list, tuple)) and not len(exclusions)):
+            return args
+
+        # Check exclusions only contains allowed types
+        if any(e not in ['graphics', 'multipanel'] for e in exclusions):
+            raise ValueError("`exclusions` must only include one or all of: 'graphics', 'multipanel'.")
+
+        # Handle handle tuples, then `None`s (with the 'else []').
+        args['image_type'] = list(args['image_type']) if isinstance(args['image_type'], (list, tuple)) else []
+
+        # Merge `exclusions` with `imgage_type`
+        args['image_type'] += list(map(lambda x: 'exclude_{0}'.format(x), exclusions))
+
+        return args
+
     def _search_url_formatter(self, api_search_transform, ordered_params):
         """
 
@@ -723,7 +713,7 @@ class OpenInterface(object):
         args = {k: v for k, v in args_cleaned.items() if k != 'exclusions'}
 
         # Merge `image_type` with `exclusions`
-        args = _exclusions_img_type_merge(args, exclusions)
+        args = self._exclusions_img_type_merge(args, exclusions)
 
         # Define a lambda to clean the search terms
         search_clean = lambda k, v: [cln(i).replace(' ', '_').lower() for i in v] if k != 'query' and v is not None else v
@@ -738,7 +728,7 @@ class OpenInterface(object):
         search_dict, ordered_params = openi_search_information()
 
         # Add check for all search terms
-        _openi_search_check(search_arguments, search_dict)
+        self._openi_search_check(search_arguments, search_dict)
 
         # Convert param names into a form the API will understand
         api_url_param = lambda x: search_dict[x][0] if x != 'query' else 'query'
