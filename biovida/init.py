@@ -58,9 +58,9 @@ def _directory_creator(cache_path=None, verbose=True):
     Required:
       - biovida_cache
       - biovida_cache/search_cache
-      - biovida_cache/image_cache
-      - biovida_cache/genomic_cache
-      - biovida_cache/diagnostic_cache
+      - biovida_cache/images_cache
+      - biovida_cache/genomics_cache
+      - biovida_cache/diagnostics_cache
 
     :param cache_path: path to create to create the `BioVida` cache.
                        If ``None``, the home directory will be used. Defaults to None.
@@ -98,8 +98,8 @@ def _directory_creator(cache_path=None, verbose=True):
         # Note its creation
         created_dirs.append("biovida_cache")
 
-    # Check if 'image', 'genomic' and 'diagnostic' caches exist, if not create them.
-    sub_dirs_made = _sub_directory_creator(root_path, ['search_cache', 'image_cache', 'genomic_cache', 'diagnostic_cache'])
+    # Check if 'search', 'images', 'genomics' and 'diagnostics' caches exist, if not create them.
+    sub_dirs_made = _sub_directory_creator(root_path, ['search_cache', 'images_cache', 'genomics_cache', 'diagnostics_cache'])
 
     # Record Created Dirs
     created_dirs += {k: v for k, v in sub_dirs_made.items() if k[1] is True}.values()
@@ -115,14 +115,14 @@ def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     """
 
     :param sub_dir: e.g., 'image' (do not include "_cache").
-                    Must be one of: 'search_cache', 'image_cache', 'genomic_cache', 'diagnostic_cache'.
+                    Must be one of: 'search_cache', 'images_cache', 'genomics_cache', 'diagnostics_cache'.
     :param cache_path:
     :param to_create:
     :param verbose:
     :return:
     """
     # Check `sub_dir` is an allowed type
-    allowed_sub_dirs = ['search', 'image', 'genomic', 'diagnostic']
+    allowed_sub_dirs = ['search', 'images', 'genomics', 'diagnostics']
     if sub_dir not in allowed_sub_dirs:
         raise ValueError("`sub_dir` must be one of:\n{0}".format(list_to_bulletpoints(allowed_sub_dirs)))
 

@@ -570,7 +570,7 @@ class OpenInterface(object):
         self._image_quality = image_quality
 
         # Generate Required Caches
-        pcc = _package_cache_creator(sub_dir='image', cache_path=cache_path, to_create=['raw', 'processed'])
+        pcc = _package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['raw', 'processed'])
         self.root_path, self._created_img_dirs = pcc
 
         # Create an instance of the _OpeniRecords() Class
