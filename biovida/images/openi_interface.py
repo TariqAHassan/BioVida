@@ -402,7 +402,7 @@ class _OpeniImages(object):
             pull_success = self.img_harvest(img_title, img_address)
             result_log[img_address] = pull_success
 
-            # ToDo: make more robust (?)
+            # ToDo: make more robust (?) (or simply use result_log keys).
             if pull_success:
                 img_title_log.append(img_title)
             else:
@@ -413,7 +413,7 @@ class _OpeniImages(object):
             if len(failed_downloads.values()):
                 header("Failed Downloads: ")
                 for k in failed_downloads.keys():
-                    print(" - " + k)
+                    print(" - " + k.split("/")[-1])
             else:
                 print("\nAll Images Sucessfully Extracted.")
 
