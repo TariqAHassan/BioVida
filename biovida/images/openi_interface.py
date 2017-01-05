@@ -147,7 +147,12 @@ class _OpeniRecords(object):
             return None
 
         cleaned_info = [1 if i is None or i < 1 else i for i in info]
-        return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(self.date_format)
+
+        # ToDo: add date format guessing.
+        try:
+            return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(self.date_format)
+        except:
+            return None
 
     def harvest_vect(self, request_rslt):
         """
