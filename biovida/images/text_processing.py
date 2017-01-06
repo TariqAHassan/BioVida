@@ -22,6 +22,7 @@ from biovida.images.openi_support_tools import item_extract
 from biovida.images.openi_support_tools import filter_unnest
 from biovida.images.openi_support_tools import extract_float
 from biovida.images.openi_support_tools import num_word_to_int
+from biovida.images.openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
@@ -74,12 +75,16 @@ def age_refine(age_list):
     """
     to_return = list()
     for a in age_list:
-        age = float(cln(extract_float(a)).strip())
-
-        if 'month' in a:
-            to_return.append(round(age / 12, 2))
-        else:
-            to_return.append(age)
+        age = multiple_decimal_remove(a)
+        if age is None:
+            return None
+        try:
+            if 'month' in a:
+                to_return.append(round(float(age) / 12, 2))
+            else:
+                to_return.append(float(age))
+        except:
+            return None
 
     # Heuristic: typically the largest value will be the age
     return max(to_return)

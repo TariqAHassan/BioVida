@@ -441,9 +441,6 @@ class OpenInterface(object):
     :param img_sleep_time: time to sleep (in seconds) between requests for images. Noise is added on each call
                            by adding a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5.5 seconds.
     :type img_sleep_time: ``int`` or ``float``
-    :param image_quality: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
-                          If ``None``, no attempt will be made to download images.
-    :type image_quality: ``str`` or ``None``
     :param date_format: Defaults to '%d/%m/%Y'.
     :type date_format: ``str``
     :param assumed_img_format: Assumed format of images on Open-i if this information cannot be determined. Defaults to 'png'.
@@ -460,7 +457,6 @@ class OpenInterface(object):
                  , cache_path=None
                  , n_bounds_limit=2
                  , img_sleep_time=5.5
-                 , image_quality='large'
                  , date_format='%d/%m/%Y'
                  , assumed_img_format='png'
                  , records_sleep_mini=(2, 5)
@@ -474,15 +470,6 @@ class OpenInterface(object):
         self._verbose = verbose
         self._n_bounds_limit = n_bounds_limit
         self._root_url = 'https://openi.nlm.nih.gov'
-
-        # Define allowed image types to pull
-        allowed_image_quality_types = ['large', 'grid150', 'thumb', 'thumb_large']
-
-        # Check `image_quality` is valid
-        if image_quality is not None and image_quality not in allowed_image_quality_types:
-            raise ValueError("`image_quality` must be one of: %s" % \
-                             (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
-        self._image_quality = image_quality
 
         # Generate Required Caches
         pcc = _package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['raw', 'processed'])
@@ -548,6 +535,8 @@ class OpenInterface(object):
     def _openi_search_check(self, search_arguments, search_dict):
         """
 
+        Method to check for invalid search requests.
+
         :param args:
         :return: ``None``
         """
@@ -577,7 +566,14 @@ class OpenInterface(object):
                     self._openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
 
     def _exclusions_img_type_merge(self, args, exclusions):
-        """Merge Image type with Exclusions"""
+        """
+
+        Merge Image type with Exclusions
+
+        :param args:
+        :param exclusions:
+        :return:
+        """
         # Check `exclusions` is an acceptable type
         if not isinstance(exclusions, (list, tuple)) and exclusions is not None:
             raise ValueError('`exclusions` must be a `list`, `tuple` or `None`.')
@@ -759,7 +755,7 @@ class OpenInterface(object):
         self.current_search_url = formatted_search
         self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
 
-    def pull(self, return_request=True):
+    def pull(self, return_request=True, image_quality='large'):
         """
 
         Pull (i.e., download) the current search.
@@ -768,12 +764,23 @@ class OpenInterface(object):
                                If ``False``, it will still be possible to gain access to the database through
                                ``self.current_search_dataframe``. Defaults to ``True``.
         :type return_request: ``bool``
+        :param image_quality: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
+                          If ``None``, no attempt will be made to download images.
+        :type image_quality: ``str`` or ``None``
         :return: a DataFrame with the record information.
                  If `image_quality` is not None, images will also be harvested and cached.
         :rtype: ``Pandas DataFrame``
         """
         if self.current_search_url is None:
             raise ValueError("A search has not been defined. Please call `OpenInterface().search()`.")
+
+        # Define allowed image types to pull
+        allowed_image_quality_types = ['large', 'grid150', 'thumb', 'thumb_large']
+
+        # Check `image_quality` is valid
+        if image_quality is not None and image_quality not in allowed_image_quality_types:
+            raise ValueError("`image_quality` must be one of: %s" % \
+                             (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
 
         # Reset self.current_search_dataframe
         self.current_search_dataframe = None
@@ -787,8 +794,8 @@ class OpenInterface(object):
         data_frame = self._post_processing_text(data_frame)
 
         # Download Images
-        if self._image_quality is not None:
-            image_col = "img_{0}".format(self._image_quality)
+        if image_quality is not None:
+            image_col = "img_{0}".format(image_quality)
             bih = self._OpeniImages.bulk_img_harvest(data_frame, image_column=image_col)
             data_frame['img_extracted'] = bih[0]
             data_frame['img_cache_name'] = bih[1]
@@ -936,6 +943,12 @@ class OpenInterface(object):
                 if self._verbose:
                     warn("\nThe '{0}' database was successfully deleted from:\n '{1}'.".format(
                         database_name, self._search_cache_path))
+
+
+
+
+
+
 
 
 

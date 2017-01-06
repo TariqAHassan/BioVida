@@ -11,6 +11,8 @@ import inflect
 from itertools import chain
 from urllib.parse import urlsplit # handle python 2
 
+# General Support tools
+from biovida.support_tools.support_tools import cln
 
 # Other Tools
 p = inflect.engine()
@@ -35,8 +37,34 @@ def item_extract(i, list_len=1):
     return i[0] if isinstance(i, (list, tuple)) and len(i) == list_len else None
 
 def extract_float(i):
-    """Source: http://stackoverflow.com/a/947789/4898004"""
+    """
+
+    Source: http://stackoverflow.com/a/947789/4898004
+
+    :param i:
+    :return:
+    """
     return non_decimal.sub('', i)
+
+def multiple_decimal_remove(s):
+    """
+
+    :param s: a string
+    :type s: ``str``
+    :return:
+    """
+    if isinstance(s, (int, float)):
+        return s
+
+    s_cln = cln(extract_float(str(s)), extent=2)
+    if s_cln.startswith('.') and s_cln.endswith('.'):
+        return None
+
+    s_repeats_rmv = re.sub(r'\.+', '.', s_cln)
+    if s_repeats_rmv.count('.') > 1:
+        return None
+    else:
+        return cln(s_repeats_rmv, extent=2)
 
 def numb_extract(string, join_on=""):
     return join_on.join(re.findall(r'[0-9]+', string))
