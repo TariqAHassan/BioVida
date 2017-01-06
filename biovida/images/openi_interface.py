@@ -97,10 +97,10 @@ class _OpeniRecords(object):
         if total < self.req_limit:
             return [(1, total)]
 
-        # Compute the number of steps
+        # Compute the number of steps and floor
         n_steps = int(floor(total/self.req_limit))
 
-        # Floor the number of steps and loop
+        # Loop through the steps
         for i in range(n_steps):
             bounds.append((end, end + (self.req_limit - 1)))
             end += self.req_limit
@@ -228,7 +228,7 @@ class _OpeniRecords(object):
 
         # Print updates
         if self.verbose:
-            print("\nNumber of Records to Download: {0} (block size: {1} rows).".format(
+            print("\nNumber of Records to Download: {0} (block size: {1} rows).".format( # ToDO: not working.
                 str(int(self.req_limit * len(bounds_list))), str(self.req_limit))
             )
 
@@ -526,11 +526,10 @@ class OpenInterface(object):
         pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
         data_frame = data_frame.join(pp, how='left')
 
-        # Make the type of Imaging technology type human-readable. ToDo: check the other image_modality.
-        data_frame['imaging_tech'] = data_frame['image_modality_major'].map(
+        # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
+        data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
             lambda x: openi_image_type_params.get(x, np.NaN)
         )
-        del data_frame['image_modality_major']
 
         return data_frame
 
@@ -561,11 +560,9 @@ class OpenInterface(object):
         for k, v in search_arguments.items():
             # Hault if query or `v` is NoneType
             if k != 'query' and v is not None:
-
                 # Check type
                 if not isinstance(v, (list, tuple)) and v is not None:
                     raise ValueError("Only `lists`, `tuples` or `None` may be passed to `%s`." % (k))
-
                 # Loop though items in `v`
                 for i in v:
                     if not isinstance(i, str):
@@ -814,14 +811,14 @@ class OpenInterface(object):
         if self.current_search_dataframe is None and action == 'save':
             raise AttributeError("A dataframe has not yet been harvested using `pull()`.")
 
-        if action not in ['save', 'restore', '!DELETE!', None]:
-            raise ValueError("`action` must be one of: 'save', 'restore', '!DELETE!' or `None`.")
+        if action not in ['save', 'load', '!DELETE!', None]:
+            raise ValueError("`action` must be one of: 'save', 'load', '!DELETE!' or `None`.")
 
         # Find databases
         databases_found = [f for f in os.listdir(self._search_cache_path) if f.endswith(".p")]
 
         # Raise if no databases found and action is not 'save'.
-        if not len(databases_found) and (action == 'restore' or action == '!DELETE!'):
+        if not len(databases_found) and (action == 'load' or action == '!DELETE!'):
             raise FileNotFoundError("No databases currently cached.")
 
         # Get files current cached
@@ -835,25 +832,25 @@ class OpenInterface(object):
     def cache(self, database_name=None, action=None, return_request=True):
         """
 
-        Cache a database, restore a cached database to ``self.current_search_dataframe``
+        Cache a database, load a cached database to ``self.current_search_dataframe``
         or delete a database.
 
         :param database_name: if `action` is 'save': the name for the database to be saved.
-                              if `action` is 'restore': the name of the database to be restored.
+                              if `action` is 'load': the name of the database to be loaded.
                               if `action` is '!DELETE!': the database to delete.
                               if `database_name` is ``None``, a list of current saved database will be provided.
                               Defaults to ``None``.
         :type database_name: ``str`` or ``None``
         :param action: 'save' to cache the current database.
-                       'restore' to retore an existing database.
+                       'load' to retore an existing database.
                        '!DELETE!' to delete an existing database.
-                       Defaults to `None`.
+                       Defaults to ``None``.
         :type action: ``str`` or ``None``
         :param return_request:  if `database_name` is None and `return_request` is ``True``, return a list of databases
                                 currently cached, else pretty print the list.
-                                if `action` is 'restore' and `return_request` is ``True``, ``self.current_search_dataframe``
+                                if `action` is 'load' and `return_request` is ``True``, ``self.current_search_dataframe``
                                 AND return the database. Conversely, if `return_request` is ``False``, the database
-                                will simply be restored to ``self.current_search_dataframe``.
+                                will simply be loaded to ``self.current_search_dataframe``.
         :type return_request: ``bool``
         :return: list of currently cached databases or a cached DataFrame.
         :rtype: ``list``, ``Pandas DataFrame`` or ``None``
@@ -877,14 +874,14 @@ class OpenInterface(object):
         if not os.path.isfile(db_path):
             if action == 'save':
                 self.current_search_dataframe.to_pickle(db_path)
-            elif action == 'restore' or action == '!DELETE!':
+            elif action == 'load' or action == '!DELETE!':
                 raise FileNotFoundError("Could not find a database entitled '{0}' in:\n '{1}'.".format(
                     database_name, self._search_cache_path))
         elif os.path.isfile(db_path):
             if action == 'save':
                 raise AttributeError("A database named '{0}' already exists in:\n '{1}'.".format(
                     database_name, self._search_cache_path))
-            elif action == 'restore':
+            elif action == 'load':
                 self.current_search_dataframe = pd.read_pickle(db_path)
                 if return_request:
                     return self.current_search_dataframe
@@ -893,6 +890,8 @@ class OpenInterface(object):
                 if self._verbose:
                     warn("The database entitled {0} was deleted from:\n '{1}'.".format(
                         database_name, self._search_cache_path))
+
+
 
 
 
