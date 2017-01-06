@@ -77,13 +77,13 @@ def _disgenet_readme(created_gene_dirs):
         # URL to DisGeNET README
         readme_url = 'http://www.disgenet.org/ds/DisGeNET/results/readme.txt'
 
-        # Notice
-        header("The DisGeNET README has been downloaded to:\n\n {0}\n\n"
-               "Please take the time to review this document.".format(save_address))
-
         # Write
         with open(save_address, 'wb') as f:
             f.write(r.content)
+
+        # Notice
+        header("The DisGeNET README has been downloaded to:\n\n {0}\n\n"
+               "Please take the time to review this document.".format(save_address))
 
 
 class DisgenetInterface(object):

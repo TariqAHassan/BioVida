@@ -61,12 +61,12 @@ class _OpeniRecords(object):
 
     """
 
-    def __init__(self, root_url, date_format, n_bounds_limit, sleep_mini, sleep_main, verbose, req_limit=30):
+    def __init__(self, root_url, date_format, download_limit, sleep_mini, sleep_main, verbose, req_limit=30):
         """
 
         :param root_url:                                            Suggested: 'https://openi.nlm.nih.gov'
-        :param date_format: Defaults to '%d/%m/%Y'                  Suggested: "%d/%m/%Y" (consider leaving as datatime)
-        :param n_bounds_limit:                                      Suggested: 5
+        :param date_format:                                         Suggested: "%d/%m/%Y" (consider leaving as datatime)
+        :param download_limit:                                      Suggested: 60
         :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
         :param sleep_main: (interval, sleep time in seconds)        Suggested: (50, 300)
         :param verbose: print additional details.                   Suggested: True
@@ -74,7 +74,7 @@ class _OpeniRecords(object):
         """
         self.root_url = root_url
         self.date_format = date_format
-        self.n_bounds_limit = n_bounds_limit
+        self.download_limit = download_limit
         self.sleep_mini = sleep_mini
         self.sleep_main = sleep_main
         self.verbose = verbose
@@ -83,7 +83,8 @@ class _OpeniRecords(object):
     def openi_bounds(self, total):
         """
 
-        :param total:
+        :param total: the total number of results for a given search.
+        :type total: int
         :return:
         """
         # Initalize
@@ -92,14 +93,21 @@ class _OpeniRecords(object):
 
         # Block invalid values for 'total'.
         if total < 1:
-            raise ValueError("'%s' is an invalid value for total" % (total))
+            raise ValueError("'{0}' is an invalid value for total".format(str(total)))
 
-        # Block the procedure below if total < req_limit
+        if self.download_limit is not None and not isinstance(self.download_limit, int):
+            raise ValueError("`download_limit` must be an `int` or `None`.")
+
+        # Check total
         if total < self.req_limit:
             return [(1, total)]
+        elif self.download_limit is not None and total > self.download_limit:
+            download_no = self.download_limit
+        else:
+            download_no = total
 
         # Compute the number of steps and floor
-        n_steps = int(floor(total/self.req_limit))
+        n_steps = int(floor(download_no / self.req_limit))
 
         # Loop through the steps
         for i in range(n_steps):
@@ -107,13 +115,13 @@ class _OpeniRecords(object):
             end += self.req_limit
 
         # Compute the remainder
-        remainder = total % self.req_limit
+        remainder = download_no % self.req_limit
 
         # Add remaining part, if nonzero
         if remainder != 0:
-            bounds += [(total - remainder + 1, total)]
+            bounds += [(download_no - remainder + 1, download_no)]
 
-        return bounds
+        return bounds, download_no
 
     def openi_bounds_formatter(self, bounds):
         """
@@ -212,15 +220,16 @@ class _OpeniRecords(object):
 
         return list_of_dicts
 
-    def openi_harvest(self, bounds_list, joined_url, to_harvest):
+    def openi_harvest(self, bounds_list, joined_url, to_harvest, download_no):
         """
 
         :param bounds_list:
         :param joined_url:
         :param bound:
+        :param download_no:
         :return:
         """
-        # Init
+        # Initialize
         c = 1
         harvested_data = list()
 
@@ -230,8 +239,7 @@ class _OpeniRecords(object):
         # Print updates
         if self.verbose:
             print("\nNumber of Records to Download: {0} (maximum block size: {1} rows).".format(
-                str(int(self.req_limit * len(bounds_list))), str(self.req_limit))
-            )
+                '{:,.0f}'.format(download_no), str(self.req_limit)))
 
         for bound in tqdm(bounds_list):
             if c % self.sleep_mini[0] == 0:
@@ -259,17 +267,20 @@ class _OpeniRecords(object):
         :param total:
         :return:
         """
-        # Compute a list of search ranges to harvest
-        bounds_list = self.openi_bounds_formatter(self.openi_bounds(total))
+        # Get a list of lists with the bounds
+        bounds, download_no = self.openi_bounds(total)
 
-        # Define Extract Limit
-        trunc_bounds = bounds_list[0:self.n_bounds_limit] if isinstance(self.n_bounds_limit, int) else bounds_list
+        # Compute a list of search ranges to pass to the Open-i API
+        bounds_list = self.openi_bounds_formatter(bounds)
 
-        # Learn the data returned by the API
+        # Learn the results returned by the API
         to_harvest = self.harvest_vect(to_harvest)
 
-        # Harvest and Convert to a DataFrame
-        return pd.DataFrame(self.openi_harvest(trunc_bounds, search_query, to_harvest)).fillna(np.NaN)
+        # Harvest the data
+        harvest = self.openi_harvest(bounds_list, search_query, to_harvest, download_no)
+
+        # Convert to a DataFrame and Return
+        return pd.DataFrame(harvest).fillna(np.NaN)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -435,9 +446,9 @@ class OpenInterface(object):
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                        Default to ``None`` (which will generate a cache in the home folder).
     :type cache_path: ``str`` or ``None``
-    :param n_bounds_limit: max. number of blocks to download (1 block = 30 records/rows).
+    :param download_limit: max. number of results to download.
                            If ``None``, no limit will be imposed (not recommended). Defaults to 2.
-    :type n_bounds_limit: ``int``
+    :type download_limit: ``int``
     :param img_sleep_time: time to sleep (in seconds) between requests for images. Noise is added on each call
                            by adding a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5.5 seconds.
     :type img_sleep_time: ``int`` or ``float``
@@ -455,8 +466,8 @@ class OpenInterface(object):
 
     def __init__(self
                  , cache_path=None
-                 , n_bounds_limit=2
-                 , img_sleep_time=5.5
+                 , download_limit=60
+                 , img_sleep_time=5
                  , date_format='%d/%m/%Y'
                  , assumed_img_format='png'
                  , records_sleep_mini=(2, 5)
@@ -468,7 +479,6 @@ class OpenInterface(object):
 
         """
         self._verbose = verbose
-        self._n_bounds_limit = n_bounds_limit
         self._root_url = 'https://openi.nlm.nih.gov'
 
         # Generate Required Caches
@@ -481,7 +491,7 @@ class OpenInterface(object):
         # Create an instance of the _OpeniRecords() Class
         self._OpeniRecords = _OpeniRecords(root_url=self._root_url
                                            , date_format=date_format
-                                           , n_bounds_limit=n_bounds_limit
+                                           , download_limit=download_limit
                                            , sleep_mini=records_sleep_mini
                                            , sleep_main=records_sleep_main
                                            , verbose=verbose)
@@ -915,7 +925,7 @@ class OpenInterface(object):
                 return [i for i in databases_found if not i.endswith("_support.p")]
             else:
                 header("Cached Databases: ", flank=False)
-                print(list_to_bulletpoints([i for i in databases_found if not i.endswith("_support.p")]))
+                print(list_to_bulletpoints([i.replace(".p", "") for i in databases_found if not i.endswith("_support.p")]))
                 return None
 
         # Path to the database
