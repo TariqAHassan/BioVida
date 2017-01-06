@@ -912,10 +912,10 @@ class OpenInterface(object):
             if not len(databases_found):
                 raise FileNotFoundError("No databases currently cached.")
             if return_request:
-                return databases_found
+                return [i for i in databases_found if not i.endswith("_support.p")]
             else:
                 header("Cached Databases: ", flank=False)
-                print(list_to_bulletpoints(databases_found))
+                print(list_to_bulletpoints([i for i in databases_found if not i.endswith("_support.p")]))
                 return None
 
         # Path to the database
