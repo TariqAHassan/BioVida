@@ -8,6 +8,7 @@
 # Imports
 import os
 import re
+import pickle
 import requests
 import numpy as np
 import pandas as pd
@@ -228,7 +229,7 @@ class _OpeniRecords(object):
 
         # Print updates
         if self.verbose:
-            print("\nNumber of Records to Download: {0} (block size: {1} rows).".format( # ToDO: not working.
+            print("\nNumber of Records to Download: {0} (maximum block size: {1} rows).".format(
                 str(int(self.req_limit * len(bounds_list))), str(self.req_limit))
             )
 
@@ -758,11 +759,15 @@ class OpenInterface(object):
         self.current_search_url = formatted_search
         self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
 
-    def pull(self):
+    def pull(self, return_request=True):
         """
 
         Pull (i.e., download) the current search.
 
+        :param return_request: If ``True``, return the DataFrame for the most recent search.
+                               If ``False``, it will still be possible to gain access to the database through
+                               ``self.current_search_dataframe``. Defaults to ``True``.
+        :type return_request: ``bool``
         :return: a DataFrame with the record information.
                  If `image_quality` is not None, images will also be harvested and cached.
         :rtype: ``Pandas DataFrame``
@@ -793,7 +798,8 @@ class OpenInterface(object):
         # Save data_frame
         self.current_search_dataframe = data_frame
 
-        return data_frame
+        if return_request:
+            return data_frame
 
     def _cache_method_checker(self, database_name, action):
         """
@@ -801,9 +807,9 @@ class OpenInterface(object):
         This method checks for some forms of invalid requests to
         the ``OpenInterface().cache()`` method.
 
-        :param database_name: see ``OpenInterface().cache()``
+        :param database_name: see ``OpenInterface().cache()``.
         :type database_name: ``str`` or ``None``
-        :param action: see ``OpenInterface().cache()``
+        :param action: see ``OpenInterface().cache()``.
         :type action: ``str`` or ``None``
         :return: a list of databases found in ``self._search_cache_path``
         :rtype: ``list``
@@ -828,6 +834,43 @@ class OpenInterface(object):
             raise ValueError("`action` cannot be None if `database` is not None")
 
         return databases_found
+
+    def _cache_method_db_support(self, database_name, action):
+        """
+
+        Save, load and destroy support information for a given database.
+
+        :param database_name: see ``OpenInterface().cache()``.
+        :type database_name: ``str`` or ``None``
+        :param action: see ``OpenInterface().cache()``.
+        :type action: ``str`` or ``None``
+        """
+        # Define the name of the support object
+        db_support_name = os.path.join(self._search_cache_path, "{0}_support.p".format(database_name))
+
+        if action == 'save':
+            if os.path.isfile(db_support_name):
+                raise AttributeError("A support database file named '{0}' already exists in:\n '{1}'\n.".format(
+                    db_support_name, self._search_cache_path))
+            # Add to Dict
+            save_dict = {
+                "current_search": self.current_search,
+                "current_search_url": self.current_search_url,
+                "current_search_total": self.current_search_total,
+                "_current_search_to_harvest": self._current_search_to_harvest
+            }
+            # Save
+            pickle.dump(save_dict, open(db_support_name, "wb"))
+        elif action == 'load':
+            # Load cached support dict
+            recovered_db_support_data = pickle.load(open(db_support_name, "rb"))
+            # Restore data
+            self.current_search = recovered_db_support_data['current_search']
+            self.current_search_url = recovered_db_support_data['current_search_url']
+            self.current_search_total = recovered_db_support_data['current_search_total']
+            self._current_search_to_harvest = recovered_db_support_data['_current_search_to_harvest']
+        elif action == '!DELETE!':
+            os.remove(db_support_name)
 
     def cache(self, database_name=None, action=None, return_request=True):
         """
@@ -874,6 +917,7 @@ class OpenInterface(object):
         if not os.path.isfile(db_path):
             if action == 'save':
                 self.current_search_dataframe.to_pickle(db_path)
+                self._cache_method_db_support(database_name, action)
             elif action == 'load' or action == '!DELETE!':
                 raise FileNotFoundError("Could not find a database entitled '{0}' in:\n '{1}'.".format(
                     database_name, self._search_cache_path))
@@ -883,13 +927,16 @@ class OpenInterface(object):
                     database_name, self._search_cache_path))
             elif action == 'load':
                 self.current_search_dataframe = pd.read_pickle(db_path)
+                self._cache_method_db_support(database_name, action)
                 if return_request:
                     return self.current_search_dataframe
             elif action == '!DELETE!':
                 os.remove(db_path)
+                self._cache_method_db_support(database_name, action)
                 if self._verbose:
-                    warn("The database entitled {0} was deleted from:\n '{1}'.".format(
+                    warn("\nThe '{0}' database was successfully deleted from:\n '{1}'.".format(
                         database_name, self._search_cache_path))
+
 
 
 
