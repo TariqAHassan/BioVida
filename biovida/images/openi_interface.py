@@ -95,8 +95,11 @@ class _OpeniRecords(object):
         if total < 1:
             raise ValueError("'{0}' is an invalid value for total".format(str(total)))
 
+        # Check `self.download_limit`
         if self.download_limit is not None and not isinstance(self.download_limit, int):
             raise ValueError("`download_limit` must be an `int` or `None`.")
+        if isinstance(self.download_limit, int) and self.download_limit < 1:
+            raise ValueError("`download_limit` cannot be less than 1.")
 
         # Check total
         if total < self.req_limit:
