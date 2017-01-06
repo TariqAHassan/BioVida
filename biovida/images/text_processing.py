@@ -40,7 +40,15 @@ def mexpix_info_extract(abstract):
     :return:
     """
     features = ['Diagnosis', 'History', 'Findings']
-    return {i: item_extract(re.findall('<p><b>' + i + ': </b>(.*?)</p><p>', cln(abstract))) for i in features}
+    features_dict = dict.fromkeys(features, None)
+
+    for k in features_dict:
+        try:
+            features_dict[k] = item_extract(re.findall('<p><b>' + i + ': </b>(.*?)</p><p>', cln(abstract)))
+        except:
+            pass
+
+    return features_dict
 
 
 def patient_sex_guess(abstract):
