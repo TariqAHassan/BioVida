@@ -93,7 +93,7 @@ class _OpeniRecords(object):
 
         # Block invalid values for 'total'.
         if total < 1:
-            raise ValueError("'{0}' is an invalid value for total".format(str(total)))
+            raise ValueError("'{0}' is an invalid value for total.".format(str(total)))
 
         # Check `self.download_limit`
         if self.download_limit is not None and not isinstance(self.download_limit, int):
@@ -768,18 +768,24 @@ class OpenInterface(object):
         self.current_search_url = formatted_search
         self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
 
-    def pull(self, return_request=True, image_quality='large'):
+    def pull(self, image_quality='large', new_records_pull=True, return_request=True):
         """
 
         Pull (i.e., download) the current search.
 
-        :param return_request: If ``True``, return the DataFrame for the most recent search.
-                               If ``False``, it will still be possible to gain access to the database through
-                               ``self.current_search_dataframe``. Defaults to ``True``.
-        :type return_request: ``bool``
         :param image_quality: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
                           If ``None``, no attempt will be made to download images.
         :type image_quality: ``str`` or ``None``
+        :param new_records_pull: if True, download the data for the current search.
+                                 if False, use self.current_search_dataframe. This can be useful
+                                 if one wishes to initially set `image_quality` to `None`,
+                                 truncate or otherwise modify `self.current_search_dataframe` and then
+                                 download images.
+        :type new_records_pull: ``bool``
+        :param return_request: If ``True``, return the DataFrame for the most recent search.
+                       If ``False``, it will still be possible to gain access to the database through
+                       ``self.current_search_dataframe``. Defaults to ``True``.
+        :type return_request: ``bool``
         :return: a DataFrame with the record information.
                  If `image_quality` is not None, images will also be harvested and cached.
         :rtype: ``Pandas DataFrame``
@@ -795,31 +801,34 @@ class OpenInterface(object):
             raise ValueError("`image_quality` must be one of: %s" % \
                              (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
 
-        # Reset self.current_search_dataframe
-        self.current_search_dataframe = None
-
-        # Pull Data
-        data_frame = self._OpeniRecords.openi_kinesin(self.current_search_url
-                                                      , to_harvest=self._current_search_to_harvest
-                                                      , total=self.current_search_total)
-
-        # Run Post Processing
-        data_frame = self._post_processing_text(data_frame)
+        if not new_records_pull:
+            # Reset self.current_search_dataframe
+            self.current_search_dataframe = None
+            # Pull Data
+            search_data = self._OpeniRecords.openi_kinesin(self.current_search_url
+                                                          , to_harvest=self._current_search_to_harvest
+                                                          , total=self.current_search_total)
+            # Run Post Processing
+            search_data = self._post_processing_text(search_data)
+        elif new_records_pull and self.current_search_dataframe is not None:
+            search_data = self.current_search_dataframe
+        elif new_records_pull and self.current_search_dataframe is None:
+            raise ValueError("`self.current_search_dataframe` cannot be None if `new_records_pull` is `True`.")
 
         # Download Images
         if image_quality is not None:
             image_col = "img_{0}".format(image_quality)
-            bih = self._OpeniImages.bulk_img_harvest(data_frame, image_column=image_col)
-            data_frame['img_extracted'] = bih[0]
-            data_frame['img_cache_name'] = bih[1]
+            bih = self._OpeniImages.bulk_img_harvest(search_data, image_column=image_col)
+            search_data['img_extracted'] = bih[0]
+            search_data['img_cache_name'] = bih[1]
         elif self._verbose:
             warn("\nNo attempt was made to download images because `image_quality` is `None`.")
 
-        # Save data_frame
-        self.current_search_dataframe = data_frame
+        # Save search_data
+        self.current_search_dataframe = search_data
 
         if return_request:
-            return data_frame
+            return search_data
 
     def _cache_method_checker(self, database_name, action):
         """
