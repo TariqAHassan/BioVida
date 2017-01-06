@@ -1,7 +1,7 @@
 """
 
-    BioVida Init
-    ~~~~~~~~~~~~
+    BioVida Cache Management Tools
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Contains the tools required to construct the caches needed by BioVida.
 
