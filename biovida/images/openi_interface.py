@@ -666,7 +666,8 @@ class OpenInterface(object):
 
         Options for parameters of `openi_search()`.
 
-        :param search_parameter: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields', 'specialties', 'video'.
+        :param search_parameter: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields',
+                                         'specialties', 'video' or `exclusions`.
         :param print: if True, pretty print the options, else return as a ``list``.
         :return: a list of valid values for a given search `search_parameter`.
         :rtype: ``list``
