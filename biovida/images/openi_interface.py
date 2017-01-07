@@ -40,6 +40,7 @@ from biovida.images.openi_support_tools import numb_extract
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
+from biovida.support_tools.support_tools import hashable_cols
 from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
@@ -203,11 +204,9 @@ class _OpeniRecords(object):
 
         # Loop
         list_of_dicts = list()
-        for e, item in enumerate(req):
-
+        for item in req:
             # Create an item_dict the dict
-            item_dict = {"req_no": start + e}
-
+            item_dict = dict()
             # Populate current `item_dict`
             for j in to_harvest:
                 if isinstance(j, (list, tuple)):
@@ -481,8 +480,7 @@ class OpenInterface(object):
         Initialize the ``OpenInterface()`` Class.
 
         """
-        # ToDo: maintain database in the image cache with all the data fro each photo.
-
+        # ToDo: maintain database in the image cache with all the data from each photo.
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
 
@@ -506,6 +504,16 @@ class OpenInterface(object):
                                          , sleep_time=img_sleep_time
                                          , image_save_location=self._created_img_dirs['raw']
                                          , verbose=verbose)
+
+        # Permanent record of images in the raw image cache
+        self.image_record_database = None
+        self._image_record_database_path = os.path.join(self._created_img_dirs['raw'], "image_record_database.p")
+
+        if os.path.isfile(self._image_record_database_path):
+            # Read in the existing database
+            self.image_record_database = pd.read_pickle(self._image_record_database_path)
+        elif not os.path.isfile(self._image_record_database_path):
+            self.image_record_database = None
 
         # Define the current search term
         self.current_search = None
@@ -688,6 +696,36 @@ class OpenInterface(object):
         else:
             return opts
 
+    def _search_clean(self, k, v):
+        """
+
+        Define a tool to clean the search terms in `search()`
+
+        :param k:
+        :param v:
+        :return:
+        """
+        return [cln(i).replace(' ', '_').lower() for i in v] if k != 'query' and v is not None else v
+
+    def _api_url_terms(self, k, v, search_dict):
+        """
+        Convert values passed into a form the API will understand
+        :param k:
+        :param v:
+        :param search_dict:
+        :return:
+        """
+        return ','.join([search_dict[k][1][i] for i in v]) if k != 'query' else v
+
+    def _api_url_param(self, x, search_dict):
+        """
+        Convert param names into a form the API will understand
+        :param x:
+        :param search_dict:
+        :return:
+        """
+        return search_dict[x][0] if x != 'query' else 'query'
+
     def search(self
                , query
                , image_type=None
@@ -739,11 +777,8 @@ class OpenInterface(object):
         # Merge `image_type` with `exclusions`
         args = self._exclusions_img_type_merge(args, exclusions)
 
-        # Define a lambda to clean the search terms
-        search_clean = lambda k, v: [cln(i).replace(' ', '_').lower() for i in v] if k != 'query' and v is not None else v
-
         # Get the arguments
-        search_arguments = {k: '' if k == 'query' and v is None else search_clean(k, v) for k, v in args.items()}
+        search_arguments = {k: '' if k == 'query' and v is None else self._search_clean(k, v) for k, v in args.items()}
 
         # Save search query
         self.current_search = {k: v for k, v in deepcopy(search_arguments).items() if v is not None}
@@ -754,14 +789,9 @@ class OpenInterface(object):
         # Add check for all search terms
         self._openi_search_check(search_arguments, search_dict)
 
-        # Convert param names into a form the API will understand
-        api_url_param = lambda x: search_dict[x][0] if x != 'query' else 'query'
-
-        # Convert values passed into a form the API will understand
-        api_url_terms = lambda k, v: ','.join([search_dict[k][1][i] for i in v]) if k != 'query' else v
-
         # Perform transformation
-        api_search_transform = {api_url_param(k): api_url_terms(k, v) for k, v in search_arguments.items() if v is not None}
+        api_search_transform = {self._api_url_param(k, search_dict): self._api_url_terms(k, v, search_dict)
+                                for k, v in search_arguments.items() if v is not None}
 
         # Format `api_search_transform`
         formatted_search = self._search_url_formatter(api_search_transform, ordered_params)
@@ -841,6 +871,22 @@ class OpenInterface(object):
         elif action == '!DELETE!':
             os.remove(db_support_name)
 
+    def _cache_summary(self, databases_found, return_request):
+        """
+
+        :param databases_found:
+        :param return_request:
+        :return:
+        """
+        if not len(databases_found):
+            raise FileNotFoundError("No databases currently cached.")
+        if return_request:
+            return [i for i in databases_found if not i.endswith("_support.p")]
+        else:
+            header("Cached Databases: ", flank=False)
+            print(list_to_bulletpoints([i.replace(".p", "") for i in databases_found if not i.endswith("_support.p")]))
+            return None
+
     def cache(self, database_name=None, action=None, return_request=True):
         """
 
@@ -867,18 +913,11 @@ class OpenInterface(object):
         :return: list of currently cached databases or a cached DataFrame.
         :rtype: ``list``, ``Pandas DataFrame`` or ``None``
         """
-        # Check for [some] invalid requests.
+        # Check for (some) forms of invalid requests.
         databases_found = self._cache_method_checker(database_name, action)
 
         if all(x == None or x is None for x in [database_name, action]):
-            if not len(databases_found):
-                raise FileNotFoundError("No databases currently cached.")
-            if return_request:
-                return [i for i in databases_found if not i.endswith("_support.p")]
-            else:
-                header("Cached Databases: ", flank=False)
-                print(list_to_bulletpoints([i.replace(".p", "") for i in databases_found if not i.endswith("_support.p")]))
-                return None
+            return self._cache_summary(databases_found, return_request)
 
         # Path to the database
         db_path = "{0}.p".format(os.path.join(self._search_cache_path, database_name.replace(os.sep, "")))
@@ -910,11 +949,25 @@ class OpenInterface(object):
         """
 
         Maintain Record of files in the image cache.
-
-        :return:
         """
-        pass
-
+        if not os.path.isfile(self._image_record_database_path):
+            # Then the image_record_database == current_search_dataframe
+            self.image_record_database = self.current_search_dataframe
+            # Save to disk
+            self.image_record_database.to_pickle(self._image_record_database_path)
+        elif os.path.isfile(self._image_record_database_path):
+            # Read in the existing database
+            self.image_record_database = pd.read_pickle(self._image_record_database_path)
+            # Combine with the current search, if not None
+            if self.current_search_dataframe is not None:
+                # Append the current search to the existing database
+                self.image_record_database = self.image_record_database.append(self.current_search_dataframe)
+                # Drop Duplicates, favoring the first instance of a row
+                self.image_record_database = self.image_record_database.drop_duplicates(
+                    subset=hashable_cols(self.image_record_database), keep='first'
+                )
+                # Save back out to disk
+                self.image_record_database.to_pickle(self._image_record_database_path)
 
     def pull(self, image_quality='large', new_records_pull=True):
         """
@@ -942,42 +995,37 @@ class OpenInterface(object):
 
         # Check `image_quality` is valid
         if image_quality is not None and image_quality not in allowed_image_quality_types:
-            raise ValueError("`image_quality` must be one of: %s" % \
+            raise ValueError("`image_quality` must be one of: %s." % \
                              (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
 
-        if new_records_pull:
-            # Reset self.current_search_dataframe
-            self.current_search_dataframe = None
-            # Pull Data
-            search_data = self._OpeniRecords.openi_kinesin(self.current_search_url
-                                                           , to_harvest=self._current_search_to_harvest
-                                                           , total=self.current_search_total)
-            # Run Post Processing
-            search_data = self._post_processing_text(search_data)
-        elif new_records_pull is False and self.current_search_dataframe is not None:
+        # Define or evolve `search_data`.
+        if new_records_pull is False and self.current_search_dataframe is not None:
             search_data = self.current_search_dataframe
         elif new_records_pull is False and self.current_search_dataframe is None:
             raise ValueError("`self.current_search_dataframe` cannot be None if `new_records_pull` is `False`.")
+        else:
+            self.current_search_dataframe = None
+            search_data = self._OpeniRecords.openi_kinesin(self.current_search_url
+                                                           , to_harvest=self._current_search_to_harvest
+                                                           , total=self.current_search_total)
+            search_data = self._post_processing_text(search_data)
 
         # Download Images
         if image_quality is not None:
             image_col = "img_{0}".format(image_quality)
-            bih = self._OpeniImages.bulk_img_harvest(search_data, image_column=image_col)
-            search_data['img_extracted'] = bih[0]
-            search_data['img_cache_name'] = bih[1]
+            search_data['img_extracted'], search_data['img_cache_name'] = self._OpeniImages.bulk_img_harvest(
+                search_data, image_col
+            )
         elif self._verbose:
             warn("\nNo attempt was made to download images because `image_quality` is `None`.")
 
         # Save search_data
         self.current_search_dataframe = search_data
 
+        # Update `self.image_record_database`
+        self._database_image_management()
+
         return search_data
-
-
-
-
-
-
 
 
 

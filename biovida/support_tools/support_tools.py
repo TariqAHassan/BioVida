@@ -7,6 +7,7 @@
 """
 # Imports
 import re
+from collections import Hashable
 
 
 def pstr(s):
@@ -65,16 +66,24 @@ def header(string, flank=True):
     :return:
     """
     # Compute seperating line
-    sep_line = "".join(["-"] * len(string))
+    sep_line = "-" * len(string)
 
     # Display
-    if flank: print("\n")
+    if flank:
+        print("\n")
     print("\n{0}\n{1}\n{2}\n".format(sep_line, string, sep_line))
-    if flank: print("\n")
+    if flank:
+        print("\n")
 
 
 def camel_to_snake_case(name):
-    """Source: http://stackoverflow.com/a/1176023/4898004"""
+    """
+
+    Source: http://stackoverflow.com/a/1176023/4898004
+
+    :param name:
+    :return:
+    """
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
@@ -104,41 +113,23 @@ def cln(i, extent=1, strip=True):
     return to_return.strip() if strip else to_return
 
 
+def hashable_cols(data_frame):
+    """
 
+    Check which columns in a dataframe can be hashed.
+    Note: Likely will be slow as scale.
 
+    :param data_frame:
+    :return:
+    """
+    cannot_hash = list()
+    for c in data_frame.columns:
+        for i in data_frame[c]:
+            if not isinstance(i, Hashable):
+                cannot_hash.append(c)
+                break
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return [i for i in data_frame.columns if i not in cannot_hash]
 
 
 
