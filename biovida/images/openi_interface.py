@@ -296,19 +296,18 @@ class _OpeniImages(object):
     """
 
 
-    def __init__(self, assumed_img_format, sleep_time, image_save_location, verbose):
+    def __init__(self, sleep_time, image_save_location, verbose):
         """
 
 
-        :param assumed_img_format: suggested: 'png'
         :param sleep_time: suggested: 5.5
         :param image_save_location: suggested: created_img_dirs['raw'])
         :param verbose:
         """
-        self.assumed_img_format = assumed_img_format
         self.sleep_time = sleep_time
         self.image_save_location = image_save_location
         self.verbose = verbose
+        self.assumed_img_format = 'png' # ToDo: a find better solution.
 
     def img_name_abbrev(self, data_frame):
         """
@@ -337,8 +336,10 @@ class _OpeniImages(object):
         """
 
         :param number:
-        :param img_type:
+        :param img_type: e.g., 'L' or 'G150'.
+        :type img_type: ``str``
         :param img_name:
+        :type img_name: ``str``
         :return:
         """
         # Get Name
@@ -356,7 +357,7 @@ class _OpeniImages(object):
     def img_harvest(self, img_title, image_web_address):
         """
 
-        Harvest Pics from a URL and save to disk.
+        Harvest images from a URL and save to disk.
 
         :param image_web_address:
         :param lag:
@@ -449,15 +450,13 @@ class OpenInterface(object):
                        Default to ``None`` (which will generate a cache in the home folder).
     :type cache_path: ``str`` or ``None``
     :param download_limit: max. number of results to download.
-                           If ``None``, no limit will be imposed (not recommended). Defaults to 2.
+                           If ``None``, no limit will be imposed (not recommended). Defaults to 60.
     :type download_limit: ``int``
     :param img_sleep_time: time to sleep (in seconds) between requests for images. Noise is added on each call
-                           by adding a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5.5 seconds.
+                           by adding a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5 seconds.
     :type img_sleep_time: ``int`` or ``float``
     :param date_format: Defaults to '%d/%m/%Y'.
     :type date_format: ``str``
-    :param assumed_img_format: Assumed format of images on Open-i if this information cannot be determined. Defaults to 'png'.
-    :type assumed_img_format: ``str``
     :param records_sleep_mini: Tuple of the form: (every x downloads, short peroid of time [seconds]). Defaults to (2, 5).
     :type records_sleep_mini: ``tuple``
     :param records_sleep_main: Tuple of the form: (every x downloads, long peroid of time [seconds]). Defaults to (50, 300)
@@ -471,7 +470,6 @@ class OpenInterface(object):
                  , download_limit=60
                  , img_sleep_time=5
                  , date_format='%d/%m/%Y'
-                 , assumed_img_format='png'
                  , records_sleep_mini=(2, 5)
                  , records_sleep_main=(50, 300)
                  , verbose=True):
@@ -480,7 +478,6 @@ class OpenInterface(object):
         Initialize the ``OpenInterface()`` Class.
 
         """
-        # ToDo: maintain database in the image cache with all the data from each photo.
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
 
@@ -489,7 +486,7 @@ class OpenInterface(object):
         self.root_path, self._created_img_dirs = pcc
 
         pcc2 = _package_cache_creator(sub_dir='search', cache_path=cache_path, to_create=['search_databases_images'])[1]
-        self._search_cache_path = pcc2['search_databases_images']
+        self.search_cache_path = pcc2['search_databases_images']
 
         # Create an instance of the _OpeniRecords() Class
         self._OpeniRecords = _OpeniRecords(root_url=self._root_url
@@ -499,9 +496,8 @@ class OpenInterface(object):
                                            , sleep_main=records_sleep_main
                                            , verbose=verbose)
 
-        # Create an instance of the _OpeniImages() Class
-        self._OpeniImages = _OpeniImages(assumed_img_format=assumed_img_format
-                                         , sleep_time=img_sleep_time
+        # Create an instance of the `OpeniImages()` Class
+        self._OpeniImages = _OpeniImages(sleep_time=img_sleep_time
                                          , image_save_location=self._created_img_dirs['raw']
                                          , verbose=verbose)
 
@@ -530,7 +526,7 @@ class OpenInterface(object):
         """
         # ToDo: add 'article_type' to dict. look-up
 
-        # Change camel case to snake case and lower
+        # camelCase to snake_case and lower. ToDo: move out of this method when `_post_processing_img()` is created.
         data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
         # Run Feature Extracting Tool and Join with `data_frame`.
@@ -699,7 +695,7 @@ class OpenInterface(object):
     def _search_clean(self, k, v):
         """
 
-        Define a tool to clean the search terms in `search()`
+        Define a tool to clean the search terms in `OpenInterface().search()`.
 
         :param k:
         :param v:
@@ -709,7 +705,9 @@ class OpenInterface(object):
 
     def _api_url_terms(self, k, v, search_dict):
         """
-        Convert values passed into a form the API will understand
+
+        Convert values passed into a form the API will understand.
+
         :param k:
         :param v:
         :param search_dict:
@@ -719,7 +717,9 @@ class OpenInterface(object):
 
     def _api_url_param(self, x, search_dict):
         """
-        Convert param names into a form the API will understand
+
+        Convert param names into a form the API will understand.
+
         :param x:
         :param search_dict:
         :return:
@@ -810,7 +810,7 @@ class OpenInterface(object):
         :type database_name: ``str`` or ``None``
         :param action: see ``OpenInterface().cache()``.
         :type action: ``str`` or ``None``
-        :return: a list of databases found in ``self._search_cache_path``
+        :return: a list of databases found in ``self.search_cache_path``
         :rtype: ``list``
         """
         if self.current_search_dataframe is None and action == 'save':
@@ -820,7 +820,7 @@ class OpenInterface(object):
             raise ValueError("`action` must be one of: 'save', 'load', '!DELETE!' or `None`.")
 
         # Find databases
-        databases_found = [f for f in os.listdir(self._search_cache_path) if f.endswith(".p")]
+        databases_found = [f for f in os.listdir(self.search_cache_path) if f.endswith(".p")]
 
         # Raise if no databases found and action is not 'save'.
         if not len(databases_found) and (action == 'load' or action == '!DELETE!'):
@@ -845,12 +845,12 @@ class OpenInterface(object):
         :type action: ``str`` or ``None``
         """
         # Define the name of the support object
-        db_support_name = os.path.join(self._search_cache_path, "{0}_support.p".format(database_name))
+        db_support_name = os.path.join(self.search_cache_path, "{0}_support.p".format(database_name))
 
         if action == 'save':
             if os.path.isfile(db_support_name):
                 raise AttributeError("A support database file named '{0}' already exists in:\n '{1}'\n.".format(
-                    db_support_name, self._search_cache_path))
+                    db_support_name, self.search_cache_path))
             # Add to Dict
             save_dict = {
                 "current_search": self.current_search,
@@ -886,12 +886,59 @@ class OpenInterface(object):
             header("Cached Databases: ", flank=False)
             print(list_to_bulletpoints([i.replace(".p", "") for i in databases_found if not i.endswith("_support.p")]))
             return None
+        
+    def _cache_db_does_not_exist(self, database_name, action, db_path):
+        """
+        
+
+        :param database_name: 
+        :type database_name:
+        :param action:
+        :type action:
+        :param db_path:
+        :type db_path:
+        :return:
+        """
+        if action == 'save':
+            self.current_search_dataframe.to_pickle(db_path)
+            self._cache_method_db_support(database_name, action)
+        elif action == 'load' or action == '!DELETE!':
+            raise FileNotFoundError("Could not find a database entitled '{0}' in:\n '{1}'.".format(
+                database_name, self.search_cache_path))
+
+    def _cache_db_does_exist(self, database_name, action, db_path, return_request):
+        """
+
+        :param database_name:
+        :type database_name:
+        :param action:
+        :type action:
+        :param db_path:
+        :type db_path:
+        :param return_request:
+        :type return_request:
+        :return: `self.current_search_dataframe` if `return_request` is `True`.
+        :rtype: `self.current_search_dataframe` or `None`.
+        """
+        if action == 'save':
+            raise AttributeError("A database named '{0}' already exists in:\n '{1}'.".format(
+                database_name, self.search_cache_path))
+        elif action == 'load':
+            self.current_search_dataframe = pd.read_pickle(db_path)
+            self._cache_method_db_support(database_name, action)
+            if return_request:
+                return self.current_search_dataframe
+        elif action == '!DELETE!':
+            os.remove(db_path)
+            self._cache_method_db_support(database_name, action)
+            if self._verbose:
+                warn("\nThe '{0}' database was successfully deleted from:\n '{1}'.".format(
+                    database_name, self.search_cache_path))
 
     def cache(self, database_name=None, action=None, return_request=True):
         """
 
-        Cache a database, load a cached database to ``self.current_search_dataframe``
-        or delete a database.
+        Cache a database, load a cached database to ``self.current_search_dataframe`` or delete a database.
 
         :param database_name: if `action` is 'save': the name for the database to be saved.
                               if `action` is 'load': the name of the database to be loaded.
@@ -920,35 +967,18 @@ class OpenInterface(object):
             return self._cache_summary(databases_found, return_request)
 
         # Path to the database
-        db_path = "{0}.p".format(os.path.join(self._search_cache_path, database_name.replace(os.sep, "")))
+        db_path = "{0}.p".format(os.path.join(self.search_cache_path, database_name.replace(os.sep, "")))
 
         if not os.path.isfile(db_path):
-            if action == 'save':
-                self.current_search_dataframe.to_pickle(db_path)
-                self._cache_method_db_support(database_name, action)
-            elif action == 'load' or action == '!DELETE!':
-                raise FileNotFoundError("Could not find a database entitled '{0}' in:\n '{1}'.".format(
-                    database_name, self._search_cache_path))
+            self._cache_db_does_not_exist(database_name, action, db_path)
         elif os.path.isfile(db_path):
-            if action == 'save':
-                raise AttributeError("A database named '{0}' already exists in:\n '{1}'.".format(
-                    database_name, self._search_cache_path))
-            elif action == 'load':
-                self.current_search_dataframe = pd.read_pickle(db_path)
-                self._cache_method_db_support(database_name, action)
-                if return_request:
-                    return self.current_search_dataframe
-            elif action == '!DELETE!':
-                os.remove(db_path)
-                self._cache_method_db_support(database_name, action)
-                if self._verbose:
-                    warn("\nThe '{0}' database was successfully deleted from:\n '{1}'.".format(
-                        database_name, self._search_cache_path))
+            return self._cache_db_does_exist(database_name, action, db_path, return_request)
 
-    def _database_image_management(self):
+    def _image_cache_record_management(self):
         """
 
         Maintain Record of files in the image cache.
+        
         """
         if not os.path.isfile(self._image_record_database_path):
             # Then the image_record_database == current_search_dataframe
@@ -968,6 +998,75 @@ class OpenInterface(object):
                 )
                 # Save back out to disk
                 self.image_record_database.to_pickle(self._image_record_database_path)
+
+    def _pull_search_data(self, new_records_pull):
+        """
+
+        Define or evolve `search_data`.
+
+        :param new_records_pull: see ``OpenInterface().pull()``.
+        :type new_records_pull: ``bool``
+        :return: `search_data`
+        :rtype: ``Pandas DataFrame``
+        """
+        if new_records_pull is False and self.current_search_dataframe is not None:
+            search_data = self.current_search_dataframe
+        elif new_records_pull is False and self.current_search_dataframe is None:
+            raise ValueError("`self.current_search_dataframe` cannot be None if `new_records_pull` is `False`.")
+        else:
+            self.current_search_dataframe = None
+            search_data = self._OpeniRecords.openi_kinesin(self.current_search_url
+                                                           , to_harvest=self._current_search_to_harvest
+                                                           , total=self.current_search_total)
+            search_data = self._post_processing_text(search_data)
+
+        return search_data
+
+    def _pull_image_col(self, search_data, image_quality):
+        """
+
+        Pull images if `image_quality` is not ``None``, else return `search_data` 'as-is'.
+
+        :param search_data: see ``OpenInterface().pull()``.
+        :param search_data: ``Pandas DataFrame``
+        :param image_quality: see ``OpenInterface().pull()``.
+        :type image_quality: ``str`` or ``None``
+        :return: `search_data` with columns on th effort to pull images
+               if `image_quality` is not ``None`` else ``search_data``.
+        :rtype: ``Pandas DataFrame``
+        """
+        if image_quality is not None:
+            image_col = "img_{0}".format(image_quality)
+            search_data['img_extracted'], search_data['img_cache_name'] = self._OpeniImages.bulk_img_harvest(
+                search_data, image_col
+            )
+        elif self._verbose:
+            warn("\nNo attempt was made to download images because `image_quality` is `None`.")
+
+        return search_data
+
+    def _pull_search_wrapper(self, image_quality, new_records_pull):
+        """
+
+        Wrapper for ``OpenInterface()._pull_search_data()`` and ``OpenInterface()._pull_image_col()``.
+
+        :param new_records_pull: see ``OpenInterface().pull()``.
+        :type new_records_pull: ``bool``
+        :param image_quality: see ``OpenInterface().pull()``.
+        :type image_quality: ``str`` or ``None``
+        :return: the search DataFrame
+        :rtype: ``Pandas DataFrame``
+        """
+        # Get database for the search
+        data_pull = self._pull_search_data(new_records_pull)
+
+        # Harvest images (if requested) and Return
+        data_pull_img = self._pull_image_col(data_pull, image_quality)
+
+        # Update `self.current_search_dataframe`.
+        self.current_search_dataframe = data_pull_img
+
+        return data_pull_img
 
     def pull(self, image_quality='large', new_records_pull=True):
         """
@@ -991,55 +1090,21 @@ class OpenInterface(object):
             raise ValueError("A search has not been defined. Please call `OpenInterface().search()`.")
 
         # Define allowed image types to pull
-        allowed_image_quality_types = ['large', 'grid150', 'thumb', 'thumb_large']
+        allowed_image_quality_types = ('large', 'grid150', 'thumb', 'thumb_large')
 
         # Check `image_quality` is valid
         if image_quality is not None and image_quality not in allowed_image_quality_types:
-            raise ValueError("`image_quality` must be one of: %s." % \
-                             (", ".join(map(lambda x: "'{0}'".format(x), allowed_image_quality_types))))
+            raise ValueError("`image_quality` must be `None` or one of:\n{0}.".format(
+                list_to_bulletpoints(allowed_image_quality_types)))
 
-        # Define or evolve `search_data`.
-        if new_records_pull is False and self.current_search_dataframe is not None:
-            search_data = self.current_search_dataframe
-        elif new_records_pull is False and self.current_search_dataframe is None:
-            raise ValueError("`self.current_search_dataframe` cannot be None if `new_records_pull` is `False`.")
-        else:
-            self.current_search_dataframe = None
-            search_data = self._OpeniRecords.openi_kinesin(self.current_search_url
-                                                           , to_harvest=self._current_search_to_harvest
-                                                           , total=self.current_search_total)
-            search_data = self._post_processing_text(search_data)
-
-        # Download Images
-        if image_quality is not None:
-            image_col = "img_{0}".format(image_quality)
-            search_data['img_extracted'], search_data['img_cache_name'] = self._OpeniImages.bulk_img_harvest(
-                search_data, image_col
-            )
-        elif self._verbose:
-            warn("\nNo attempt was made to download images because `image_quality` is `None`.")
-
-        # Save search_data
-        self.current_search_dataframe = search_data
+        # Define or evolve `search_data` and Download Images (if requested).
+        search_data = self._pull_search_wrapper(image_quality, new_records_pull)
 
         # Update `self.image_record_database`
-        self._database_image_management()
+        if image_quality is not None:
+            self._image_cache_record_management()
 
         return search_data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

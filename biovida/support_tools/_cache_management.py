@@ -140,7 +140,7 @@ def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     package_created_dirs = _sub_directory_creator(sub_dir_full_path, to_create)
 
     # New dirs created
-    new = {k: v for k, v  in package_created_dirs.items() if k[1] is True}
+    new = {k: v for k, v in package_created_dirs.items() if k[1] is True}
 
     # Print record of files created, if verbose is True
     if verbose and len(new.values()):
