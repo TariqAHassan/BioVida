@@ -671,20 +671,23 @@ class OpenInterface(object):
         :return: a list of valid values for a given search `search_parameter`.
         :rtype: ``list``
         """
-        # Terms to blocked from displaying to users
-        blocked = ['exclude_graphics', 'exclude_multipanel']
+        # Terms to blocked from displaying to users if search_parameter != 'exclusions'
+        exclusions = ['exclude_graphics', 'exclude_multipanel']
 
-        # Get the relevant dict of params
-        search_dict = openi_search_information()[0].get(cln(search_parameter).strip().lower(), None)
+        if search_parameter == 'exclusions':
+            opts = [i.split("_")[1] for i in exclusions]
+        else:
+            # Get the relevant dict of params
+            search_dict = openi_search_information()[0].get(cln(search_parameter).strip().lower(), None)
 
-        # Report invalid `search_parameter`
-        if search_dict is None:
-            raise ValueError("'{0}' is not a valid value for the Open-i API".format(search_parameter))
+            # Report invalid `search_parameter`
+            if search_dict is None:
+                raise ValueError("'{0}' is not a valid parameter to pass to the Open-i API".format(search_parameter))
 
-        # Remove blocked term
-        opts = [i for i in search_dict[1].keys() if i not in blocked]
-        if not len(opts):
-            raise ValueError("Relevant options for '{0}'.".format(search_parameter))
+            # Remove exclusions term
+            opts = [i for i in search_dict[1].keys() if i not in exclusions]
+            if not len(opts):
+                raise ValueError("Relevant options for '{0}'.".format(search_parameter))
 
         # Print or Return
         if print_options:
