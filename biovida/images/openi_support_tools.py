@@ -17,7 +17,7 @@ from biovida.support_tools.support_tools import cln
 # Other Tools
 p = inflect.engine()
 non_decimal = re.compile(r'[^\d.]+')
-age_dict = {p.number_to_words(i): i for i in range(1, 135)}
+age_dict = {p.number_to_words(i): i for i in range(1, 135)} # ToDo: remove need for inflect
 
 
 def iter_join(t, join_on="_"):

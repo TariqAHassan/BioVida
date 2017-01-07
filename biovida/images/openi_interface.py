@@ -984,9 +984,12 @@ class OpenInterface(object):
         Maintain Record of files in the image cache.
         
         """
+        temp_df = None
         if not os.path.isfile(self._image_record_database_path):
             # Then the image_record_database == current_search_dataframe
             self.image_record_database = self.current_search_dataframe
+            # Add the Search Term
+            self.image_record_database['query'] = [self.current_search] * self.image_record_database.shape[0]
             # Save to disk
             self.image_record_database.to_pickle(self._image_record_database_path)
         elif os.path.isfile(self._image_record_database_path):
@@ -994,14 +997,20 @@ class OpenInterface(object):
             self.image_record_database = pd.read_pickle(self._image_record_database_path)
             # Combine with the current search, if not None
             if self.current_search_dataframe is not None:
-                # Append the current search to the existing database
-                self.image_record_database = self.image_record_database.append(self.current_search_dataframe)
+                # Create a copy of self.current_search_dataframe to operate on.
+                temp_df = self.current_search_dataframe.copy()
+                # Add the Search Term to the temporary dataframe
+                temp_df['query'] = [self.current_search] * temp_df.shape[0]
+                # Append the current search database to the existing database
+                self.image_record_database = self.image_record_database.append(temp_df)
                 # Drop Duplicates, favoring the first instance of a row
                 self.image_record_database = self.image_record_database.drop_duplicates(
                     subset=hashable_cols(self.image_record_database), keep='first'
                 )
                 # Save back out to disk
                 self.image_record_database.to_pickle(self._image_record_database_path)
+                # Delete temp_df
+                del temp_df
 
     def _pull_search_data(self, new_records_pull):
         """
