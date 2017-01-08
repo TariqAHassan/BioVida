@@ -5,6 +5,8 @@
 
 
 """
+from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import dict_reverse
 
 
 def _parser(s):
@@ -16,7 +18,6 @@ def _parser(s):
     :return:
     :rtype: ``dict``
     """
-    from biovida.support_tools.support_tools import cln
 
     # Split the string into keys and values
     split_string = [i.split('(') for i in cln(s).split(')')]
@@ -42,7 +43,7 @@ openi_image_type_params = {
     'p': 'pet',
     'ph': 'photograph',
     'u': 'ultrasound',
-    'x': 'x-ray',
+    'x': 'x_ray',
     'xg': 'exclude_graphics',
     'xm': 'exclude_multipanel'
 }
@@ -65,7 +66,7 @@ openi_subset_params = {
     'c': 'clinical_journals',
     'e': 'ethics',
     's': 'systematic_reviews',
-    'x': 'chest_x-rays'
+    'x': 'chest_x_rays'
 }
 
 
@@ -82,6 +83,35 @@ openi_fields_params = {
     'm': 'mentions',
     'msh': 'mesh',
     't': 'titles'
+}
+
+
+openi_article_type_params = {
+    # Not explicting exposed.
+    # Not listed on: https://openi.nlm.nih.gov/services.php?it=xg
+    'ab': 'abstract',
+    'bk': 'book_review',
+    'bf': 'brief_report',
+    'cr': 'case_report',
+    'dp': 'data_paper',
+    'di': 'discussion',
+    'ed': 'editorial',
+    'hs': 'historical_slide',
+    'ib': 'in_brief',
+    'in': 'introduction',
+    'lt': 'letter',
+    'mr': 'meeting_report',
+    'ma': 'method_article',
+    'ne': 'news',
+    'ob': 'obituary',
+    # '': 'oration',  # unknown
+    'os': 'orthopedic_slides',
+    'pr': 'product_review',
+    'rr': 'radiology_report',
+    're': 'reply',
+    'ra': 'research_article',
+    'rw': 'review_article',
+    'sr': 'systematic_reviews'
 }
 
 
@@ -126,12 +156,12 @@ openi_specialties_params = {
 
 openi_api_search_params = {
     'video': ('&vid', openi_video_params),
-    'image_type' : ('&it', openi_image_type_params),
-    'rankby' : ('&favor', openi_rankby_params),
-    'subset' : ('&sub', openi_subset_params),
-    'collection' : ('&coll', openi_collection_params),
-    'fields' : ('&fields', openi_fields_params),
-    'specialties' : ('&sp', openi_specialties_params),
+    'image_type': ('&it', openi_image_type_params),
+    'rankby': ('&favor', openi_rankby_params),
+    'subset': ('&sub', openi_subset_params),
+    'collection': ('&coll', openi_collection_params),
+    'fields': ('&fields', openi_fields_params),
+    'specialties': ('&sp', openi_specialties_params),
 }
 
 
@@ -148,13 +178,8 @@ def openi_search_information():
     # Params in the order the Open-i API expects
     ordered_params = ['query', '&it', '&favor', '&vid', '&sub', '&coll', '&fields', '&sp']
 
-    # Define a lambda to reverse a dict
-    dict_reverse = lambda d: {v: k for k, v in d.items()}
-
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
     return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
-
-
 
 
 
