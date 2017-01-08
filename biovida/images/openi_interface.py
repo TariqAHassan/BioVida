@@ -16,9 +16,9 @@ import pandas as pd
 from tqdm import tqdm
 from math import floor
 from time import sleep
-from warnings import warn
 from copy import deepcopy
 from pprint import pprint
+from warnings import warn
 from datetime import datetime
 from collections import Counter
 
@@ -250,9 +250,9 @@ class _OpeniRecords(object):
         for bound in tqdm(bounds_list):
             if c % self.sleep_mini[0] == 0:
                 sleep(abs(self.sleep_mini[1] + np.random.normal()))
-            elif c % self.sleep_main[0] == 0: # ToDo: main sleep not working...
+            if isinstance(c, (list, tuple)) and c % self.sleep_main[0] == 0:
                 if self.verbose:
-                    print("Sleeping for %s seconds..." % self.sleep_main[1])
+                    print("\nSleeping for %s seconds..." % self.sleep_main[1])
                 sleep(abs(self.sleep_main[1] + np.random.normal()))
 
             # Harvest
@@ -1091,11 +1091,11 @@ class OpenInterface(object):
                 temp_df['query'] = [self.current_search] * temp_df.shape[0]
                 # Append the current search database to the existing database
                 self.image_record_database = self.image_record_database.append(temp_df)
-                # Name search ids their unqiue id. Shields distinct search that yeilded the same image frop dropping.
+                # Name search ids their unqiue id. Shields distinct search that yeilded the same image from dropping.
                 self.image_record_database = self._image_cache_record_relationships(self.image_record_database, 'q_uid')
                 # Drop Duplicates, favoring the first instance of a row
                 self.image_record_database = self.image_record_database.drop_duplicates(
-                    subset=hashable_cols(self.image_record_database), keep='first')
+                    subset=hashable_cols(self.image_record_database, block_override=['shared_img_ref']), keep='first')
                 # Map Relationships between rows in the df.
                 self.image_record_database = self._image_cache_record_relationships(self.image_record_database, 'both')
                 # Save back out to disk
@@ -1201,6 +1201,8 @@ class OpenInterface(object):
             raise ValueError("`image_quality` must be `None` or one of:\n{0}.".format(
                 list_to_bulletpoints(allowed_image_quality_types)))
 
+        # ToDo: chunk large downloads (say n > 50) to allow _image_cache_record_management to run.
+
         # Define or evolve `search_data` and Download Images (if requested).
         search_data = self._pull_search_wrapper(image_quality, new_records_pull)
 
@@ -1209,8 +1211,6 @@ class OpenInterface(object):
             self._image_cache_record_management()
 
         return search_data
-
-
 
 
 

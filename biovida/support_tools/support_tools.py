@@ -124,7 +124,7 @@ def cln(i, extent=1, strip=True):
     return to_return.strip() if strip else to_return
 
 
-def hashable_cols(data_frame):
+def hashable_cols(data_frame, block_override=[]):
     """
 
     Check which columns in a dataframe can be hashed.
@@ -148,6 +148,8 @@ def hashable_cols(data_frame):
 
     :param data_frame: any DataFrame.
     :rtype data_frame: ``Pandas DataFrame``
+    :param override: columns to block regardless of what the procedure determines.
+    :rtype override: ``list``
     :return: only those columns in the DataFrame that can be hashed.
     :rtype: ``list``
     """
@@ -159,7 +161,7 @@ def hashable_cols(data_frame):
                     cannot_hash.append(c)
                     break
 
-    return [i for i in data_frame.columns if i not in cannot_hash] # no real cost with c = 41.
+    return [i for i in data_frame.columns if i not in cannot_hash + list(block_override)] # no real cost with c = 41.
 
 
 def same_dict(dict1, dict2, assumption=None):
