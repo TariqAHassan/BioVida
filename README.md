@@ -1,15 +1,23 @@
 BioVida
-===
+=======
 
 
 ###Overview
 
-Publicly available online repositories currently store enormous amounts of data on numerous human diseases. However, 
-these databases are often built to serve wildly different purposes, making it difficult to explore connections between 
-them. This project aims to tame this problem and integrate several of these public sources together.
-Specifically, it aims to develop an easy-to-use API which will harvest the latest information on human diseases from 
-public databases. These capabilties will be complimented by other tools to automate data post-processing to make 
-machine learning tractable.
+This library is primarly intended to help solve an outstanding problem in biomedial data science: a lack of useable data.
+While impressive data mining work in bioinformatics in recents years has helped build clean databases of known gene-disease
+associations, a povery of data of machine learning ready biomedical images persits. This is partly because cleaning datasets
+of biomedical images is very complex -- so complex in fact, it must often be done by hand. This package is an attempt
+at automating this process. This is done in two main ways. First, using standard programmatic attempts to 
+harvest data from online databases and tools like regular expressions to extract salient features in text information.
+Second, to clean some forms of data (images namely), machine learning is used to identify data which is liable to 
+confuse machine learning algorithms trying to identify pattents (e.g., large watermarks which obscure the image).
+Steps can then be taken correct this image, and in cases where this is not possible, remove it from the dataset.
+
+While BioVida is currently focused on harvesting and processing biomedical images, it contains (or will contain)
+tools to perform analgous tasks with other types of data (namely genetics and disease diagnositics).
+For this reason BioVida has modular structure, with different types of biomedical data handled by distinct subpackges
+within `biovida`. 
 
 ------------------------------------------------------------------------
 
@@ -17,7 +25,10 @@ machine learning tractable.
 
    1. Images
    
-     - automatically clean images (likely using neural nets) to make them amenable to machine learning algorithms.
+     - Stabalize the process to automatically clean images to make them amenable to machine learning algorithms.
+       Part of this problem will be solved using convolutional neural networks (CNNs) as I've found them to 
+       produce the best results with small image datasets. This will be performing using the [Keras] library,
+       which allows users to use either TensorFlow or Theano as a computational backend. 
     
    2. Diagnostic Data
    
@@ -164,6 +175,7 @@ Genomics
       diseases and their genes. Database (2015) doi:10.1093/database/bav028
 
 
+[Keras]: https://keras.io
 [inflect]: https://pypi.python.org/pypi/inflect
 [pandas]: http://pandas.pydata.org
 [numpy]: http://www.numpy.org
@@ -172,8 +184,6 @@ Genomics
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
 [here]: https://tariqahassan.github.io/BioVida/index.html
-
-
 
 
 
