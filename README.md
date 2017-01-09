@@ -8,9 +8,8 @@ This library is primarly intended to help solve an outstanding problem in biomed
 While impressive data mining work in bioinformatics in recents years has helped build clean databases of known gene-disease
 associations, a povery of data of machine learning ready biomedical images persits. This is partly because cleaning datasets
 of biomedical images is very complex -- so complex in fact, it must often be done by hand. This package is an attempt
-at automating this process. This is done in two main ways. First, using standard programmatic attempts to 
-harvest data from online databases and tools like regular expressions to extract salient features in text information.
-Second, to clean some forms of data (images namely), machine learning is used to identify data which is liable to 
+at automating this process. This is done in two main ways. First, using standard programmatic techniques to 
+harvest data from online databases. Second, to clean some forms of data (images namely), machine learning is used to identify data which is liable to 
 confuse machine learning algorithms trying to identify pattents (e.g., large watermarks which obscure the image).
 Steps can then be taken correct this image, and in cases where this is not possible, remove it from the dataset.
 
