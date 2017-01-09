@@ -9,10 +9,9 @@ While impressive data mining work in bioinformatics in recents years has helped 
 associations, a povery of data of machine learning ready biomedical images persits. This is partly because cleaning datasets
 of biomedical images is very complex -- so complex in fact, it must often be done by hand. This package is an attempt
 at automating this process. This is done in two main ways. First, using standard programmatic techniques to 
-harvest data from online databases. Second, to clean some forms of data (images namely), machine learning is used to 
-identify images which are liable to confuse machine learning algorithms trying to identify pattents 
-(e.g., large watermarks which obscure the image). Steps can then be taken correct this image, and in cases where this is
-not possible, remove it from the dataset.
+harvest data from online databases. Second, to clean some forms of data (images namely), machine learning itself is used to 
+identify images which are liable to corrupt the dataset (e.g., large watermarks which obscure the image). 
+Steps can then be taken correct this image, and in cases where this is not possible, remove it from the dataset.
 
 While BioVida is currently focused on harvesting and processing biomedical images, it contains (or will contain)
 tools to perform analgous tasks with other types of data (namely genetics and disease diagnositics).
