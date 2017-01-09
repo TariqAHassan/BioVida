@@ -4,15 +4,19 @@ BioVida
 Overview
 ~~~~~~~~
 
-Publicly available online repositories currently store enormous amounts
-of data on numerous human diseases. However, these databases are often
-built to serve wildly different purposes, making it difficult to explore
-connections between them. This project aims to tame this problem and
-integrate several of these public sources together. Specifically, it
-aims to develop an easy-to-use API which will harvest the latest
-information on human diseases from public databases. These capabilties
-will be complimented by other tools to automate data post-processing to
-make machine learning tractable.
+This library is primarily intended to help solve an outstanding problem in biomedical data science: a lack of usable data.
+While impressive data mining work in bioinformatics in recent years has helped build clean databases of known gene-disease
+associations, a poverty of data of machine learning ready biomedical images persists. This is partly because cleaning datasets
+of biomedical images is very complex -- so complex in fact, it must often be done by hand. This package is an attempt
+at automating this process. This is done in two main ways. First, using standard programmatic techniques to
+harvest data from online databases. Second, to clean some forms of data (images namely), machine learning itself is used to
+identify properties which are liable to corrupt the dataset (e.g., large watermarks which obscure an image).
+Steps can then be taken correct or remove this problematic data.
+
+While BioVida is currently focused on harvesting and processing biomedical images, it contains (or will contain)
+tools to perform analogous tasks with other types of data (namely genetics and disease diagnostics).
+For this reason BioVida has modular structure, with different types of biomedical data handled by distinct subpackages
+within `biovida`.
 
 --------------
 
