@@ -6,7 +6,7 @@ BioVida
 
 This library is primarily intended to help solve an outstanding problem in biomedical data science: a lack of usable data.
 While impressive data mining work in bioinformatics in recent years has helped build clean databases of known gene-disease
-associations, a poverty of data of machine learning ready biomedical images persists. This is partly because cleaning datasets
+associations, a poverty of machine learning ready biomedical images persists. This is partly because cleaning datasets
 of biomedical images is very complex -- so complex in fact, it must often be done by hand. This package is an attempt
 at automating this process. This is done in two main ways. First, using standard programmatic techniques to
 harvest data from online databases. Second, to clean some forms of data (images namely), machine learning itself is used to
