@@ -6,8 +6,10 @@
 
 """
 # Imports
+import os
 import re
 from collections import Hashable
+from itertools import chain
 
 
 def dict_reverse(d):
@@ -155,13 +157,15 @@ def hashable_cols(data_frame, block_override=[]):
     """
     cannot_hash = list()
     for c in data_frame.columns:
-        if not data_frame[c].dtype in ['float64', 'int64']:
+        if c in block_override:
+            cannot_hash.append(c)
+        elif not data_frame[c].dtype in ['float64', 'int64']:
             for i in data_frame[c]:
                 if not isinstance(i, Hashable):
                     cannot_hash.append(c)
                     break
 
-    return [i for i in data_frame.columns if i not in cannot_hash + list(block_override)] # no real cost with c = 41.
+    return [i for i in data_frame.columns if i not in cannot_hash] # no real cost with c = 41.
 
 
 def same_dict(dict1, dict2, assumption=None):
@@ -212,9 +216,17 @@ def unique_dics(list_of_dicts):
     return list_of_unique_dicts
 
 
+def number_of_images_in_dir(dir):
+    """
 
-
-
+    :param dir:
+    :return:
+    """
+    if not os.path.isdir(dir):
+        raise FileNotFoundError("'{0}' does not exist.".format(str(dir)))
+    image_types = (".png", ".jpg", ".tiff", ".gif")
+    unnested_list = chain(*[k for i, j, k in os.walk(dir)])
+    return len([i for i in unnested_list if any(t in i.lower() for t in image_types)])
 
 
 
