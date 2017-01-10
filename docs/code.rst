@@ -10,7 +10,8 @@ API
 .. automodule:: biovida.genomics.disgenet_interface
 	:members:	
 
-
+.. automodule:: biovida.support_tools.printing
+	:members:
 
 
 

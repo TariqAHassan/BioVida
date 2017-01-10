@@ -19,7 +19,7 @@ biovida.images.openi_interface module
     :show-inheritance:
 
 biovida.images.text_processing module
----------------------------------------------------
+-------------------------------------
 
 .. automodule:: biovida.images.text_processing
     :members:
@@ -30,6 +30,14 @@ biovida.genomics.disgenet_interface module
 ------------------------------------------
 
 .. automodule:: biovida.genomics.disgenet_interface
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biovida.support_tools.printing module
+-------------------------------------
+
+.. automodule:: biovida.support_tools.printing
     :members:
     :undoc-members:
     :show-inheritance:
