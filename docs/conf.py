@@ -58,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'BioVida'
-copyright = '2016, Tariq A. Hassan'
+copyright = '2017, Tariq A. Hassan'
 author = 'Tariq A. Hassan'
 
 # The version info for the project you're documenting, acts as replacement for
