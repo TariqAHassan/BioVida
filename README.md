@@ -14,7 +14,7 @@ identify properties which are liable to corrupt the dataset (e.g., large waterma
 Steps can then be taken correct or remove this problematic data.
 
 While BioVida is currently focused on harvesting and processing biomedical images, it contains (or will contain)
-tools to perform analogous tasks with other types of data (namely genetics and disease diagnostics).
+tools to perform analogous tasks with other types of data (namely genomics and disease diagnostics).
 For this reason BioVida has modular structure, with different types of biomedical data handled by distinct subpackages
 within `biovida`.
 
