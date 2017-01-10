@@ -117,18 +117,13 @@ def dict_pretty_printer(d, max_value_length=70):
     """
 
     Pretty prints a dictionary with vertically aligned values.
-
-    Example:
-        - Key1:       Value1
-        - Key12:      Value12
-        - Key123:     Value123
-        - Key1234:    Value1234
-        - Key12345:   Value12345
+    Dictionary values with strings longer than `max_value_length`
+    are automatically broken and aligned with the line(s) above.
 
     :param d: a dictionary
     :type d: ``dict``
     :param max_value_length: max. number of characters in a string before a line break.
-                            This is a fuzzy threshold because the algorithm above will only insert
+                            This is a fuzzy threshold because the algorithm will only insert
                             line breaks where there are already spaces and will not insert line breaks
                             between braces.
     :type max_value_length: ``int``
@@ -194,7 +189,7 @@ def _pandas_series_alignment(pandas_series, justify):
     return [_padding(s, longest_string - len(s), justify) if not items_null(s) else s for s in pandas_series]
 
 
-def align_pandas(data_frame, to_align='right'):
+def _align_pandas(data_frame, to_align='right'):
     """
 
     Align the columns of a Pandas DataFrame by adding whitespace.
@@ -220,7 +215,7 @@ def align_pandas(data_frame, to_align='right'):
     return data_frame
 
 
-def pandas_print_full(pd_df, full_rows=False, full_cols=True):
+def _pandas_print_full(pd_df, full_rows=False, full_cols=False):
     """
 
     Print *all* of a Pandas DataFrame.
@@ -238,7 +233,6 @@ def pandas_print_full(pd_df, full_rows=False, full_cols=True):
     if full_cols:
         pd.set_option('expand_frame_repr', False)
 
-    # Print the data frame
     print(pd_df)
 
     if full_rows:
@@ -247,7 +241,7 @@ def pandas_print_full(pd_df, full_rows=False, full_cols=True):
         pd.set_option('expand_frame_repr', True)
 
 
-def pandas_pretty_print(data_frame, col_align='right', header_align='center', full_rows=False, full_cols=True):
+def pandas_pretty_print(data_frame, col_align='right', header_align='center', full_rows=False, full_cols=False):
     """
 
     Pretty Print a Pandas DataFrame.
@@ -255,7 +249,8 @@ def pandas_pretty_print(data_frame, col_align='right', header_align='center', fu
 
     :param data_frame: a dataframe.
     :type data_frame: ``Pandas DataFrame``
-    :param col_align: 'left', 'right', 'center'' or a dictionary of the form: ``{'Column': 'Alignment'}``.
+    :param col_align: 'left', 'right', 'center' or a dictionary of the form: ``{'column_name': 'alignment'}``,
+                       e.g., {'my_column': 'left', 'my_column2': 'right'}.
     :type col_align: ``str`` or ``dict``
     :param header_align: alignment of headers. Must be one of: 'left', 'right', 'center'.
     :type header_align: ``str`` or ``dict``
@@ -264,10 +259,11 @@ def pandas_pretty_print(data_frame, col_align='right', header_align='center', fu
     :param full_cols: print all columns.
     :type full_cols: ``bool``
     """
-    aligned_df = align_pandas(data_frame, col_align)
+    aligned_df = _align_pandas(data_frame, col_align)
     pd.set_option('colheader_justify', header_align)
-    pandas_print_full(aligned_df.fillna(""), full_rows, full_cols)
+    _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols)
     pd.set_option('colheader_justify', 'right')
+
 
 
 

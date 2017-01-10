@@ -216,17 +216,24 @@ def unique_dics(list_of_dicts):
     return list_of_unique_dicts
 
 
-def number_of_images_in_dir(dir):
+def images_in_dir(dir, return_len=False):
     """
 
     :param dir:
+    :param return_len:
     :return:
+    :rtype: ``int`` or ``list``
     """
     if not os.path.isdir(dir):
         raise FileNotFoundError("'{0}' does not exist.".format(str(dir)))
     image_types = (".png", ".jpg", ".tiff", ".gif")
     unnested_list = chain(*[k for i, j, k in os.walk(dir)])
-    return len([i for i in unnested_list if any(t in i.lower() for t in image_types)])
+    n_images = [i for i in unnested_list if any(t in i.lower() for t in image_types)]
+
+    return len(n_images) if return_len else n_images
+
+
+
 
 
 
