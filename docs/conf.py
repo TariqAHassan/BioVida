@@ -15,7 +15,8 @@
 
 import os
 import sys
-import sphinx_rtd_theme
+# import sphinx_rtd_theme
+import sphinx_bootstrap_theme
 import rst2pdf
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -128,13 +129,24 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'bootstrap'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+
+html_theme_options = {
+    'navbar_links': [
+            ("View on GitHub", "https://github.com/TariqAHassan/BioVida", True)
+    ],
+    'navbar_sidebarrel': True,
+    'navbar_pagenav_name': "Current Page",
+    'source_link_position': "NONE",
+    'globaltoc_depth': 3
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []

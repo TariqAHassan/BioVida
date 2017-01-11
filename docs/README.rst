@@ -1,8 +1,5 @@
-BioVida
-=======
-
-Overview
-~~~~~~~~
+Project Overview
+----------------
 
 This library is primarily intended to help solve an outstanding problem in biomedical data science: a lack of usable data.
 While impressive data mining work in bioinformatics in recent years has helped build clean databases of known gene-disease
@@ -21,7 +18,7 @@ within `biovida`.
 --------------
 
 Installation
-~~~~~~~~~~~~
+------------
 
 Latest Build:
 
@@ -32,7 +29,7 @@ Latest Build:
 --------------
 
 Dependencies
-~~~~~~~~~~~~
+------------
 
 BioVida requires: `inflect <https://pypi.python.org/pypi/inflect>`__,
 `pandas <http://pandas.pydata.org>`__, `numpy <http://www.numpy.org>`__,
@@ -41,8 +38,8 @@ BioVida requires: `inflect <https://pypi.python.org/pypi/inflect>`__,
 
 --------------
 
-Image Harvesting
-~~~~~~~~~~~~~~~~
+Image Data
+----------
 
 Import the Interface for the NIH's Open-i API.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -100,7 +97,7 @@ results.
 --------------
 
 Genomic Data
-~~~~~~~~~~~~
+------------
 
 Import the Interface for DisGeNET.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -165,7 +162,7 @@ Information about the database:
 
 
 Resources
-~~~~~~~~~
+---------
 
 Images
 
