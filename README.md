@@ -4,7 +4,7 @@ BioVida
 ###Overview
 
 BioVida is a library designed to automate both the harvesting and 
-post-processing of biomedical data. The datasets it produces
+post-processing of biomedical data. The novel datasets it produces
 are intended to need little, if any, cleaning by the user.
 
 To view this project's website, please [click here].
@@ -22,7 +22,7 @@ $ pip install git+git://github.com/TariqAHassan/BioVida@master
 
 ###Dependencies
 
-BioVida requires: [inflect], [pandas], [numpy], [requests] and [tqdm].
+BioVida requires: [pandas], [numpy], [requests], [tqdm], [scipy] and [keras].
 
 ------------------------------------------------------------------------
 
@@ -168,7 +168,6 @@ Genomics
 
 [click here]: https://tariqahassan.github.io/BioVida/index.html
 [Keras]: https://keras.io
-[inflect]: https://pypi.python.org/pypi/inflect
 [pandas]: http://pandas.pydata.org
 [numpy]: http://www.numpy.org
 [requests]: http://docs.python-requests.org/en/master/
@@ -176,6 +175,7 @@ Genomics
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
 [here]: https://tariqahassan.github.io/BioVida/API.html
+
 
 
 
