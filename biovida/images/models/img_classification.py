@@ -33,7 +33,7 @@ class ImageRecognitionCNN(object):
     :type data_path: ``str``
     :param img_shape: the (width, height) to rescale the images to. Elements must be ``ints``. Defaults to (150, 150).
     :type img_shape: ``tuple`` or ``list``.
-    :param rescale: See: ``keras.preprocessing.image.ImageDataGenerator()``.
+    :param rescale: Defaults to 1/255. See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type rescale: ``float``
     :param shear_range: See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type shear_range: ``float``
@@ -238,7 +238,8 @@ class ImageRecognitionCNN(object):
 
         Save the weights from a trained model.
 
-        :param name: name of the file.
+        :param name: name of the file. Do not include the ".h5" extension.
+                     This will be added automatically.
         :type name: ``str``
         :param path: path to save the data to. See: ``keras.models.Sequential()``.
         :type path: ``str``
@@ -263,7 +264,6 @@ class ImageRecognitionCNN(object):
             raise AttributeError("A model is currently instantiated.\n"
                                  "Set `override_existing` to `True` to replace the existing model.")
         self.model = load_model(path)
-
 
 
 
