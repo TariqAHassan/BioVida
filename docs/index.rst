@@ -21,7 +21,7 @@ Contents
    :maxdepth: 2
 
    README
-   code
+   API
 
 Indices and tables
 ------------------
