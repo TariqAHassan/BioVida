@@ -151,8 +151,9 @@ def feature_extract(x):
         - sex
         - age
 
-    :param x: Pandas Seris passed though pandas `DataFrame().apply()` method, e.g.,
-              ``df.apply(feature_extract, axis=1)``. Must contain 'abstract' and 'journal_title' columns.
+    :param x: series passed though Pandas' `DataFrame().apply()` method, e.g.,
+              ``df.apply(feature_extract, axis=1)``. The dataframe must contain
+              'abstract' and 'journal_title' columns.
     :type x: ``Pandas Series``
     :return: dictionary with the following keys: 'diagnosis', 'history', 'findings', 'sex' and 'age'.
     :rtype: ``dict``
@@ -179,7 +180,6 @@ def feature_extract(x):
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
-
 
 
 
