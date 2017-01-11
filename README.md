@@ -1,37 +1,13 @@
 BioVida
 =======
 
-
 ###Overview
 
-This library is primarily intended to help solve an outstanding problem in biomedical data science: a lack of usable data.
-While impressive data mining work in bioinformatics in recent years has helped build clean databases of known gene-disease
-associations, a poverty of machine learning ready biomedical images persists. This is partly because cleaning datasets
-of biomedical images is very complex -- so complex in fact, it must often be done by hand. This package is an attempt
-at automating this process. This is done in two main ways. First, using standard programmatic techniques to
-harvest data from online databases. Second, to clean some forms of data (images namely), machine learning itself is used to
-identify properties which are liable to corrupt the dataset (e.g., large watermarks which obscure an image).
-Steps can then be taken correct or remove this problematic data.
+BioVida is a library deigned to automate both the harvesting and 
+post-processing of biomedical data. The datasets it produces
+are intended to need little, if any, cleaning by the user.
 
-While BioVida is currently focused on harvesting and processing biomedical images, it contains (or will contain)
-tools to perform analogous tasks with other types of data (namely genomics and disease diagnostics).
-For this reason BioVida has modular structure, with different types of biomedical data handled by distinct subpackages
-within `biovida`.
-
-------------------------------------------------------------------------
-
-###Outstanding Objectives
-
-   1. Images
-   
-     - Stabalize the process to automatically clean images to make them amenable to machine learning algorithms.
-       Part of this problem will be solved using convolutional neural networks (CNNs) as I've found them to 
-       produce the best results with small image datasets. This will be performing using the [Keras] library,
-       which allows users to use either TensorFlow or Theano as a computational backend. 
-    
-   2. Diagnostic Data
-   
-     - source currently unclear
+To view this project's website, please [click here].
 
 ------------------------------------------------------------------------
 
@@ -174,6 +150,23 @@ Genomics
       diseases and their genes. Database (2015) doi:10.1093/database/bav028
 
 
+------------------------------------------------------------------------
+
+###Outstanding Objectives
+
+   1. Images
+   
+     - Stabalize the process to automatically clean images to make them amenable to machine learning algorithms.
+       Part of this problem will be solved using convolutional neural networks (CNNs) as I've found them to 
+       produce the best results with small image datasets. This will be performing using the [Keras] library,
+       which allows users to use either TensorFlow or Theano as a computational backend. 
+    
+   2. Diagnostic Data
+   
+     - source currently unclear
+
+
+[click here]: https://tariqahassan.github.io/BioVida/index.html
 [Keras]: https://keras.io
 [inflect]: https://pypi.python.org/pypi/inflect
 [pandas]: http://pandas.pydata.org
@@ -182,7 +175,10 @@ Genomics
 [tqdm]: https://github.com/tqdm/tqdm
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
-[here]: https://tariqahassan.github.io/BioVida/index.html
+[here]: https://tariqahassan.github.io/BioVida/API.html
+
+
+
 
 
 
