@@ -46,13 +46,13 @@ class ImageRecognitionCNN(object):
     :param horizontal_flip: See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type horizontal_flip: ``bool``
     :param batch_size: Samples to propagate through the model.
-                       See: keras.preprocessing.ImageDataGenerator().flow_from_directory()
+                       See: ``keras.preprocessing.ImageDataGenerator().flow_from_directory()``.
                        Defaults to 32.
     :type batch_size: ``int``
     :param dim_ordering: one of: 'tf', 'th'. If keras raises an error of the form:
                                   "'ValueError' a Negative dimension size caused by..." consider
                                   changing the parameter to `th'. Defaults to 'tf'.
-                                  See: ``keras.layers.Convolution2D()``; ``keras.layers.MaxPooling2D()``.
+                                  See: ``keras.layers.Convolution2D()`` ; ``keras.layers.MaxPooling2D()``.
     :type dim_ordering: ``str``
     """
 
@@ -141,10 +141,12 @@ class ImageRecognitionCNN(object):
             """Return True if there are things in b not in a, else False."""
             return len(set(b) - set(a)) > 0
 
-        for (i, j, k) in [(train_classes, val_classes, "train"), (val_classes, train_classes, "validation")]:
+        # Run Check
+        c = [(train_classes, val_classes, "train", "validation"), (val_classes, train_classes, "train", "validation")]
+        for (i, j, k, l) in c:
             if set_diff(i, j):
                 raise ValueError("the `{0}` folder is missing the following"
-                                 " folders found in 'val': {1}.".format(k, ", ".join(map(str, set(j) - set(i)))))
+                                 " folders found in '{1}': {2}.".format(k, l, ", ".join(map(str, set(j) - set(i)))))
 
         self._data_classes = train_classes.class_indices
 
@@ -213,7 +215,7 @@ class ImageRecognitionCNN(object):
         :raises: AttributeError composed from `first_format` and `second_format`.
         """
         if self.model is None:
-            raise AttributeError("The model cannot be {0} until `ImageRecognitionCNN().{1}()`"
+            raise AttributeError("The model cannot be {0} until `ImageRecognitionCNN().{1}()` "
                                  "has been called.".format(first_format, second_format))
 
     def fit(self, nb_epoch):
@@ -225,7 +227,7 @@ class ImageRecognitionCNN(object):
         :type nb_epoch: ``int``
         :raises: AttributeError if `ImageRecognitionCNN().conv_net()` is yet to be called.
         """
-        self._model_existence_check(self, "fit and validated", "conv_net")
+        self._model_existence_check("fit and validated", "conv_net")
         self.model.fit_generator(generator=self._train_generator
                                  , samples_per_epoch=self._train_generator.nb_sample
                                  , nb_epoch=nb_epoch
@@ -241,7 +243,7 @@ class ImageRecognitionCNN(object):
         :type path: ``str``
         :raises: AttributeError if `ImageRecognitionCNN().fit_gen()` is yet to be called.
         """
-        self._model_existence_check(self, "saved", "fit_gen")
+        self._model_existence_check("saved", "fit_gen")
         self.model.save(path, overwrite=False)
 
     def load(self, path):
@@ -253,7 +255,7 @@ class ImageRecognitionCNN(object):
         :type path: ``str``
         :raises: AttributeError if `ImageRecognitionCNN().conv_net()` is yet to be called.
         """
-        self._model_existence_check(self, "loaded", "conv_net")
+        self._model_existence_check("loaded", "conv_net")
         self.model.load(path)
 
 
