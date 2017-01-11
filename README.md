@@ -41,8 +41,8 @@ opi = OpenInterface()
 
 ####Perform a Search
 ```python
-opi.search("caudate nucleus", image_type=['mri', 'pet', 'ct'])
-# Results Found: 1,165.
+opi.search("aneurysm", image_type=['mri', 'pet'])
+# Results Found: 1,586.
 ```
 
 The values accepted by the `image_type` argument above can easily be reviewed:
@@ -53,7 +53,7 @@ opi.options(search_parameter='image_type')
 Additionally, searches can easily be reviewed:
 ```python
 opi.current_search
-# {'image_type': ['mri', 'pet', 'ct', 'exclude_graphics'], 'query': 'caudate nucleus'}
+# {'image_type': ['mri', 'pet', 'ct', 'exclude_graphics'], 'query': 'aneurysm'}
 
 opi.current_search_total
 # 1165

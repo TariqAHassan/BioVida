@@ -31,18 +31,20 @@ Latest Build:
 Dependencies
 ------------
 
-BioVida requires: `inflect <https://pypi.python.org/pypi/inflect>`__,
-`pandas <http://pandas.pydata.org>`__, `numpy <http://www.numpy.org>`__,
-`requests <http://docs.python-requests.org/en/master/>`__ and
-`tqdm <https://github.com/tqdm/tqdm>`__.
+BioVida requires: `pandas <http://pandas.pydata.org>`__,
+`numpy <http://www.numpy.org>`__,
+`requests <http://docs.python-requests.org/en/master/>`__,
+`tqdm <https://github.com/tqdm/tqdm>`__,
+`scipy <https://www.scipy.org>`__ and
+`keras <https://tariqahassan.github.io/BioVida/index.html>`__
 
 --------------
 
 Image Data
 ----------
 
-Import the Interface for the NIH's Open-i API.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Import the Interface for the NIH's Open-i API
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
@@ -60,8 +62,8 @@ Perform a Search
 
 .. code:: python
 
-    opi.search("caudate nucleus", image_type=['mri', 'pet', 'ct'])
-    # Results Found: 1,165.
+    opi.search("aneurysm", image_type=['mri', 'pet'])
+    # Results Found: 1,586.
 
 The values accepted by the ``image_type`` argument above can easily be
 reviewed:
@@ -75,7 +77,7 @@ Additionally, searches can easily be reviewed:
 .. code:: python
 
     opi.current_search
-    # {'image_type': ['mri', 'pet', 'ct', 'exclude_graphics'], 'query': 'caudate nucleus'}
+    # {'image_type': ['mri', 'pet', 'ct', 'exclude_graphics'], 'query': 'aneurysm'}
 
     opi.current_search_total
     # 1165
@@ -99,8 +101,8 @@ results.
 Genomic Data
 ------------
 
-Import the Interface for DisGeNET.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Import the Interface for DisGeNET
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
