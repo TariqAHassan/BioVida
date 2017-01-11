@@ -172,10 +172,10 @@ Genomics
 [numpy]: http://www.numpy.org
 [requests]: http://docs.python-requests.org/en/master/
 [tqdm]: https://github.com/tqdm/tqdm
+[scipy]: https://www.scipy.org
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
 [here]: https://tariqahassan.github.io/BioVida/API.html
-
 
 
 
