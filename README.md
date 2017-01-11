@@ -53,7 +53,7 @@ opi.options(search_parameter='image_type')
 Additionally, searches can easily be reviewed:
 ```python
 opi.current_search
-# {'image_type': ['mri', 'pet', 'ct', 'exclude_graphics'], 'query': 'aneurysm'}
+# {'image_type': ['mri', 'pet', 'exclude_graphics'], 'query': 'aneurysm'}
 
 opi.current_search_total
 # 1165
