@@ -7,17 +7,15 @@
 """
 # Imports
 import re
-import inflect
 from itertools import chain
 from urllib.parse import urlsplit # handle python 2
 
 # General Support tools
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools._support_data import age_dict
 
 # Other Tools
-p = inflect.engine()
 non_decimal = re.compile(r'[^\d.]+')
-age_dict = {p.number_to_words(i): i for i in range(1, 135)} # ToDo: remove need for inflect
 
 
 def iter_join(t, join_on="_"):
@@ -29,6 +27,7 @@ def iter_join(t, join_on="_"):
     """
     return join_on.join(t) if isinstance(t, (list, tuple)) else i
 
+
 def null_convert(i):
     """
 
@@ -36,6 +35,7 @@ def null_convert(i):
     :return:
     """
     return None if not i else i
+
 
 def url_combine(url1, url2):
     """
@@ -49,6 +49,7 @@ def url_combine(url1, url2):
     else:
         return (url1[:-1] if url1.endswith("/") else url1) + url2
 
+
 def item_extract(i, list_len=1):
     """
 
@@ -60,6 +61,7 @@ def item_extract(i, list_len=1):
     """
     return i[0] if isinstance(i, (list, tuple)) and len(i) == list_len else None
 
+
 def extract_float(i):
     """
 
@@ -68,6 +70,7 @@ def extract_float(i):
     """
     # Source: http://stackoverflow.com/a/947789/4898004
     return non_decimal.sub('', i)
+
 
 def multiple_decimal_remove(s):
     """
@@ -89,6 +92,7 @@ def multiple_decimal_remove(s):
     else:
         return cln(s_repeats_rmv, extent=2)
 
+
 def numb_extract(string, join_on=""):
     """
 
@@ -98,6 +102,7 @@ def numb_extract(string, join_on=""):
     """
     return join_on.join(re.findall(r'[0-9]+', string))
 
+
 def filter_unnest(l, filter_for=None):
     """
 
@@ -106,6 +111,7 @@ def filter_unnest(l, filter_for=None):
     :return:
     """
     return list(chain(*filter(filter_for, l)))
+
 
 def num_word_to_int(input_str):
     """
@@ -120,6 +126,7 @@ def num_word_to_int(input_str):
             input_str = input_str.replace(case, str(i))
     return input_str
 
+
 def url_path_extract(url):
     """
 
@@ -127,16 +134,6 @@ def url_path_extract(url):
     :return:
     """
     return urlsplit(url).path[1:].replace("/", "__")
-
-
-
-
-
-
-
-
-
-
 
 
 
