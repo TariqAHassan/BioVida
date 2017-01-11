@@ -752,7 +752,8 @@ class OpenInterface(object):
                , print_results=True):
         """
 
-        Tool to generate a search term for the NIH's Open-i API.
+        Tool to generate a search term (URL) for the NIH's Open-i API.
+        The computed term is stored as a class attribute.
 
         :param query: a search term. ``None`` will converter to an empty string.
         :type query: ``str`` or ``None``
@@ -774,8 +775,6 @@ class OpenInterface(object):
         :type exclusions: ``list``, ``tuple`` or ``None``
         :param print_results: if ``True``, print the number of search results.
         :type print_results: ``bool``
-        :return: search URL for the Open-i API.
-        :rtype: ``str``
         """
         # Remove 'self' and 'print_results' from locals
         args_cleaned = {k: v for k, v in deepcopy(locals()).items() if k not in ['self', 'print_results']}
