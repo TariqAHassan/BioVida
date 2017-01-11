@@ -37,13 +37,13 @@ class ImageRecognitionCNN(object):
     :type data_path: ``str``
     :param img_shape: the (width, height) to rescale the images to. Elements must be ``ints``. Defaults to (150, 150).
     :type img_shape: ``tuple`` or ``list``.
-    :param rescale: See: keras.preprocessing.image.ImageDataGenerator().
+    :param rescale: See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type rescale: ``float``
-    :param shear_range: See: keras.preprocessing.image.ImageDataGenerator().
+    :param shear_range: See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type shear_range: ``float``
-    :param zoom_range: See: keras.preprocessing.image.ImageDataGenerator().
+    :param zoom_range: See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type zoom_range: ``float``
-    :param horizontal_flip: See: keras.preprocessing.image.ImageDataGenerator().
+    :param horizontal_flip: See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type horizontal_flip: ``bool``
     :param batch_size: Samples to propagate through the model.
                        See: keras.preprocessing.ImageDataGenerator().flow_from_directory()
@@ -51,9 +51,9 @@ class ImageRecognitionCNN(object):
     :type batch_size: ``int``
     :param dim_ordering: one of: 'tf', 'th'. If keras raises an error of the form:
                                   "'ValueError' a Negative dimension size caused by..." consider
-                                  changing the parameter `th'. Defaults to 'tf'.
-                                  See: keras.layers.Convolution2D(); keras.layers.MaxPooling2D()
-    :type dim_ordering:
+                                  changing the parameter to `th'. Defaults to 'tf'.
+                                  See: ``keras.layers.Convolution2D()``; ``keras.layers.MaxPooling2D()``.
+    :type dim_ordering: ``str``
     """
 
     def __init__(self
@@ -91,7 +91,7 @@ class ImageRecognitionCNN(object):
     def _train_gen(self):
         """
 
-        Use of keras.preprocessing.image.ImageDataGenerator() to generate training stream.
+        Use of ``keras.preprocessing.image.ImageDataGenerator()`` to generate training stream.
 
         """
         # Train augmentation configuration
@@ -109,7 +109,7 @@ class ImageRecognitionCNN(object):
     def _val_gen(self):
         """
 
-        Use of keras.preprocessing.image.ImageDataGenerator() to generate validation stream.
+        Use of ``keras.preprocessing.image.ImageDataGenerator()`` to generate validation stream.
 
         """
         # Test augmentation configuration
@@ -124,7 +124,7 @@ class ImageRecognitionCNN(object):
     def _data_stream(self):
         """
 
-        Generate Data Streams using `keras.preprocessing.ImageDataGenerator()`.
+        Generate Data Streams using ``keras.preprocessing.ImageDataGenerator()``.
 
         :raises: ValueError if there are asymmetries between the 'train' and 'validation'
                  subdirectories in ``self._data_path``.
@@ -154,13 +154,13 @@ class ImageRecognitionCNN(object):
         Define and Compile the Image Recognition Convolutional Neural Network.
 
         :param loss: Loss function. Defaults to 'categorical_crossentropy'.
-                     See: ``keras.models.Sequential()``
+                     See: ``keras.models.Sequential()``.
         :type loss: ``str``
         :param optimizer: Optimizer name. Defaults to `rmsprop`.
-                          See: ``keras.models.Sequential()``
+                          See: ``keras.models.Sequential()``.
         :type optimizer: ``str``
         :param metrics: Metrics to evaluate. Defaults to ['accuracy'].
-                        See: ``keras.models.Sequential()``
+                        See: ``keras.models.Sequential()``.
         :type metrics: ``tuple``
         """
         if self._data_path is not None:
