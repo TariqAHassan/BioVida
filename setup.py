@@ -21,12 +21,12 @@ setup(
     url='https://github.com/TariqAHassan/BioVida.git',
     packages=find_packages(),
     data_files=[('', ['LICENSE.md'])],
-    install_requires=['inflect', 'pandas', 'numpy', 'requests', 'tqdm', 'scipy', 'keras'],
+    install_requires=['pandas', 'numpy', 'requests', 'tqdm', 'scipy', 'keras'],
     classifiers=['Development Status :: 2 - Pre-Alpha',
                  'Natural Language :: English',
                  'Intended Audience :: Science/Research',
+                 'Programming Language :: Python :: 3.4',
                  'Programming Language :: Python :: 3.5',
-                 'Programming Language :: Python :: 3.6',
                  'License :: OSI Approved :: BSD License'
     ],
     include_package_data=True
