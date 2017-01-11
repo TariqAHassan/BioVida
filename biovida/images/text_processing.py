@@ -1,9 +1,7 @@
 """
 
-
     Text Processing
     ~~~~~~~~~~~~~~~
-
 
 """
 # ToDo:
@@ -11,6 +9,9 @@
 #     2. search the 'problems' column for diagnosis information.
 #     3. mine abstract for imaging_tech (or 'image_caption' column)
 #     4. group images by patient
+#     5. add ethnicity feature extraction
+#     6. handle ethnicity and sex extraction (e.g., WF = white, female)
+#     7. add extraction of illness length (e.g., 'x month history of...')
 
 # Imports
 import re
@@ -20,7 +21,6 @@ from itertools import chain
 # Image Support Tools
 from biovida.images.openi_support_tools import item_extract
 from biovida.images.openi_support_tools import filter_unnest
-from biovida.images.openi_support_tools import extract_float
 from biovida.images.openi_support_tools import num_word_to_int
 from biovida.images.openi_support_tools import multiple_decimal_remove
 
@@ -28,12 +28,7 @@ from biovida.images.openi_support_tools import multiple_decimal_remove
 from biovida.support_tools.support_tools import cln
 
 
-# ToDo:
-#   - add ethnicity feature extraction
-#   - handle ethnicity and sex extraction (e.g., WF = white, female)
-#   - add extraction of illness length (e.g., 'x month history of...')
-
-def mexpix_info_extract(abstract):
+def _mexpix_info_extract(abstract):
     """
 
     :param abstract:
@@ -41,17 +36,18 @@ def mexpix_info_extract(abstract):
     """
     features = ['Diagnosis', 'History', 'Findings']
     features_dict = dict.fromkeys(features, None)
+    cln_abstract = cln(abstract)
 
     for k in features_dict:
         try:
-            features_dict[k] = item_extract(re.findall('<p><b>' + i + ': </b>(.*?)</p><p>', cln(abstract)))
+            features_dict[k] = item_extract(re.findall('<p><b>' + k + ': </b>(.*?)</p><p>', cln_abstract))
         except:
             pass
 
     return features_dict
 
 
-def patient_sex_guess(abstract):
+def _patient_sex_guess(abstract):
     """
 
     Tries to extract the sex of the patient (female or male).
@@ -75,7 +71,7 @@ def patient_sex_guess(abstract):
         return None
 
 
-def age_refine(age_list):
+def _age_refine(age_list):
     """
 
     :param age_list:
@@ -98,7 +94,7 @@ def age_refine(age_list):
     return max(to_return)
 
 
-def patient_age_guess(abstract):
+def _patient_age_guess(abstract):
     """
 
     Forms:
@@ -138,25 +134,34 @@ def patient_age_guess(abstract):
     front_finds = filter_unnest([re.findall(r'\d+' + b, cleaned_abstract) for b in back])
 
     # Return
-    return age_refine(front_finds) if len(front_finds) else None
+    return _age_refine(front_finds) if len(front_finds) else None
 
 
 def feature_extract(x):
     """
 
-    To Harvest:
-        - Age
-        - Sex
+    Tool to extract text features from patient summaries.
 
-    :param abstract:
-    :param journal:
-    :return:
+    If a MedPix® Image:
+        - diagnosis
+        - history
+        - finding
+
+    For images from all sources:
+        - sex
+        - age
+
+    :param x: Pandas Seris passed though pandas `DataFrame().apply()` method, e.g.,
+              ``df.apply(feature_extract, axis=1)``. Must contain 'abstract' and 'journal_title' columns.
+    :type x: ``Pandas Series``
+    :return: dictionary with the following keys: 'diagnosis', 'history', 'findings', 'sex' and 'age'.
+    :rtype: ``dict``
     """
     d = dict.fromkeys(['Diagnosis', 'History', 'Findings'], None)
 
     # ToDo: expand Diagnosis information harvesting to other sources.
     if 'medpix' in x['journal_title'].lower():
-        d = mexpix_info_extract(x['abstract'])
+        d = _mexpix_info_extract(x['abstract'])
 
     # Define string to use when trying to harvest sex and age information.
     if not isinstance(x['abstract'], str):
@@ -167,10 +172,28 @@ def feature_extract(x):
         guess_string = d['History'].lower()
 
     # Guess Sex
-    d['sex'] = patient_sex_guess(guess_string) if isinstance(guess_string, str) else np.NaN
+    d['sex'] = _patient_sex_guess(guess_string) if isinstance(guess_string, str) else np.NaN
 
     # Guess Age
-    d['age'] = patient_age_guess(guess_string) if isinstance(guess_string, str) else np.NaN
+    d['age'] = _patient_age_guess(guess_string) if isinstance(guess_string, str) else np.NaN
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
