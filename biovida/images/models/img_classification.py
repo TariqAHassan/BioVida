@@ -9,10 +9,8 @@
 
 # Imports
 import os
-import numpy as np
-# from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 
@@ -21,8 +19,6 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 # Note: `MaxPooling2D` has a `dim_ordering` param which can do the same thing.
 # When deployed, `dim_ordering` should equal 'th' to avoid users having this problem.
 # The same goes to all function below which have this param.
-
-# from biovida.images.models.temp import data_path
 
 
 class ImageRecognitionCNN(object):
@@ -51,7 +47,7 @@ class ImageRecognitionCNN(object):
     :type batch_size: ``int``
     :param dim_ordering: one of: 'tf', 'th'. If keras raises an error of the form:
                                   "'ValueError' a Negative dimension size caused by..." consider
-                                  changing the parameter to `th'. Defaults to 'tf'.
+                                  changing the parameter to `tf'. Defaults to 'th'.
                                   See: ``keras.layers.Convolution2D()`` ; ``keras.layers.MaxPooling2D()``.
     :type dim_ordering: ``str``
     """
@@ -64,8 +60,7 @@ class ImageRecognitionCNN(object):
                  , zoom_range=0.2
                  , horizontal_flip=True
                  , batch_size=32
-                 , dim_ordering='tf'):
-
+                 , dim_ordering='th'):
         self._data_path = data_path
         self._img_shape = img_shape
         self._rescale = rescale
@@ -76,8 +71,9 @@ class ImageRecognitionCNN(object):
         self._dim_ordering = dim_ordering
 
         # Define data location
-        self._train_data_dir = os.path.join(self._data_path, "train")
-        self._validation_data_dir = os.path.join(self._data_path, "validation")
+        if self._data_path is not None:
+            self._train_data_dir = os.path.join(self._data_path, "train")
+            self._validation_data_dir = os.path.join(self._data_path, "validation")
 
         # Data Streams
         self._train_generator = None
@@ -138,19 +134,19 @@ class ImageRecognitionCNN(object):
         val_classes = self._validation_generator.class_indices
 
         def set_diff(a, b):
-            """Return True if there are things in b not in a, else False."""
+            """Returns `True` if there are things in b not in a, else `False`."""
             return len(set(b) - set(a)) > 0
 
-        # Run Check
-        c = [(train_classes, val_classes, "train", "validation"), (val_classes, train_classes, "train", "validation")]
-        for (i, j, k, l) in c:
+        # Check for a mismatch of folders between 'train' and 'validation'.
+        chk = [(train_classes, val_classes, "train", "validation"), (val_classes, train_classes, "validation", "train")]
+        for (i, j, k, l) in chk:
             if set_diff(i, j):
                 raise ValueError("the `{0}` folder is missing the following"
                                  " folders found in '{1}': {2}.".format(k, l, ", ".join(map(str, set(j) - set(i)))))
 
-        self._data_classes = train_classes.class_indices
+        self._data_classes = train_classes
 
-    def conv_net(self, loss='categorical_crossentropy', optimizer='rmsprop', metrics=('accuracy')):
+    def conv_net(self, loss='categorical_crossentropy', optimizer='rmsprop', metrics=('accuracy',)):
         """
 
         Define and Compile the Image Recognition Convolutional Neural Network.
@@ -161,7 +157,8 @@ class ImageRecognitionCNN(object):
         :param optimizer: Optimizer name. Defaults to `rmsprop`.
                           See: ``keras.models.Sequential()``.
         :type optimizer: ``str``
-        :param metrics: Metrics to evaluate. Defaults to ['accuracy'].
+        :param metrics: Metrics to evaluate. Defaults to ('accuracy',).
+                        Note: if a tuple is used, it MUST contain a comma.
                         See: ``keras.models.Sequential()``.
         :type metrics: ``tuple``
         """
@@ -227,6 +224,8 @@ class ImageRecognitionCNN(object):
         :type nb_epoch: ``int``
         :raises: AttributeError if `ImageRecognitionCNN().conv_net()` is yet to be called.
         """
+        if not isinstance(nb_epoch, int):
+            raise ValueError("`nb_ephoch` must be an int.")
         self._model_existence_check("fit and validated", "conv_net")
         self.model.fit_generator(generator=self._train_generator
                                  , samples_per_epoch=self._train_generator.nb_sample
@@ -234,37 +233,36 @@ class ImageRecognitionCNN(object):
                                  , validation_data=self._validation_generator
                                  , nb_val_samples=self._validation_generator.nb_sample)
 
-    def save(self, path):
+    def save(self, name, path):
         """
 
         Save the weights from a trained model.
 
+        :param name: name of the file.
+        :type name: ``str``
         :param path: path to save the data to. See: ``keras.models.Sequential()``.
         :type path: ``str``
         :raises: AttributeError if `ImageRecognitionCNN().fit_gen()` is yet to be called.
         """
         self._model_existence_check("saved", "fit_gen")
-        self.model.save(path, overwrite=False)
+        self.model.save(os.path.join(path, "{0}.h5".format(name)), overwrite=False)
 
-    def load(self, path):
+    def load(self, path, override_existing=False):
         """
 
         Saves the weights for the ConvNet.
 
-        :param path: path to save the data to. See: ``keras.models.Sequential()``.
+        :param path: path to save the data to.See: ``keras.models.Sequential()``.
         :type path: ``str``
-        :raises: AttributeError if `ImageRecognitionCNN().conv_net()` is yet to be called.
+        :param override_existing: If True and a model has already been instantiated, override this replace this model.
+                                  Defaults to ``False``.
+        :type override_existing: ``bool``
+        :raises: AttributeError if a model is currently instantiated.
         """
-        self._model_existence_check("loaded", "conv_net")
-        self.model.load(path)
-
-
-
-
-
-
-
-
+        if self.model is not None and override_existing != True:
+            raise AttributeError("A model is currently instantiated.\n"
+                                 "Set `override_existing` to `True` to replace the existing model.")
+        self.model = load_model(path)
 
 
 
