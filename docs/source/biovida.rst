@@ -26,6 +26,14 @@ biovida.images.text_processing module
     :undoc-members:
     :show-inheritance:
 
+biovida.images.models.img_classification module
+-----------------------------------------------
+
+.. automodule:: biovida.images.models.img_classification
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 biovida.genomics.disgenet_interface module
 ------------------------------------------
 

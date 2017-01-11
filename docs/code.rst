@@ -5,7 +5,10 @@ API
 	:members:
 
 .. automodule:: biovida.images.text_processing
-	:members:	
+	:members:
+
+.. automodule:: biovida.images.models.img_classification
+	:members:
 
 .. automodule:: biovida.genomics.disgenet_interface
 	:members:	
