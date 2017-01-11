@@ -23,6 +23,18 @@ def dict_reverse(d):
     return {v: k for k, v in d.items()}
 
 
+def n_sub_dirs(dir):
+    """
+
+    :param dir: a path
+    :type dir: ``str``
+    :return: number of subdirectories in the dir
+    """
+    if not os.path.isdir(dir):
+        raise FileNotFoundError("'{0}' is not a directory.".format(dir))
+    return len([k for i, j, k in os.walk(dir)]) - 1
+
+
 def pstr(s):
     """
 
