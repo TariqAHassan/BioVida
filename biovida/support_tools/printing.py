@@ -3,7 +3,6 @@
     Printing Tools
     ~~~~~~~~~~~~~~
 
-
 """
 # Imports
 import pandas as pd
@@ -16,7 +15,7 @@ from biovida.support_tools.support_tools import items_null
 
 
 # ---------------------------------------------------------------------------------------------
-# Dictionary Printing
+# Dictionary Printing Suite
 # ---------------------------------------------------------------------------------------------
 
 
@@ -142,7 +141,7 @@ def dict_pretty_printer(d, max_value_length=70):
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Pandas Printing Suit
+# Pandas Printing Suite
 # ----------------------------------------------------------------------------------------------------------
 
 
@@ -150,7 +149,6 @@ def _padding(s, amount, justify):
     """
 
     Add padding to a string.
-    Source: https://github.com/TariqAHassan/EasyMoney
 
     :param s: a string.
     :type s: ``str``
@@ -161,6 +159,7 @@ def _padding(s, amount, justify):
     :return: `s` justified, or as passed if `justify` is not one of: 'left' or 'center'.
     :rtype: ``str``
     """
+    # Source: https://github.com/TariqAHassan/EasyMoney
     pad = ' ' * amount
     if justify == 'left':
         return "%s%s" % (pstr(s), pad)
@@ -174,7 +173,6 @@ def _pandas_series_alignment(pandas_series, justify):
     """
 
     Align all items in a pandas series.
-    Source: https://github.com/TariqAHassan/EasyMoney
 
     :param pandas_series: a pandas series.
     :type pandas_series: ``Pandas Series``
@@ -183,6 +181,7 @@ def _pandas_series_alignment(pandas_series, justify):
     :return: aligned series
     :rtype: ``str``
     """
+    # Source: https://github.com/TariqAHassan/EasyMoney
     if justify == 'right':
         return pandas_series
     longest_string = max([len(s) for s in pandas_series.astype('unicode')])
@@ -193,7 +192,6 @@ def _align_pandas(data_frame, to_align='right'):
     """
 
     Align the columns of a Pandas DataFrame by adding whitespace.
-    Source: https://github.com/TariqAHassan/EasyMoney
 
     :param data_frame: a dataframe.
     :type data_frame: ``Pandas DataFrame``
@@ -202,6 +200,7 @@ def _align_pandas(data_frame, to_align='right'):
     :return: dataframe with aligned columns.
     :rtype: ``Pandas DataFrame``
     """
+    # Source: https://github.com/TariqAHassan/EasyMoney
     if isinstance(to_align, dict):
         alignment_dict = to_align
     elif to_align.lower() in ['left', 'right', 'center']:
@@ -219,7 +218,6 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False):
     """
 
     Print *all* of a Pandas DataFrame.
-    Source: https://github.com/TariqAHassan/EasyMoney
 
     :param pd_df: DataFrame to printed in its entirety.
     :type pd_df: ``Pandas DataFrame``
@@ -228,10 +226,12 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False):
     :param full_cols: print all columns side-by-side if True. Defaults to True.
     :type full_cols: ``bool``
     """
+    # Source: https://github.com/TariqAHassan/EasyMoney
     if full_rows:
-        pd.set_option('display.max_rows', len(pd_df))
+        pd.set_option('display.max_rows', pd_df.shape[0])
     if full_cols:
         pd.set_option('expand_frame_repr', False)
+        pd.set_option('display.max_columns', pd_df.shape[1])
 
     print(pd_df)
 
@@ -239,13 +239,13 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False):
         pd.reset_option('display.max_rows')
     if full_cols:
         pd.set_option('expand_frame_repr', True)
+        pd.set_option('display.max_columns', 20)
 
 
 def pandas_pretty_printer(data_frame, col_align='right', header_align='center', full_rows=False, full_cols=False):
     """
 
     Pretty Print a Pandas DataFrame.
-    Source: https://github.com/TariqAHassan/EasyMoney
 
     :param data_frame: a dataframe.
     :type data_frame: ``Pandas DataFrame``
@@ -259,16 +259,11 @@ def pandas_pretty_printer(data_frame, col_align='right', header_align='center', 
     :param full_cols: print all columns.
     :type full_cols: ``bool``
     """
+    # Source: https://github.com/TariqAHassan/EasyMoney
     aligned_df = _align_pandas(data_frame, col_align)
     pd.set_option('colheader_justify', header_align)
     _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols)
     pd.set_option('colheader_justify', 'right')
-
-
-
-
-
-
 
 
 
