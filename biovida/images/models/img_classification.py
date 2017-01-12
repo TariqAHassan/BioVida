@@ -46,9 +46,9 @@ class ImageRecognitionCNN(object):
                        Defaults to 32.
     :type batch_size: ``int``
     :param dim_ordering: one of: 'tf', 'th'. If keras raises an error of the form:
-                                  "'ValueError' a Negative dimension size caused by..." consider
-                                  changing the parameter to `tf'. Defaults to 'th'.
-                                  See: ``keras.layers.Convolution2D()`` ; ``keras.layers.MaxPooling2D()``.
+                                  "'ValueError' a Negative dimension size caused by..." consider changing the
+                                   parameter to `tf'. Defaults to 'th'. See: ``keras.layers.Convolution2D()``
+                                   and ``keras.layers.MaxPooling2D()``.
     :type dim_ordering: ``str``
     """
 
@@ -151,6 +151,10 @@ class ImageRecognitionCNN(object):
 
         Define and Compile the Image Recognition Convolutional Neural Network.
 
+        Model Description:
+            - 3 convolution layers (ReLU activation).
+            - 3 max-pooling layers
+
         :param loss: Loss function. Defaults to 'categorical_crossentropy'.
                      See: ``keras.models.Sequential()``.
         :type loss: ``str``
@@ -158,7 +162,7 @@ class ImageRecognitionCNN(object):
                           See: ``keras.models.Sequential()``.
         :type optimizer: ``str``
         :param metrics: Metrics to evaluate. Defaults to ('accuracy',).
-                        Note: if a tuple is used, it MUST contain a comma.
+                        Note: if round braces are used, it MUST contain a comma (to make it a tuple).
                         See: ``keras.models.Sequential()``.
         :type metrics: ``tuple``
         """
@@ -190,9 +194,8 @@ class ImageRecognitionCNN(object):
         # Fully Connected Layers, i.e., a standard
         # neural net being fed features from above.
         self.model.add(Flatten())
-        self.model.add(Dense(64))
+        self.model.add(Dense(512))
         self.model.add(Activation('relu'))
-        # Output
         self.model.add(Dropout(0.5))
         self.model.add(Dense(nb_classes))
         self.model.add(Activation('sigmoid'))
@@ -200,7 +203,7 @@ class ImageRecognitionCNN(object):
         # Compilation
         self.model.compile(loss=loss, optimizer=optimizer, metrics=list(metrics))
 
-    def _model_existence_check(self, first_format, second_format):
+    def _model_existence_check(self, first_format, second_format, additional=''):
         """
 
         Raises appropriate AttributeError based on content in which an undefined model was encountered.
@@ -213,7 +216,7 @@ class ImageRecognitionCNN(object):
         """
         if self.model is None:
             raise AttributeError("The model cannot be {0} until `ImageRecognitionCNN().{1}()` "
-                                 "has been called.".format(first_format, second_format))
+                                 "has been called.{2}".format(first_format, second_format, additional))
 
     def fit(self, nb_epoch):
         """
@@ -233,25 +236,41 @@ class ImageRecognitionCNN(object):
                                  , validation_data=self._validation_generator
                                  , nb_val_samples=self._validation_generator.nb_sample)
 
-    def save(self, name, path):
+    def save(self, name, path=None, model_name=None, overwrite=False):
         """
 
         Save the weights from a trained model.
 
-        :param name: name of the file. Do not include the ".h5" extension.
-                     This will be added automatically.
+        :param name: name of the file. Do not include the '.h5' extension as it
+                     will be added automatically.
         :type name: ``str``
         :param path: path to save the data to. See: ``keras.models.Sequential()``.
         :type path: ``str``
+        :param model_name: filename for the model architecture. This data will not be saved if
+                           `model_name` is ``None``. Defaults to ``None``.
+        :type model_name: ``None`` or ``str``
+        :param overwrite: overwrite the existing copy of the data
+        :type overwrite: ``bool``
         :raises: AttributeError if `ImageRecognitionCNN().fit_gen()` is yet to be called.
         """
-        self._model_existence_check("saved", "fit_gen")
-        self.model.save(os.path.join(path, "{0}.h5".format(name)), overwrite=False)
+        self._model_existence_check("saved", "fit",  " Alternatively, you can call .load().")
+        save_path = self._data_path if path is None and self._data_path is not None else path
+
+        # Save architecture
+        if isinstance(model_name, str):
+            architecture_path = os.path.join(save_path, "{0}.json".format(name))
+            if os.path.isfile(architecture_path) and overwrite is False:
+                raise FileExistsError("`{0}` already exists in {1}.".format(name, save_path))
+            else:
+                open(architecture_path, 'w').write(self.model.to_json())
+
+        # Save model
+        self.model.save(os.path.join(save_path, "{0}.h5".format(name)), overwrite=overwrite)
 
     def load(self, path, override_existing=False):
         """
 
-        Saves the weights for the ConvNet.
+        Load a model from disk.
 
         :param path: path to save the data to.See: ``keras.models.Sequential()``.
         :type path: ``str``
@@ -260,10 +279,11 @@ class ImageRecognitionCNN(object):
         :type override_existing: ``bool``
         :raises: AttributeError if a model is currently instantiated.
         """
-        if self.model is not None and override_existing != True:
+        if self.model is not None and override_existing is not True:
             raise AttributeError("A model is currently instantiated.\n"
                                  "Set `override_existing` to `True` to replace the existing model.")
         self.model = load_model(path)
+
 
 
 
