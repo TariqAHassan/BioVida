@@ -12,6 +12,11 @@
 #     5. add ethnicity feature extraction
 #     6. handle ethnicity and sex extraction (e.g., WF = white, female)
 #     7. add extraction of illness length (e.g., 'x month history of...')
+#     8. Check the 'image_mention' column for MRI, CT, etc. because it
+#        seems to accurately relay what's technology actually created the image.
+#           - Also check image_caption.
+#     9. Replace 'Not Available.' with NaN.
+#    10. Check 'image_caption' for biographic information.
 
 # Imports
 import re

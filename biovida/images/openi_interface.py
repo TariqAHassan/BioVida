@@ -27,7 +27,7 @@ from biovida.support_tools._cache_management import _package_cache_creator
 
 # Open-i API Parameters Information
 from biovida.images.openi_parameters import openi_image_type_params
-from biovida.images.openi_parameters import openi_search_information
+from biovida.images.openi_parameters import _openi_search_information
 from biovida.images.openi_parameters import openi_article_type_params
 
 # Tool for extracting features from text
@@ -688,7 +688,7 @@ class OpenInterface(object):
             opts = [i.split("_")[1] for i in exclusions]
         else:
             # Get the relevant dict of params
-            search_dict = openi_search_information()[0].get(cln(search_parameter).strip().lower(), None)
+            search_dict = _openi_search_information()[0].get(cln(search_parameter).strip().lower(), None)
 
             # Report invalid `search_parameter`
             if search_dict is None:
@@ -757,21 +757,24 @@ class OpenInterface(object):
 
         :param query: a search term. ``None`` will converter to an empty string.
         :type query: ``str`` or ``None``
-        :param image_type: see `OpenInterface().options('image_type')` for valid values.
+        :param image_type: see ``OpenInterface().options('image_type')`` for valid values.
         :type image_type: ``list``, ``tuple`` or ``None``.
-        :param rankby: see `OpenInterface().options('rankby')` for valid values.
+        :param rankby: see ``OpenInterface().options('rankby')`` for valid values.
         :type rankby: ``list``, ``tuple`` or ``None``.
-        :param subset: see `OpenInterface().options('subset')` for valid values.
+        :param subset: see ``OpenInterface().options('subset')`` for valid values.
         :type subset: ``list``, ``tuple`` or ``None``.
-        :param collection: see `OpenInterface().options('collection')` for valid values.
+        :param collection: see ``OpenInterface().options('collection')`` for valid values.
         :type collection: ``list``, ``tuple`` or ``None``.
-        :param fields: see `OpenInterface().options('fields')` for valid values.
+        :param fields: see ``OpenInterface().options('fields')`` for valid values.
         :type fields: ``list``, ``tuple`` or ``None``.
-        :param specialties: see `OpenInterface().options('specialties')` for valid values.
+        :param specialties: see ``OpenInterface().options('specialties')`` for valid values.
         :type specialties: ``list``, ``tuple`` or ``None``.
-        :param video: see `OpenInterface().options('video')` for valid values. Defaults to ``None``.
+        :param video: see ``OpenInterface().options('video')`` for valid values. Defaults to ``None``.
         :type video: ``list``, ``tuple`` or ``None``.
-        :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ['graphics'].      -- Working?
+        :param exclusions: one or both of: 'graphics', 'multipanel'.
+                           Note: excluding 'multipanel' can result in images that ARE multipanel
+                           being returned from Open-i API. For this reason, including 'multipanel'
+                           is not currently recommended. Defaults to ['graphics'].
         :type exclusions: ``list``, ``tuple`` or ``None``
         :param print_results: if ``True``, print the number of search results.
         :type print_results: ``bool``
@@ -796,7 +799,7 @@ class OpenInterface(object):
         self.current_search = {k: v for k, v in deepcopy(search_arguments).items() if v is not None}
 
         # Get Open-i search params
-        search_dict, ordered_params = openi_search_information()
+        search_dict, ordered_params = _openi_search_information()
 
         # Add check for all search terms
         self._openi_search_check(search_arguments, search_dict)
@@ -1210,8 +1213,6 @@ class OpenInterface(object):
             self._image_cache_record_management()
 
         return search_data
-
-
 
 
 
