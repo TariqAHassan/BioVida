@@ -4,15 +4,18 @@
     ~~~~~~~~~~~~~~~~~~~~
 
 """
-# see: https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
-# this also helped: https://blog.rescale.com/neural-networks-using-keras-on-rescale/
+# Resources Used:
+#    - https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+#    - https://blog.rescale.com/neural-networks-using-keras-on-rescale/
+#    - http://cs231n.github.io
 
 # Imports
 import os
 from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential, load_model
+from keras.models import Sequential, load_model, model_from_json
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
+
 
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
 # Solution: replace "tf" with "th" in ~/.keras/keras.json.
@@ -35,9 +38,9 @@ class ImageRecognitionCNN(object):
     :type img_shape: ``tuple`` or ``list``.
     :param rescale: Defaults to 1/255. See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type rescale: ``float``
-    :param shear_range: See: ``keras.preprocessing.image.ImageDataGenerator()``.
+    :param shear_range: Defaults to 0.1. See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type shear_range: ``float``
-    :param zoom_range: See: ``keras.preprocessing.image.ImageDataGenerator()``.
+    :param zoom_range: Defaults to 0.35. See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type zoom_range: ``float``
     :param horizontal_flip: See: ``keras.preprocessing.image.ImageDataGenerator()``.
     :type horizontal_flip: ``bool``
@@ -56,14 +59,14 @@ class ImageRecognitionCNN(object):
                  , data_path=None
                  , img_shape=(150, 150)
                  , rescale=1.0/255
-                 , shear_range=0.2
-                 , zoom_range=0.2
+                 , shear_range=0.1
+                 , zoom_range=0.35
                  , horizontal_flip=True
                  , batch_size=32
                  , dim_ordering='th'):
         self._data_path = data_path
-        self._img_shape = img_shape
-        self._rescale = rescale
+        self.img_shape = img_shape
+        self.rescale = rescale
         self._shear_range = shear_range
         self._zoom_range = zoom_range
         self._horizontal_flip = horizontal_flip
@@ -78,7 +81,7 @@ class ImageRecognitionCNN(object):
         # Data Streams
         self._train_generator = None
         self._validation_generator = None
-        self._data_classes = None
+        self.data_classes = None
 
         # The model itself
         self.model = None
@@ -91,14 +94,14 @@ class ImageRecognitionCNN(object):
 
         """
         # Train augmentation configuration
-        train_datagen = ImageDataGenerator(rescale=self._rescale
+        train_datagen = ImageDataGenerator(rescale=self.rescale
                                            , shear_range=self._shear_range
                                            , zoom_range=self._zoom_range
                                            , horizontal_flip=self._horizontal_flip)
 
         # Indefinitely generate batches of augmented train image data
         self._train_generator = train_datagen.flow_from_directory(directory=self._train_data_dir,
-                                                                  target_size=self._img_shape,
+                                                                  target_size=self.img_shape,
                                                                   class_mode='categorical',
                                                                   batch_size=self._batch_size)
 
@@ -109,11 +112,11 @@ class ImageRecognitionCNN(object):
 
         """
         # Test augmentation configuration
-        validation_datagen = ImageDataGenerator(rescale=self._rescale)
+        validation_datagen = ImageDataGenerator(rescale=self.rescale)
 
         # This is a similar generator, for validation data
         self._validation_generator = validation_datagen.flow_from_directory(directory=self._validation_data_dir,
-                                                                            target_size=self._img_shape,
+                                                                            target_size=self.img_shape,
                                                                             class_mode='categorical',
                                                                             batch_size=self._batch_size)
 
@@ -144,7 +147,7 @@ class ImageRecognitionCNN(object):
                 raise ValueError("the `{0}` folder is missing the following"
                                  " folders found in '{1}': {2}.".format(k, l, ", ".join(map(str, set(j) - set(i)))))
 
-        self._data_classes = train_classes
+        self.data_classes = train_classes
 
     def conv_net(self, loss='categorical_crossentropy', optimizer='rmsprop', metrics=('accuracy',)):
         """
@@ -170,7 +173,7 @@ class ImageRecognitionCNN(object):
             self._data_stream()
 
         # Get the number of classes
-        nb_classes = len(self._data_classes.keys()) if self._data_classes is not None else self._nb_classes_default
+        nb_classes = len(self.data_classes.keys()) if self.data_classes is not None else self._nb_classes_default
 
         # Define the Model
         self.model = Sequential()
@@ -178,27 +181,29 @@ class ImageRecognitionCNN(object):
         # Convolution layers to generate features
         # for the fully connected layers below.
         self.model.add(Convolution2D(32, 3, 3
-                                     , input_shape=(3, self._img_shape[0], self._img_shape[1])
-                                     , dim_ordering=self._dim_ordering))
-        self.model.add(Activation('relu'))
+                                     , input_shape=(3, self.img_shape[0], self.img_shape[1])
+                                     , dim_ordering=self._dim_ordering, activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
 
-        self.model.add(Convolution2D(32, 3, 3, dim_ordering=self._dim_ordering))
-        self.model.add(Activation('relu'))
+        self.model.add(Convolution2D(32, 3, 3, dim_ordering=self._dim_ordering, activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
 
-        self.model.add(Convolution2D(64, 3, 3, dim_ordering=self._dim_ordering))
-        self.model.add(Activation('relu'))
+        self.model.add(Convolution2D(64, 3, 3, dim_ordering=self._dim_ordering, activation='relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
+
+        self.model.add(Convolution2D(128, 3, 3, dim_ordering=self._dim_ordering, activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
 
         # Fully Connected Layers, i.e., a standard
         # neural net being fed features from above.
         self.model.add(Flatten())
-        self.model.add(Dense(512))
-        self.model.add(Activation('relu'))
+        self.model.add(Dense(512, activation='relu'))
+        self.model.add(Dropout(0.25))
+        self.model.add(Dense(256, activation='relu'))
+        self.model.add(Dropout(0.25))
+        self.model.add(Dense(128, activation='relu'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(nb_classes))
-        self.model.add(Activation('sigmoid'))
+        self.model.add(Dense(nb_classes, activation='softmax'))
 
         # Compilation
         self.model.compile(loss=loss, optimizer=optimizer, metrics=list(metrics))
@@ -228,7 +233,7 @@ class ImageRecognitionCNN(object):
         :raises: AttributeError if `ImageRecognitionCNN().conv_net()` is yet to be called.
         """
         if not isinstance(nb_epoch, int):
-            raise ValueError("`nb_ephoch` must be an int.")
+            raise ValueError("`nb_epoch` must be an int.")
         self._model_existence_check("fit and validated", "conv_net")
         self.model.fit_generator(generator=self._train_generator
                                  , samples_per_epoch=self._train_generator.nb_sample
@@ -236,7 +241,7 @@ class ImageRecognitionCNN(object):
                                  , validation_data=self._validation_generator
                                  , nb_val_samples=self._validation_generator.nb_sample)
 
-    def save(self, name, path=None, model_name=None, overwrite=False):
+    def save(self, name, path=None, overwrite=False):
         """
 
         Save the weights from a trained model.
@@ -246,25 +251,12 @@ class ImageRecognitionCNN(object):
         :type name: ``str``
         :param path: path to save the data to. See: ``keras.models.Sequential()``.
         :type path: ``str``
-        :param model_name: filename for the model architecture. This data will not be saved if
-                           `model_name` is ``None``. Defaults to ``None``.
-        :type model_name: ``None`` or ``str``
         :param overwrite: overwrite the existing copy of the data
         :type overwrite: ``bool``
         :raises: AttributeError if `ImageRecognitionCNN().fit_gen()` is yet to be called.
         """
         self._model_existence_check("saved", "fit",  " Alternatively, you can call .load().")
         save_path = self._data_path if path is None and self._data_path is not None else path
-
-        # Save architecture
-        if isinstance(model_name, str):
-            architecture_path = os.path.join(save_path, "{0}.json".format(name))
-            if os.path.isfile(architecture_path) and overwrite is False:
-                raise FileExistsError("`{0}` already exists in {1}.".format(name, save_path))
-            else:
-                open(architecture_path, 'w').write(self.model.to_json())
-
-        # Save model
         self.model.save(os.path.join(save_path, "{0}.h5".format(name)), overwrite=overwrite)
 
     def load(self, path, override_existing=False):
@@ -282,8 +274,8 @@ class ImageRecognitionCNN(object):
         if self.model is not None and override_existing is not True:
             raise AttributeError("A model is currently instantiated.\n"
                                  "Set `override_existing` to `True` to replace the existing model.")
-        self.model = load_model(path)
 
+        self.model = load_model(path)
 
 
 
