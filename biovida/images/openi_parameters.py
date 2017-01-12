@@ -18,7 +18,6 @@ def _parser(s):
     :return:
     :rtype: ``dict``
     """
-
     # Split the string into keys and values
     split_string = [i.split('(') for i in cln(s).split(')')]
 
@@ -87,7 +86,7 @@ openi_fields_params = {
 
 
 openi_article_type_params = {
-    # Not explicting exposed.
+    # Not explictly exposed.
     # Not listed on: https://openi.nlm.nih.gov/services.php?it=xg
     'ab': 'abstract',
     'bk': 'book_review',
@@ -104,7 +103,7 @@ openi_article_type_params = {
     'ma': 'method_article',
     'ne': 'news',
     'ob': 'obituary',
-    # '': 'oration',  # unknown
+    'ot': 'oration',  # unknown, but appears to be 'ot' (by elimination)
     'os': 'orthopedic_slides',
     'pr': 'product_review',
     'rr': 'radiology_report',
@@ -166,7 +165,7 @@ openi_api_search_params = {
 
 
 
-def openi_search_information():
+def _openi_search_information():
     """
 
     Returns a dictionary of the form:
@@ -180,6 +179,7 @@ def openi_search_information():
 
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
     return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
+
 
 
 
