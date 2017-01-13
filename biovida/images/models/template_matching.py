@@ -8,17 +8,17 @@
 #     Powered by Fast Normalized Cross-Correlation.
 #     See: http://scikit-image.org/docs/dev/api/skimage.feature.html#skimage.feature.match_template.
 #
-#     Here, his algorithm has been bootstrapped to make it robust against variance in scale.
+#     Here, this algorithm has been bootstrapped to make it robust against variance in scale.
 
 # Imports
 import numpy as np
-from skimage.io import imread
-from skimage.color.colorconv import rgb2gray
-from skimage.feature import match_template
+from scipy.misc import imread
 from scipy.misc import imresize
+from skimage.feature import match_template
+from skimage.color.colorconv import rgb2gray
 
 
-def _bounds_sinvar_t_match(pattern_shape, base_shape, prop_shrink=0.1, scaling_lower_limit=0.3):
+def _bounds_t_match(pattern_shape, base_shape, prop_shrink, scaling_lower_limit):
     """
 
     Defines a vector over which to iterate when scaling the pattern shape in _scale_invar_match_template.
@@ -34,11 +34,13 @@ def _bounds_sinvar_t_match(pattern_shape, base_shape, prop_shrink=0.1, scaling_l
           - set upper bound to be percentage of SS.
           - compute sequence from [lower bound, upper bound]
 
-    :param pattern_img: the pattern to search for: ndim = 2. (nrows, ncols).
-    :param base_img: the image to search for the patten for. ndim = 2. (nrows, ncols).
-    :param prop_shrink: defines the number of steps to take between the bounds.
+    :param pattern_shape: the pattern to search for. Form: (nrows, ncols).
+    :param base_shape: the image to search for the patten in. Form: (nrows, ncols).
+    :param prop_shrink: defines the number of steps to take between the bounds. Must be a float on (0, 1).
+                       Note: this interval is not inclusive.
     :param scaling_lower_limit: smallest acceptable bound. Set to 0.0 to disable.
-    :return: ``ndarray``
+    :return: an array of values to scale the pattern by in `_scale_invar_match_template()`.
+    :rtype: ``ndarray``
     """
     # WARNING: IMG.shape is given as: (ROWS, COLUMNS) = (HEIGHT, WIDTH).
     def bounds_clean(arr):
@@ -69,7 +71,7 @@ def _bounds_sinvar_t_match(pattern_shape, base_shape, prop_shrink=0.1, scaling_l
         lower_bound = upper_bound * prop_shrink
         bounds_array = np.linspace(upper_bound, lower_bound, prop_shrink * 100)
 
-    # Impose lower limit and add idenity transformation.
+    # Impose lower limit and add identity transformation.
     return np.append(bounds_clean(bounds_array), 1)
 
 
@@ -83,10 +85,10 @@ def _best_guess_location(match_template_result):
     """
     ij = np.unravel_index(np.argmax(match_template_result), match_template_result.shape)
     x, y = ij[::-1]
-    return x, y
+    return np.array((x, y))
 
 
-def _scale_invar_match_template(pattern_img, base_img, base_top_cropping=1/3.0):
+def _scale_invar_match_template(pattern_img, base_img, base_top_cropping, prop_shrink, scaling_lower_limit):
     """
 
     Algorithm:
@@ -102,17 +104,19 @@ def _scale_invar_match_template(pattern_img, base_img, base_top_cropping=1/3.0):
     :param pattern_img:
     :param base_img:
     :param base_top_cropping: crops the base image to the top x proportion.
+    :param prop_shrink:
+    :param scaling_lower_limit:
     :return:
     """
-    def corners_calc(top_left, bottom_right):
+    def corners_calc(top_left_, bottom_right_):
         return {
-            'top_left': top_left,
-            'top_right': (bottom_right[0], top_left[1]),
-            'bottom_left': (top_left[0], bottom_right[1]),
-            'bottom_right': bottom_right}
+            'top_left': top_left_,
+            'top_right': (bottom_right_[0], top_left_[1]),
+            'bottom_left': (top_left_[0], bottom_right_[1]),
+            'bottom_right': bottom_right_}
 
     d = dict()
-    for pattern_scale in _bounds_sinvar_t_match(pattern_img.shape[0:2], base_img.shape[0:2], prop_shrink=0.075):
+    for pattern_scale in _bounds_t_match(pattern_img.shape[0:2], base_img.shape[0:2], prop_shrink, scaling_lower_limit):
         pattern_img_scaled = rgb2gray(imresize(pattern_img, pattern_scale, interp='lanczos'))
 
         # Crop
@@ -120,11 +124,11 @@ def _scale_invar_match_template(pattern_img, base_img, base_top_cropping=1/3.0):
         base_img_cropped = base_img[:top_third]
 
         # Run the match_template algorithm
-        result = match_template(base_img_cropped, pattern_img_scaled) # often just a sparse matrix.
+        result = match_template(base_img_cropped, pattern_img_scaled)
         match_quality = result.max()
 
         # Top Left Corner of the bounding box
-        top_left = np.array(best_guess_location(result))
+        top_left = _best_guess_location(result)
 
         # Note the need for pattern_img_scaled.shape to go from (HEIGHT, WIDTH) to (WIDTH, HEIGHT).
         bottom_right = top_left + np.array(pattern_img_scaled.shape)[::-1]
@@ -133,10 +137,14 @@ def _scale_invar_match_template(pattern_img, base_img, base_top_cropping=1/3.0):
 
     best_match = max(d, key=lambda x: d.get(x)[0])
     return {"match_quality": d[best_match][0],
-            "box": corners_calc(top_left=d[best_match][1][0], bottom_right=d[best_match][1][1])}
+            "box": corners_calc(top_left_=d[best_match][1][0], bottom_right_=d[best_match][1][1])}
 
 
-def robust_match_template(pattern_img_path, base_img_path):
+def robust_match_template(pattern_img_path
+                          , base_img_path
+                          , base_top_cropping=1/3.0
+                          , prop_shrink=0.075
+                          , scaling_lower_limit=0.3):
     """
 
     Search for a pattern image in a base image using a algorithm which is robust
@@ -144,12 +152,19 @@ def robust_match_template(pattern_img_path, base_img_path):
 
     :param pattern_img_path:
     :param base_img_path:
-    :return:
+    :param base_top_cropping:
+    :param prop_shrink:
+    :param scaling_lower_limit:
+    :return: dict of the form: {match_quality: value between 0 and 1 (inclusive), 'box': {'bottom_right': (x, y),
+                                'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}}
+    :rtype: ``dict``
     """
     pattern_img = imread(pattern_img_path)
     base_img = imread(base_img_path, flatten=True)
 
-    return robust_match_template(pattern_img, base_img)
+    best_match = _scale_invar_match_template(pattern_img, base_img, base_top_cropping, prop_shrink, scaling_lower_limit)
+
+    return best_match
 
 
 def _robust_match_template_plot(d, best_scale, pattern_img, base_img):
