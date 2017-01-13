@@ -9,6 +9,19 @@ def read(fname):
         return 'Please see: https://github.com/TariqAHassan/BioVida.'
 
 
+def required_dependencies():
+    """
+    Adds TensorFlow to dependencies if Theano cannot be imported.
+    """
+    dependencies = ['pandas', 'numpy', 'requests', 'tqdm', 'scipy', 'scikit-image', 'keras']
+    try:
+        import theano
+    except ImportError:
+        dependencies += ['tensorflow']
+
+    return dependencies
+
+
 setup(
     name='biovida',
     version='0.1',
@@ -17,11 +30,11 @@ setup(
     description=('Automated BioMedical Information Curation for Machine Learning Applications.'),
     long_description=read('README.md'),
     license='BSD',
-    keywords='medicine, biological sciences, machine learning, data science',
+    keywords='medicine, bioinformatics, biological sciences, machine learning, data science',
     url='https://github.com/TariqAHassan/BioVida.git',
     packages=find_packages(),
     data_files=[('', ['LICENSE.md'])],
-    install_requires=['pandas', 'numpy', 'requests', 'tqdm', 'scipy', 'keras'],
+    install_requires=required_dependencies(),
     classifiers=['Development Status :: 2 - Pre-Alpha',
                  'Natural Language :: English',
                  'Intended Audience :: Science/Research',
