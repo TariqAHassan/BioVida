@@ -17,13 +17,13 @@ def _medpix_logo_download(image_web_address='https://openi.nlm.nih.gov/imgs/512/
     save_path = os.path.join(resources_path, 'medpix_logo.png')
 
     if not os.path.isfile(save_path):
-        print("\nMedPix Logo, required for image post-processing, has been saved to:\n'{0}'.".format(save_path))
         # Get representative images
         img = Image.open(requests.get(image_web_address, stream=True).raw)
         # Crop and Save
-        img_cropped = img.crop((404, 2, 504, 30))
+        img_cropped = img.crop((406, 6, 502, 27))
         img_cropped.save(save_path)
+        print("\nMedPix Logo, required for image post-processing, has been saved to:\n'{0}'.".format(save_path))
+
 
 
 _medpix_logo_download()
-
