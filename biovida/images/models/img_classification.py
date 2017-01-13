@@ -157,6 +157,7 @@ class ImageRecognitionCNN(object):
         Model Description:
             - 3 convolution layers (ReLU activation).
             - 3 max-pooling layers
+            - 512 Dense (*0.25 Dropout) + 256 Dense (*0.25 Dropout) + 128 Dense (*0.5 Dropout) --> Output Layer.
 
         :param loss: Loss function. Defaults to 'categorical_crossentropy'.
                      See: ``keras.models.Sequential()``.
@@ -189,9 +190,6 @@ class ImageRecognitionCNN(object):
         self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
 
         self.model.add(Convolution2D(64, 3, 3, dim_ordering=self._dim_ordering, activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
-
-        self.model.add(Convolution2D(128, 3, 3, dim_ordering=self._dim_ordering, activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
 
         # Fully Connected Layers, i.e., a standard
