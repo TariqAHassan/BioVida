@@ -257,7 +257,7 @@ class ImageRecognitionCNN(object):
         save_path = self._data_path if path is None and self._data_path is not None else path
         self.model.save(os.path.join(save_path, "{0}.h5".format(name)), overwrite=overwrite)
 
-    def load(self, path, override_existing=False):
+    def load(self, path, override_existing=False, default_model_load=False):
         """
 
         Load a model from disk.
@@ -267,11 +267,17 @@ class ImageRecognitionCNN(object):
         :param override_existing: If True and a model has already been instantiated, override this replace this model.
                                   Defaults to ``False``.
         :type override_existing: ``bool``
+        :param default_model_load: load the default model if ``ImageRecognitionCNN().conv_net()`` has not been called.
+                                   Defaults to ``False``.
+        :type default_model_load: ``bool``
         :raises: AttributeError if a model is currently instantiated.
         """
         if self.model is not None and override_existing is not True:
             raise AttributeError("A model is currently instantiated.\n"
                                  "Set `override_existing` to `True` to replace the existing model.")
+
+        if default_model_load and self.model is None:
+            self.conv_net()
 
         self.model = load_model(path)
 
