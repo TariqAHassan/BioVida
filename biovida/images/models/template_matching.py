@@ -106,7 +106,8 @@ def _scale_invar_match_template(pattern_img, base_img, base_top_cropping, prop_s
     :param base_top_cropping: crops the base image to the top x proportion.
     :param prop_shrink:
     :param scaling_lower_limit:
-    :return:
+    :return: see robust_match_template()
+    :rtype: ``dict``
     """
     def corners_calc(top_left_, bottom_right_):
         return {
@@ -155,16 +156,16 @@ def robust_match_template(pattern_img_path
     :param base_top_cropping:
     :param prop_shrink:
     :param scaling_lower_limit:
-    :return: dict of the form: {match_quality: value between 0 and 1 (inclusive), 'box': {'bottom_right': (x, y),
-                                'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}}
-    :rtype: ``dict``
+    :return: tuple of the form (best_match_dict, base image shape (x, y)).
+                    best_match_dict is of the form {match_quality: value between 0 and 1 (inclusive),
+                     'box': {'bottom_right': (x, y), 'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}}
+    :rtype: ``tuple``
     """
     pattern_img = imread(pattern_img_path)
     base_img = imread(base_img_path, flatten=True)
 
     best_match = _scale_invar_match_template(pattern_img, base_img, base_top_cropping, prop_shrink, scaling_lower_limit)
-
-    return best_match
+    return (best_match, base_img.shape[::-1])
 
 
 def _robust_match_template_plot(d, best_scale, pattern_img, base_img):
