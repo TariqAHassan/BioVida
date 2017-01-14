@@ -9,30 +9,30 @@ import numpy as np
 import pandas as pd
 from itertools import groupby
 from skimage.feature import canny
-# from matplotlib import pyplot as plt
 from scipy.misc import imread, imshow
 from skimage.color.colorconv import rgb2gray
 
-# Note: top crop vertically: img[:, 0:200] (200 = end point)
-# Want: the three largest jutaposed chages in absolute value.
 
-# ToDo: use var instead of std to avoid an expensive sqrt operation.
+def _show_plt(image):
+    """
 
-
-# img = rgb2gray(imread(p, flatten=True)) / 255
-
-
-# show_plt(border_removal(img))
-# show_plt(img)
-
-
-def show_plt(image):
+    :param image:
+    :return:
+    """
+    from matplotlib import pyplot as plt
     fig, ax = plt.subplots()
     ax.imshow(image, interpolation='nearest', cmap=plt.cm.gray)
     plt.show()
 
 
-def img_crop(img, h_crop, v_crop):
+def _img_crop(img, h_crop, v_crop):
+    """
+
+    :param img:
+    :param h_crop:
+    :param v_crop:
+    :return:
+    """
     # Crop above and below the hlines
     h_crop = img[horizontal_lines[0]:horizontal_lines[1]]
     # Crop to the left and right of the vertical lines
@@ -48,7 +48,7 @@ def rolling_avg(iterable, window=8):
     :param window:
     :return:
     """
-    return pd.Series(iterable).rolling(center=False,window=window).mean().dropna()
+    return pd.Series(iterable).rolling(center=False, window=window).mean().dropna()
 
 
 def deltas(iterable):
@@ -79,7 +79,7 @@ def largest_n_values(arr, n):
 def zero_blocks(axis_deltas, block_trehsold, count_threshold, round_to):
     """
 
-    Tool which checks for number of blocks of color with litte variation.
+    Tool which checks for number of blocks (rows or columns) with litte color variation.
 
     :param axis_deltas: *MUST* be the output of the deltas() method.
     :param block_trehsold: number of zeros in a row to be considered a block.
@@ -122,17 +122,20 @@ def frame_detection(hdeltas, vdeltas, prop_img_solid_col_for_border=0.05, count_
 def var_calc(img):
     """
 
+    Compute the variance for all of the rows (horizontial) and columns (vertical)
+    in the image.
+
     :param img:
     :return:
     """
     # Compute the variance for each row of the image
-    horizontal_var = np.std(img, axis=1)
+    horizontal_var = np.var(img, axis=1)
     # Compute the variance for each column of the image
-    vertical_var = np.std(img, axis=0)
+    vertical_var = np.var(img, axis=0)
     return horizontal_var, vertical_var
 
 
-def border_removal(horizontal_var, vertical_var, rolling_window):
+def border_removal(img, h_border_exists, v_border_exists, rolling_window):
     """
 
     :param horizontal_var:
@@ -140,18 +143,20 @@ def border_removal(horizontal_var, vertical_var, rolling_window):
     :param rolling_window:
     :return:
     """
+    horizontal_var, vertical_var = var_calc(img)
+
     # Clean var arrays with rolling average; Recompute the deltas on the cleaned arrays
     horizontal_lines = None
     vertical_lines = None
 
-    if not isinstance(horizontal_var, bool):
-        # Note: n = 3 for h lines to account for the possibler lower band in MedPix images
+    if h_border_exists:
+        # Note: n = 3  in MedPix images
         horizontal_var_cln = rolling_avg(horizontal_var, rolling_window).as_matrix()
         hdeltas = deltas(horizontal_var)
         # Get the lines based on which are largest
-        horizontal_lines = largest_n_values(hdeltas, n=3)[:2]
+        horizontal_lines = largest_n_values(hdeltas, n=2)
 
-    if not isinstance(vertical_var, bool):
+    if v_border_exists:
         vertical_var_cln = rolling_avg(vertical_var, rolling_window).as_matrix()
         vdeltas = deltas(vertical_var)
         vertical_lines = largest_n_values(vdeltas, n=2)
@@ -159,32 +164,48 @@ def border_removal(horizontal_var, vertical_var, rolling_window):
     return horizontal_lines, vertical_lines
 
 
-def row_most_edges(img, hbar_criteria):
+def clearest_h_line(img, hbar_criteria):
     """
 
-    :param img:
-    :param hbar_criteria:
-    :return:
-    """
-    bottom_proprtion_img = hbar_criteria['lower_prop']
-    threshold = hbar_criteria['threshold']
-    canny_sigma= hbar_criteria['canny_sigma']
+    Finds the most pronouced horizontal line in an image.
 
-    crop_location = int(img.shape[0] * 0.75)
+    :param img: an image represented as a``2D ndarray``.
+    :param hbar_criteria: see ``line_analysis()``
+    :return: the 'row' of the image with the most pronouced horizontal line.
+    :rtype: ``None`` or ``int``
+    """
+    crop_location = int(img.shape[0] * hbar_criteria['lower_prop'])
     cropped_img = img[crop_location:]
 
     # Find the edges
-    edges = canny(cropped_img, sigma=canny_sigma)
+    edges = canny(cropped_img, sigma=hbar_criteria['canny_sigma'])
 
     # Find row with the most 'edges' (suggesting a line)
     row_with_the_most_edges = max(enumerate(edges), key=lambda x: sum(x[1]))
 
     # Check that proportion of edges in that row is greater than some threshold.
-    if sum(row_with_the_most_edges[1]) < edges.shape[1]*threshold:
+    if sum(row_with_the_most_edges[1]) < edges.shape[1] * hbar_criteria['threshold']:
         return None
 
     # Return the edge line
     return crop_location + row_with_the_most_edges[0]
+
+def _lower_bar_mgmt(img, check_lower_band, hbar_criteria):
+    """
+
+    :param img:
+    :param check_lower_band:
+    :param hbar_criteria:
+    :return:
+    """
+    lower_bar_position = None
+    if check_lower_band:
+        lowest_bar_candiate = clearest_h_line(img, hbar_criteria)
+        if lowest_bar_candiate is not None:
+            img = img[0:lower_bar_position] # truncate image above the lower bar
+            lower_bar_position = lowest_bar_candiate
+
+    return lower_bar_position, img
 
 
 def line_analysis(img
@@ -203,11 +224,15 @@ def line_analysis(img
                                      'canny_sigma' (sigma value to pass to the canny algo.): ...}
     :type hbar_criteria: ``dict``
     :param check_lower_band:
-    :param rollow_window_for_border_removal:
+    :param rollow_window_for_border_removal: if too high, it will be hard to distinguish edges.
+                                             If too low, noise may obscure the signal of where the egdes are located.
+                                             Defaults to 5.
     :type rollow_window_for_border_removal: ``int``
-    :return:
+    :return: `lower_band` = lower bar; `hcrop_lines` = (crop above, crop below); vcrop_lines = (crop left, crop right).
     :rtype: ``dict``
     """
+    lower_bar_position, img = _lower_bar_mgmt(img, check_lower_band, hbar_criteria)
+
     # Compute the variances for the horizontal and vertical axes
     horizontal_var, vertical_var = var_calc(img)
     
@@ -220,30 +245,66 @@ def line_analysis(img
                                       prop_img_solid_col_for_border=frame_detect_criteria['prop_img_solid_col_for_border'],
                                       count_threshold=frame_detect_criteria['count_threshold'],
                                       round_to=frame_detect_criteria['round_to'])
-    h_exists, v_exists = frame_existance
+    h_border_exists, v_border_exists = frame_existance
 
     # Lines dictionary
-    d = dict.fromkeys(['hlines', 'vlines', 'lower_band'], None)
+    d = dict.fromkeys(['hcrop_lines', 'vcrop_lines', 'lower_band'], None)
 
-    if not any(frame_existance):
-        if check_lower_band:
-            d['lower_band'] = row_most_edges(img, hbar_criteria)
-    elif any(frame_existance):
-        h_lines, v_lines = border_removal(horizontal_var=horizontal_var if h_exists else h_exists,
-                                          vertical_var=vertical_var if v_exists else v_exists,
-                                          rolling_window=rollow_window_for_border_removal)
-
-        if check_lower_band:
-            d['lower_band'] = row_most_edges(img, hbar_criteria)
-        if h_exists:
-            d['hlines'] = h_lines
-        if v_exists:
-            d['vlines'] = v_lines
+    if any(frame_existance):
+        h_lines, v_lines = border_removal(img[:lower_bar_position] if lower_bar_position is not None else img
+                                          , h_border_exists
+                                          , v_border_exists
+                                          , rollow_window_for_border_removal)
+        d['hcrop_lines'] = h_lines
+        d['vcrop_lines'] = v_lines
+        d['lower_band'] = lower_bar_position
 
     return d
 
 
-# line_analysis(img)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
