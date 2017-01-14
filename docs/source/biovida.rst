@@ -34,6 +34,14 @@ biovida.images.models.img_classification module
     :undoc-members:
     :show-inheritance:
 
+biovida.images.models.template_matching module
+----------------------------------------------
+
+.. automodule:: biovida.images.models.template_matching
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 biovida.genomics.disgenet_interface module
 ------------------------------------------
 

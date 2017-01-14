@@ -10,6 +10,9 @@ API
 .. automodule:: biovida.images.models.img_classification
 	:members:
 
+.. automodule:: biovida.images.models.template_matching
+	:members:
+
 .. automodule:: biovida.genomics.disgenet_interface
 	:members:	
 
