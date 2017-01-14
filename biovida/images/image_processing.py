@@ -20,8 +20,11 @@ from keras.preprocessing.image import (ImageDataGenerator,
                                        load_img)
 
 # Tools form the image subpackage
+from biovida.images.resources import *
+from biovida.images.models.temp import resources_path
 from biovida.images.openi_interface import OpenInterface
 from biovida.images.models.img_classification import ImageRecognitionCNN
+from biovida.images.models.template_matching import robust_match_template
 
 # General Support Tools
 from biovida.support_tools.support_tools import dict_reverse
@@ -40,10 +43,10 @@ tqdm.pandas("status")
 # General procedure (for Ultrasound, X-ray, CT and MRI):
 # ------------------------------------------------------------------------------------------
 #
-#   1. Check if grayscale                                                       x
+#   1. Check if grayscale                                                       X
 #         - if false, try to detect a frame
 #               - if frame, crop else ban
-#   2. Look for MedLine(R) logo
+#   2. Look for MedLine(R) logo                                                 P
 #         - if true, crop
 #   3. Look for text bar *
 #         - if true, try crop, else ban
@@ -61,13 +64,11 @@ tqdm.pandas("status")
 # Legend:
 #     * = requires machine learning
 #     p = partially solved
-#     x = solved
+#     X = solved
 #
 # Notes:
 #     border removal: http://stackoverflow.com/q/10615901/4898004
 #
-# ------------------------------------------------------------------------------------------
-
 # ------------------------------------------------------------------------------------------
 # Temporary
 # ------------------------------------------------------------------------------------------
@@ -80,34 +81,6 @@ root_path, created_img_processing_dirs = pcc
 
 opi = OpenInterface(cache_path)
 df = opi.image_record_database.copy()
-
-# ------------------------------------------------------------------------------------------
-# Tool to display images
-# ------------------------------------------------------------------------------------------
-
-def img_text(img_path, text='', color=(220, 10, 10)):
-    """
-
-    :param img_path:
-    :param text:
-    :param color:
-    :return:
-    """
-    from PIL import ImageFont, Image, ImageDraw
-    font = ImageFont.load_default().font
-    font = ImageFont.truetype("Verdana.ttf", 12)
-
-    img = Image.open(img_path)
-
-    draw = ImageDraw.Draw(img)
-    draw.text((0, 0), text, color, font=font)
-    draw = ImageDraw.Draw(img)
-
-    img.show()
-
-# ------------------------------------------------------------------------------------------
-# Get sample data
-# ------------------------------------------------------------------------------------------
 
 # Create an instance of the Open-i data harvesting tool
 opi = OpenInterface(cache_path, download_limit=5500, img_sleep_time=2, records_sleep_main=None)
@@ -149,8 +122,6 @@ def grayscale_img(img_path):
     stat = ImageStat.Stat(Image.open(img_path).convert("RGB"))
     return np.mean(stat.sum) == stat.sum[0]
 
-# Compute whether or not the image is grayscale
-# df['grayscale_img'] = df['img_cache_name_full'].progress_map(lambda i: grayscale_img(i))
 
 def require_grayscale_check(x):
     """
@@ -170,32 +141,12 @@ def require_grayscale_check(x):
         return x['image_modality_major']
 
 
-# Apply check based on grayscale status. (move lower)
-# df['image_modality_major'] = df.apply(require_grayscale_check, axis=1)
-
-# df[['image_modality_major']][df['img_cache_name'].str.contains("1__PMC4390528_nihms-668294-f0002__L")]
-
-# ------------------------------------------------------------------------------------------
-# Run OCR on the images
-# ------------------------------------------------------------------------------------------
-
-# img = Image.open(image_path)
-# pytesseract.image_to_string(img)
-# print(pytesseract.image_to_string(img, boxes=True))
-#
-#
-# print(pytesseract.image_to_string(img))
-
 # ------------------------------------------------------------------------------------------
 # Watermark Cleaning
 # ------------------------------------------------------------------------------------------
 
-from biovida.images.models.template_matching import robust_match_template
-from biovida.images.models.temp import resources_path
 
-base_images = [os.path.join(raw_img_path, i) for i in os.listdir(raw_img_path) if i.endswith(".png")]
-
-def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.0):
+def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.5):
     """
 
     Wraps ``biovida.images.models.template_matching.robust_match_template()``.
@@ -223,15 +174,15 @@ def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.
     base_images_p = x['img_cache_name_full']
 
     # Run the matching algorithm
-    match, base_img_shape = robust_match_template(pattern_img_path=medline_template_img, base_img_path=base_images[0])
+    match, base_img_shape = robust_match_template(pattern_img_path=medline_template_img, base_img_path=base_images_p)
 
     # Check match quality
-    if match['match_quality'] < threshold:
+    if not isinstance(match, dict) or match['match_quality'] < threshold:
         return np.NaN
 
-    # Check the box is in the top right
     box_bottom_left = match['box']['bottom_left']
 
+    # Check the box is in the top right
     if box_bottom_left[0] < (base_img_shape[0] * x_greater_check) or \
         box_bottom_left[1] > (base_img_shape[1] * y_greater_check):
         return np.NaN
@@ -239,13 +190,51 @@ def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.
         return box_bottom_left
 
 
-df['logo_loc'] = df.progress_apply(logo_analysis, axis=1)
+def _logo_plotting(found_logo_df, start=0, end=10):
+    """
+    found_logo_df = df[pd.notnull(df['logo_loc'])].copy()
+    :param found_logo_df:
+    :return:
+    """
+    import matplotlib.pyplot as plt
+    from scipy.misc import imread
+    from time import sleep
 
+    def _logo_diving_plotter(base_img, dividing_line):
+        fig = plt.figure(figsize=(10, 6))
+        ax1 = plt.subplot(1, 1, 1)
+        ax1.imshow(base_img, cmap='gray')
+        ax1.set_axis_off()
+        ax1.axhline(y=dividing_line, color='r', linestyle='-')
+        ax1.set_title('Diving Choice')
+        plt.show()
+
+    img_dividing_lines = pd.Series(found_logo_df['logo_loc'].values, index=found_logo_df['img_cache_name_full']).to_dict()
+    for (k, v) in list(img_dividing_lines.items())[start:end]:
+        _logo_diving_plotter(imread(k, flatten=True), v[1])
+        sleep(1)
+
+# ------------------------------------------------------------------------------------------
+# Detect Border
+# ------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------
+# Run OCR on the images
+# ------------------------------------------------------------------------------------------
+
+# Look for 'Uploader'. If not, try to find 'source'.
+
+# img = Image.open(image_path)
+# pytesseract.image_to_string(img)
+# print(pytesseract.image_to_string(img, boxes=True))
+#
+#
+# print(pytesseract.image_to_string(img))
 
 # ------------------------------------------------------------------------------------------
 # Image Classification
 # ------------------------------------------------------------------------------------------
-
 
 # Load the CNN
 ircnn = ImageRecognitionCNN(data_path)
@@ -297,25 +286,37 @@ def class_guess(name, img_path, data_classes, img_shape):
 #
 #
 # for i in a[0:20]:
-#     img_text(os.path.join(raw_img_path, i))
+#     _img_text(os.path.join(raw_img_path, i))
 #     sleep(2)
+
+
+
+
+
+
+
+
+
+# ------------------------------------------------------------------------------------------
+# Computations
+# ------------------------------------------------------------------------------------------
+
+
+
+# Compute whether or not the image is grayscale
+# df['grayscale_img'] = df['img_cache_name_full'].progress_map(lambda i: grayscale_img(i))
+
+# Apply check based on grayscale status. (move lower)
+# df['image_modality_major'] = df.apply(require_grayscale_check, axis=1)
+
+# df[['image_modality_major']][df['img_cache_name'].str.contains("1__PMC4390528_nihms-668294-f0002__L")]
+
+
+# # Run Analysis
+# df['logo_loc'] = df.progress_apply(logo_analysis, axis=1)
 #
-#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# # Logo found in 87% of images!
+# df[pd.notnull(df['logo_loc'])]['logo_loc'].shape[0] / df[df['journal_title'].str.lower().str.contains('medpix')].shape[0]
 
 
 
