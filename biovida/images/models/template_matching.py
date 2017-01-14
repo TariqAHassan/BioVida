@@ -9,6 +9,9 @@
 #     See: http://scikit-image.org/docs/dev/api/skimage.feature.html#skimage.feature.match_template.
 #
 #     Here, this algorithm has been bootstrapped to make it robust against variance in scale.
+#
+#     ToDo: This code needs to be refactored.
+
 
 # Imports
 import numpy as np
@@ -16,9 +19,6 @@ from scipy.misc import imread
 from scipy.misc import imresize
 from skimage.feature import match_template
 from skimage.color.colorconv import rgb2gray
-
-pattern_shape = (27, 105)
-base_shape = (512, 512)
 
 
 def _bounds_t_match(pattern_shape, base_shape, prop_scale, scaling_lower_limit):
@@ -78,7 +78,7 @@ def _bounds_t_match(pattern_shape, base_shape, prop_scale, scaling_lower_limit):
     return np.append(bounds_clean(bounds_array), 1)
 
 
-def _best_guess_location(match_template_result):
+def _best_guess_location(match_template_result, upscale=1):
     """
 
     Takes the result of skimage.feature.match_template() and returns (top left x, top left y)
@@ -88,7 +88,7 @@ def _best_guess_location(match_template_result):
     """
     ij = np.unravel_index(np.argmax(match_template_result), match_template_result.shape)
     x, y = ij[::-1]
-    return np.array((x, y))
+    return np.ceil(np.array((x, y)) / float(upscale)), match_template_result.max()
 
 
 def _corners_calc(top_left_, bottom_right_):
@@ -107,7 +107,27 @@ def _corners_calc(top_left_, bottom_right_):
         'bottom_right': bottom_right_}
 
 
-def _scale_invar_match_template(pattern_img, base_img, base_top_cropping, prop_scale, scaling_lower_limit):
+def _scale_invar_match_template_output(d):
+    """
+
+    :param d:
+    :return:
+    """
+    if not len(list(d.keys())):
+        return None
+
+    best_match = max(d, key=lambda x: d.get(x)[0])
+    return {"match_quality": d[best_match][0],
+            "box": _corners_calc(top_left_=d[best_match][1][0], bottom_right_=d[best_match][1][1])}
+
+
+def _scale_invar_match_template(pattern_img
+                                , base_img
+                                , base_top_cropping
+                                , prop_scale
+                                , scaling_lower_limit
+                                , base_resize
+                                , end_search_threshold):
     """
 
     Algorithm:
@@ -129,11 +149,11 @@ def _scale_invar_match_template(pattern_img, base_img, base_top_cropping, prop_s
     :rtype: ``dict``
     """
     # Top x (1/3) for the base image and crop accordingly
-    top_third_base_img = int(base_img.shape[0] * base_top_cropping)
-    base_img_cropped = base_img[:top_third_base_img]
+    top_of_base_img = int(base_img.shape[0] * base_top_cropping)
+    base_img_cropped = base_img[:top_of_base_img]
 
     # Compute the cropped size of the base_img
-    base_img_scaled = (base_img.shape[0], base_img.shape[1] / top_third_base_img)
+    base_img_scaled = (base_img.shape[0], base_img.shape[1] / top_of_base_img)
 
     # Compute an array of values to scale the pattern by
     bounds_vect = _bounds_t_match(pattern_img.shape[0:2], base_img_scaled, prop_scale, scaling_lower_limit)
@@ -144,85 +164,80 @@ def _scale_invar_match_template(pattern_img, base_img, base_top_cropping, prop_s
         if all(pattern_img_scaled.shape[i] < base_img_cropped.shape[i] for i in range(2)):  # ToDo: Shouldn't be needed.
             # Run the match_template algorithm
             result = match_template(image=base_img_cropped, template=pattern_img_scaled)
-            match_quality = result.max()
 
             # Top Left Corner of the bounding box
-            top_left = _best_guess_location(result)
+            top_left, match_quality = _best_guess_location(result, upscale=base_resize)
 
             # Note the need for pattern_img_scaled.shape to go from (HEIGHT, WIDTH) to (WIDTH, HEIGHT).
             bottom_right = top_left + np.array(pattern_img_scaled.shape)[::-1]
 
             d[pattern_scale] = (match_quality, (tuple(top_left), tuple(bottom_right)))
 
-    if not len(list(d.keys())):
-        return None
+            if match_quality >= end_search_threshold:
+                break
 
-    best_match = max(d, key=lambda x: d.get(x)[0])
-    return {"match_quality": d[best_match][0],
-            "box": _corners_calc(top_left_=d[best_match][1][0], bottom_right_=d[best_match][1][1])}
+    return _scale_invar_match_template_output(d)
+
+
+def _arrange_one_first(bounds_and_steps):
+    """Function to run np.arrange and put the number '1' first."""
+    start, end, step = bounds_and_steps if bounds_and_steps is not None else (1, 1, 1)
+    l = np.arange(start, end, step)
+    return np.append(1, l[l != 1])
 
 
 def robust_match_template(pattern_img_path
                           , base_img_path
-                          , base_top_cropping=1/3.0
+                          , base_top_cropping=0.14
                           , prop_scale=0.075
-                          , scaling_lower_limit=0.3):
+                          , scaling_lower_limit=0.25
+                          , end_search_threshold=0.875
+                          , base_resizes=(1.25, 2.75, 0.25)):
     """
 
     Search for a pattern image in a base image using a algorithm which is robust
     against variation in the size of the pattern in the base image.
+
+    Method: Fast Normalized Cross-Correlation.
 
     :param pattern_img_path:
     :param base_img_path:
     :param base_top_cropping:
     :param prop_scale:
     :param scaling_lower_limit:
-    :return: tuple of the form (best_match_dict, base image shape (x, y)).
-                    best_match_dict is of the form {match_quality: value between 0 and 1 (inclusive),
+    :param end_search_threshold: if a match of this quality is found, end the search.
+                                  Set to any number greater than 1 to disable.
+    :param base_resizes: scaling of the base image. Tuple of the form (start scalar, end scalar, step size).
+    :return: tuple of the form (best_match_dict, base image shape (x, y)). the 'best_match_dict' is of the form:
+                     {match_quality: value between 0 and 1 (inclusive),
                      'box': {'bottom_right': (x, y), 'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}}
     :rtype: ``tuple``
     """
     pattern_img = imread(pattern_img_path)
-    base_img = imread(base_img_path, flatten=True)
+    base_img_raw = imread(base_img_path, flatten=True)
 
-    best_match = _scale_invar_match_template(pattern_img, base_img, base_top_cropping, prop_scale, scaling_lower_limit)
-    return (best_match, base_img.shape[::-1])
+    attemps = list()
+    for base_resize in _arrange_one_first(base_resizes):
+        base_img = imresize(base_img_raw, base_resize)
+        current_match = _scale_invar_match_template(pattern_img,
+                                                     base_img,
+                                                     base_top_cropping,
+                                                     prop_scale,
+                                                     scaling_lower_limit,
+                                                     base_resize,
+                                                     end_search_threshold)
 
+        if isinstance(current_match, dict):
+            attemps.append(current_match)
+            # current_match['no'] = base_resize
+            if current_match['match_quality'] >= end_search_threshold:
+                break
 
-def _robust_match_template_plot(d, best_scale, pattern_img, base_img):
-    """
-
-    :param d:
-    :param best_scale:
-    :param pattern_img: pattern_img (note, do not apply grayscale transformation).
-    :param base_img:
-    :return:
-    """
-    import matplotlib.pyplot as plt
-    w, h = np.abs(np.array(d[best_scale][1][0]) - np.array(d[best_scale][1][1]))
-
-    # Plot
-    fig = plt.figure(figsize=(8, 3))
-    ax1 = plt.subplot(1, 2, 1)
-    ax2 = plt.subplot(1, 2, 2, adjustable='box-forced')
-
-    ax1.imshow(rgb2gray(pattern_img))
-    ax1.set_axis_off()
-    ax1.set_title('pattern_img')
-
-    ax2.imshow(base_img)
-    ax2.set_axis_off()
-    ax2.set_title('base_img')
-    rect = plt.Rectangle(box_top_left, w, h, edgecolor='r', facecolor='none')
-    ax2.add_patch(rect)
-
-    plt.show()
-
-
-
-
-
-
+    single_best_match = max(attemps, key=lambda x: x['match_quality'])
+    # if current_match['no'] != 1:
+    #     print(current_match['no'])
+    # del current_match['no']
+    return single_best_match, base_img.shape[::-1]
 
 
 
