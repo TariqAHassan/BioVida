@@ -1,16 +1,28 @@
 """
 
-    Border and Line Detection Algorithms
+    Border and Edge Detection Algorithms
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
 # Imports
+import os
 import numpy as np
 import pandas as pd
-from itertools import groupby
-from skimage.feature import canny
+from operator import sub
+from copy import deepcopy
+from functools import reduce
 from scipy.misc import imread, imshow
 from skimage.color.colorconv import rgb2gray
+from matplotlib import pyplot as plt
+
+
+def _load_img_rescale(path_to_image):
+    """
+
+    :param path_to_image:
+    :return:
+    """
+    return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
 
 
 def _show_plt(image):
@@ -25,30 +37,28 @@ def _show_plt(image):
     plt.show()
 
 
-def _img_crop(img, h_crop, v_crop):
+def rounder(l, by=3):
     """
 
-    :param img:
-    :param h_crop:
-    :param v_crop:
+    :param l:
+    :param by:
     :return:
     """
-    # Crop above and below the hlines
-    h_crop = img[horizontal_lines[0]:horizontal_lines[1]]
-    # Crop to the left and right of the vertical lines
-    full_crop = h_crop[:, vertical_lines[0]:vertical_lines[1]]
-
-    return full_crop
+    t = int if by == 0 else float
+    return list(map(lambda x: round(t(x), by), l))
 
 
-def rolling_avg(iterable, window=8):
+def min_max(l):
+    return [min(l), max(l)]
+
+
+def column_round(l):
     """
 
-    :param iterable:
-    :param window:
+    :param l:
     :return:
     """
-    return pd.Series(iterable).rolling(center=False, window=window).mean().dropna()
+    return rounder(np.median(l, axis=0), 0)
 
 
 def deltas(iterable):
@@ -76,190 +86,373 @@ def largest_n_values(arr, n):
     return tuple(sorted(arr.argsort()[-n:]))
 
 
-def zero_blocks(axis_deltas, block_trehsold, count_threshold, round_to):
+def subsection(numeric_array, exclude, start, end):
     """
 
-    Tool which checks for number of blocks (rows or columns) with litte color variation.
-
-    :param axis_deltas: *MUST* be the output of the deltas() method.
-    :param block_trehsold: number of zeros in a row to be considered a block.
-    :param count_threshold: number of blocks required for the function to return True.
-    :param round_to: round
+    :param numeric_array:
+    :param exclude:
+    :param start:
+    :param end:
     :return:
     """
-    axis_deltas_rounded = np.round(axis_deltas, round_to)
-
-    # Get the number of sections with rows/columns with no difference
-    sections = [len(list(j)) for i, j in groupby(axis_deltas_rounded) if i == 0]
-
-    # Compute the number of zero var delta sections which are >= than the
-    # number required for it to be considered a 'zero section' (e.g., two
-    # rows with zero delta shouldn't be considered a 'zero section').
-    n_zero_blocks = sum(x >= block_trehsold for x in sections)
-
-    # Check if sufficent blocks exist.
-    return n_zero_blocks >= count_threshold
+    return numeric_array[start:exclude] + numeric_array[exclude+1:end]
 
 
-def frame_detection(hdeltas, vdeltas, prop_img_solid_col_for_border=0.05, count_threshold=2, round_to=3):
+def anomally_removal(numeric_array, window=4):
     """
 
+    Replaces single numbers that do not match their homogenous neighbourhood
+    with the value of the homogenious neighbood.
 
-    :param hdeltas:
-    :param vdeltas:
-    :param prop_img_solid_col_for_border: proportion of colomns/rows required to have
-                                low variance (i.e., be a color block).
-    :param count_threshold:
-    :param round_to:
+    E.g., 0, 0, 0, 0, 99, 0, 0, 0, 0 --> 0, 0, 0, 0, 0, 0, 0, 0, 0.
+
+    :param numeric_array: must be a list or tuple. Numpy array will break this.
+    :param window:
+    :return:
+
+    Example:
+    -------
+    >>> row = [0.24677, 0.24677, 0.24677, 0.9, 0.24677, 0.24677, 0.24677]
+    >>> for i, j in zip(row, anomally_removal(row, 3)):
+    ...     print(i, "-->", j, ".Change Made: ", i != j)
+        0.24677 --> 0.24677 .Change Made:  False
+        0.24677 --> 0.24677 .Change Made:  False
+        0.24677 --> 0.24677 .Change Made:  False
+        0.9     --> 0.24677 .Change Made:  True
+        0.24677 --> 0.24677 .Change Made:  False
+        0.24677 --> 0.24677 .Change Made:  False
+        0.24677 --> 0.24677 .Change Made:  False
+    """
+    # Note: the logic is somewhat complex here...a mistake is possible.
+
+    if window <= 1 or window > len(numeric_array):
+        raise ValueError("`window` must be greater than 1 and less than the length of `numeric_array`.")
+
+    if window > 2:
+        window += 1
+
+    smoothed = list()
+    for i in range(len(numeric_array)):
+        # if can't look back
+        if i < window:
+            # If all forward neighbours are the same
+            if len(set(numeric_array[i+1:i+window+1])) == 1:
+                # Smooth using the next element
+                smoothed.append(numeric_array[i+1])
+            else:
+                # if not, leave 'as is'
+                smoothed.append(numeric_array[i])
+        # if can look back
+        if i >= window:
+            if len(set(subsection(numeric_array, i, i-window+1, i+window))) == 1:
+                # smooth using the prior element (needed to prevent error at the end of the iterable).
+                smoothed.append(numeric_array[i-1])
+            else:
+                smoothed.append(numeric_array[i])
+
+    return smoothed
+
+
+def rolling_avg(iterable, window):
+    """
+
+    :param iterable:
+    :param window:
     :return:
     """
-    def fd_func(x):
-        block_trehsold = int(len(x) * prop_img_solid_col_for_border)
-        return zero_blocks(x, block_trehsold, count_threshold, round_to)
-    return fd_func(hdeltas), fd_func(vdeltas)
+    return pd.Series(iterable).rolling(center=False, window=window).mean().dropna()
 
 
-def var_calc(img):
+def array_cleaner(arr, round_by=5, rolling_window=5, anomally_window=2):
     """
 
-    Compute the variance for all of the rows (horizontial) and columns (vertical)
-    in the image.
+    :param arr:
+    :param round_by:
+    :return:
+    """
+    rolling = rolling_avg(arr, rolling_window)
+    rounded_arr = rounder(rolling, round_by)
+    return np.array(anomally_removal(rounded_arr, anomally_window))
+
+
+def largest_n_changes_with_values(iterable, n):
+    """Compute the index of the ``n`` largest deltas
+       the their associated values.
+    """
+    large_ds = largest_n_values(deltas(iterable), n)
+
+    # Look around for true smallest value for each.
+    # i.e., index of the value which triggered the low delta.
+    true_smallest = list()
+    for d in large_ds:
+        if d == 0 or len(iterable) == 2:
+            neighbours = [0, 1]
+        elif d == len(iterable):
+            neighbours = [-1, 0]
+        else:
+            neighbours = [-1, 0, 1]
+        options = [(d+i, iterable[d+i]) for i in neighbours]
+        flr = [i for i in options if i[1] == min((j[1] for j in options))][0][0]
+        true_smallest.append(flr)
+
+    return [(d, iterable[d]) for d in true_smallest]
+
+
+def expectancy_violation(expected, actual):
+    """
+
+    :param expected:
+    :param actual:
+    :return:
+    """
+    val = float(abs(expected - actual) / expected)
+    return round(val, 4)
+
+
+def largest_median_inflection(averaged_axis_values, axis):
+    """
+
+    :param averaged_axis_values:
+    :param axis: 0 = column; 1 = rows
+    :return:
+    """
+    if axis == 1:
+        n_largest = 4
+    elif axis == 0:
+        n_largest = 2
+
+    # Postion of largest changes
+    large_inflections = largest_n_changes_with_values(averaged_axis_values, n_largest)
+
+    # Sort by position
+    large_inflections_sorted = sorted(large_inflections, key=lambda x: x[0])
+
+    # Compute the media for the whole axis
+    median = np.median(averaged_axis_values)
+
+    # Compute the how much the signal deviated from the median value (0-1).
+    median_deltas = [(i, expectancy_violation(median, j)) for (i, j) in large_inflections_sorted]
+
+    if axis == 1:
+        return median_deltas[1:]
+    elif axis == 0:
+        return median_deltas
+
+
+def zero_var_axis_elements_remove(img, axis, rounding=3):
+    """
+
+    Replaces, by axis, matrix elements with approx. no variance
+    (technically using the standard deviation here).
 
     :param img:
+    :param axis:
+    :param rounding:
     :return:
     """
-    # Compute the variance for each row of the image
-    horizontal_var = np.var(img, axis=1)
-    # Compute the variance for each column of the image
-    vertical_var = np.var(img, axis=0)
-    return horizontal_var, vertical_var
+    zero_var_items = np.where(np.round(np.std(img, axis=axis), rounding) == 0)
+    if axis == 0:
+        img[:, zero_var_items] = [0]
+    elif axis == 1:
+        img[zero_var_items] = [0]
+    return img
 
 
-def border_removal(img, h_border_exists, v_border_exists, rolling_window):
-    """
-
-    :param horizontal_var:
-    :param vertical_var:
-    :param rolling_window:
-    :return:
-    """
-    horizontal_var, vertical_var = var_calc(img)
-
-    # Clean var arrays with rolling average; Recompute the deltas on the cleaned arrays
-    horizontal_lines = None
-    vertical_lines = None
-
-    if h_border_exists:
-        # Note: n = 3  in MedPix images
-        horizontal_var_cln = rolling_avg(horizontal_var, rolling_window).as_matrix()
-        hdeltas = deltas(horizontal_var)
-        # Get the lines based on which are largest
-        horizontal_lines = largest_n_values(hdeltas, n=2)
-
-    if v_border_exists:
-        vertical_var_cln = rolling_avg(vertical_var, rolling_window).as_matrix()
-        vdeltas = deltas(vertical_var)
-        vertical_lines = largest_n_values(vdeltas, n=2)
-
-    return horizontal_lines, vertical_lines
-
-
-def clearest_h_line(img, hbar_criteria):
-    """
-
-    Finds the most pronouced horizontal line in an image.
-
-    :param img: an image represented as a``2D ndarray``.
-    :param hbar_criteria: see ``line_analysis()``
-    :return: the 'row' of the image with the most pronouced horizontal line.
-    :rtype: ``None`` or ``int``
-    """
-    crop_location = int(img.shape[0] * hbar_criteria['lower_prop'])
-    cropped_img = img[crop_location:]
-
-    # Find the edges
-    edges = canny(cropped_img, sigma=hbar_criteria['canny_sigma'])
-
-    # Find row with the most 'edges' (suggesting a line)
-    row_with_the_most_edges = max(enumerate(edges), key=lambda x: sum(x[1]))
-
-    # Check that proportion of edges in that row is greater than some threshold.
-    if sum(row_with_the_most_edges[1]) < edges.shape[1] * hbar_criteria['threshold']:
-        return None
-
-    # Return the edge line
-    return crop_location + row_with_the_most_edges[0]
-
-def _lower_bar_mgmt(img, check_lower_band, hbar_criteria):
+def edge_dection(img, axis=0):
     """
 
     :param img:
-    :param check_lower_band:
-    :param hbar_criteria:
+    :param axis: 0 = column; 1 = rows
     :return:
     """
-    lower_bar_position = None
-    if check_lower_band:
-        lowest_bar_candiate = clearest_h_line(img, hbar_criteria)
-        if lowest_bar_candiate is not None:
-            img = img[0:lower_bar_position] # truncate image above the lower bar
-            lower_bar_position = lowest_bar_candiate
+    # Deep copy the matrix to prevent side effects.
+    # img = image_array.copy()
 
-    return lower_bar_position, img
+    # Set rows with no ~variance to zero vectors to eliminate their muffling effect on the signal.
+    img = zero_var_axis_elements_remove(img, axis)
+
+    # Average the remaining values
+    averaged_axis_values = np.mean(np.abs(img), axis=axis)
+
+    return largest_median_inflection(averaged_axis_values, axis)
 
 
-def line_analysis(img
-                  , frame_detect_criteria={"prop_img_solid_col_for_border": 0.05, "count_threshold": 2, "round_to": 3}
-                  , hbar_criteria={"lower_prop": 0.75, "threshold": 0.85, "canny_sigma": 0.25}
-                  , rollow_window_for_border_removal=5
-                  , check_lower_band=True):
+def evidence_weigh(candidates, axis_size, signal_strength_threshold, min_border_seperation):
     """
 
-    :param img:
-    :param frame_detect_criteria:
-    :type frame_detect_criteria: ``dict``
-    :param hbar_criteria: dict of the form:
-                                    {'lower_prop' (lower proportion of the image to search): ...,
-                                     'threshold' (proportion of columns in the image that must have 'edges'): ...,
-                                     'canny_sigma' (sigma value to pass to the canny algo.): ...}
-    :type hbar_criteria: ``dict``
-    :param check_lower_band:
-    :param rollow_window_for_border_removal: if too high, it will be hard to distinguish edges.
-                                             If too low, noise may obscure the signal of where the egdes are located.
-                                             Defaults to 5.
-    :type rollow_window_for_border_removal: ``int``
-    :return: `lower_band` = lower bar; `hcrop_lines` = (crop above, crop below); vcrop_lines = (crop left, crop right).
-    :rtype: ``dict``
+    :param candidates:
+    :param axis_size:
+    :param signal_strength_threshold:
+    :param min_border_seperation:
+    :return:
     """
-    lower_bar_position, img = _lower_bar_mgmt(img, check_lower_band, hbar_criteria)
+    conclusion = None
+    if all(x[1] >= signal_strength_threshold for x in candidates):
+        if abs(reduce(sub, [i[0] for i in candidates])) >= (min_border_seperation * axis_size):
+            conclusion = candidates
 
-    # Compute the variances for the horizontal and vertical axes
-    horizontal_var, vertical_var = var_calc(img)
-    
-    # Compute the deltas (between each adjacent row/column)
-    hdeltas = deltas(horizontal_var)
-    vdeltas = deltas(vertical_var)
-    
-    # Check if there is a horizontal border, vertical border
-    frame_existance = frame_detection(hdeltas, vdeltas,
-                                      prop_img_solid_col_for_border=frame_detect_criteria['prop_img_solid_col_for_border'],
-                                      count_threshold=frame_detect_criteria['count_threshold'],
-                                      round_to=frame_detect_criteria['round_to'])
-    h_border_exists, v_border_exists = frame_existance
+    return conclusion
 
-    # Lines dictionary
-    d = dict.fromkeys(['hcrop_lines', 'vcrop_lines', 'lower_band'], None)
 
-    if any(frame_existance):
-        h_lines, v_lines = border_removal(img[:lower_bar_position] if lower_bar_position is not None else img
-                                          , h_border_exists
-                                          , v_border_exists
-                                          , rollow_window_for_border_removal)
-        d['hcrop_lines'] = h_lines
-        d['vcrop_lines'] = v_lines
-        d['lower_band'] = lower_bar_position
+def border_detection(image_arr
+                     , signal_strength_threshold=0.25
+                     , min_border_seperation=0.15
+                     , lower_bar_search_space=0.90
+                     , report_evidence=False):
+    """
 
-    return d
+    :param image_array:
+    :param signal_strength_threshold:
+    :param min_border_seperation:
+    :param lower_bar_search_space:
+    :param report_evidence:
+    :return:
+    """
+    image_array = deepcopy(image_arr)
+
+    # Initalize the return dict
+    d = dict.fromkeys(['vborder', 'hborder', 'hbar'], None)
+
+    # Get Values for columns
+    v_edge_candidates = edge_dection(image_array, axis=0)
+    # Run Analysis
+    d['vborder'] = evidence_weigh(v_edge_candidates, image_array.shape[1], signal_strength_threshold, min_border_seperation)
+
+    # Get Values for rows
+    h_border_candidates = edge_dection(image_array, axis=1)
+
+    # Run Analysis (exclude final element in `h_border_candidates` -- analyze below).
+    d['hborder'] = evidence_weigh(h_border_candidates[:2], image_array.shape[1], signal_strength_threshold, min_border_seperation)
+
+    # Checks for the lower bar:
+    #   1. That its signal is greater than or equal to `signal_strength_threshold`.
+    #   2. That it lies at or below `lower_bar_search_space`.
+    lower_bar_candidate = h_border_candidates[-1]
+    if lower_bar_candidate[1] > signal_strength_threshold:
+        if (image_array.shape[0] * lower_bar_search_space) <= lower_bar_candidate[0]:
+            d['hbar'] = lower_bar_candidate
+
+    # Return the analysis
+    if report_evidence:
+        return d
+    else:
+        return {k: [i[0] for i in v] if isinstance(v, list) else (v if v is None else v[0]) for k, v in d.items()}
+
+
+def _lines_plotter(path_to_image):
+    """
+
+    Visualizes the default line_analysis settings
+
+    :param lines_dict:
+    :return:
+    """
+    from matplotlib import pyplot as plt
+    from matplotlib import collections as mc
+
+    image = _load_img_rescale(path_to_image)
+    analysis = {k: v for k, v in border_detection(image_arr=image).items() if v is not None}
+
+    h, w = image.shape
+    h_lines_explicit = [[(0, i), (w, i)] for i in analysis.get('hborder', [])]
+    v_line_explicit = [[(i, 0), (i, h)] for i in analysis.get('vborder', []) if i is not None]
+    lines = h_lines_explicit + v_line_explicit
+
+    if "int" in str(type(analysis.get('hbar', None))):
+        lines += [[(0, int(analysis['hbar'])), (w, int(analysis['hbar']))]]
+
+    if len(lines):
+        line_c = mc.LineCollection(lines, colors=['r'] * len(lines), linewidths=2)
+        fig, ax = plt.subplots()
+        ax.add_collection(line_c)
+        ax.imshow(image, interpolation='nearest', cmap=plt.cm.gray)
+        plt.show()
+        print(analysis)
+        return True
+    else:
+        fig, ax = plt.subplots()
+        ax.text(0, 0, "No Results to Display", fontsize=15)
+        ax.imshow(image, interpolation='nearest', cmap=plt.cm.gray)
+        # print("No Results to Display.")
+        print(analysis)
+        return False
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
