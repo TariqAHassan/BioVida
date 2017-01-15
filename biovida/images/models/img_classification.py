@@ -221,7 +221,7 @@ class ImageRecognitionCNN(object):
             raise AttributeError("The model cannot be {0} until `ImageRecognitionCNN().{1}()` "
                                  "has been called.{2}".format(first_format, second_format, additional))
 
-    def fit(self, nb_epoch):
+    def fit(self, nb_epoch=10):
         """
 
         Fit the model to the training data and run a validation.
