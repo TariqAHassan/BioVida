@@ -5,7 +5,6 @@
 
 """
 # Imports
-import os
 import numpy as np
 import pandas as pd
 from operator import sub
@@ -13,7 +12,6 @@ from copy import deepcopy
 from functools import reduce
 from scipy.misc import imread, imshow
 from skimage.color.colorconv import rgb2gray
-from matplotlib import pyplot as plt
 
 
 def _load_img_rescale(path_to_image):
@@ -50,15 +48,6 @@ def rounder(l, by=3):
 
 def min_max(l):
     return [min(l), max(l)]
-
-
-def column_round(l):
-    """
-
-    :param l:
-    :return:
-    """
-    return rounder(np.median(l, axis=0), 0)
 
 
 def deltas(iterable):
@@ -98,11 +87,11 @@ def subsection(numeric_array, exclude, start, end):
     return numeric_array[start:exclude] + numeric_array[exclude+1:end]
 
 
-def anomally_removal(numeric_array, window=4):
+def anomaly_removal(numeric_array, window=2):
     """
 
-    Replaces single numbers that do not match their homogenous neighbourhood
-    with the value of the homogenious neighbood.
+    Replaces single numbers that do not match their homogeneous neighbourhood
+    with the value of the homogeneous neighbors.
 
     E.g., 0, 0, 0, 0, 99, 0, 0, 0, 0 --> 0, 0, 0, 0, 0, 0, 0, 0, 0.
 
@@ -113,7 +102,7 @@ def anomally_removal(numeric_array, window=4):
     Example:
     -------
     >>> row = [0.24677, 0.24677, 0.24677, 0.9, 0.24677, 0.24677, 0.24677]
-    >>> for i, j in zip(row, anomally_removal(row, 3)):
+    >>> for i, j in zip(row, anomaly_removal(row, 3)):
     ...     print(i, "-->", j, ".Change Made: ", i != j)
         0.24677 --> 0.24677 .Change Made:  False
         0.24677 --> 0.24677 .Change Made:  False
@@ -163,16 +152,17 @@ def rolling_avg(iterable, window):
     return pd.Series(iterable).rolling(center=False, window=window).mean().dropna()
 
 
-def array_cleaner(arr, round_by=5, rolling_window=5, anomally_window=2):
+def array_cleaner(arr, round_by=5, anomaly_window=2):
     """
 
     :param arr:
     :param round_by:
+    :param rolling_window:
+    :param anomaly_window:
     :return:
     """
-    rolling = rolling_avg(arr, rolling_window)
-    rounded_arr = rounder(rolling, round_by)
-    return np.array(anomally_removal(rounded_arr, anomally_window))
+    rounded_arr = rounder(arr, round_by)
+    return np.array(anomaly_removal(rounded_arr, anomaly_window))
 
 
 def largest_n_changes_with_values(iterable, n):
@@ -205,23 +195,24 @@ def expectancy_violation(expected, actual):
     :param actual:
     :return:
     """
-    val = float(abs(expected - actual) / expected)
-    return round(val, 4)
+    return round(float(abs(expected - actual) / expected), 4)
 
 
-def largest_median_inflection(averaged_axis_values, axis):
+def largest_median_inflection(averaged_axis_values, axis, n_largest_override=None):
     """
 
     :param averaged_axis_values:
     :param axis: 0 = column; 1 = rows
     :return:
     """
-    if axis == 1:
+    if isinstance(n_largest_override, int):
+        n_largest = n_largest_override
+    elif axis == 1:
         n_largest = 4
-    elif axis == 0:
+    else:
         n_largest = 2
 
-    # Postion of largest changes
+    # Position of largest changes
     large_inflections = largest_n_changes_with_values(averaged_axis_values, n_largest)
 
     # Sort by position
@@ -233,7 +224,9 @@ def largest_median_inflection(averaged_axis_values, axis):
     # Compute the how much the signal deviated from the median value (0-1).
     median_deltas = [(i, expectancy_violation(median, j)) for (i, j) in large_inflections_sorted]
 
-    if axis == 1:
+    if isinstance(n_largest_override, int):  # neighborhood search in largest_n_changes_with_values may --> duplicates.
+        return median_deltas
+    elif axis == 1:
         return median_deltas[1:]
     elif axis == 0:
         return median_deltas
@@ -258,54 +251,106 @@ def zero_var_axis_elements_remove(img, axis, rounding=3):
     return img
 
 
-def edge_dection(img, axis=0):
+def edge_detection(img, axis=0, n_largest_override=None):
     """
 
     :param img:
     :param axis: 0 = column; 1 = rows
+    :param n_largest_override:
     :return:
     """
-    # Deep copy the matrix to prevent side effects.
-    # img = image_array.copy()
-
     # Set rows with no ~variance to zero vectors to eliminate their muffling effect on the signal.
     img = zero_var_axis_elements_remove(img, axis)
 
     # Average the remaining values
-    averaged_axis_values = np.mean(np.abs(img), axis=axis)
+    # ToDo: it's not not clear if array_cleaner() helps much...after all, the vector has already been averaged.
+    averaged_axis_values = array_cleaner(np.mean(img, axis=axis))
 
-    return largest_median_inflection(averaged_axis_values, axis)
+    return largest_median_inflection(averaged_axis_values, axis, n_largest_override)
 
 
-def evidence_weigh(candidates, axis_size, signal_strength_threshold, min_border_seperation):
+def evidence_weigh(candidates, axis_size, signal_strength_threshold, min_border_separation ):
     """
+
+    Weight the evidence that a true border has been detected.
 
     :param candidates:
     :param axis_size:
     :param signal_strength_threshold:
-    :param min_border_seperation:
+    :param min_border_separation :
     :return:
     """
+    midpoint = (axis_size / 2)
+    left_buffer = midpoint - (axis_size * 1/15)
+    right_buffer = midpoint + (axis_size * 1/15)
+
     conclusion = None
     if all(x[1] >= signal_strength_threshold for x in candidates):
-        if abs(reduce(sub, [i[0] for i in candidates])) >= (min_border_seperation * axis_size):
-            conclusion = candidates
+        if abs(reduce(sub, [i[0] for i in candidates])) >= (min_border_separation  * axis_size):
+            if candidates[0][0] < left_buffer and candidates[1][0] > right_buffer:
+                conclusion = candidates
 
     return conclusion
 
 
-def border_detection(image_arr
-                     , signal_strength_threshold=0.25
-                     , min_border_seperation=0.15
-                     , lower_bar_search_space=0.90
-                     , report_evidence=False):
+def lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=None):
     """
 
     :param image_array:
-    :param signal_strength_threshold:
-    :param min_border_seperation:
     :param lower_bar_search_space:
-    :param report_evidence:
+    :param signal_strength_threshold:
+    :param cfloor: check floor. If None, the floor is the last image in the photo.
+    :return:
+    """
+    # Compute the location to crop the image
+    cut_off = int(image_array.shape[0] * lower_bar_search_space)
+    flr = (image_array.shape[0] if not isinstance(cfloor, int) else cfloor)
+
+    if abs(cut_off - flr) < 3:
+        return cfloor if cfloor is not None else None
+
+    lower_image_array = image_array.copy()[cut_off:flr]
+
+    # Run an edge analysis
+    lower_bar_candidates = edge_detection(img=lower_image_array, axis=1, n_largest_override=8)
+
+    # Apply Threshold
+    thresholded_values = list(set([i[0] + cut_off for i in lower_bar_candidates if i[1] > signal_strength_threshold]))
+
+    if not len(thresholded_values):
+        return None
+
+    m = np.mean(thresholded_values).astype(int)
+    # Return the averaged guess
+    return int(m)
+
+
+def double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold):
+    """
+
+    :param image_array:
+    :param lower_bar_search_space:
+    :param signal_strength_threshold:
+    :return:
+    """
+    first_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
+    second_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=first_pass)
+
+    return first_pass if second_pass is None else second_pass
+
+
+def border_detection(image_arr
+                     , signal_strength_threshold=0.25
+                     , min_border_separation=0.15
+                     , lower_bar_search_space=0.9
+                     , report_signal_strength=False):
+    """
+
+    :param image_arr:
+    :param signal_strength_threshold:
+    :param min_border_separation :
+    :param lower_bar_search_space: set to ``None`` to disable.
+    :param report_signal_strength:
     :return:
     """
     image_array = deepcopy(image_arr)
@@ -314,29 +359,25 @@ def border_detection(image_arr
     d = dict.fromkeys(['vborder', 'hborder', 'hbar'], None)
 
     # Get Values for columns
-    v_edge_candidates = edge_dection(image_array, axis=0)
+    v_edge_candidates = edge_detection(image_array, axis=0)
     # Run Analysis
-    d['vborder'] = evidence_weigh(v_edge_candidates, image_array.shape[1], signal_strength_threshold, min_border_seperation)
+    d['vborder'] = evidence_weigh(v_edge_candidates, image_array.shape[1], signal_strength_threshold, min_border_separation )
 
     # Get Values for rows
-    h_border_candidates = edge_dection(image_array, axis=1)
+    h_border_candidates = edge_detection(image_array, axis=1)
 
-    # Run Analysis (exclude final element in `h_border_candidates` -- analyze below).
-    d['hborder'] = evidence_weigh(h_border_candidates[:2], image_array.shape[1], signal_strength_threshold, min_border_seperation)
+    # Run Analysis. This excludes final element in `h_border_candidates` as including a third elemnt
+    # is simply meant to deflect the pull of the lower bar, if present.
+    d['hborder'] = evidence_weigh(h_border_candidates[:2], image_array.shape[1], signal_strength_threshold, min_border_separation )
 
-    # Checks for the lower bar:
-    #   1. That its signal is greater than or equal to `signal_strength_threshold`.
-    #   2. That it lies at or below `lower_bar_search_space`.
-    lower_bar_candidate = h_border_candidates[-1]
-    if lower_bar_candidate[1] > signal_strength_threshold:
-        if (image_array.shape[0] * lower_bar_search_space) <= lower_bar_candidate[0]:
-            d['hbar'] = lower_bar_candidate
+    # Look for lower bar
+    d['hbar'] = double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
 
     # Return the analysis
-    if report_evidence:
+    if report_signal_strength:
         return d
     else:
-        return {k: [i[0] for i in v] if isinstance(v, list) else (v if v is None else v[0]) for k, v in d.items()}
+        return {k: [i[0] for i in v] if isinstance(v, list) else (v[0] if isinstance(v, (list, tuple)) else v) for k, v in d.items()}
 
 
 def _lines_plotter(path_to_image):
@@ -355,7 +396,7 @@ def _lines_plotter(path_to_image):
 
     h, w = image.shape
     h_lines_explicit = [[(0, i), (w, i)] for i in analysis.get('hborder', [])]
-    v_line_explicit = [[(i, 0), (i, h)] for i in analysis.get('vborder', []) if i is not None]
+    v_line_explicit = [[(i, 0), (i, h)] for i in analysis.get('vborder', [])]
     lines = h_lines_explicit + v_line_explicit
 
     if "int" in str(type(analysis.get('hbar', None))):
@@ -376,42 +417,6 @@ def _lines_plotter(path_to_image):
         # print("No Results to Display.")
         print(analysis)
         return False
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
