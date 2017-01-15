@@ -1,7 +1,7 @@
 """
 
-    Border and Edge Detection Algorithms
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Border and Edge Detection
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
 # Imports
@@ -17,8 +17,12 @@ from skimage.color.colorconv import rgb2gray
 def _load_img_rescale(path_to_image):
     """
 
-    :param path_to_image:
-    :return:
+    Loads an image, converts it to grayscale and normalizes (/255.0).
+
+    :param path_to_image: the address of the image.
+    :type path_to_image: ``str``
+    :return: the image as a matrix.
+    :rtype: ``ndarray``
     """
     return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
 
@@ -26,8 +30,10 @@ def _load_img_rescale(path_to_image):
 def _show_plt(image):
     """
 
-    :param image:
-    :return:
+    Use matplotlib to display an image (which is represented as a matrix).
+
+    :param image: an image represented as a matrix.
+    :type image: ``ndarray``
     """
     from matplotlib import pyplot as plt
     fig, ax = plt.subplots()
@@ -35,59 +41,71 @@ def _show_plt(image):
     plt.show()
 
 
-def rounder(l, by=3):
+def _rounder(l, by=3):
     """
 
-    :param l:
-    :param by:
-    :return:
+    Rounds all of the elements in an iterable.
+
+    :param l: a list of values
+    :type l: ``list`` or ``tuple``
+    :param by:  If 0, the values will be converted to intigers.
+    :type by: ``int``
+    :return: rounded numerics.
+    :rtype: ``list``
     """
     t = int if by == 0 else float
     return list(map(lambda x: round(t(x), by), l))
 
 
-def min_max(l):
-    return [min(l), max(l)]
-
-
-def deltas(iterable):
+def _deltas(iterable):
     """
 
-    Compute the deltas between all adjacent elements in ``iterable``.
+    Compute the _deltas between all adjacent elements in ``iterable``.
 
-    :param iterable:
-    :return:
+    :param iterable: an iterable structure
+    :type iterable: ``list`` or ``tuple``
+    :return: an array with the delta between juxtaposed entries.
+    :rtype: ``ndarray``
     """
     # Source: http://stackoverflow.com/a/2400875/4898004.
     return np.array([abs(j-i) for i, j in zip(iterable, iterable[1:])])
 
 
-def largest_n_values(arr, n):
+def _largest_n_values(arr, n):
     """
 
     Returns the index (i.e., rows or columns) of the largest n numbers
 
-    :param arr:
+    :param arr: a numpy array
     :type arr: ``1D ndarray``
-    :param n:
+    :param n: the largest ``n`` values to return.
+    :type n: ``int``
     :return: sorted list of the ``n`` largest values in ``arr`` (ascending order).
+    :rtype: ``tuple``
     """
     return tuple(sorted(arr.argsort()[-n:]))
 
 
-def subsection(numeric_array, exclude, start, end):
+def _subsection(iterable, exclude, start, end):
     """
 
-    :param numeric_array:
-    :param exclude:
-    :param start:
-    :param end:
-    :return:
+    Selects a subsection of an array, excluding a single subsection
+
+    :param iterable: some iterable data structure, which can be indexed.
+    :type iterable: ``list`` or ``tuple``
+    :param exclude: the index to exclude.
+    :type exclude: ``int``
+    :param start: where to start the slice.
+    :type start: ``int``
+    :param end: where to end the slice
+    :type end: ``int``
+    :return: a list of the desired subsection.
+    :rtype: ``list``
     """
-    return numeric_array[start:exclude] + numeric_array[exclude+1:end]
+    return iterable[start:exclude] + iterable[exclude+1:end]
 
 
-def anomaly_removal(numeric_array, window=2):
+def _anomaly_removal(numeric_array, window=2):
     """
 
     Replaces single numbers that do not match their homogeneous neighbourhood
@@ -97,12 +115,13 @@ def anomaly_removal(numeric_array, window=2):
 
     :param numeric_array: must be a list or tuple. Numpy array will break this.
     :param window:
-    :return:
+    :return: a list of smoothed values.
+    :rtype: ``list``
 
-    Example:
-    -------
+    :Example:
+
     >>> row = [0.24677, 0.24677, 0.24677, 0.9, 0.24677, 0.24677, 0.24677]
-    >>> for i, j in zip(row, anomaly_removal(row, 3)):
+    >>> for i, j in zip(row, _anomaly_removal(row, 3)):
     ...     print(i, "-->", j, ".Change Made: ", i != j)
         0.24677 --> 0.24677 .Change Made:  False
         0.24677 --> 0.24677 .Change Made:  False
@@ -133,7 +152,7 @@ def anomaly_removal(numeric_array, window=2):
                 smoothed.append(numeric_array[i])
         # if can look back
         if i >= window:
-            if len(set(subsection(numeric_array, i, i-window+1, i+window))) == 1:
+            if len(set(_subsection(numeric_array, i, i-window+1, i+window))) == 1:
                 # smooth using the prior element (needed to prevent error at the end of the iterable).
                 smoothed.append(numeric_array[i-1])
             else:
@@ -142,37 +161,55 @@ def anomaly_removal(numeric_array, window=2):
     return smoothed
 
 
-def rolling_avg(iterable, window):
+def _rolling_avg(iterable, window):
     """
 
-    :param iterable:
-    :param window:
-    :return:
+    Computes the rolling average using ``Pandas``.
+
+    :param iterable: some iterable data structure, which can be indexed.
+    :type iterable: ``list`` or ``tuple``
+    :param window: the window for the rolling average.
+    :type window: ``int``
+    :return: the rolling average of the iterable. Note: center = ``False``.
+    :rtype: ``Pandas Series``
     """
     return pd.Series(iterable).rolling(center=False, window=window).mean().dropna()
 
 
-def array_cleaner(arr, round_by=5, anomaly_window=2):
+def _array_cleaner(arr, round_by=5, anomaly_window=2):
     """
 
-    :param arr:
-    :param round_by:
-    :param rolling_window:
-    :param anomaly_window:
-    :return:
+    Round array elements and remove anomalies using ``_anomaly_removal()``.
+
+    :param arr: a numpy array
+    :type arr: ``ndarray``
+    :param round_by: how much to round the input array
+    :type round_by: ``int``
+    :param anomaly_window: window on which to check for a replace anomalies. See _anomaly_removal().
+    :type anomaly_window: ``int``
+    :return: an array of the smooted valued.
+    :rtype: ``ndarray``
     """
-    rounded_arr = rounder(arr, round_by)
-    return np.array(anomaly_removal(rounded_arr, anomaly_window))
+    rounded_arr = _rounder(arr, round_by)
+    return np.array(_anomaly_removal(rounded_arr, anomaly_window))
 
 
-def largest_n_changes_with_values(iterable, n):
-    """Compute the index of the ``n`` largest deltas
-       the their associated values.
+def _largest_n_changes_with_values(iterable, n):
     """
-    large_ds = largest_n_values(deltas(iterable), n)
+
+    Compute the index of the ``n`` largest _deltas the their associated values.
+
+    :param iterable: an iterbale data structure which supports indexing.
+    :type iterable: ``list`` or ``tuple``
+    :param n: ``n`` largest.
+    :type n: ``int``
+    :return: a list of the index with largest changes, along with the values themselves
+    :rtype: ``list``
+    """
+    large_ds = _largest_n_values(_deltas(iterable), n)
 
     # Look around for true smallest value for each.
-    # i.e., index of the value which triggered the low delta.
+    # i.e., the index of the value which triggered the large delta.
     true_smallest = list()
     for d in large_ds:
         if d == 0 or len(iterable) == 2:
@@ -188,22 +225,35 @@ def largest_n_changes_with_values(iterable, n):
     return [(d, iterable[d]) for d in true_smallest]
 
 
-def expectancy_violation(expected, actual):
+def _expectancy_violation(expected, actual, round_by=4):
     """
 
-    :param expected:
-    :param actual:
-    :return:
+    Formula to compute the percent error.
+
+    :param expected: the expected value for a given event.
+    :type expected: ``float`` or ``int``
+    :param actual: the actual value for a given event.
+    :type actual: ``float`` or ``int``
+    :param round_by: how much to round the result. Defaults to 4.
+    :type round_by: ``int``
+    :return: percent error
+    :type: ``float``
     """
-    return round(float(abs(expected - actual) / expected), 4)
+    return round(float(abs(expected - actual) / expected), round_by)
 
 
-def largest_median_inflection(averaged_axis_values, axis, n_largest_override=None):
+def _largest_median_inflection(averaged_axis_values, axis, n_largest_override=None):
     """
 
-    :param averaged_axis_values:
-    :param axis: 0 = column; 1 = rows
-    :return:
+    Finds the values in a vector which diverge most strongly from the median value.
+
+    :param averaged_axis_values: a 1D array which has been computed by averaging about a given axis in a matrix.
+    :type averaged_axis_values: ``ndarray``
+    :param axis: 0 for columns; 1 for rows.
+    :type axis: ``int``
+    :return: a list of rows/columns which diverge from the median,
+             and the percent error as a metric of the strength of this divergence.
+    :rtype: ``list``
     """
     if isinstance(n_largest_override, int):
         n_largest = n_largest_override
@@ -213,35 +263,39 @@ def largest_median_inflection(averaged_axis_values, axis, n_largest_override=Non
         n_largest = 2
 
     # Position of largest changes
-    large_inflections = largest_n_changes_with_values(averaged_axis_values, n_largest)
+    large_inflections = _largest_n_changes_with_values(averaged_axis_values, n_largest)
 
     # Sort by position
     large_inflections_sorted = sorted(large_inflections, key=lambda x: x[0])
 
-    # Compute the media for the whole axis
+    # Compute the median for the whole axis
     median = np.median(averaged_axis_values)
 
     # Compute the how much the signal deviated from the median value (0-1).
-    median_deltas = [(i, expectancy_violation(median, j)) for (i, j) in large_inflections_sorted]
+    median__deltas = [(i, _expectancy_violation(median, j)) for (i, j) in large_inflections_sorted]
 
-    if isinstance(n_largest_override, int):  # neighborhood search in largest_n_changes_with_values may --> duplicates.
-        return median_deltas
+    if isinstance(n_largest_override, int):  # neighborhood search in _largest_n_changes_with_values may --> duplicates.
+        return median__deltas
     elif axis == 1:
-        return median_deltas[1:]
+        return median__deltas[1:]
     elif axis == 0:
-        return median_deltas
+        return median__deltas
 
 
-def zero_var_axis_elements_remove(img, axis, rounding=3):
+def _zero_var_axis_elements_remove(img, axis, rounding=3):
     """
 
     Replaces, by axis, matrix elements with approx. no variance
     (technically using the standard deviation here).
 
-    :param img:
-    :param axis:
-    :param rounding:
-    :return:
+    :param img: an image represented as an array.
+    :type img: ``ndarray``
+    :param axis: 0 for columns; 1 for rows.
+    :type axis: ``int``
+    :param rounding: how much to round the standard deviation values for a given row/column.
+    :type rounding: ``int``
+    :return: a matrix with rows/columns with standard deviation == 0 replaced with zero vectors.
+    :rtype: ``ndarray``
     """
     zero_var_items = np.where(np.round(np.std(img, axis=axis), rounding) == 0)
     if axis == 0:
@@ -254,40 +308,58 @@ def zero_var_axis_elements_remove(img, axis, rounding=3):
 def edge_detection(img, axis=0, n_largest_override=None):
     """
 
-    :param img:
-    :param axis: 0 = column; 1 = rows
-    :param n_largest_override:
-    :return:
+    Detects edges within an image.
+
+    :param img: an image represented as a matrix
+    :type img: ``ndarray``
+    :param axis: 0 for columns; 1 for rows.
+    :type axis: ``int``
+    :param n_largest_override: override the defaults for the number of inflections to report
+                               when searching the image along a given axis.
+    :type n_largest_override: ``int`` or ``None``
+    :return: the location of large inflections (changes) in the image along a given axis.
+    :rtype: ``list``
     """
     # Set rows with no ~variance to zero vectors to eliminate their muffling effect on the signal.
-    img = zero_var_axis_elements_remove(img, axis)
+    img = _zero_var_axis_elements_remove(img, axis)
 
     # Average the remaining values
-    # ToDo: it's not not clear if array_cleaner() helps much...after all, the vector has already been averaged.
-    averaged_axis_values = array_cleaner(np.mean(img, axis=axis))
+    # ToDo: it's not not clear if _array_cleaner() helps much...after all, the vector has already been averaged.
+    averaged_axis_values = _array_cleaner(np.mean(img, axis=axis))
 
-    return largest_median_inflection(averaged_axis_values, axis, n_largest_override)
+    return _largest_median_inflection(averaged_axis_values, axis, n_largest_override)
 
 
-def evidence_weigh(candidates, axis_size, signal_strength_threshold, min_border_separation ):
+def _weigh_evidence(candidates, axis_size, signal_strength_threshold, min_border_separation, buffer_multiplier=1/15):
     """
 
-    Weight the evidence that a true border has been detected.
+    Weigh the evidence that a true border has been detected.
 
-    :param candidates:
-    :param axis_size:
-    :param signal_strength_threshold:
-    :param min_border_separation :
-    :return:
+    :param candidates: a list of lists or list of tuples
+    :type candidates: ``list``
+    :param axis_size: how long a given axis is, e.g., 512 (for a 512x256 image).
+    :type axis_size: ``int``
+    :param signal_strength_threshold: how strong the inflection must be relative
+                                      to the median for the image. Must be between 0 and 1.
+    :type signal_strength_threshold: ``float``
+    :param min_border_separation: a value between 0 and 1 that determines the proportion of the axis
+                                  that two edges must be seperated for them to be considered borders.
+                                  (i.e., ``axis_size`` * ``min_border_separation``)
+    :type min_border_separation: ``float``
+    :param buffer_multiplier: How far from the midpoint two lines must to be considered a border.
+                              (calculation: midpoint +/- (axis_size * buffer_multiplier).
+    :type buffer_multiplier: ``int`` or ``float
+    :return: None if it was 'decided' that there was no enough evidence, else the candidates are returned 'as is'.
+    :rtype: ``list`` or ``None``
     """
     midpoint = (axis_size / 2)
-    left_buffer = midpoint - (axis_size * 1/15)
-    right_buffer = midpoint + (axis_size * 1/15)
+    lu_buffer = midpoint - (axis_size * buffer_multiplier) # left/upper
+    rl_buffer = midpoint + (axis_size * buffer_multiplier) # right/lower
 
     conclusion = None
     if all(x[1] >= signal_strength_threshold for x in candidates):
         if abs(reduce(sub, [i[0] for i in candidates])) >= (min_border_separation  * axis_size):
-            if candidates[0][0] < left_buffer and candidates[1][0] > right_buffer:
+            if candidates[0][0] < lu_buffer and candidates[1][0] > rl_buffer:
                 conclusion = candidates
 
     return conclusion
@@ -296,18 +368,28 @@ def evidence_weigh(candidates, axis_size, signal_strength_threshold, min_border_
 def lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=None):
     """
 
-    :param image_array:
-    :param lower_bar_search_space:
-    :param signal_strength_threshold:
+    Executes a single pass looking for a lower bar.
+
+    :param image_array: an image represented as a numpy array.
+    :type image_array: ``ndarray``
+    :param lower_bar_search_space: a value between 0 and 1 specify the proportion of the image
+                                   to search for a lower bar (e.g., 0.90).
+    :type lower_bar_search_space: ``float``
+    :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required
+                                      for an area required to be considered a 'lower bar'.
+                                      Internally, this is measured as a location deviation from
+                                      the median signal strength of the average image.
+    :type signal_strength_threshold: ``int``
     :param cfloor: check floor. If None, the floor is the last image in the photo.
+    :type cfloor: ``int`` or ``None
     :return:
     """
     # Compute the location to crop the image
     cut_off = int(image_array.shape[0] * lower_bar_search_space)
-    flr = (image_array.shape[0] if not isinstance(cfloor, int) else cfloor)
+    flr = image_array.shape[0] if not isinstance(cfloor, int) else cfloor
 
     if abs(cut_off - flr) < 3:
-        return cfloor if cfloor is not None else None
+        return cfloor if cfloor is not None else None  # redundant
 
     lower_image_array = image_array.copy()[cut_off:flr]
 
@@ -328,10 +410,40 @@ def lower_bar_detection(image_array, lower_bar_search_space, signal_strength_thr
 def double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold):
     """
 
-    :param image_array:
-    :param lower_bar_search_space:
-    :param signal_strength_threshold:
-    :return:
+    Executes a two passes looking for a lower bar.
+    This can be helpful if the lower border is striated in such a way that could confuse the
+    algorithm. Namely, two the space between two lines of text can confuse the algorithm.
+    The first pass with truncate the first line; the second pass will truncate the line above it.
+
+    :param image_array: an image represented as a matrix.
+    :type image_array: ``2D ndarray``
+    :param lower_bar_search_space: a value between 0 and 1 specify the proportion of the image
+                                   to search for a lower bar (e.g., 0.90).
+    :type lower_bar_search_space: ``float``
+    :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required
+                                      for an area required to be considered a 'lower bar'.
+                                      Internally, this is measured as a location deviation from
+                                      the median signal strength of the average image.
+    :type signal_strength_threshold: ``int``
+    :return: the location of the start of the lower bar (i.e., edge).
+    :rtype: ``int``
+
+    :Example:
+
+    Lower Border.
+    ____________________________
+    The quick brown fox jumped
+    over jumps over the lazy dog
+    -----------------------------
+
+    Pass 1:
+    ____________________________
+    The quick brown fox jumped
+    -----------------------------
+
+    Pass 2:
+    ____________________________
+
     """
     first_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
     second_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=first_pass)
@@ -339,36 +451,79 @@ def double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_
     return first_pass if second_pass is None else second_pass
 
 
-def border_detection(image_arr
+def border_detection(image
                      , signal_strength_threshold=0.25
                      , min_border_separation=0.15
                      , lower_bar_search_space=0.9
                      , report_signal_strength=False):
     """
 
-    :param image_arr:
-    :param signal_strength_threshold:
-    :param min_border_separation :
-    :param lower_bar_search_space: set to ``None`` to disable.
-    :param report_signal_strength:
-    :return:
-    """
-    image_array = deepcopy(image_arr)
+    Detects the borders and lower bar in an image.
 
-    # Initalize the return dict
+    At a high level, this algorithm works as follows:
+       1. Along a given axis, vectors (rows/columns)
+          which have a standard deviation which are ~0 are replaced with zero vectors.*
+       2. Along a given axis, the values are averaged.
+          This produces a signal (which can be visalized as a line graph)**.
+       3. The median value for this signal is quantifed. The median is used here,
+          as opposed to the average, because it is more robust against outliers.
+       4. The ``n`` points for which are the furthest, in absolute value, from the median are selected.
+       5. The signal strength of the ``n`` points is quantified using percent error, where the median value
+          was the expected value.
+       6. Candiates for border pairs (e.g., left and right borders) are then weighed based on the evidence.
+          These lines of evidence include their signal strength, how seperated they are and their absolute distance
+          from the images midline (about the corresponding axis). If the candiate fails to meet any of these criterion,
+          it is rejected.
+       7. The evidence for a lower bar concerns only its signal stength, though only an area of image below a given
+          height is considered when trying to locate it. A double pass, the default, will try a second time to find
+          another lower bar (for reasons explained in the docstrings for the ``double_pass_lower_bar_detection()``
+          function). Regardless of whether or not the second pass could find a second edge, all of the edges detect
+          are averaged and returned as an int. If no plausable borders could be found, ``None`` is returned.
+
+    * This reduces the muffling effect of areas with solid color can have on 2.
+    ** Large inflections after areas with little change suggest a transition from a solid background to an image.
+
+    :param image_array: an image represented as a matrix.
+    :type image_array: ``str`` or ``2D ndarray``
+    :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required
+                                      for an area required to be considered a 'lower bar'.
+                                      Internally, this is measured as a location deviation from
+                                      the median signal strength of the average image.
+    :type signal_strength_threshold: ``int``
+    :param min_border_separation: a value between 0 and 1 that determines the proportion of the axis
+                                  that two edges must be seperated for them to be considered borders.
+                                  (i.e., ``axis_size`` * ``min_border_separation``)
+    :type min_border_separation: ``float``
+    :param lower_bar_search_space: a value between 0 and 1 specify the proportion of the image
+                                   to search for a lower bar (e.g., 0.90). Set to ``None`` to disable.
+    :type lower_bar_search_space: ``float``
+    :param report_signal_strength: if ``True`` include the strength of the signal suggesting the existance of an edge.
+                                   Defaults to ``False``.
+    :type report_signal_strength: ``bool``
+    :return: a dictionary of the form ``{'vborder': tuple or None, 'hborder': tuple or None, 'hbar': int or None}``
+    :rtype: ``dict``
+    """
+    if isinstance(image, str):
+        image_array = _load_img_rescale(image)
+    elif 'numpy' in str(type(image)):
+        image_array = deepcopy(image)
+    else:
+        raise ValueError("`image_array` must be either a path to an image or the image as a 2D ndarray.")
+
+    # Initialize the return dict
     d = dict.fromkeys(['vborder', 'hborder', 'hbar'], None)
 
     # Get Values for columns
     v_edge_candidates = edge_detection(image_array, axis=0)
     # Run Analysis
-    d['vborder'] = evidence_weigh(v_edge_candidates, image_array.shape[1], signal_strength_threshold, min_border_separation )
+    d['vborder'] = _weigh_evidence(v_edge_candidates, image_array.shape[1], signal_strength_threshold, min_border_separation )
 
     # Get Values for rows
     h_border_candidates = edge_detection(image_array, axis=1)
 
     # Run Analysis. This excludes final element in `h_border_candidates` as including a third elemnt
     # is simply meant to deflect the pull of the lower bar, if present.
-    d['hborder'] = evidence_weigh(h_border_candidates[:2], image_array.shape[1], signal_strength_threshold, min_border_separation )
+    d['hborder'] = _weigh_evidence(h_border_candidates[:2], image_array.shape[1], signal_strength_threshold, min_border_separation )
 
     # Look for lower bar
     d['hbar'] = double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
@@ -383,10 +538,10 @@ def border_detection(image_arr
 def _lines_plotter(path_to_image):
     """
 
-    Visualizes the default line_analysis settings
+    Visualizes the default ``border_detection()`` settings.
 
-    :param lines_dict:
-    :return:
+    :param path_to_image: path to the image
+    :type path_to_image: ``str``
     """
     from matplotlib import pyplot as plt
     from matplotlib import collections as mc
@@ -417,41 +572,6 @@ def _lines_plotter(path_to_image):
         # print("No Results to Display.")
         print(analysis)
         return False
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -42,6 +42,14 @@ biovida.images.models.template_matching module
     :undoc-members:
     :show-inheritance:
 
+biovida.images.models.border_detection module
+---------------------------------------------
+
+.. automodule:: biovida.images.models.border_detection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 biovida.genomics.disgenet_interface module
 ------------------------------------------
 
