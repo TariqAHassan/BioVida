@@ -427,24 +427,21 @@ def double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_
     :type signal_strength_threshold: ``int``
     :return: the location of the start of the lower bar (i.e., edge).
     :rtype: ``int``
-
-    :Example:
-
-    Lower Border.
-    ____________________________
-    The quick brown fox jumped
-    over jumps over the lazy dog
-    -----------------------------
-
-    Pass 1:
-    ____________________________
-    The quick brown fox jumped
-    -----------------------------
-
-    Pass 2:
-    ____________________________
-
     """
+    # Example:
+    #
+    # Lower Border:
+    # ____________________________
+    # The quick brown fox jumped
+    # over jumps over the lazy dog
+    # -----------------------------
+    # Pass 1:
+    # ____________________________
+    # The quick brown fox jumped
+    # -----------------------------
+    # Pass 2:
+    # ____________________________
+    #
     first_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
     second_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=first_pass)
 
@@ -462,42 +459,42 @@ def border_detection(image
 
     At a high level, this algorithm works as follows:
        1. Along a given axis, vectors (rows/columns)
-          which have a standard deviation which are ~0 are replaced with zero vectors.*
+          which have a standard deviation which are ~0 are replaced with zero vectors. (a).
        2. Along a given axis, the values are averaged.
-          This produces a signal (which can be visalized as a line graph)**.
-       3. The median value for this signal is quantifed. The median is used here,
+          This produces a signal (which can be visualized as a line graph). (b).
+       3. The median value for this signal is quantified. The median is used here,
           as opposed to the average, because it is more robust against outliers.
        4. The ``n`` points for which are the furthest, in absolute value, from the median are selected.
        5. The signal strength of the ``n`` points is quantified using percent error, where the median value
-          was the expected value.
-       6. Candiates for border pairs (e.g., left and right borders) are then weighed based on the evidence.
-          These lines of evidence include their signal strength, how seperated they are and their absolute distance
-          from the images midline (about the corresponding axis). If the candiate fails to meet any of these criterion,
+          is used as the expected value.
+       6. Candidates for border pairs (e.g., left and right borders) are then weighed based on the evidence.
+          These lines of evidence include their signal strength, how separated they are and their absolute distance
+          from the images midline (about the corresponding axis). If the candidate fails to meet any of these criteria,
           it is rejected.
        7. The evidence for a lower bar concerns only its signal stength, though only an area of image below a given
           height is considered when trying to locate it. A double pass, the default, will try a second time to find
           another lower bar (for reasons explained in the docstrings for the ``double_pass_lower_bar_detection()``
           function). Regardless of whether or not the second pass could find a second edge, all of the edges detect
-          are averaged and returned as an int. If no plausable borders could be found, ``None`` is returned.
+          are averaged and returned as an int. If no plausible borders could be found, ``None`` is returned.
 
-    * This reduces the muffling effect of areas with solid color can have on 2.
-    ** Large inflections after areas with little change suggest a transition from a solid background to an image.
+    (a) This reduces the muffling effect of areas with solid color can have on 2.
+    (b) Large inflections after areas with little change suggest a transition from a solid background to an image.
 
-    :param image_array: an image represented as a matrix.
-    :type image_array: ``str`` or ``2D ndarray``
+    :param image: an image represented as a matrix.
+    :type image: ``str`` or ``2D ndarray``
     :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required
                                       for an area required to be considered a 'lower bar'.
                                       Internally, this is measured as a location deviation from
                                       the median signal strength of the average image.
     :type signal_strength_threshold: ``int``
     :param min_border_separation: a value between 0 and 1 that determines the proportion of the axis
-                                  that two edges must be seperated for them to be considered borders.
+                                  that two edges must be separated for them to be considered borders.
                                   (i.e., ``axis_size`` * ``min_border_separation``)
     :type min_border_separation: ``float``
     :param lower_bar_search_space: a value between 0 and 1 specify the proportion of the image
                                    to search for a lower bar (e.g., 0.90). Set to ``None`` to disable.
     :type lower_bar_search_space: ``float``
-    :param report_signal_strength: if ``True`` include the strength of the signal suggesting the existance of an edge.
+    :param report_signal_strength: if ``True`` include the strength of the signal suggesting the existence of an edge.
                                    Defaults to ``False``.
     :type report_signal_strength: ``bool``
     :return: a dictionary of the form ``{'vborder': tuple or None, 'hborder': tuple or None, 'hbar': int or None}``
@@ -572,8 +569,6 @@ def _lines_plotter(path_to_image):
         # print("No Results to Display.")
         print(analysis)
         return False
-
-
 
 
 
