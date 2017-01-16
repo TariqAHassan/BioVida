@@ -525,7 +525,7 @@ def border_detection(image
 
     # Run Analysis. This excludes final element in `h_border_candidates` as including a third elemnt
     # is simply meant to deflect the pull of the lower bar, if present.
-    d['hborder'] = _weigh_evidence(h_border_candidates[:2], image_array.shape[1], signal_strength_threshold, min_border_separation )
+    d['hborder'] = _weigh_evidence(h_border_candidates[:2], image_array.shape[0], signal_strength_threshold, min_border_separation )
 
     # Look for lower bar
     d['hbar'] = double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
