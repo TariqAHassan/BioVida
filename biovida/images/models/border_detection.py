@@ -239,8 +239,13 @@ def _expectancy_violation(expected, actual, round_by=4):
     :return: percent error
     :type: ``float``
     """
-    return round(float(abs(expected - actual) / expected), round_by)
+    # ToDo: explore better solutions.
+    # This just blocks division by zero (given all values will be >=0)
+    expected += 0.0001
+    actual += 0.0001
 
+    val = round(float(abs(expected - actual) / expected), round_by)
+    return round(float(val), round_by)
 
 def _largest_median_inflection(averaged_axis_values, axis, n_largest_override=None):
     """
@@ -272,14 +277,14 @@ def _largest_median_inflection(averaged_axis_values, axis, n_largest_override=No
     median = np.median(averaged_axis_values)
 
     # Compute the how much the signal deviated from the median value (0-1).
-    median__deltas = [(i, _expectancy_violation(median, j)) for (i, j) in large_inflections_sorted]
+    median_deltas = [(i, _expectancy_violation(median, j)) for (i, j) in large_inflections_sorted]
 
     if isinstance(n_largest_override, int):  # neighborhood search in _largest_n_changes_with_values may --> duplicates.
-        return median__deltas
+        return median_deltas
     elif axis == 1:
-        return median__deltas[1:]
+        return median_deltas[1:]
     elif axis == 0:
-        return median__deltas
+        return median_deltas
 
 
 def _zero_var_axis_elements_remove(img, axis, rounding=3):
@@ -305,7 +310,7 @@ def _zero_var_axis_elements_remove(img, axis, rounding=3):
     return img
 
 
-def edge_detection(img, axis=0, n_largest_override=None):
+def edge_detection(img, axis=0, n_largest_override=None, lower_bar_search_space=None):
     """
 
     Detects edges within an image.
@@ -347,7 +352,7 @@ def _weigh_evidence(candidates, axis_size, signal_strength_threshold, min_border
                                   (i.e., ``axis_size`` * ``min_border_separation``)
     :type min_border_separation: ``float``
     :param buffer_multiplier: How far from the midpoint two lines must to be considered a border.
-                              (calculation: midpoint +/- (axis_size * buffer_multiplier).
+                              (calculation: midpoint +/- (axis_size * buffer_multiplier). Defaults to 1/15.
     :type buffer_multiplier: ``int`` or ``float
     :return: None if it was 'decided' that there was no enough evidence, else the candidates are returned 'as is'.
     :rtype: ``list`` or ``None``
@@ -431,16 +436,16 @@ def double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_
     # Example:
     #
     # Lower Border:
-    # ____________________________
+    # _____________________________
     # The quick brown fox jumped
     # over jumps over the lazy dog
     # -----------------------------
     # Pass 1:
-    # ____________________________
+    # _____________________________
     # The quick brown fox jumped
     # -----------------------------
     # Pass 2:
-    # ____________________________
+    # _____________________________
     #
     first_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
     second_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=first_pass)
@@ -473,11 +478,11 @@ def border_detection(image
           it is rejected.
        7. The evidence for a lower bar concerns only its signal stength, though only an area of image below a given
           height is considered when trying to locate it. A double pass, the default, will try a second time to find
-          another lower bar (for reasons explained in the docstrings for the ``double_pass_lower_bar_detection()``
+          another lower bar (for reasons explained in the docstring for the ``double_pass_lower_bar_detection()``
           function). Regardless of whether or not the second pass could find a second edge, all of the edges detect
           are averaged and returned as an int. If no plausible borders could be found, ``None`` is returned.
 
-    (a) This reduces the muffling effect of areas with solid color can have on 2.
+    (a) This reduces the muffling effect that areas with solid color can have on step 2.
     (b) Large inflections after areas with little change suggest a transition from a solid background to an image.
 
     :param image: an image represented as a matrix.
@@ -544,7 +549,7 @@ def _lines_plotter(path_to_image):
     from matplotlib import collections as mc
 
     image = _load_img_rescale(path_to_image)
-    analysis = {k: v for k, v in border_detection(image_arr=image).items() if v is not None}
+    analysis = {k: v for k, v in border_detection(image=image).items() if v is not None}
 
     h, w = image.shape
     h_lines_explicit = [[(0, i), (w, i)] for i in analysis.get('hborder', [])]
