@@ -10,21 +10,10 @@ import pandas as pd
 from operator import sub
 from copy import deepcopy
 from functools import reduce
-from scipy.misc import imread, imshow
-from skimage.color.colorconv import rgb2gray
+from scipy.misc import imshow
 
-
-def _load_img_rescale(path_to_image):
-    """
-
-    Loads an image, converts it to grayscale and normalizes (/255.0).
-
-    :param path_to_image: the address of the image.
-    :type path_to_image: ``str``
-    :return: the image as a matrix.
-    :rtype: ``ndarray``
-    """
-    return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
+# Local tools
+from biovida.images.resources.image_tools import load_img_rescale
 
 
 def _show_plt(image):
@@ -506,7 +495,7 @@ def border_detection(image
     :rtype: ``dict``
     """
     if isinstance(image, str):
-        image_array = _load_img_rescale(image)
+        image_array = load_img_rescale(image)
     elif 'numpy' in str(type(image)):
         image_array = deepcopy(image)
     else:
@@ -548,7 +537,7 @@ def _lines_plotter(path_to_image):
     from matplotlib import pyplot as plt
     from matplotlib import collections as mc
 
-    image = _load_img_rescale(path_to_image)
+    image = load_img_rescale(path_to_image)
     analysis = {k: v for k, v in border_detection(image=image).items() if v is not None}
 
     h, w = image.shape
