@@ -149,7 +149,7 @@ class ImageRecognitionCNN(object):
 
         self.data_classes = train_classes
 
-    def conv_net(self, loss='categorical_crossentropy', optimizer='rmsprop', metrics=('accuracy',)):
+    def convnet(self, loss='categorical_crossentropy', optimizer='rmsprop', metrics=('accuracy',)):
         """
 
         Define and Compile the Image Recognition Convolutional Neural Network.
@@ -228,11 +228,11 @@ class ImageRecognitionCNN(object):
 
         :param nb_epoch: number of iterations. See: ``keras.models.Sequential()``. Defaults to 10.
         :type nb_epoch: ``int``
-        :raises: AttributeError if `ImageRecognitionCNN().conv_net()` is yet to be called.
+        :raises: AttributeError if `ImageRecognitionCNN().convnet()` is yet to be called.
         """
         if not isinstance(nb_epoch, int):
             raise ValueError("`nb_epoch` must be an int.")
-        self._model_existence_check("fit and validated", "conv_net")
+        self._model_existence_check("fit and validated", "convnet")
         self.model.fit_generator(generator=self._train_generator
                                  , samples_per_epoch=self._train_generator.nb_sample
                                  , nb_epoch=nb_epoch
@@ -267,7 +267,7 @@ class ImageRecognitionCNN(object):
         :param override_existing: If True and a model has already been instantiated, override this replace this model.
                                   Defaults to ``False``.
         :type override_existing: ``bool``
-        :param default_model_load: load the default model if ``ImageRecognitionCNN().conv_net()`` has not been called.
+        :param default_model_load: load the default model if ``ImageRecognitionCNN().convnet()`` has not been called.
                                    Defaults to ``False``.
         :type default_model_load: ``bool``
         :raises: AttributeError if a model is currently instantiated.
@@ -277,7 +277,7 @@ class ImageRecognitionCNN(object):
                                  "Set `override_existing` to `True` to replace the existing model.")
 
         if default_model_load and self.model is None:
-            self.conv_net()
+            self.convnet()
 
         self.model = load_model(path)
 
