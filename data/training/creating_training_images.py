@@ -200,7 +200,7 @@ def arrow_masher(background_options, foreground_options, name, save_location):
     rslt.save("{0}/{1}.png".format(save_location, name))
 
 
-def arrow_creator(background_options, foreground_options, n, save_location):
+def arrow_creator(background_options, foreground_options, n, general_name, save_location):
     """
 
     :param background_options:
@@ -210,11 +210,11 @@ def arrow_creator(background_options, foreground_options, n, save_location):
     :return:
     """
     for i in tqdm(range(1, n+1)):
-        arrow_masher(background_options, foreground_options, name=i, save_location=save_location)
+        arrow_masher(background_options, foreground_options, name="{0}_{1}".format(i, general_name), save_location=save_location)
 
 
 # Create the arrow training data
-# arrow_creator(valid_mris, arrows, n=10000, save_location=arrow_save_location)
+arrow_creator(valid_mris, arrows, n=10000, save_location=arrow_save_location)
 
 # ------------------------------------------------------------------------------------------
 # Grids
@@ -325,7 +325,7 @@ def grid_masher(all_img_options, name, save_location):
     rslt.save("{0}/{1}.png".format(save_location, name))
 
 
-def grid_creator(all_img_options, n, save_location):
+def grid_creator(all_img_options, n, general_name, save_location):
     """
 
     :param all_img_options:
@@ -334,16 +334,11 @@ def grid_creator(all_img_options, n, save_location):
     :return:
     """
     for i in tqdm(range(1, n+1)):
-        grid_masher(valid_mris, name=i, save_location=save_location)
+        grid_masher(valid_mris, name="{0}_{1}".format(i, general_name), save_location=save_location)
 
 
 # Create the grid training data
-# grid_creator(valid_mris, n=10000, save_location=grid_save_location)
-
-
-
-
-
+grid_creator(valid_mris, n=10000, save_location=grid_save_location)
 
 
 
