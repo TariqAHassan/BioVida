@@ -103,7 +103,7 @@ openi_article_type_params = {
     'ma': 'method_article',
     'ne': 'news',
     'ob': 'obituary',
-    'ot': 'oration',  # unknown, but appears to be 'ot' (by elimination)
+    # '': 'oration',  # unknown, but appears to be 'ot' or 'or' (by elimination)
     'os': 'orthopedic_slides',
     'pr': 'product_review',
     'rr': 'radiology_report',
