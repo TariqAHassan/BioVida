@@ -38,7 +38,7 @@ pd.options.mode.chained_assignment = None  # Suppress Pandas' SettingWithCopyWar
 # ---------------------------------------------------------------------------------------------
 #
 #
-#   1. Check if greyscale                                                       X
+#   1. Check if grayscale                                                       X
 #         - mark finding in dataframe.
 #   2. Look for MedLine(R) logo                                                 P
 #         - if true, try to crop
@@ -64,7 +64,7 @@ pd.options.mode.chained_assignment = None  # Suppress Pandas' SettingWithCopyWar
 #
 #
 # ---------------------------------------------------------------------------------------------
-# Grayscale Analysis
+# grayscale Analysis
 # ---------------------------------------------------------------------------------------------
 
 
@@ -116,10 +116,10 @@ class ImageProcessing(object):
         else:
             return self._ndarrays_images
 
-    def _greyscale_img(self, img_path):
+    def _grayscale_img(self, img_path):
         """
 
-        Tool which uses the PIL library to determine whether or not an image is greyscale.
+        Tool which uses the PIL library to determine whether or not an image is grayscale.
         Note:
               - this tool is very conservative (*any* 'color' will yield `False`).
               - the exception to the above rule is the *very rare* of an image which even split
@@ -127,24 +127,27 @@ class ImageProcessing(object):
 
         :param img_path: path to an image
         :type img_path:``str``
-        :return: ``True`` if greyscale, else ``False``.
+        :return: ``True`` if grayscale, else ``False``.
         :rtype: ``bool``
         """
         # See: http://stackoverflow.com/q/23660929/4898004
         if img_path is None or items_null(img_path):
             return np.NaN
-        img = Image.open(img_path) # Find a way to replace this.
+        img = Image.open(img_path) # ToDo: Find a way to replace this.
         stat = ImageStat.Stat(img.convert("RGB"))
         return np.mean(stat.sum) == stat.sum[0]
 
-    def grayscale_analysis(self):
+    def grayscale_analysis(self, new_analysis=False):
         """
 
-        Run a greyscale analysis.
+        Run a grayscale analysis.
 
+        :param new_analysis:
+        :return:
         """
-        self.image_dataframe['grayscale'] = self.image_dataframe['img_cache_path'].progress_map(
-            self._greyscale_img, na_action='ignore')
+        if 'grayscale' not in self.image_dataframe.columns or new_analysis:
+            self.image_dataframe['grayscale'] = self.image_dataframe['img_cache_path'].progress_map(
+                self._grayscale_img, na_action='ignore')
 
     def _logo_analysis_out(self, match, base_img_shape, output_params):
         """
@@ -176,7 +179,8 @@ class ImageProcessing(object):
                       threshold=0.25,
                       x_greater_check=1/3.0,
                       y_greater_check=1/2.5,
-                      return_full=False):  # ToDo: expose all `robust_match_template()` options.
+                      return_full=False,
+                      new_analysis=False):  # ToDo: expose all `robust_match_template()` options.
         """
 
         Wraps ``biovida.images.models.template_matching.robust_match_template()``.
@@ -193,6 +197,9 @@ class ImageProcessing(object):
         :return: the bottom left corner of
         :rtype: ``tuple``
         """
+        if 'medpix_logo_lower_left' in self.image_dataframe.columns and not new_analysis:
+            return None
+
         # Package Params
         output_params = (threshold, x_greater_check, y_greater_check, return_full)
 
@@ -213,7 +220,11 @@ class ImageProcessing(object):
         # Update dataframe
         self.image_dataframe['medpix_logo_lower_left'] = results
 
-    def border_analysis(self, signal_strength_threshold=0.25, min_border_separation=0.15, lower_bar_search_space=0.9):
+    def border_analysis(self
+                        , signal_strength_threshold=0.25
+                        , min_border_separation=0.15
+                        , lower_bar_search_space=0.9
+                        , new_analysis=False):
         """
 
         Wrapper for ``biovida.images.models.border_detection.border_detection()``.
@@ -224,6 +235,9 @@ class ImageProcessing(object):
         :param report_signal_strength:
         :return:
         """
+        if all(x in self.image_dataframe.columns for x in ['hbar', 'hborder', 'vborder']) and not new_analysis:
+            return None
+
         def ba_func(image):
             return border_detection(image,
                                     signal_strength_threshold,
@@ -273,11 +287,14 @@ class ImageProcessing(object):
         crop_candiates = lhborder + hbar
         return min(crop_candiates) if len(crop_candiates) else np.NaN
 
-    def crop_decision(self):
+    def crop_decision(self, new_analysis=False):
         """
 
         :return:
         """
+        if all(x in self.image_dataframe.columns for x in ['upper_crop', 'lower_crop']) and not new_analysis:
+            return None
+
         for i in ('medpix_logo_lower_left', 'hborder', 'hbar'):
             if i not in self.image_dataframe.columns.str.lower():
                 raise AttributeError("The `image_dataframe` does not contain the\nfollowing required column: '{0}'.\n"
@@ -319,8 +336,7 @@ class ImageProcessing(object):
         else:
             return converted_image.convert("RGB")
 
-    # ToDo: replace dataframe param.
-    def image_problems_predictions(self, status=True):
+    def _image_problems_predictions(self, status=True):
         """
 
         This method is powered by a Convolutional Neural Network which
@@ -362,11 +378,17 @@ class ImageProcessing(object):
         # Make the predictions and Save
         self.image_dataframe['img_problems'] = self.ircnn.predict([transformed_images], status=status)
 
-    # ToDo: Add method to save processed images.
-    # ToDo: Expose predictions outside of auto()
-    # ToDo: auto() method which include auto decisions.
+    def img_problems(self, status=True, new_analysis=False):
+        """
 
-    def _auto_analysis(self, status=True, return_result=True, new_analysis=False):
+        :param status:
+        :param new_analysis:
+        :return:
+        """
+        if 'img_problems' not in self.image_dataframe.columns or new_analysis:
+            self._image_problems_predictions(status=status)
+
+    def _auto_analysis(self, status=True, new_analysis=False):
         """
 
         :param status:
@@ -384,22 +406,70 @@ class ImageProcessing(object):
         :rtype: ``Pandas DataFrame
         """
         # Run Analysis Battery with Default Paramater Values
-        if 'grayscale' not in self.image_dataframe.columns or new_analysis:
-            self.grayscale_analysis()
-        if 'medpix_logo_lower_left' not in self.image_dataframe.columns or new_analysis:
-            self.logo_analysis()
-        if any(x not in self.image_dataframe.columns for x in ['hbar', 'hborder', 'vborder']) or new_analysis:
-            self.border_analysis()
+        self.grayscale_analysis(new_analysis)
+        self.logo_analysis()
+        self.border_analysis()
 
-        if not any(x in self.image_dataframe.columns for x in ['upper_crop', 'lower_crop']) or new_analysis:
-            # Compute Crop location
-            self.crop_decision()
+        # Compute Crop location
+        self.crop_decision(new_analysis)
 
         # Generate predictions
-        if 'img_problems' not in self.image_dataframe.columns or new_analysis:
-            self.image_problems_predictions(status=status)
+        self.img_problems(status=True, new_analysis=False)
 
-        return self.image_dataframe if return_result else None
+    def _auto_decision(self, threshold, require_grayscale):
+        """
+
+        :param threshold:
+        :param require_grayscale:
+        :return:
+        """
+        # ToDo: add variable threshold (e.g., arrows and grids).
+        def reject_decision(x):
+            if x['grayscale'] is not None and items_null(x['grayscale']) and \
+                    x['grayscale'] == False and require_grayscale:
+                    return True
+            else:
+                return any(x[1][1] > threshold for x in x['img_problems'])
+
+        self.image_dataframe['reject'] = self.image_dataframe.apply(reject_decision, axis=1)
+
+    def auto(self, threshold, require_grayscale, status=True, return_result=True, new_analysis=False):
+        """
+
+        :param threshold:
+        :param require_grayscale:
+        :param status:
+        :param return_result:
+        :param new_analysis:
+        :return:
+        """
+        # Run Auto Analysis
+        self._auto_analysis(status=True, new_analysis=False)
+
+        # Run Auto Decision
+        self._auto_decision(threshold, require_grayscale)
+
+    def save(self, save_path):
+        """
+
+        Save processed images
+
+        :return:
+        """
+        self.image_dataframe[self.image_dataframe['reject'] == True]
+
+        to_predict = zip(*[self.image_dataframe[i] for i in ('img_cache_path', 'lower_crop', 'upper_crop', 'vborder')])
+        for img_cache_path, lower_crop, upper_crop, vborder in tqdm(to_predict):
+            # Apply Crop
+            cropped_image = self._apply_cropping(img_cache_path, lower_crop, upper_crop, vborder, return_as_array=False)
+            # Save to disk
+            cropped_image.save(os.path.join(save_path, img_cache_path.split("/")[-1]))
+
+
+
+
+
+
 
 
 
