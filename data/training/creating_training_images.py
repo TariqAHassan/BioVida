@@ -8,9 +8,9 @@ import os
 import random
 import warnings
 import numpy as np
-from random import randint
 from tqdm import tqdm
 from PIL import Image
+from random import randint
 
 from data.training.temp import (arrow_path,
                                 valid_mri_path,
