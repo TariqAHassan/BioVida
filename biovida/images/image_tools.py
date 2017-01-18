@@ -11,7 +11,7 @@ from keras.preprocessing import image
 from skimage.color.colorconv import rgb2gray
 
 
-def load_img_rescale(path_to_image):
+def load_img_rescale(path_to_image, gray_only=False):
     """
 
     Loads an image, converts it to grayscale and normalizes (/255.0).
@@ -21,8 +21,10 @@ def load_img_rescale(path_to_image):
     :return: the image as a matrix.
     :rtype: ``ndarray``
     """
-    # ToDo: depreciate.
-    return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
+    if gray_only:
+        return rgb2gray(path_to_image) / 255.0
+    else:
+        return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
 
 
 def image_transposer(converted_image, img_size, axes=(2, 0, 1)):
@@ -72,37 +74,6 @@ def show_plt(image):
     fig, ax = plt.subplots()
     ax.imshow(image, interpolation='nearest', cmap=plt.cm.gray)
     plt.show()
-
-
-# img = '/Users/tariq/Desktop/15_arrow.png'
-# img = '/Users/tariq/Desktop/101.png'
-#
-# np.expand_dims(imread(img), axis=1).shape
-#
-# imread('/Users/tariq/Desktop/22.png').shape
-#
-# imresize(imread('/Users/tariq/Desktop/15_arrow.png'), img_size)
-#
-# m = np.asarray(Image.open('/Users/tariq/Desktop/101.png').convert("RGB")).shape
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
