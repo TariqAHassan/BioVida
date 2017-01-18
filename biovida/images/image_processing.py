@@ -13,10 +13,15 @@ from PIL import ImageStat
 from tqdm import tqdm
 from pprint import pprint
 
+# General tools
+from biovida.support_tools.support_tools import items_null
+
 # Tools form the image subpackage
 from biovida.images.resources import * # needed to generate medpix logo. Refactor.
 from biovida.images.models.temp import resources_path
 from biovida.images.openi_interface import OpenInterface
+from biovida.images.image_tools import load_and_scale_imgs
+from biovida.images.image_tools import image_transposer
 
 # Models
 from biovida.images.models.border_detection import border_detection
@@ -79,6 +84,7 @@ df = opi.image_record_database
 # Grayscale Analysis
 # ---------------------------------------------------------------------------------------------
 
+
 def grayscale_img(img_path):
     """
 
@@ -96,26 +102,32 @@ def grayscale_img(img_path):
     stat = ImageStat.Stat(Image.open(img_path).convert("RGB"))
     return np.mean(stat.sum) == stat.sum[0]
 
-def require_grayscale_check(x):
+
+def require_grayscale_check(x, grayscale_tech=('mri', 'ct', 'x_ray', 'ultrasound')):
     """
 
     Check if image classification as an 'mri', 'pet', 'ct' is 'ultrasound'
     is valid based on whether or not the image is grayscale.
 
     :param x:
+    :type x:
+    :param grayscale_tech: a list of technologies that require grayscale images.
+    :type grayscale_tech: ``tuple``
     :return:
     :rtype: ``bool``
     """
-    grayscale_technologies = ('mri', 'ct', 'x_ray', 'ultrasound')
+    # ToDo: this need more sophisticated data that consideres the whole dataset.
 
-    if x['image_modality_major'] in grayscale_technologies and x['grayscale_img'] is False:
+    if x['image_modality_major'] in grayscale_tech and x['grayscale_img'] is False:
         return np.NaN
     else:
         return x['image_modality_major']
 
+
 # ---------------------------------------------------------------------------------------------
 # Watermark Cleaning
 # ---------------------------------------------------------------------------------------------
+
 
 def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.5):
     """
@@ -142,7 +154,7 @@ def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.
     medline_template_img = os.path.join(resources_path, "medpix_logo.png")
 
     # The image to check
-    base_images_p = x['img_cache_name_full']
+    base_images_p = x['img_cache_path']
 
     # Run the matching algorithm
     match, base_img_shape = robust_match_template(pattern_img_path=medline_template_img, base_img_path=base_images_p)
@@ -160,29 +172,6 @@ def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.
     else:
         return box_bottom_left
 
-def _logo_plotting(found_logo_df, start=0, end=10):
-    """
-    found_logo_df = df[pd.notnull(df['logo_loc'])].copy()
-    :param found_logo_df:
-    :return:
-    """
-    import matplotlib.pyplot as plt
-    from scipy.misc import imread
-    from time import sleep
-
-    def _logo_diving_plotter(base_img, dividing_line):
-        fig = plt.figure(figsize=(10, 6))
-        ax1 = plt.subplot(1, 1, 1)
-        ax1.imshow(base_img, cmap='gray')
-        ax1.set_axis_off()
-        ax1.axhline(y=dividing_line, color='r', linestyle='-')
-        ax1.set_title('Diving Choice')
-        plt.show()
-
-    img_dividing_lines = pd.Series(found_logo_df['logo_loc'].values, index=found_logo_df['img_cache_name_full']).to_dict()
-    for (k, v) in list(img_dividing_lines.items())[start:end]:
-        _logo_diving_plotter(imread(k, flatten=True), v[1])
-        sleep(1)
 
 # ---------------------------------------------------------------------------------------------
 # Detect Border
@@ -214,27 +203,158 @@ def border_analysis(data_frame
                                 report_signal_strength)
 
     # Run the analysis
-    border_analysis = data_frame['img_cache_name_full'].progress_map(ba_func)
+    border_analysis = data_frame['img_cache_path'].progress_map(ba_func)
 
     # Convert to a dataframe and return
     ba_df = pd.DataFrame(border_analysis.tolist()).fillna(np.NaN)
     return data_frame.join(ba_df, how='left') if join else ba_df
 
-borders_and_edges = border_analysis(df, join=True)
+# ---------------------------------------------------------------------------------------------
+# Image Analysis Pipeline
+# ---------------------------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------------------------
-# Image Classification
-# ---------------------------------------------------------------------------------------------
 
 from biovida.images.models.temp import cnn_model_location
+from biovida.images.image_tools import load_img_rescale
 
-# Load the CNN
-ircnn = ImageRecognitionCNN()
-ircnn.load(cnn_model_location, override_existing=True)
 
-# Get classes
-# m = ircnn.predict([])
-# pd.Series(m)
+# Determine crop locations
+def h_crop_top_decision(x):
+    """
+
+    Choose lowest horizontal cropping point.
+    Solves: upper 'hborder' vs 'medpix_logo_lower_left'.
+
+    :return:
+    """
+    # Note: hborder = [top, lower]; medpix_logo_lower_left = [x, y].
+    cols = ('hborder', 'medpix_logo_lower_left')
+    crop_candiates = [x[i][0] if i == 'hborder' else x[i][1] for i in cols if not items_null(x[i])]
+    return max(crop_candiates) if len(crop_candiates) else np.NaN
+
+
+def h_crop_lower_decision(x):
+    """
+
+    Chose the highest cropping point for the bottom.
+    Solves: lower 'hborder' vs 'hbar'.
+
+    :param x:
+    :return:
+    """
+    # Note: hborder = [top, lower]; hbar = int.
+    lhborder = [x['hborder'][1]] if not items_null(x['hborder']) else []
+    hbar = [x['hbar']] if not items_null(x['hbar']) else []
+    crop_candiates = lhborder + hbar
+    return min(crop_candiates) if len(crop_candiates) else np.NaN
+
+
+def apply_cropping(img_cache_path, lower_crop, upper_crop, vborder):
+    """
+
+    :param img_cache_path:
+    :param lower_crop:
+    :param upper_crop:
+    :param vborder:
+    :return:
+    """
+    # Load the image
+    converted_image = Image.open(img_cache_path)
+
+    # Horizontal Cropping
+    if not items_null(lower_crop):
+        w, h = converted_image.size
+        converted_image = converted_image.crop((0, 0, w, int(lower_crop)))
+    if not items_null(upper_crop):
+        w, h = converted_image.size
+        converted_image = converted_image.crop((0, int(upper_crop), w, h))
+
+    # Vertical Cropping
+    if not items_null(vborder):
+        w, h = converted_image.size
+        converted_image = converted_image.crop((int(vborder[0]), 0, int(vborder[1]), h))
+
+    return np.asarray(converted_image.convert("RGB"))
+
+
+def image_problems_predictions(data_frame, ircnn, join=False, status=True):
+    """
+
+    Uses a Convolutional Neural Network to Make Predictions about the
+    likelihood of problems in the image.
+
+    Currently, the model can identify the follow problems
+
+        - arrows in images
+        - images arrayed as grids
+
+    :param data_frame:
+    :type data_frame:
+    :param join:
+    :type join:
+    :return:
+    :rtype: ``Pandas DataFrame`` or ``Pandas Series``
+
+    :Examples:
+
+    >>> df['img_problems']
+    ...
+    ...0   [(arrows, 0.197112), (grids, 0.0109332)]
+    ...1   [(arrows, 0.211948), (grids, 0.00918275)]
+    ...2   [(arrows, 0.473652), (grids, 0.00578115)]
+    ...3   [(arrows, 0.43337),  (grids, 0.00857231)]
+    ...4   [(grids, 0.928362), (arrows, 1.10526e-06)]
+
+    The first value in the tuple represents the problem identified and second
+    value represents its associated probability
+    (for the sake of *simplicity*, this be interpreted as the model's confidence).
+
+    For example, in the final row we can see that the model confidently 'believes' both
+    that the image is, in fact, a grid of images and that it does not contain arrows.
+    """
+    # Zip the relevant columns (faster than looping through the dataframe directly).
+    to_predict = zip(*[data_frame[i] for i in ('img_cache_path', 'lower_crop', 'upper_crop', 'vborder')])
+
+    cropped_images_for_analysis = list()
+    for img_cache_path, lower_crop, upper_crop, vborder in tqdm(to_predict):
+        # Load the image and Apply Cropping
+        cropped_image = apply_cropping(img_cache_path, lower_crop, upper_crop, vborder)
+        cropped_images_for_analysis.append(cropped_image)
+
+    # Transform the cropped images into a form `ImageRecognitionCNN.predict()` can accept
+    transformed_images = load_and_scale_imgs(cropped_images_for_analysis, ircnn.img_shape)
+
+    # Make the predictions
+    predictions = ircnn.predict([transformed_images], status=status)
+
+    if join:
+        data_frame['img_problems'] = predictions
+        return data_frame
+    else:
+        return pd.Series(predictions)
+
+# # Load the CNN
+# ircnn = ImageRecognitionCNN()
+# ircnn.load(cnn_model_location, override_existing=True)
+#
+# # Compute whether or not the image is grayscale
+# df['grayscale'] = df['img_cache_path'].progress_map(grayscale_img, na_action='ignore')
+#
+# # Report the location of the MedPix(R) logo (if present).
+# df['medpix_logo_lower_left'] = df.progress_apply(logo_analysis, axis=1)
+#
+# # Analyze Crop Locations
+# df = border_analysis(df)
+#
+# # Compute Crop location
+# df['upper_crop'] = df.apply(h_crop_top_decision, axis=1)
+# df['lower_crop'] = df.apply(h_crop_lower_decision, axis=1)
+
+
+
+
+
+
 
 
 
