@@ -24,6 +24,17 @@ def load_img_rescale(path_to_image):
     return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
 
 
+def image_transposer(converted_image, img_size, axes=(2, 0, 1)):
+    """
+
+    :param converted_image:
+    :param img_size:
+    :param axes:
+    :return:
+    """
+    return np.transpose(imresize(converted_image, img_size), axes).astype('float32')
+
+
 def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=None):
     """
 
@@ -38,10 +49,13 @@ def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=None):
         return x if status == None else status(x)
 
     def load_func(img):
-        # This step handles grayscale images by first converting them to RGB.
-        # Otherwise, `imresize()` will break.
-        converted_image = np.asarray(Image.open(img).convert("RGB"))
-        return np.transpose(imresize(converted_image, img_size), axes).astype('float32')
+        if 'ndarray' in str(type(cropped_image)):
+            converted_image = img
+        else:
+            # Grayscale images by first converting them to RGB (otherwise, `imresize()` will break).
+            converted_image = np.asarray(Image.open(img).convert("RGB"))
+        return image_transposer(converted_image, img_size, axes=axes)
+
     return np.array([load_func(img_name) for img_name in status_bar(list_of_images)]) / 255.0
 
 
