@@ -11,6 +11,13 @@
 
 # Imports
 import os
+import pickle
+
+from tqdm import tqdm
+
+from biovida.support_tools.support_tools import header
+from biovida.images.image_tools import load_and_scale_imgs
+
 from keras import callbacks
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential, load_model, model_from_json
@@ -59,7 +66,7 @@ class ImageRecognitionCNN(object):
     def __init__(self
                  , data_path=None
                  , img_shape=(150, 150)
-                 , rescale=1.0/255
+                 , rescale=1/255.0
                  , shear_range=0.1
                  , zoom_range=0.35
                  , horizontal_flip=True
@@ -82,11 +89,10 @@ class ImageRecognitionCNN(object):
         # Data Streams
         self._train_generator = None
         self._validation_generator = None
-        self.data_classes = None
 
         # The model itself
         self.model = None
-        self._nb_classes_default = 6
+        self.data_classes = None
 
     def _train_gen(self):
         """
@@ -175,7 +181,7 @@ class ImageRecognitionCNN(object):
             self._data_stream()
 
         # Get the number of classes
-        nb_classes = len(self.data_classes.keys()) if self.data_classes is not None else self._nb_classes_default
+        nb_classes = len(self.data_classes.keys()) if self.data_classes is not None else 2
 
         # Define the Model
         self.model = Sequential()
@@ -230,32 +236,55 @@ class ImageRecognitionCNN(object):
         :type min_delta: ``float``
         :param patience: see ``keras.callbacks.EarlyStopping()``.
         :type patience: ``int``
-        :raises: AttributeError if `ImageRecognitionCNN().convnet()` is yet to be called.
+        :raises: AttributeError if ``ImageRecognitionCNN().convnet()`` is yet to be called.
         """
         self._model_existence_check("fit and validated", "convnet")
 
         if not isinstance(nb_epoch, int):
             raise ValueError("`nb_epoch` must be an intiger.")
 
-        # Define Call backs
-        # early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=min_delta, patience=patience, verbose=1)
+        # Define callbacks
+        early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=min_delta, patience=patience, verbose=1)
 
         self.model.fit_generator(generator=self._train_generator
                                  , samples_per_epoch=self._train_generator.nb_sample
                                  , nb_epoch=nb_epoch
                                  , validation_data=self._validation_generator
                                  , nb_val_samples=self._validation_generator.nb_sample
-                                 # , callbacks=[early_stop]
-        )
+                                 , callbacks=[early_stop])
 
-    def save(self, name, path=None, overwrite=False):
+    def _support_save_data(self, save_name, save_path):
+        """
+
+        Supporting Data For the Model.
+
+        :param save_name:
+        :type save_name: ``str``
+        :param save_path:
+        :type save_path: ``str``
+        """
+        data = [self._data_path,
+                self.img_shape,
+                self.rescale,
+                self._shear_range,
+                self._zoom_range,
+                self._horizontal_flip,
+                self._batch_size,
+                self._dim_ordering,
+                self.data_classes]
+
+        # Pickle the `data` dictionary.
+        save_location = os.path.join(save_path, "{0}_support.p".format(save_name))
+        pickle.dump(data, open(save_location, "wb"))
+
+    def save(self, save_name, path=None, overwrite=False):
         """
 
         Save the weights from a trained model.
 
-        :param name: name of the file. Do not include the '.h5' extension as it
+        :param save_name: name of the file. Do not include the '.h5' extension as it
                      will be added automatically.
-        :type name: ``str``
+        :type save_name: ``str``
         :param path: path to save the data to. See: ``keras.models.Sequential()``.
         :type path: ``str``
         :param overwrite: overwrite the existing copy of the data
@@ -263,8 +292,34 @@ class ImageRecognitionCNN(object):
         :raises: AttributeError if `ImageRecognitionCNN().fit_gen()` is yet to be called.
         """
         self._model_existence_check("saved", "fit",  " Alternatively, you can call .load().")
-        save_path = self._data_path if path is None and self._data_path is not None else path
-        self.model.save(os.path.join(save_path, "{0}.h5".format(name)), overwrite=overwrite)
+        save_path = self._data_path if (path is None and self._data_path is not None) else path
+
+        # Save the supporting data
+        self._support_save_data(save_name, save_path)
+
+        # Save the Model itself
+        self.model.save(os.path.join(save_path, "{0}.h5".format(save_name)), overwrite=overwrite)
+
+    def _support_load_data(self, path):
+        """
+
+        Loads supporting data saved along with the model
+
+        :param path:
+        :type path: ``str``
+        """
+        load_location = "{0}_support.p".format(path[:-3])
+        data = pickle.load(open(load_location, "rb"))
+
+        self._data_path = data[0]
+        self.img_shape = data[1]
+        self.rescale = data[2]
+        self._shear_range = data[3]
+        self._zoom_range = data[4]
+        self._horizontal_flip = data[5]
+        self._batch_size = data[6]
+        self._dim_ordering = data[7]
+        self.data_classes = data[8]
 
     def load(self, path, override_existing=False, default_model_load=False):
         """
@@ -285,10 +340,60 @@ class ImageRecognitionCNN(object):
             raise AttributeError("A model is currently instantiated.\n"
                                  "Set `override_existing` to `True` to replace the existing model.")
 
-        if default_model_load and self.model is None:
+        if default_model_load:
             self.convnet()
 
+        # Load the supporting data
+        self._support_load_data(path)
+
+        # Load the Model
         self.model = load_model(path)
+
+    def _prediction_labels(self, single_img_prediction, d):
+        """
+
+        :param single_img_prediction:
+        :type single_img_prediction: list of ndarray arrays.
+        :param d: data_classes_reversed
+        :type d: ``dict``
+        :return:
+        """
+        predictions = ((d[e], i) for e, i in enumerate(single_img_prediction))
+        return sorted(predictions, key=lambda x: x[1], reverse=True)
+
+    def predict(self, list_of_images, status_bar=False, verbose=False):
+        """
+
+        :param list_of_images: a list of paths (strings) to images.
+        :param status_bar: True for a tqdm status bar; False for no status bar. Defaults to True.
+        :type status_bar: ``bool``
+        :param verbose: if True, print updates. Defaults to False
+        :type verbose: ``bool``
+        :return: a list of lists with tuples of the form (name, probabability). Defaults to False.
+        :rtype: ``list``
+        """
+        if self.model is None:
+            raise AttributeError("Predictions cannot be made until a model is loaded or trained.")
+
+        def status(x):
+            return tqdm(x) if status_bar else x
+
+        if verbose:
+            print("Loading Images...")
+
+        images = load_and_scale_imgs(list_of_images, img_size=self.img_shape, status=tqdm if status_bar else None)
+
+        if verbose:
+            print("Generating Predictions...")
+
+        data_classes_reversed = {v: k for k, v in self.data_classes.items()}
+        return [self._prediction_labels(i, data_classes_reversed) for i in status(self.model.predict(images))]
+
+
+
+
+
+
 
 
 
