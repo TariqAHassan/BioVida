@@ -52,7 +52,7 @@ def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=None):
         return x if status == None else status(x)
 
     def load_func(img):
-        if 'ndarray' in str(type(cropped_image)):
+        if 'ndarray' in str(type(img)):
             converted_image = img
         else:
             # Grayscale images by first converting them to RGB (otherwise, `imresize()` will break).
