@@ -24,22 +24,25 @@ def load_img_rescale(path_to_image):
     return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
 
 
-def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1)):
+def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=None):
     """
 
     :param list_of_images:
     :param img_size:
     :param axes:
+    :param status:
     :return:
     """
-    # img = list_of_images[0]
     # Source: https://blog.rescale.com/neural-networks-using-keras-on-rescale/
+    def status_bar(x):
+        return x if status == None else status(x)
+
     def load_func(img):
         # This step handles grayscale images by first converting them to RGB.
         # Otherwise, `imresize()` will break.
         converted_image = np.asarray(Image.open(img).convert("RGB"))
         return np.transpose(imresize(converted_image, img_size), axes).astype('float32')
-    return np.array([load_func(img_name) for img_name in list_of_images]) / 255.0
+    return np.array([load_func(img_name) for img_name in status_bar(list_of_images)]) / 255.0
 
 
 def show_plt(image):
