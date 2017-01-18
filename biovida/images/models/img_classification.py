@@ -11,6 +11,7 @@
 
 # Imports
 import os
+from keras import callbacks
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential, load_model, model_from_json
 from keras.layers import Convolution2D, MaxPooling2D
@@ -195,13 +196,10 @@ class ImageRecognitionCNN(object):
         # Fully Connected Layers, i.e., a standard
         # neural net being fed features from above.
         self.model.add(Flatten())
-        self.model.add(Dense(512, activation='relu'))
-        self.model.add(Dropout(0.25))
-        self.model.add(Dense(256, activation='relu'))
-        self.model.add(Dropout(0.25))
-        self.model.add(Dense(128, activation='relu'))
+        self.model.add(Dense(64, activation='relu'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(nb_classes, activation='softmax'))
+        self.model.add(Dense(nb_classes))
+        self.model.add(Activation('sigmoid'))
 
         # Compilation
         self.model.compile(loss=loss, optimizer=optimizer, metrics=list(metrics))
@@ -221,23 +219,34 @@ class ImageRecognitionCNN(object):
             raise AttributeError("The model cannot be {0} until `ImageRecognitionCNN().{1}()` "
                                  "has been called.{2}".format(first_format, second_format, additional))
 
-    def fit(self, nb_epoch=10):
+    def fit(self, nb_epoch=10, min_delta=0.1, patience=3):
         """
 
         Fit the model to the training data and run a validation.
 
         :param nb_epoch: number of iterations. See: ``keras.models.Sequential()``. Defaults to 10.
         :type nb_epoch: ``int``
+        :param min_delta: see ``keras.callbacks.EarlyStopping()``.
+        :type min_delta: ``float``
+        :param patience: see ``keras.callbacks.EarlyStopping()``.
+        :type patience: ``int``
         :raises: AttributeError if `ImageRecognitionCNN().convnet()` is yet to be called.
         """
-        if not isinstance(nb_epoch, int):
-            raise ValueError("`nb_epoch` must be an int.")
         self._model_existence_check("fit and validated", "convnet")
+
+        if not isinstance(nb_epoch, int):
+            raise ValueError("`nb_epoch` must be an intiger.")
+
+        # Define Call backs
+        # early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=min_delta, patience=patience, verbose=1)
+
         self.model.fit_generator(generator=self._train_generator
                                  , samples_per_epoch=self._train_generator.nb_sample
                                  , nb_epoch=nb_epoch
                                  , validation_data=self._validation_generator
-                                 , nb_val_samples=self._validation_generator.nb_sample)
+                                 , nb_val_samples=self._validation_generator.nb_sample
+                                 # , callbacks=[early_stop]
+        )
 
     def save(self, name, path=None, overwrite=False):
         """
