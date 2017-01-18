@@ -6,38 +6,36 @@
 
 """
 # Imports
-import os
 import re
+import os
 import pickle
 import requests
 import numpy as np
 import pandas as pd
-
 from tqdm import tqdm
 from math import floor
 from time import sleep
 from copy import deepcopy
-from pprint import pprint
 from warnings import warn
 from datetime import datetime
 from collections import Counter
 
-# Tool to create required caches
-from biovida.support_tools._cache_management import _package_cache_creator
+# Image Support tools
+from biovida.images._openi_support_tools import iter_join
+from biovida.images._openi_support_tools import null_convert
+from biovida.images._openi_support_tools import numb_extract
+from biovida.images._openi_support_tools import url_combine
 
 # Open-i API Parameters Information
-from biovida.images.openi_parameters import openi_image_type_params
-from biovida.images.openi_parameters import _openi_search_information
-from biovida.images.openi_parameters import openi_article_type_params
+from biovida.images.resources._openi_parameters import openi_image_type_params
+from biovida.images.resources._openi_parameters import openi_search_information
+from biovida.images.resources._openi_parameters import openi_article_type_params
 
-# Tool for extracting features from text
+# Tools for Text Feature Extraction
 from biovida.images.text_processing import feature_extract
 
-# Image Support Tools
-from biovida.images.openi_support_tools import iter_join
-from biovida.images.openi_support_tools import url_combine
-from biovida.images.openi_support_tools import null_convert
-from biovida.images.openi_support_tools import numb_extract
+# Cache Managment
+from biovida.support_tools._cache_management import _package_cache_creator
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
