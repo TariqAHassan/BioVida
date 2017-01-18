@@ -165,7 +165,7 @@ openi_api_search_params = {
 
 
 
-def _openi_search_information():
+def openi_search_information():
     """
 
     Returns a dictionary of the form:
