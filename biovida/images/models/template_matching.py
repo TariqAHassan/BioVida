@@ -148,6 +148,7 @@ def _scale_invar_match_template(pattern_img
     :return: see robust_match_template()
     :rtype: ``dict``
     """
+    # ToDo: update algorithm summary as it is no longer accurate.
     # Top x (1/3) for the base image and crop accordingly
     top_of_base_img = int(base_img.shape[0] * base_top_cropping)
     base_img_cropped = base_img[:top_of_base_img]
@@ -180,14 +181,35 @@ def _scale_invar_match_template(pattern_img
 
 
 def _arrange_one_first(bounds_and_steps):
-    """Function to run np.arrange and put the number '1' first."""
+    """
+
+    Function to run np.arrange and put the number '1' first.
+
+    :param bounds_and_steps:
+    :return:
+    """
     start, end, step = bounds_and_steps if bounds_and_steps is not None else (1, 1, 1)
     l = np.arange(start, end, step)
     return np.append(1, l[l != 1])
 
 
-def robust_match_template(pattern_img_path
-                          , base_img_path
+def _robust_match_template_loading(img, param_name):
+    """
+
+    :param img:
+    :param param_name:
+    :return:
+    """
+    if 'ndarray' in str(type(img)):
+        return img
+    elif isinstance(img, str):
+        return imread(img, flatten=True)
+    else:
+        raise ValueError("`{0}` must either be a `ndarray` or a path to an image.".format(param_name))
+
+
+def robust_match_template(pattern_img
+                          , base_img
                           , base_top_cropping=0.14
                           , prop_scale=0.075
                           , scaling_lower_limit=0.25
@@ -200,26 +222,43 @@ def robust_match_template(pattern_img_path
 
     Method: Fast Normalized Cross-Correlation.
 
-    :param pattern_img_path:
-    :param base_img_path:
+    :param pattern_img:
+
+                    ..warning:
+
+                        If a `ndarray` is passed, it must be preprocessed with
+                        ``scipy.misc.imread(pattern_img, flatten=True)``
+
+    :param pattern_img: ``str`` or ``ndarray``
+    :param base_img:
+
+            ..warning:
+
+                If a `ndarray` is passed, it must be preprocessed with
+                ``scipy.misc.imread(base_img, flatten=True)``
+
+    :param base_img: ``str`` or ``ndarray``
     :param base_top_cropping:
     :param prop_scale:
     :param scaling_lower_limit:
     :param end_search_threshold: if a match of this quality is found, end the search.
                                   Set to any number greater than 1 to disable.
     :param base_resizes: scaling of the base image. Tuple of the form (start scalar, end scalar, step size).
+    :param base_img: if `None` the `
+    :type base_img: ``None``, ``ndarray`` or ``str``
     :return: tuple of the form (best_match_dict, base image shape (x, y)). the 'best_match_dict' is of the form:
                      {match_quality: value between 0 and 1 (inclusive),
                      'box': {'bottom_right': (x, y), 'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}}
     :rtype: ``tuple``
     """
-    pattern_img = imread(pattern_img_path)
-    base_img_raw = imread(base_img_path, flatten=True)
+    # Load the Images
+    pattern_img_raw = _robust_match_template_loading(pattern_img, "pattern_img")
+    base_img_raw = _robust_match_template_loading(base_img, "base_img")
 
     attemps = list()
     for base_resize in _arrange_one_first(base_resizes):
         base_img = imresize(base_img_raw, base_resize)
-        current_match = _scale_invar_match_template(pattern_img,
+        current_match = _scale_invar_match_template(pattern_img_raw,
                                                     base_img,
                                                     base_top_cropping,
                                                     prop_scale,
@@ -234,8 +273,6 @@ def robust_match_template(pattern_img_path
 
     single_best_match = max(attemps, key=lambda x: x['match_quality'])
     return single_best_match, base_img.shape[::-1]
-
-
 
 
 
