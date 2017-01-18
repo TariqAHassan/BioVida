@@ -21,6 +21,7 @@ def load_img_rescale(path_to_image):
     :return: the image as a matrix.
     :rtype: ``ndarray``
     """
+    # ToDo: depreciate.
     return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
 
 
