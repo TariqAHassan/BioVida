@@ -797,7 +797,7 @@ class OpenInterface(object):
         self.current_search = {k: v for k, v in deepcopy(search_arguments).items() if v is not None}
 
         # Get Open-i search params
-        search_dict, ordered_params = _openi_search_information()
+        search_dict, ordered_params = openi_search_information()
 
         # Add check for all search terms
         self._openi_search_check(search_arguments, search_dict)
