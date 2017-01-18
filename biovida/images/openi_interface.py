@@ -403,7 +403,7 @@ class _OpeniImages(object):
         result_log = dict()
 
         # Log of Names
-        img_title_log = list()
+        img_save_paths = list()
 
         # Get the abbreviation for the image type being downloaded
         img_type = self.img_name_abbrev(data_frame)[image_column]
@@ -418,11 +418,10 @@ class _OpeniImages(object):
             pull_success = self.img_harvest(img_title, img_address)
             result_log[img_address] = pull_success
 
-            # ToDo: make more robust (?) (or simply use result_log keys).
             if pull_success:
-                img_title_log.append(img_title)
+                img_save_paths.append(os.path.join(self.image_save_location, img_title))
             else:
-                img_title_log.append(None)
+                img_save_paths.append(None)
 
         if self.verbose:
             failed_downloads = {k: v for k, v in result_log.items() if v is False}
@@ -437,7 +436,7 @@ class _OpeniImages(object):
         sucesses_log = data_frame[image_column].map(lambda x: result_log.get(x, None) if pd.notnull(x) else None)
 
         # Return sucesses log
-        return sucesses_log.rename("extracted"), img_title_log
+        return sucesses_log.rename("extracted"), img_save_paths
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1024,19 +1023,19 @@ class OpenInterface(object):
         # Reset the index
         df = df.reset_index(drop=True)
 
-        # Get duplicated img_cache_name occurences
-        duplicated_img_refs = (k for k, v in Counter(df['img_cache_name']).items() if v > 1)
+        # Get duplicated img_cache_path occurences
+        duplicated_img_refs = (k for k, v in Counter(df['img_cache_path']).items() if v > 1)
 
         # Get the indices of duplicates
-        dup_index = {k: df[df['img_cache_name'] == k].index.tolist() for k in duplicated_img_refs}
+        dup_index = {k: df[df['img_cache_path'] == k].index.tolist() for k in duplicated_img_refs}
 
         # Create a column of the index (DataFrame.apply() cannot gain access to the index).
         df['index_temp'] = df.index
 
         def related(x):
             """Function to look for references to the same image in the cache"""
-            if x['img_cache_name'] in dup_index:
-                return tuple(sorted([i for i in dup_index[x['img_cache_name']] if i != x['index_temp']]))
+            if x['img_cache_path'] in dup_index:
+                return tuple(sorted([i for i in dup_index[x['img_cache_path']] if i != x['index_temp']]))
             else:
                 return np.NaN
 
@@ -1070,6 +1069,7 @@ class OpenInterface(object):
         Maintain Record of files in the image cache.
         
         """
+        # ToDo: refactor!
         temp_df = None
         if not os.path.isfile(self._image_record_database_path):
             # Then the image_record_database == current_search_database
@@ -1141,7 +1141,7 @@ class OpenInterface(object):
         """
         if image_quality is not None:
             image_col = "img_{0}".format(image_quality)
-            search_data['img_extracted'], search_data['img_cache_name'] = self._OpeniImages.bulk_img_harvest(
+            search_data['img_extracted'], search_data['img_cache_path'] = self._OpeniImages.bulk_img_harvest(
                 search_data, image_col
             )
         elif self._verbose:
