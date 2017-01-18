@@ -7,27 +7,12 @@
 # Imports
 import numpy as np
 import pandas as pd
-from operator import sub
 from copy import deepcopy
 from functools import reduce
-from scipy.misc import imshow
-
-# Local tools
-from biovida.images.resources.image_tools import load_img_rescale
+from operator import sub
 
 
-def _show_plt(image):
-    """
-
-    Use matplotlib to display an image (which is represented as a matrix).
-
-    :param image: an image represented as a matrix.
-    :type image: ``ndarray``
-    """
-    from matplotlib import pyplot as plt
-    fig, ax = plt.subplots()
-    ax.imshow(image, interpolation='nearest', cmap=plt.cm.gray)
-    plt.show()
+from biovida.images.image_tools import load_img_rescale
 
 
 def _rounder(l, by=3):
@@ -37,9 +22,9 @@ def _rounder(l, by=3):
 
     :param l: a list of values
     :type l: ``list`` or ``tuple``
-    :param by:  If 0, the values will be converted to intigers.
+    :param by:  If 0, the values will be converted to integers.
     :type by: ``int``
-    :return: rounded numerics.
+    :return: rounded numbers.
     :rtype: ``list``
     """
     t = int if by == 0 else float
@@ -188,7 +173,7 @@ def _largest_n_changes_with_values(iterable, n):
 
     Compute the index of the ``n`` largest _deltas the their associated values.
 
-    :param iterable: an iterbale data structure which supports indexing.
+    :param iterable: an iterable data structure which supports indexing.
     :type iterable: ``list`` or ``tuple``
     :param n: ``n`` largest.
     :type n: ``int``
@@ -235,6 +220,7 @@ def _expectancy_violation(expected, actual, round_by=4):
 
     val = round(float(abs(expected - actual) / expected), round_by)
     return round(float(val), round_by)
+
 
 def _largest_median_inflection(averaged_axis_values, axis, n_largest_override=None):
     """
@@ -299,7 +285,7 @@ def _zero_var_axis_elements_remove(img, axis, rounding=3):
     return img
 
 
-def edge_detection(img, axis=0, n_largest_override=None, lower_bar_search_space=None):
+def edge_detection(img, axis=0, n_largest_override=None):
     """
 
     Detects edges within an image.
@@ -337,7 +323,7 @@ def _weigh_evidence(candidates, axis_size, signal_strength_threshold, min_border
                                       to the median for the image. Must be between 0 and 1.
     :type signal_strength_threshold: ``float``
     :param min_border_separation: a value between 0 and 1 that determines the proportion of the axis
-                                  that two edges must be seperated for them to be considered borders.
+                                  that two edges must be separated for them to be considered borders.
                                   (i.e., ``axis_size`` * ``min_border_separation``)
     :type min_border_separation: ``float``
     :param buffer_multiplier: How far from the midpoint two lines must to be considered a border.
@@ -347,12 +333,12 @@ def _weigh_evidence(candidates, axis_size, signal_strength_threshold, min_border
     :rtype: ``list`` or ``None``
     """
     midpoint = (axis_size / 2)
-    lu_buffer = midpoint - (axis_size * buffer_multiplier) # left/upper
-    rl_buffer = midpoint + (axis_size * buffer_multiplier) # right/lower
+    lu_buffer = midpoint - (axis_size * buffer_multiplier)  # left/upper
+    rl_buffer = midpoint + (axis_size * buffer_multiplier)  # right/lower
 
     conclusion = None
     if all(x[1] >= signal_strength_threshold for x in candidates):
-        if abs(reduce(sub, [i[0] for i in candidates])) >= (min_border_separation  * axis_size):
+        if abs(reduce(sub, [i[0] for i in candidates])) >= (min_border_separation * axis_size):
             if candidates[0][0] < lu_buffer and candidates[1][0] > rl_buffer:
                 conclusion = candidates
 
@@ -416,8 +402,8 @@ def double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_
     :type lower_bar_search_space: ``float``
     :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required
                                       for an area required to be considered a 'lower bar'.
-                                      Internally, this is measured as a location deviation from
-                                      the median signal strength of the average image.
+                                      This is measured as a absolute value of the difference between
+                                      a location and the median signal strength of the average image.
     :type signal_strength_threshold: ``int``
     :return: the location of the start of the lower bar (i.e., edge).
     :rtype: ``int``
@@ -452,29 +438,29 @@ def border_detection(image
     Detects the borders and lower bar in an image.
 
     At a high level, this algorithm works as follows:
-       1. Along a given axis, vectors (rows/columns)
-          which have a standard deviation which are ~0 are replaced with zero vectors. (a).
-       2. Along a given axis, the values are averaged.
+       1. Along a given axis (rows or columns), vectors
+          which have a standard deviation which approximately equal to 0 are replaced with zero vectors. (a).
+       2. Values are averaged along this same axis.
           This produces a signal (which can be visualized as a line graph). (b).
        3. The median value for this signal is quantified. The median is used here,
           as opposed to the average, because it is more robust against outliers.
        4. The ``n`` points for which are the furthest, in absolute value, from the median are selected.
        5. The signal strength of the ``n`` points is quantified using percent error, where the median value
           is used as the expected value.
-       6. Candidates for border pairs (e.g., left and right borders) are then weighed based on the evidence.
-          These lines of evidence include their signal strength, how separated they are and their absolute distance
-          from the images midline (about the corresponding axis). If the candidate fails to meet any of these criteria,
+       6. Candidates for border pairs (e.g., left and right borders) are then weighed based on three lines of evidence.
+          Namely, their signal strength, how separated they are and their absolute distance
+          from the image's midline (about the corresponding axis). If a candidate fails to meet any of these criteria,
           it is rejected.
-       7. The evidence for a lower bar concerns only its signal stength, though only an area of image below a given
+       7. The evidence for a lower bar concerns only its signal strength, though only an area of image below a given
           height is considered when trying to locate it. A double pass, the default, will try a second time to find
           another lower bar (for reasons explained in the docstring for the ``double_pass_lower_bar_detection()``
           function). Regardless of whether or not the second pass could find a second edge, all of the edges detect
-          are averaged and returned as an int. If no plausible borders could be found, ``None`` is returned.
+          are averaged and returned as an integer. If no plausible borders could be found, ``None`` is returned.
 
     (a) This reduces the muffling effect that areas with solid color can have on step 2.
     (b) Large inflections after areas with little change suggest a transition from a solid background to an image.
 
-    :param image: an image represented as a matrix.
+    :param image: a path to an image or an image represented as a 2D matrix.
     :type image: ``str`` or ``2D ndarray``
     :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required
                                       for an area required to be considered a 'lower bar'.
@@ -491,7 +477,11 @@ def border_detection(image
     :param report_signal_strength: if ``True`` include the strength of the signal suggesting the existence of an edge.
                                    Defaults to ``False``.
     :type report_signal_strength: ``bool``
-    :return: a dictionary of the form ``{'vborder': tuple or None, 'hborder': tuple or None, 'hbar': int or None}``
+    :return: a dictionary of the form:
+             ``{'vborder': (left, right) or None, 'hborder': (upper, lower) or None, 'hbar': int or None}``
+              where 'vborder' denotes the vertical borders, 'hborder' denotes the horizontal borders and 'hbar'
+              provides the height of the horizontal bar.
+              dentotes the location of the lower bar.
     :rtype: ``dict``
     """
     if isinstance(image, str):
@@ -507,14 +497,20 @@ def border_detection(image
     # Get Values for columns
     v_edge_candidates = edge_detection(image_array, axis=0)
     # Run Analysis
-    d['vborder'] = _weigh_evidence(v_edge_candidates, image_array.shape[1], signal_strength_threshold, min_border_separation )
+    d['vborder'] = _weigh_evidence(v_edge_candidates,
+                                   image_array.shape[1],
+                                   signal_strength_threshold,
+                                   min_border_separation)
 
     # Get Values for rows
     h_border_candidates = edge_detection(image_array, axis=1)
 
-    # Run Analysis. This excludes final element in `h_border_candidates` as including a third elemnt
+    # Run Analysis. This excludes final element in `h_border_candidates` as including a third element
     # is simply meant to deflect the pull of the lower bar, if present.
-    d['hborder'] = _weigh_evidence(h_border_candidates[:2], image_array.shape[0], signal_strength_threshold, min_border_separation )
+    d['hborder'] = _weigh_evidence(h_border_candidates[:2],
+                                   image_array.shape[0],
+                                   signal_strength_threshold,
+                                   min_border_separation)
 
     # Look for lower bar
     d['hbar'] = double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
