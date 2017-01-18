@@ -24,10 +24,10 @@ import numpy as np
 from itertools import chain
 
 # Image Support Tools
-from biovida.images.openi_support_tools import item_extract
-from biovida.images.openi_support_tools import filter_unnest
-from biovida.images.openi_support_tools import num_word_to_int
-from biovida.images.openi_support_tools import multiple_decimal_remove
+from biovida.images._openi_support_tools import item_extract
+from biovida.images._openi_support_tools import filter_unnest
+from biovida.images._openi_support_tools import num_word_to_int
+from biovida.images._openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
