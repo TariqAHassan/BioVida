@@ -25,7 +25,7 @@ def _parser(s):
     lower_join = lambda x: '_'.join(cln(x).split()).strip().lower()
 
     # Generate the dict
-    return {cln(k[1]).strip(): lower_join(k[0]) for k in split_string if set(k) != set([''])}
+    return {cln(k[1]): lower_join(k[0]) for k in split_string if set(k) != set([''])}
 
 
 
