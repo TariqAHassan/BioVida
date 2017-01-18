@@ -60,7 +60,7 @@ def items_null(element):
     :return: assessment of whether or not `element` is a NaN.
     :rtype: ``bool``
     """
-    if isinstance(element, (list, tuple, type(np.array))):
+    if isinstance(element, (list, tuple)) or 'ndarray' in str(type(element)):
         return True if all(pd.isnull(i) for i in element) else False
     else:
         return pd.isnull(element)
