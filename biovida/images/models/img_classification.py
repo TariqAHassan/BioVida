@@ -361,12 +361,12 @@ class ImageRecognitionCNN(object):
         predictions = ((d[e], i) for e, i in enumerate(single_img_prediction))
         return sorted(predictions, key=lambda x: x[1], reverse=True)
 
-    def predict(self, list_of_images, status_bar=False, verbose=False):
+    def predict(self, list_of_images, status=False, verbose=False):
         """
 
-        :param list_of_images: a list of paths (strings) to images.
-        :param status_bar: True for a tqdm status bar; False for no status bar. Defaults to True.
-        :type status_bar: ``bool``
+        :param list_of_images: a list of paths (strings) to images or ``ndarrays``.
+        :param status: True for a tqdm status bar; False for no status bar. Defaults to True.
+        :type status: ``bool``
         :param verbose: if True, print updates. Defaults to False
         :type verbose: ``bool``
         :return: a list of lists with tuples of the form (name, probabability). Defaults to False.
@@ -375,13 +375,19 @@ class ImageRecognitionCNN(object):
         if self.model is None:
             raise AttributeError("Predictions cannot be made until a model is loaded or trained.")
 
-        def status(x):
-            return tqdm(x) if status_bar else x
+        def status(x): # ToDo: Not working properly
+            return tqdm(x) if status else x
 
-        if verbose:
-            print("Loading Images...")
+        number_ndarray = ['ndarray' in str(type(i)) for i in list_of_images]
 
-        images = load_and_scale_imgs(list_of_images, img_size=self.img_shape, status=tqdm if status_bar else None)
+        if all(number_ndarray):
+            images = list_of_images
+        elif any(number_ndarray):
+            raise ValueError("Only some of the items in `list_of_images` we found to be `ndarrays`.")
+        else:
+            if verbose:
+                print("Loading Images...")
+            images = load_and_scale_imgs(list_of_images, img_size=self.img_shape, status=tqdm if status else None)
 
         if verbose:
             print("Generating Predictions...")
