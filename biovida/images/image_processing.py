@@ -9,19 +9,18 @@ import os
 import numpy as np
 import pandas as pd
 from PIL import Image
-from PIL import ImageStat
 from tqdm import tqdm
-from pprint import pprint
+from PIL import ImageStat
 
 # General tools
 from biovida.support_tools.support_tools import items_null
 
 # Tools form the image subpackage
-from biovida.images.resources import * # needed to generate medpix logo. Refactor.
-from biovida.images.models.temp import resources_path
+import biovida.images.resources # needed to generate medpix logo.
 from biovida.images.openi_interface import OpenInterface
 from biovida.images.image_tools import load_and_scale_imgs
-from biovida.images.image_tools import image_transposer
+
+from biovida.images.models.temp import cnn_model_location, resources_path # ToDo: remove.
 
 # Models
 from biovida.images.models.border_detection import border_detection
@@ -34,22 +33,20 @@ from biovida.support_tools._cache_management import _package_cache_creator
 # Start tqdm
 tqdm.pandas("status")
 
-# Suppress np scientific notation
-np.set_printoptions(suppress=True)
 
 # ---------------------------------------------------------------------------------------------
 # General procedure (for Ultrasound, X-ray, CT and MRI):
 # ---------------------------------------------------------------------------------------------
 #
+#
 #   1. Check if grayscale                                                       X
-#         - if false, try to detect a frame
-#               - if frame, crop else ban
+#         - mark finding in dataframe.
 #   2. Look for MedLine(R) logo                                                 P
-#         - if true, crop
+#         - if true, try to crop
 #   3. Look for text bar                                                        P
-#         - if true, try crop, else ban
+#         - if true, try crop
 #   4. Look for border                                                          P
-#         - if true, try crop, else ban
+#         - if true, try to crop
 #   5. Look for arrows or boxes *
 #         - if true, ban
 #   6. Look for image grids *
@@ -66,20 +63,7 @@ np.set_printoptions(suppress=True)
 #     p = partially solved
 #     X = solved
 #
-# ---------------------------------------------------------------------------------------------
-# Temporary Data
-# ---------------------------------------------------------------------------------------------
-
-from biovida.images.models.temp import cache_path
-
-# Create an instance of the Open-i data harvesting tool
-opi = OpenInterface(cache_path, download_limit=5500, img_sleep_time=2, records_sleep_main=None)
-
-# Get the Data
-opi.search(None, image_type=['mri'])
-
-df = opi.image_record_database
-
+#
 # ---------------------------------------------------------------------------------------------
 # Grayscale Analysis
 # ---------------------------------------------------------------------------------------------
@@ -97,6 +81,7 @@ def grayscale_img(img_path):
     :rtype: ``bool``
     """
     # See: http://stackoverflow.com/q/23660929/4898004
+    # Note: this can be fool by a image that is an even split of R, G, B.
     if img_path is None or pd.isnull(img_path):
         return np.NaN
     stat = ImageStat.Stat(Image.open(img_path).convert("RGB"))
@@ -107,17 +92,16 @@ def require_grayscale_check(x, grayscale_tech=('mri', 'ct', 'x_ray', 'ultrasound
     """
 
     Check if image classification as an 'mri', 'pet', 'ct' is 'ultrasound'
-    is valid based on whether or not the image is grayscale.
+    is valid based on whether or not the image is greyscale.
 
     :param x:
     :type x:
-    :param grayscale_tech: a list of technologies that require grayscale images.
+    :param grayscale_tech: a list of technologies that require greyscale images.
     :type grayscale_tech: ``tuple``
     :return:
     :rtype: ``bool``
     """
-    # ToDo: this need more sophisticated data that consideres the whole dataset.
-
+    # ToDo: this needs more sophisticated data that considers all available information.
     if x['image_modality_major'] in grayscale_tech and x['grayscale_img'] is False:
         return np.NaN
     else:
@@ -129,7 +113,7 @@ def require_grayscale_check(x, grayscale_tech=('mri', 'ct', 'x_ray', 'ultrasound
 # ---------------------------------------------------------------------------------------------
 
 
-def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.5):
+def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.5, return_full=False):
     """
 
     Wraps ``biovida.images.models.template_matching.robust_match_template()``.
@@ -142,11 +126,12 @@ def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.
     :type x_greater_check: ``float``
     :param y_greater_check:
     :type y_greater_check: ``float``
-    :return:
+    :param return_full: if ``True``, return a dictionary with the location of all four corners for the logo's bounding box.
+                        Otherwise, only the bottom left corner will be returned. Defaults to ``False``.
+    :type return_full: ``bool``
+    :return: the bottom left corner of
     :rtype: ``tuple``
     """
-    # ToDo: if not grayscale, skip.
-
     if 'medpix' not in x['journal_title'].lower():
         return np.NaN
 
@@ -163,19 +148,21 @@ def logo_analysis(x, threshold=0.25, x_greater_check=1/3.0, y_greater_check=1/2.
     if not isinstance(match, dict) or match['match_quality'] < threshold:
         return np.NaN
 
-    box_bottom_left = match['box']['bottom_left']
-
     # Check the box is in the top right
-    if box_bottom_left[0] < (base_img_shape[0] * x_greater_check) or \
-        box_bottom_left[1] > (base_img_shape[1] * y_greater_check):
+    if match['box']['bottom_left'][0] < (base_img_shape[0] * x_greater_check) or \
+        match['box']['bottom_left'][1] > (base_img_shape[1] * y_greater_check):
         return np.NaN
+
+    if return_full:
+        return match['box']
     else:
-        return box_bottom_left
+        match['box']['bottom_left']
 
 
 # ---------------------------------------------------------------------------------------------
 # Detect Border
 # ---------------------------------------------------------------------------------------------
+
 
 def border_analysis(data_frame
                      , join=True
@@ -209,16 +196,12 @@ def border_analysis(data_frame
     ba_df = pd.DataFrame(border_analysis.tolist()).fillna(np.NaN)
     return data_frame.join(ba_df, how='left') if join else ba_df
 
+
 # ---------------------------------------------------------------------------------------------
 # Image Analysis Pipeline
 # ---------------------------------------------------------------------------------------------
 
 
-from biovida.images.models.temp import cnn_model_location
-from biovida.images.image_tools import load_img_rescale
-
-
-# Determine crop locations
 def h_crop_top_decision(x):
     """
 
@@ -290,6 +273,8 @@ def image_problems_predictions(data_frame, ircnn, join=False, status=True):
 
     :param data_frame:
     :type data_frame:
+    :param ircnn: an instance of biovida.images.models.img_classification.ImageRecognitionCNN().
+    :type ircnn: ``ImageRecognitionCNN()``
     :param join:
     :type join:
     :return:
@@ -317,7 +302,7 @@ def image_problems_predictions(data_frame, ircnn, join=False, status=True):
 
     cropped_images_for_analysis = list()
     for img_cache_path, lower_crop, upper_crop, vborder in tqdm(to_predict):
-        # Load the image and Apply Cropping
+        # Load the image and apply cropping
         cropped_image = apply_cropping(img_cache_path, lower_crop, upper_crop, vborder)
         cropped_images_for_analysis.append(cropped_image)
 
@@ -333,35 +318,50 @@ def image_problems_predictions(data_frame, ircnn, join=False, status=True):
     else:
         return pd.Series(predictions)
 
-# # Load the CNN
-# ircnn = ImageRecognitionCNN()
-# ircnn.load(cnn_model_location, override_existing=True)
+
+# ---------------------------------------------------------------------------------------------
+# Automatic Image Cleaning Tool
+# ---------------------------------------------------------------------------------------------
+
+
+def auto_image_clean(data_frame, status=True):
+    """
+
+    :param data_frame:
+    :param status:
+    :return:
+    """
+    # Load the CNN
+    ircnn = ImageRecognitionCNN()
+    ircnn.load(cnn_model_location, override_existing=True)
+
+    # Compute whether or not the image is grayscale
+    data_frame['grayscale'] = data_frame['img_cache_path'].progress_map(grayscale_img, na_action='ignore')
+
+    # Report the location of the MedPix(R) logo (if present).
+    data_frame['medpix_logo_lower_left'] = data_frame.progress_apply(logo_analysis, axis=1)
+
+    # Analyze Crop Locations
+    data_frame = border_analysis(data_frame)
+
+    # Compute Crop location
+    data_frame['upper_crop'] = data_frame.apply(h_crop_top_decision, axis=1)
+    data_frame['lower_crop'] = data_frame.apply(h_crop_lower_decision, axis=1)
+
+    # Generate predictions
+    data_frame = image_problems_predictions(data_frame, ircnn, join=True, status=status)
+
+    return data_frame
+
+
+# from biovida.images.models.temp import cache_path
 #
-# # Compute whether or not the image is grayscale
-# df['grayscale'] = df['img_cache_path'].progress_map(grayscale_img, na_action='ignore')
+# # Create an instance of the Open-i data harvesting tool
+# opi = OpenInterface(cache_path, download_limit=5500, img_sleep_time=2, records_sleep_main=None)
 #
-# # Report the location of the MedPix(R) logo (if present).
-# df['medpix_logo_lower_left'] = df.progress_apply(logo_analysis, axis=1)
-#
-# # Analyze Crop Locations
-# df = border_analysis(df)
-#
-# # Compute Crop location
-# df['upper_crop'] = df.apply(h_crop_top_decision, axis=1)
-# df['lower_crop'] = df.apply(h_crop_lower_decision, axis=1)
-
-
-
-
-
-
-
-
-
-
-
-
-
+# # Get the Data
+# opi.search(None, image_type=['mri'])
+# df = opi.image_record_database
 
 
 
