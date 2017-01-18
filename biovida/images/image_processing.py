@@ -11,6 +11,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 from PIL import ImageStat
+from scipy.misc import imread
 
 # General tools
 from biovida.support_tools.support_tools import items_null
@@ -30,16 +31,14 @@ from biovida.images.models.template_matching import robust_match_template
 # Tool to create required caches
 from biovida.support_tools._cache_management import _package_cache_creator
 
-# Start tqdm
-tqdm.pandas("status")
-
+pd.options.mode.chained_assignment = None  # Suppress Pandas' SettingWithCopyWarning
 
 # ---------------------------------------------------------------------------------------------
 # General procedure (for Ultrasound, X-ray, CT and MRI):
 # ---------------------------------------------------------------------------------------------
 #
 #
-#   1. Check if grayscale                                                       X
+#   1. Check if greyscale                                                       X
 #         - mark finding in dataframe.
 #   2. Look for MedLine(R) logo                                                 P
 #         - if true, try to crop
@@ -72,75 +71,100 @@ tqdm.pandas("status")
 class ImageProcessing(object):
     """
 
+    This class is designed to allow easy analysis of cached image data.
+
     """
-    def __init__(self, image_data_frame):
-        self.image_data_frame = image_data_frame
+
+    def __init__(self, image_dataframe, model_location=None, verbose=True):
+        """
+
+        :param image_dataframe:
+        :param model_location:
+        """
+        self.image_dataframe = image_dataframe
+        self._verbose = verbose # ToDo: build out.
+
+        # Start tqdm
+        tqdm.pandas("status")
 
         # Load the CNN
         self.ircnn = ImageRecognitionCNN()
-        self.ircnn.load(cnn_model_location, override_existing=True)
 
-    def _grayscale_img(self, img_path):
+        # Load the model weights and architecture.
+        if model_location is None:
+            self.ircnn.load(cnn_model_location, override_existing=True)
+        elif not isinstance(model_location, str):
+            raise ValueError("`model_location` must either be a string or `None`.")
+        elif os.path.isfile(model_location):
+            self.ircnn.load(cnn_model_location, override_existing=True)
+        else:
+            raise FileNotFoundError("'{0}' could not be located.".format(str(model_location)))
+
+        # Container for images represented as `ndarrays`
+        self._ndarrays_images = None
+
+    def _ndarray_extract(self, zip_with_column=None, reload_override=False):
         """
 
-        Tool which uses the PIL library to determine whether or not an image is grayscale.
+        :return:
+        """
+        if self._ndarrays_images is None or reload_override:
+            self._ndarrays_images = [imread(i, flatten=True) for i in self.image_dataframe['img_cache_path']]
+
+        if zip_with_column is not None:
+            return zip(*[self._ndarrays_images, self.image_dataframe[zip_with_column]])
+        else:
+            return self._ndarrays_images
+
+    def _greyscale_img(self, img_path):
+        """
+
+        Tool which uses the PIL library to determine whether or not an image is greyscale.
         Note:
-              - this tool is very conservative (*any* 'color' will yeild `False`).
+              - this tool is very conservative (*any* 'color' will yield `False`).
               - the exception to the above rule is the *very rare* of an image which even split
                 of red, green and blue.
 
         :param img_path: path to an image
         :type img_path:``str``
-        :return: ``True`` if grayscale, else ``False``.
+        :return: ``True`` if greyscale, else ``False``.
         :rtype: ``bool``
         """
         # See: http://stackoverflow.com/q/23660929/4898004
         if img_path is None or items_null(img_path):
             return np.NaN
-        img = Image.open(img_path)
+        img = Image.open(img_path) # Find a way to replace this.
         stat = ImageStat.Stat(img.convert("RGB"))
         return np.mean(stat.sum) == stat.sum[0]
 
-    # ToDo: replace 'x'.
-    def require_grayscale_check(self, grayscale_tech=('mri', 'ct', 'x_ray', 'ultrasound')):
+    def grayscale_analysis(self):
         """
 
-        Check if image classification as an 'mri', 'pet', 'ct' is 'ultrasound'
-        is valid based on whether or not the image is greyscale.
+        Run a greyscale analysis.
 
-        :param x:
-        :type x:
-        :param grayscale_tech: a list of technologies that require greyscale images.
-        :type grayscale_tech: ``tuple``
-        :return:
-        :rtype: ``bool``
         """
-        # ToDo: this needs more sophisticated data that considers all available information.
-        if x['image_modality_major'] in grayscale_tech and x['grayscale_img'] is False:
-            return np.NaN
-        else:
-            return x['image_modality_major']
+        self.image_dataframe['grayscale'] = self.image_dataframe['img_cache_path'].progress_map(
+            self._greyscale_img, na_action='ignore')
 
-    def _logo_analysis_output(self, match, threshold, base_img_shape, x_greater_check, y_greater_check, return_full):
+    def _logo_analysis_out(self, match, base_img_shape, output_params):
         """
 
         Decides the output for the `logo_analysis` function.
 
         :param match:
-        :param threshold:
-        :param base_img_shape:
-        :param x_greater_check:
-        :param y_greater_check:
-        :param return_full:
+        :param output_params: tuple of the form:
+                              (threshold, x_greater_check, y_greater_check, return_full).
         :return:
         """
+        threshold, x_greater_check, y_greater_check, return_full = output_params
+
         # Check match quality
         if not isinstance(match, dict) or match['match_quality'] < threshold:
             return np.NaN
 
         # Check the box is in the top right
         if match['box']['bottom_left'][0] < (base_img_shape[0] * x_greater_check) or \
-            match['box']['bottom_left'][1] > (base_img_shape[1] * y_greater_check):
+                match['box']['bottom_left'][1] > (base_img_shape[1] * y_greater_check):
             return np.NaN
 
         if return_full:
@@ -149,17 +173,14 @@ class ImageProcessing(object):
             return match['box']['bottom_left']
 
     def logo_analysis(self,
-                      x,
                       threshold=0.25,
                       x_greater_check=1/3.0,
                       y_greater_check=1/2.5,
-                      return_full=False): # ToDo: expose all `robust_match_template()` options.
+                      return_full=False):  # ToDo: expose all `robust_match_template()` options.
         """
 
         Wraps ``biovida.images.models.template_matching.robust_match_template()``.
 
-        :param x: passed from df.apply().
-        :type x: ``Pandas Series``
         :param threshold:
         :type threshold: ``float``
         :param x_greater_check:
@@ -172,28 +193,31 @@ class ImageProcessing(object):
         :return: the bottom left corner of
         :rtype: ``tuple``
         """
-        if 'medpix' not in x['journal_title'].lower():
-            return np.NaN
+        # Package Params
+        output_params = (threshold, x_greater_check, y_greater_check, return_full)
 
-        # Load the Pattern
-        medline_template_img = os.path.join(resources_path, "medpix_logo.png")
+        # Load the Pattern. ToDo: Generalize `resources_path` location.
+        medline_template_img = imread(os.path.join(resources_path, "medpix_logo.png"), flatten=True)
 
-        # Run the matching algorithm
-        match, base_img_shape = robust_match_template(medline_template_img, x['img_cache_path'])
-        return self._logo_analysis_output(match, threshold, base_img_shape, x_greater_check, y_greater_check, return_full)
+        to_analyze = self._ndarray_extract(zip_with_column='journal_title')
 
-    def border_analysis(self
-                         , join=True
-                         , signal_strength_threshold=0.25
-                         , min_border_separation=0.15
-                         , lower_bar_search_space=0.9
-                         , report_signal_strength=False):
+        results = list()
+        for img, journal in tqdm(to_analyze):
+            if 'medpix' not in str(journal).lower():
+                results.append(np.NaN)
+            else:
+                match, base_img_shape = robust_match_template(medline_template_img, img)
+                current = self._logo_analysis_out(match, base_img_shape, output_params)
+                results.append(current)
+
+        # Update dataframe
+        self.image_dataframe['medpix_logo_lower_left'] = results
+
+    def border_analysis(self, signal_strength_threshold=0.25, min_border_separation=0.15, lower_bar_search_space=0.9):
         """
 
         Wrapper for ``biovida.images.models.border_detection.border_detection()``.
 
-        :param data_frame:
-        :param join: if ``True``, left join with ``data_frame``. Defaults to True.
         :param signal_strength_threshold:
         :param min_border_separation:
         :param lower_bar_search_space:
@@ -205,16 +229,23 @@ class ImageProcessing(object):
                                     signal_strength_threshold,
                                     min_border_separation,
                                     lower_bar_search_space,
-                                    report_signal_strength)
+                                    report_signal_strength=False,
+                                    rescale_input_ndarray=True)
 
-        # Run the analysis
-        border_analysis = data_frame['img_cache_path'].progress_map(ba_func)
+        to_analyze = self._ndarray_extract()
+
+        # Run the analysis.
+        border_analysis = [ba_func(i) for i in tqdm(to_analyze)]
 
         # Convert to a dataframe and return
-        ba_df = pd.DataFrame(border_analysis.tolist()).fillna(np.NaN)
-        return data_frame.join(ba_df, how='left') if join else ba_df
+        ba_df = pd.DataFrame(border_analysis).fillna(np.NaN)
 
-    def h_crop_top_decision(self, x):
+        # Update datefame
+        self.image_dataframe['hbar'] = ba_df['hbar']
+        self.image_dataframe['hborder'] = ba_df['hborder']
+        self.image_dataframe['vborder'] = ba_df['vborder']
+
+    def _h_crop_top_decision(self, x):
         """
 
         Choose lowest horizontal cropping point.
@@ -227,7 +258,7 @@ class ImageProcessing(object):
         crop_candiates = [x[i][0] if i == 'hborder' else x[i][1] for i in cols if not items_null(x[i])]
         return max(crop_candiates) if len(crop_candiates) else np.NaN
 
-    def h_crop_lower_decision(self, x):
+    def _h_crop_lower_decision(self, x):
         """
 
         Chose the highest cropping point for the bottom.
@@ -242,15 +273,30 @@ class ImageProcessing(object):
         crop_candiates = lhborder + hbar
         return min(crop_candiates) if len(crop_candiates) else np.NaN
 
-    def apply_cropping(self, img_cache_path, lower_crop, upper_crop, vborder):
+    def crop_decision(self):
+        """
+
+        :return:
+        """
+        for i in ('medpix_logo_lower_left', 'hborder', 'hbar'):
+            if i not in self.image_dataframe.columns.str.lower():
+                raise AttributeError("The `image_dataframe` does not contain the\nfollowing required column: '{0}'.\n"
+                                     "Please execute the corresponding analysis method to generate it.".format(i))
+
+        # Compute Crop location
+        self.image_dataframe['upper_crop'] = self.image_dataframe.apply(self._h_crop_top_decision, axis=1)
+        self.image_dataframe['lower_crop'] = self.image_dataframe.apply(self._h_crop_lower_decision, axis=1)
+
+    def _apply_cropping(self, img_cache_path, lower_crop, upper_crop, vborder, return_as_array=True):
         """
 
         :param img_cache_path:
         :param lower_crop:
         :param upper_crop:
         :param vborder:
+        :param return_as_array:
         :return:
-        :rtype: ``2D ndarray``
+        :rtype: ``2D ndarray`` or ``PIL``
         """
         # Load the image
         converted_image = Image.open(img_cache_path)
@@ -268,27 +314,22 @@ class ImageProcessing(object):
             w, h = converted_image.size
             converted_image = converted_image.crop((int(vborder[0]), 0, int(vborder[1]), h))
 
-        return np.asarray(converted_image.convert("RGB"))
+        if return_as_array:
+            return np.asarray(converted_image.convert("RGB"))
+        else:
+            return converted_image.convert("RGB")
 
-    def image_problems_predictions(data_frame, ircnn, join=False, status=True):
+    # ToDo: replace dataframe param.
+    def image_problems_predictions(self, status=True):
         """
 
-        Uses a Convolutional Neural Network to Make Predictions about the
-        likelihood of problems in the image.
+        This method is powered by a Convolutional Neural Network which
+        computes probabilities for the presence of problematic image properties or types.
 
-        Currently, the model can identify the follow problems
+        Currently, the model can identify the follow problems:
 
             - arrows in images
             - images arrayed as grids
-
-        :param data_frame:
-        :type data_frame:
-        :param ircnn: an instance of biovida.images.models.img_classification.ImageRecognitionCNN().
-        :type ircnn: ``ImageRecognitionCNN()``
-        :param join:
-        :type join:
-        :return:
-        :rtype: ``Pandas DataFrame`` or ``Pandas Series``
 
         :Examples:
 
@@ -301,77 +342,64 @@ class ImageProcessing(object):
         ...4   [(grids, 0.928362), (arrows, 1.10526e-06)]
 
         The first value in the tuple represents the problem identified and second
-        value represents its associated probability
-        (for the sake of *simplicity*, this be interpreted as the model's confidence).
+        value represents its associated probability (for the sake of *simplicity*,
+        this be interpreted as the model's confidence).
 
-        For example, in the final row we can see that the model confidently 'believes' both
+        For example, in the final row we can see that the model strongly 'believes' both
         that the image is, in fact, a grid of images and that it does not contain arrows.
         """
         # Zip the relevant columns (faster than looping through the dataframe directly).
-        to_predict = zip(*[data_frame[i] for i in ('img_cache_path', 'lower_crop', 'upper_crop', 'vborder')])
+        to_predict = zip(*[self.image_dataframe[i] for i in ('img_cache_path', 'lower_crop', 'upper_crop', 'vborder')])
 
         cropped_images_for_analysis = list()
         for img_cache_path, lower_crop, upper_crop, vborder in tqdm(to_predict):
-            # Load the image and apply cropping
-            cropped_image = apply_cropping(img_cache_path, lower_crop, upper_crop, vborder)
+            cropped_image = self._apply_cropping(img_cache_path, lower_crop, upper_crop, vborder, return_as_array=True)
             cropped_images_for_analysis.append(cropped_image)
 
         # Transform the cropped images into a form `ImageRecognitionCNN.predict()` can accept
-        transformed_images = load_and_scale_imgs(cropped_images_for_analysis, ircnn.img_shape)
+        transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self.ircnn.img_shape)
 
-        # Make the predictions
-        predictions = ircnn.predict([transformed_images], status=status)
+        # Make the predictions and Save
+        self.image_dataframe['img_problems'] = self.ircnn.predict([transformed_images], status=status)
 
-        if join:
-            data_frame['img_problems'] = predictions
-            return data_frame
-        else:
-            return pd.Series(predictions)
+    # ToDo: Add method to save processed images.
+    # ToDo: Expose predictions outside of auto()
+    # ToDo: auto() method which include auto decisions.
 
-    def auto_image_clean(self, status=True):
+    def _auto_analysis(self, status=True, return_result=True, new_analysis=False):
         """
 
         :param status:
+        :type status: ``bool``
+        :param return_result:
+        :type return_result: ``bool``
+        :param new_analysis: recompute all analyses.
+
+                        ..warning:
+
+                            This will destroy the information currently computed and represented in the dataframe.
+
+        :type new_analysis: ``bool``
         :return:
+        :rtype: ``Pandas DataFrame
         """
-        # Compute whether or not the image is grayscale
-        data_frame['grayscale'] = data_frame['img_cache_path'].progress_map(grayscale_img, na_action='ignore')
+        # Run Analysis Battery with Default Paramater Values
+        if 'grayscale' not in self.image_dataframe.columns or new_analysis:
+            self.grayscale_analysis()
+        if 'medpix_logo_lower_left' not in self.image_dataframe.columns or new_analysis:
+            self.logo_analysis()
+        if any(x not in self.image_dataframe.columns for x in ['hbar', 'hborder', 'vborder']) or new_analysis:
+            self.border_analysis()
 
-        # Report the location of the MedPix(R) logo (if present).
-        data_frame['medpix_logo_lower_left'] = data_frame.progress_apply(self.logo_analysis, axis=1)
-
-        # Analyze Crop Locations
-        data_frame = border_analysis(data_frame)
-
-        # Compute Crop location
-        data_frame['upper_crop'] = data_frame.apply(self.h_crop_top_decision, axis=1)
-        data_frame['lower_crop'] = data_frame.apply(self.h_crop_lower_decision, axis=1)
+        if not any(x in self.image_dataframe.columns for x in ['upper_crop', 'lower_crop']) or new_analysis:
+            # Compute Crop location
+            self.crop_decision()
 
         # Generate predictions
-        data_frame = image_problems_predictions(data_frame, ircnn, join=True, status=status)
+        if 'img_problems' not in self.image_dataframe.columns or new_analysis:
+            self.image_problems_predictions(status=status)
 
-        return data_frame
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return self.image_dataframe if return_result else None
 
 
 
