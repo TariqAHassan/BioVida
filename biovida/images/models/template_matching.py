@@ -100,12 +100,12 @@ def _corners_calc(top_left_, bottom_right_):
     :param bottom_right_:
     :return:
     """
-    return {
+    d = {
         'top_left': top_left_,
         'top_right': (bottom_right_[0], top_left_[1]),
         'bottom_left': (top_left_[0], bottom_right_[1]),
         'bottom_right': bottom_right_}
-
+    return {k: tuple(map(int, v)) for k, v in d.items()}
 
 def _scale_invar_match_template_output(d):
     """
@@ -220,23 +220,19 @@ def robust_match_template(pattern_img_path
     for base_resize in _arrange_one_first(base_resizes):
         base_img = imresize(base_img_raw, base_resize)
         current_match = _scale_invar_match_template(pattern_img,
-                                                     base_img,
-                                                     base_top_cropping,
-                                                     prop_scale,
-                                                     scaling_lower_limit,
-                                                     base_resize,
-                                                     end_search_threshold)
+                                                    base_img,
+                                                    base_top_cropping,
+                                                    prop_scale,
+                                                    scaling_lower_limit,
+                                                    base_resize,
+                                                    end_search_threshold)
 
         if isinstance(current_match, dict):
             attemps.append(current_match)
-            # current_match['no'] = base_resize
             if current_match['match_quality'] >= end_search_threshold:
                 break
 
     single_best_match = max(attemps, key=lambda x: x['match_quality'])
-    # if current_match['no'] != 1:
-    #     print(current_match['no'])
-    # del current_match['no']
     return single_best_match, base_img.shape[::-1]
 
 
