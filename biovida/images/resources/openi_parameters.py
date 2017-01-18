@@ -95,7 +95,6 @@ openi_article_type_params = {
     'dp': 'data_paper',
     'di': 'discussion',
     'ed': 'editorial',
-    'hs': 'historical_slide',
     'ib': 'in_brief',
     'in': 'introduction',
     'lt': 'letter',
@@ -103,14 +102,15 @@ openi_article_type_params = {
     'ma': 'method_article',
     'ne': 'news',
     'ob': 'obituary',
-    # '': 'oration',  # unknown, but appears to be 'ot' or 'or' (by elimination)
-    'os': 'orthopedic_slides',
     'pr': 'product_review',
-    'rr': 'radiology_report',
+    'or': 'oration',
     're': 'reply',
     'ra': 'research_article',
     'rw': 'review_article',
-    'sr': 'systematic_reviews'
+    'sr': 'systematic_reviews',
+    'rr': 'radiology_report',
+    'os': 'orthopedic_slides',
+    'hs': 'historical_slide'
 }
 
 
