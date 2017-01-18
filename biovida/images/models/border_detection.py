@@ -7,9 +7,8 @@
 # Imports
 import numpy as np
 import pandas as pd
-from copy import deepcopy
-from functools import reduce
 from operator import sub
+from functools import reduce
 
 
 from biovida.images.image_tools import load_img_rescale
@@ -214,7 +213,7 @@ def _expectancy_violation(expected, actual, round_by=4):
     :type: ``float``
     """
     # ToDo: explore better solutions.
-    # This just blocks division by zero (given all values will be >=0)
+    # This just blocks division by zero (given all values will be >= 0)
     expected += 0.0001
     actual += 0.0001
 
@@ -306,7 +305,6 @@ def edge_detection(img, axis=0, n_largest_override=None):
     # Average the remaining values
     # ToDo: it's not not clear if _array_cleaner() helps much...after all, the vector has already been averaged.
     averaged_axis_values = _array_cleaner(np.mean(img, axis=axis))
-
     return _largest_median_inflection(averaged_axis_values, axis, n_largest_override)
 
 
@@ -382,8 +380,8 @@ def lower_bar_detection(image_array, lower_bar_search_space, signal_strength_thr
     if not len(thresholded_values):
         return None
 
-    m = np.mean(thresholded_values).astype(int)
     # Return the averaged guess
+    m = np.mean(thresholded_values).astype(int)
     return int(m)
 
 
@@ -432,14 +430,15 @@ def border_detection(image
                      , signal_strength_threshold=0.25
                      , min_border_separation=0.15
                      , lower_bar_search_space=0.9
-                     , report_signal_strength=False):
+                     , report_signal_strength=False
+                     , rescale_input_ndarray=True):
     """
 
     Detects the borders and lower bar in an image.
 
     At a high level, this algorithm works as follows:
        1. Along a given axis (rows or columns), vectors
-          which have a standard deviation which approximately equal to 0 are replaced with zero vectors. (a).
+          with standard deviation approximately equal to 0 are replaced with zero vectors. (a).
        2. Values are averaged along this same axis.
           This produces a signal (which can be visualized as a line graph). (b).
        3. The median value for this signal is quantified. The median is used here,
@@ -460,7 +459,14 @@ def border_detection(image
     (a) This reduces the muffling effect that areas with solid color can have on step 2.
     (b) Large inflections after areas with little change suggest a transition from a solid background to an image.
 
-    :param image: a path to an image or an image represented as a 2D matrix.
+    :param image: a path to an image or an image represented as a 2D ndarray.
+
+                 .. warning::
+
+                        if a ``ndarray`` is passed, it should be the output of the
+                        ``biovida.images.image_tools.load_img_rescale()`` function.
+                        Without this preprocessing, this function's stability is not assured.
+
     :type image: ``str`` or ``2D ndarray``
     :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required
                                       for an area required to be considered a 'lower bar'.
@@ -477,6 +483,8 @@ def border_detection(image
     :param report_signal_strength: if ``True`` include the strength of the signal suggesting the existence of an edge.
                                    Defaults to ``False``.
     :type report_signal_strength: ``bool``
+    :param rescale_input_ndarray: if True, rescale a ``2D ndarray`` passed to ``image``.
+    :type rescale_input_ndarray: ``bool``
     :return: a dictionary of the form:
              ``{'vborder': (left, right) or None, 'hborder': (upper, lower) or None, 'hbar': int or None}``
               where 'vborder' denotes the vertical borders, 'hborder' denotes the horizontal borders and 'hbar'
@@ -484,10 +492,14 @@ def border_detection(image
               dentotes the location of the lower bar.
     :rtype: ``dict``
     """
-    if isinstance(image, str):
+    if 'numpy' in str(type(image)):
+        image_copy = image.copy()
+        if rescale_input_ndarray:
+            image_array = load_img_rescale(image_copy, gray_only=True)
+        else:
+            image_array = image_copy
+    elif isinstance(image, str):
         image_array = load_img_rescale(image)
-    elif 'numpy' in str(type(image)):
-        image_array = deepcopy(image)
     else:
         raise ValueError("`image_array` must be either a path to an image or the image as a 2D ndarray.")
 
@@ -516,10 +528,11 @@ def border_detection(image
     d['hbar'] = double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
 
     # Return the analysis
-    if report_signal_strength:
+    if report_signal_strength:  # ToDo: not working for 'hbar'.
         return d
     else:
-        return {k: [i[0] for i in v] if isinstance(v, list) else (v[0] if isinstance(v, (list, tuple)) else v) for k, v in d.items()}
+        return {k: tuple([i[0] for i in v]) if isinstance(v, list) else (v[0] if isinstance(v, (list, tuple)) else v)
+                for k, v in d.items()}
 
 
 def _lines_plotter(path_to_image):
