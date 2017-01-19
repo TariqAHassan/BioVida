@@ -92,7 +92,7 @@ df = dna.pull('curated')
 ###Documentation
 
 You can view a more extensive Getting Started guide by clicking [here]
-and API documentation[here].
+and API documentation [here].
 
 ------------------------------------------------------------------------
 
