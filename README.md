@@ -1,11 +1,12 @@
 BioVida
 =======
 
-###Overview
-
 BioVida is a library designed to automate both the harvesting and 
 post-processing of biomedical data. The novel datasets it produces
 are intended to need little, if any, cleaning by the user.
+Part of this automation is powered by convolution neural networks
+which operate seamlessly *behind the scenes*, helping to automagically
+clean the data.
 
 To view this project's website, please [click here].
 
@@ -26,108 +27,72 @@ BioVida requires: [pandas], [numpy], [requests], [tqdm], [scipy], [scikit-image]
 
 ------------------------------------------------------------------------
 
-###Image Harvesting
+###API Overview
 
+###Image Data
 
-####Import the Interface for the NIH's Open-i API.
+In just a few lines of code, you can download and clean 
+images from the NIH's Open-i Biomedical Search Database.
+
+####Downloading Images
 ```python
+
+# 1. Import the Interface for the NIH's Open-i API.
 from biovida.images.openi_interface import OpenInterface
-```
 
-####Create an Instance of the Tool
-```python
+# 2. Create an Instance of the Tool
 opi = OpenInterface()
-```
+ 
+# 3. Perform a search
+opi.search("aneurysm", image_type=['mri', 'pet'])  # Results Found: 1,586.
 
-####Perform a Search
-```python
-opi.search("aneurysm", image_type=['mri', 'pet'])
-# Results Found: 1,586.
-```
-
-The values accepted by the `image_type` argument above can easily be reviewed:
-```python
-opi.options(search_parameter='image_type')
-```
-
-Additionally, searches can easily be reviewed:
-```python
-opi.current_search
-# {'image_type': ['mri', 'pet', 'exclude_graphics'], 'query': 'aneurysm'}
-
-opi.current_search_total
-# 1165
-```
-
-####Pull the data
-```python
+# 4. Pull the data
 df = opi.pull()
 ```
 
-The DataFrame created above, `df`, contains data from all fields provided by the Open-i API.<sup>†</sup>
-Images referenced in the DataFrame will automatically be harvested (unless specified otherwise).
+####Cleaning Images
+```python
+# 1. Import Image Processing Tools
+from biovida.images.image_processing import ImageProcessing
 
-<sup>†</sup>*Note*: by default, data harvesting is truncated after the first 60 results.
+# 2. Create an Instance of the Tool using the Search Data
+ip = ImageProcessing(df)
+ 
+# 3. Clean the Image Data
+cdf = ip.auto()
+
+# 4. Save the Cleaned Images
+ip.save("/save/directory/")
+```
+
+Note: this library is still in *pre-alpha*.
+Therefore, the procedures that power the above code snippet are
+still being refined and improved.
 
 ------------------------------------------------------------------------
 
 ###Genomic Data
 
+BioVida also provides an easy interface for obtaining
+Genomic data.
 
-####Import the Interface for DisGeNET.
 ```python
+# 1. Import the Interface for DisGeNET
 from biovida.genomics.disgenet_interface import DisgenetInterface
-```
 
-####Create an Instance of the Tool
-```python
+# 2. Create an Instance of the Tool
 dna = DisgenetInterface()
-```
 
-####Options: Explore Available Databases
-```python
-dna.options()
-# Available Databases:
-#   - 'all'
-#   - 'curated'
-#   - 'snp_disgenet'
-
-dna.options('curated')
-# - Full Name:    Curated Gene-Disease Associations
-# - Description:  The file contains gene-disease associations from UNIPROT, CTD (human subset),
-#                 ClinVar, Orphanet, and the GWAS Catalog.
-```
-
-####Pull the data
-```python
+# 3. Pull a Database
 df = dna.pull('curated')
-```
-This database will be cached to allow to fast access in the future.
-
-As with the `OpenInterface()` class above, it is easy to gain access to the most recent `pull` and related information.
-
-The database its self:
-```python
-dna.current_database
-```
-
-Information about the database:
-```python
-dna.current_database_name
-# 'curated'
-
-dna.current_database_full_name
-# 'Curated Gene-Disease Associations'
-
-dna.current_database_description
-# 'The file contains gene-disease associations from...'
 ```
 
 ------------------------------------------------------------------------
 
 ###Documentation
 
-For documentation please click [here].
+You can view a more extensive Getting Started guide by clicking [here]
+and API documentation[here].
 
 ------------------------------------------------------------------------
 
@@ -156,14 +121,11 @@ Genomics
 
    1. Images
    
-     - Stabalize the process to automatically clean images to make them amenable to machine learning algorithms.
-       Part of this problem will be solved using convolutional neural networks (CNNs) as I've found them to 
-       produce the best results with small image datasets. This will be performing using the [Keras] library,
-       which allows users to use either TensorFlow or Theano as a computational backend. 
+     - Stabalize image processing procedures.
     
    2. Diagnostic Data
    
-     - source currently unclear
+     - likely [disease-ontology.org]
 
 
 [click here]: https://tariqahassan.github.io/BioVida/index.html
@@ -176,10 +138,8 @@ Genomics
 [scikit-image]: http://scikit-image.org
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
+[here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
-
-
-
-
+[disease-ontology.org]: http://disease-ontology.org
 
 
