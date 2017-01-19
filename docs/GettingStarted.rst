@@ -33,17 +33,17 @@ BioVida requires: `pandas <http://pandas.pydata.org>`__,
 `numpy <http://www.numpy.org>`__,
 `requests <http://docs.python-requests.org/en/master/>`__,
 `tqdm <https://github.com/tqdm/tqdm>`__,
-`scipy <https://www.scipy.org>`__ and
+`scipy <https://www.scipy.org>`__,
 `scikit-image <http://scikit-image.org>`__ and
 `keras <https://tariqahassan.github.io/BioVida/index.html>`__
 
 
 All of these dependencies should be installed automatically when installing BioVida.
 
-**Note**: Keras is used to power the Convolutional Neural Networks used in this project.
-This library can use either `TensorFlow <https://www.tensorflow.org>`__ or
-`Theano <http://deeplearning.net/software/theano/>`__ as a computational backend.
-If neither is installed, BioVida will automatically install TensorFlow for you.
+**Note**: Keras is used to power the Convolutional Neural Networks used in this project, meaning
+either `TensorFlow <https://www.tensorflow.org>`__ or
+`Theano <http://deeplearning.net/software/theano/>`__ can be used as a computational backend when using BioVida.
+If neither is present at install time, BioVida will automatically install TensorFlow for you.
 
 --------------
 
@@ -82,7 +82,7 @@ Additionally, searches can easily be reviewed:
     # {'image_type': ['mri', 'pet', 'exclude_graphics'], 'query': 'aneurysm'}
 
     opi.current_search_total
-    # 1165
+    # 1586
 
 Pull the data
 ^^^^^^^^^^^^^
