@@ -66,13 +66,16 @@ class ImageProcessing(object):
 
     This class is designed to allow easy analysis of cached image data.
 
-    :param image_dataframe: a search dataframe from `biovida.images.models.img_classification.ImageRecognitionCNN()``
+    :param image_dataframe: a search dataframe from ``biovida.images.models.img_classification.ImageRecognitionCNN()``
     :type image_dataframe: ``Pandas DataFrame``
     :param model_location: the location of the model for Convnet.
                           If `None`, the default model will be used. Defaults to ``None``.
     :type model_location: ``str``
     :param verbose: if ``True``, print additional details. Defaults to ``False``.
     :type verbose: ``bool``
+
+    :var image_dataframe: this is the search dataframe that was passed when instantiating the class and
+                          contains a record of all analyses run as new columns.
     """
 
     def __init__(self, image_dataframe, model_location=None, verbose=True):
