@@ -1,5 +1,12 @@
+<div align="center">
+  <img src="https://github.com/TariqAHassan/BioVida/blob/5e96d3cd725a6bb1ad958b9cf46100ea0eead606/docs/logo/biovida_logo_scaled.png"><br>
+</div>
+
+-----------------
+
 BioVida
 =======
+
 
 BioVida is a library designed to automate both the harvesting and 
 post-processing of biomedical data. The novel datasets it produces
