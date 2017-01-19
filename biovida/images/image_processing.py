@@ -286,7 +286,7 @@ class ImageProcessing(object):
                                         See: ``skimage.feature.match_template()`` for more.
         :type match_quality_threshold: ``float``
         :param xy_position_threshold: tuple of the form: (x_greater_check, y_greater_check).
-                                      For instance the default (``(1/3.0, 1/2.5)`) requires that the
+                                      For instance the default (``(1/3.0, 1/2.5)``) requires that the
                                       x position of the logo is greater than 1/3 of the image's width
                                       and less than 1/2.5 of the image's height.
         :type xy_position_threshold: ``tuple``
@@ -538,23 +538,6 @@ class ImageProcessing(object):
 
         :param status: display status bar. Defaults to True.
         :type status: ``bool``
-
-        :Examples:
-
-        >>> df['img_problems']
-        ...
-        ...0   [(arrows, 0.197112), (grids, 0.0109332)]
-        ...1   [(arrows, 0.211948), (grids, 0.00918275)]
-        ...2   [(arrows, 0.473652), (grids, 0.00578115)]
-        ...3   [(arrows, 0.43337),  (grids, 0.00857231)]
-        ...4   [(grids, 0.928362), (arrows, 1.10526e-06)]
-
-        The first value in the tuple represents the problem identified and second
-        value represents its associated probability (for the sake of *simplicity*,
-        this be interpreted as the model's confidence).
-
-        For example, in the final row we can see that the model strongly 'believes' both
-        that the image is, in fact, a grid of images and that it does not contain arrows.
         """
         # Apply crop
         cropped_images_for_analysis = self._cropper(data_frame=None, return_as_array=True)
@@ -580,6 +563,24 @@ class ImageProcessing(object):
         :type new_analysis: ``bool``
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
+
+
+        :Examples:
+
+        >>> DataFrame['img_problems']
+        ...
+        0   [(arrows, 0.197112), (grids, 0.0109332)]
+        1   [(arrows, 0.211948), (grids, 0.00918275)]
+        2   [(arrows, 0.473652), (grids, 0.00578115)]
+        3   [(arrows, 0.43337),  (grids, 0.00857231)]
+        4   [(grids, 0.928362), (arrows, 1.10526e-06)]
+
+        The first value in the tuple represents the problem identified and second
+        value represents its associated probability (for the sake of *simplicity*,
+        this be interpreted as the model's confidence).
+
+        For example, in the final row we can see that the model strongly 'believes' both
+        that the image is, in fact, a grid of images and that it does not contain arrows.
         """
         # Note: This method is a wrapper for `_image_problems_predictions()`
         if self._verbose and self._print_update:
@@ -590,6 +591,9 @@ class ImageProcessing(object):
 
     def auto_analysis(self, new_analysis=False, status=True):
         """
+
+        Automatically use the class methods to analyze the ``image_dataframe`` using default
+        parameter values for class methods.
 
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
@@ -617,7 +621,7 @@ class ImageProcessing(object):
         """
 
         Automatically generate 'valid_image' column in the `image_dataframe`
-        column.
+        column by deciding whether or not images are valid using default parameter values for class methods.
 
         :param img_problem_threshold: a scalar from 0 to 1 which specifies the threshold value required
                                       to cause the image to be marked as invalid.
@@ -644,6 +648,8 @@ class ImageProcessing(object):
 
     def auto(self, img_problem_threshold=0.4, require_grayscale=True, new_analysis=False, status=True):
         """
+
+        Automatically carry out all aspects of image preprocessing (recommended).
 
         :param img_problem_threshold: see `auto_decision()`. Defaults to 0.4.
         :type img_problem_threshold: ``float``

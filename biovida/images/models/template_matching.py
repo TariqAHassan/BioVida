@@ -257,20 +257,20 @@ def robust_match_template(pattern_img
 
     Method: Fast Normalized Cross-Correlation.
 
-    :param pattern_img:
+    :param pattern_img: the pattern image.
 
-                    ..warning:
+            .. warning::
 
-                        If a `ndarray` is passed, it must be preprocessed with
-                        ``scipy.misc.imread(pattern_img, flatten=True)``
+                    If a `ndarray` is passed to `pattern_img`, it *must* be preprocessed with
+                    ``scipy.misc.imread(pattern_img, flatten=True)``
 
     :type pattern_img: ``str`` or ``ndarray``
-    :param base_img:
+    :param base_img: the base image in which to look for the ``pattern_img``.
 
-            ..warning:
+             .. warning::
 
-                If a `ndarray` is passed, it must be preprocessed with
-                ``scipy.misc.imread(base_img, flatten=True)``
+                    If a `ndarray` is passed to `base_img`, it must be preprocessed with
+                    ``scipy.misc.imread(base_img, flatten=True)``
 
     :type base_img: ``str`` or ``ndarray``
     :param base_top_cropping: crops the base image to the top x proportion. See: ``_scale_invar_match_template()``.

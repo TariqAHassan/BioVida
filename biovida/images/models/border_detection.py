@@ -463,7 +463,7 @@ def border_detection(image
 
                  .. warning::
 
-                        if a ``ndarray`` is passed, it should be the output of the
+                        If a ``ndarray`` is passed, it should be the output of the
                         ``biovida.images.image_tools.load_img_rescale()`` function.
                         Without this preprocessing, this function's stability is not assured.
 
