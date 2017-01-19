@@ -61,11 +61,6 @@ pd.options.mode.chained_assignment = None  # Suppress Pandas' SettingWithCopyWar
 #     * = requires machine learning
 #     p = partially solved
 #     X = solved
-#
-#
-# ---------------------------------------------------------------------------------------------
-# grayscale Analysis
-# ---------------------------------------------------------------------------------------------
 
 
 class ImageProcessing(object):
@@ -82,26 +77,53 @@ class ImageProcessing(object):
         :param model_location:
         """
         self.image_dataframe = image_dataframe
-        self._verbose = verbose # ToDo: build out.
+        self._verbose = verbose
 
         # Start tqdm
         tqdm.pandas("status")
 
         # Load the CNN
-        self.ircnn = ImageRecognitionCNN()
+        self._ircnn = ImageRecognitionCNN()
 
         # Load the model weights and architecture.
         if model_location is None:
-            self.ircnn.load(cnn_model_location, override_existing=True)
+            self._ircnn.load(cnn_model_location, override_existing=True)
         elif not isinstance(model_location, str):
             raise ValueError("`model_location` must either be a string or `None`.")
         elif os.path.isfile(model_location):
-            self.ircnn.load(cnn_model_location, override_existing=True)
+            self._ircnn.load(cnn_model_location, override_existing=True)
         else:
             raise FileNotFoundError("'{0}' could not be located.".format(str(model_location)))
 
+        # Load the visual image problems the model can detect
+        self.model_classes = list(self._ircnn.data_classes.keys())
+
         # Container for images represented as `ndarrays`
         self._ndarrays_images = None
+
+        # Switch to control verbosity
+        self._print_update = False
+
+    def _apply_status(self, x, status):
+        """
+
+        :param x:
+        :return:
+        """
+        if status:
+            return tqdm(x)
+        else:
+            return x
+
+    def _pil_load(self, image_paths, convert_to_rgb, status=True):
+        """
+
+        :param convert_to_rgb:
+        :return:
+        """
+        def conversion(img):
+            return (Image.open(img).convert('RGB'), img) if convert_to_rgb else (Image.open(img), img)
+        return [conversion(i) for i in self._apply_status(image_paths, status)]
 
     def _ndarray_extract(self, zip_with_column=None, reload_override=False):
         """
@@ -133,7 +155,7 @@ class ImageProcessing(object):
         # See: http://stackoverflow.com/q/23660929/4898004
         if img_path is None or items_null(img_path):
             return np.NaN
-        img = Image.open(img_path) # ToDo: Find a way to replace this.
+        img = Image.open(img_path) # ToDo: find way to call only once inside this class (similar to _ndarray_extract)
         stat = ImageStat.Stat(img.convert("RGB"))
         return np.mean(stat.sum) == stat.sum[0]
 
@@ -145,6 +167,9 @@ class ImageProcessing(object):
         :param new_analysis:
         :return:
         """
+        if self._verbose and self._print_update:
+            print("\n\nStarting Grayscale Analysis...")
+
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
             self.image_dataframe['grayscale'] = self.image_dataframe['img_cache_path'].progress_map(
                 self._grayscale_img, na_action='ignore')
@@ -175,12 +200,39 @@ class ImageProcessing(object):
         else:
             return match['box']['bottom_left']
 
+    def _border_processor(self, robust_match_template_wrapper, output_params, status):
+        """
+
+        :param robust_match_template_wrapper:
+        :param medline_template_img:
+        :param output_params:
+        :param status:
+        :return:
+        """
+        results = list()
+        to_analyze = self._ndarray_extract(zip_with_column='journal_title')
+
+        for img, journal in self._apply_status(to_analyze, status):
+            if 'medpix' not in str(journal).lower():
+                results.append(np.NaN)
+            else:
+                match, base_img_shape = robust_match_template_wrapper(img)
+                current = self._logo_analysis_out(match, base_img_shape, output_params)
+                results.append(current)
+
+        return results
+
     def logo_analysis(self,
                       threshold=0.25,
-                      x_greater_check=1/3.0,
-                      y_greater_check=1/2.5,
+                      xy_position_treshold=(1/3.0, 1/2.5),
                       return_full=False,
-                      new_analysis=False):  # ToDo: expose all `robust_match_template()` options.
+                      new_analysis=False,
+                      base_top_cropping=0.14,
+                      prop_scale=0.075,
+                      scaling_lower_limit=0.25,
+                      end_search_threshold=0.875,
+                      base_resizes=(1.25, 2.75, 0.25),
+                      status=True):
         """
 
         Wraps ``biovida.images.models.template_matching.robust_match_template()``.
@@ -191,8 +243,9 @@ class ImageProcessing(object):
         :type x_greater_check: ``float``
         :param y_greater_check:
         :type y_greater_check: ``float``
-        :param return_full: if ``True``, return a dictionary with the location of all four corners for the logo's bounding box.
-                            Otherwise, only the bottom left corner will be returned. Defaults to ``False``.
+        :param return_full: if ``True``, return a dictionary with the location of all four corners for the
+                            logo's bounding box. Otherwise, only the bottom left corner will be returned.
+                            Defaults to ``False``.
         :type return_full: ``bool``
         :return: the bottom left corner of
         :rtype: ``tuple``
@@ -200,22 +253,26 @@ class ImageProcessing(object):
         if 'medpix_logo_lower_left' in self.image_dataframe.columns and not new_analysis:
             return None
 
-        # Package Params
-        output_params = (threshold, x_greater_check, y_greater_check, return_full)
+        if self._verbose and self._print_update:
+            print("\n\nStarting Logo Analysis...")
 
-        # Load the Pattern. ToDo: Generalize `resources_path` location.
+        # Package Params
+        output_params = (threshold, xy_position_treshold[0], xy_position_treshold[1], return_full)
+
+        # Load the Pattern. ToDo: 1. generalize `resources_path` location. 2. Allow for other logos.
         medline_template_img = imread(os.path.join(resources_path, "medpix_logo.png"), flatten=True)
 
-        to_analyze = self._ndarray_extract(zip_with_column='journal_title')
+        def robust_match_template_wrapper(img):
+            return robust_match_template(pattern_img=medline_template_img,
+                                         base_img=img,
+                                         base_top_cropping=base_top_cropping,
+                                         prop_scale=prop_scale,
+                                         scaling_lower_limit=scaling_lower_limit,
+                                         end_search_threshold=end_search_threshold,
+                                         base_resizes=base_resizes)
 
-        results = list()
-        for img, journal in tqdm(to_analyze):
-            if 'medpix' not in str(journal).lower():
-                results.append(np.NaN)
-            else:
-                match, base_img_shape = robust_match_template(medline_template_img, img)
-                current = self._logo_analysis_out(match, base_img_shape, output_params)
-                results.append(current)
+        # Compute
+        results = self._border_processor(robust_match_template_wrapper, output_params, status)
 
         # Update dataframe
         self.image_dataframe['medpix_logo_lower_left'] = results
@@ -224,7 +281,8 @@ class ImageProcessing(object):
                         , signal_strength_threshold=0.25
                         , min_border_separation=0.15
                         , lower_bar_search_space=0.9
-                        , new_analysis=False):
+                        , new_analysis=False
+                        , status=True):
         """
 
         Wrapper for ``biovida.images.models.border_detection.border_detection()``.
@@ -238,6 +296,9 @@ class ImageProcessing(object):
         if all(x in self.image_dataframe.columns for x in ['hbar', 'hborder', 'vborder']) and not new_analysis:
             return None
 
+        if self._verbose and self._print_update:
+            print("\n\nStarting Border Analysis...")
+
         def ba_func(image):
             return border_detection(image,
                                     signal_strength_threshold,
@@ -249,7 +310,7 @@ class ImageProcessing(object):
         to_analyze = self._ndarray_extract()
 
         # Run the analysis.
-        border_analysis = [ba_func(i) for i in tqdm(to_analyze)]
+        border_analysis = [ba_func(i) for i in self._apply_status(to_analyze, status)]
 
         # Convert to a dataframe and return
         ba_df = pd.DataFrame(border_analysis).fillna(np.NaN)
@@ -296,15 +357,15 @@ class ImageProcessing(object):
             return None
 
         for i in ('medpix_logo_lower_left', 'hborder', 'hbar'):
-            if i not in self.image_dataframe.columns.str.lower():
-                raise AttributeError("The `image_dataframe` does not contain the\nfollowing required column: '{0}'.\n"
-                                     "Please execute the corresponding analysis method to generate it.".format(i))
+            if i not in self.image_dataframe.columns:
+                raise KeyError("The `image_dataframe` does not contain the\nfollowing required column: '{0}'.\n"
+                               "Please execute the corresponding analysis method to generate it.".format(i))
 
         # Compute Crop location
         self.image_dataframe['upper_crop'] = self.image_dataframe.apply(self._h_crop_top_decision, axis=1)
         self.image_dataframe['lower_crop'] = self.image_dataframe.apply(self._h_crop_lower_decision, axis=1)
 
-    def _apply_cropping(self, img_cache_path, lower_crop, upper_crop, vborder, return_as_array=True):
+    def _apply_cropping(self, img_cache_path, lower_crop, upper_crop, vborder, return_as_array=True, convert_to_rgb=True):
         """
 
         :param img_cache_path:
@@ -331,12 +392,55 @@ class ImageProcessing(object):
             w, h = converted_image.size
             converted_image = converted_image.crop((int(vborder[0]), 0, int(vborder[1]), h))
 
-        if return_as_array:
-            return np.asarray(converted_image.convert("RGB"))
+        if convert_to_rgb:
+            img_to_save = converted_image.convert("RGB")
         else:
-            return converted_image.convert("RGB")
+            img_to_save = converted_image
 
-    def _image_problems_predictions(self, status=True):
+        if return_as_array:
+            return np.asarray(img_to_save)
+        else:
+            return img_to_save
+
+    def _cropper(self, data_frame=None, return_as_array=True, include_path=False, convert_to_rgb=True, status=True):
+        """
+
+        Uses `_apply_cropping()` to apply cropping to images in a dataframe.
+
+        :param data_frame:
+        :param return_as_array:
+        :param include_path:
+        :param status:
+        :return:
+        """
+        if self._verbose and self._print_update:
+            print("\n\nComputing Crop Locations...")
+
+        if data_frame is None:
+            df = self.image_dataframe
+        else:
+            df = data_frame
+
+        # Zip the relevant columns (faster than looping through the dataframe directly).
+        to_predict = zip(*[df[i] for i in ('img_cache_path', 'lower_crop', 'upper_crop', 'vborder')])
+
+        all_cropped_images = list()
+        for img_cache_path, lower_crop, upper_crop, vborder in self._apply_status(to_predict, status):
+            cropped_image = self._apply_cropping(img_cache_path,
+                                                 lower_crop,
+                                                 upper_crop,
+                                                 vborder,
+                                                 return_as_array,
+                                                 convert_to_rgb)
+
+            if include_path:
+                all_cropped_images.append((cropped_image, img_cache_path))
+            else:
+                all_cropped_images.append(cropped_image)
+
+        return all_cropped_images
+
+    def _image_problems_predictions(self, status):
         """
 
         This method is powered by a Convolutional Neural Network which
@@ -364,31 +468,30 @@ class ImageProcessing(object):
         For example, in the final row we can see that the model strongly 'believes' both
         that the image is, in fact, a grid of images and that it does not contain arrows.
         """
-        # Zip the relevant columns (faster than looping through the dataframe directly).
-        to_predict = zip(*[self.image_dataframe[i] for i in ('img_cache_path', 'lower_crop', 'upper_crop', 'vborder')])
-
-        cropped_images_for_analysis = list()
-        for img_cache_path, lower_crop, upper_crop, vborder in tqdm(to_predict):
-            cropped_image = self._apply_cropping(img_cache_path, lower_crop, upper_crop, vborder, return_as_array=True)
-            cropped_images_for_analysis.append(cropped_image)
+        # Apply crop
+        cropped_images_for_analysis = self._cropper(data_frame=None, return_as_array=True)
 
         # Transform the cropped images into a form `ImageRecognitionCNN.predict()` can accept
-        transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self.ircnn.img_shape)
+        transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self._ircnn.img_shape)
 
         # Make the predictions and Save
-        self.image_dataframe['img_problems'] = self.ircnn.predict([transformed_images], status=status)
+        self.image_dataframe['img_problems'] = self._ircnn.predict([transformed_images], status=status)
 
-    def img_problems(self, status=True, new_analysis=False):
+    def img_problems(self, new_analysis=False, status=True):
         """
 
         :param status:
         :param new_analysis:
         :return:
         """
+        # Note: This method is a wrapper for `_image_problems_predictions()`
+        if self._verbose and self._print_update:
+            print("\n\nAnalyzing Images for Problems...")
+
         if 'img_problems' not in self.image_dataframe.columns or new_analysis:
             self._image_problems_predictions(status=status)
 
-    def _auto_analysis(self, status=True, new_analysis=False):
+    def auto_analysis(self, new_analysis=False, status=True):
         """
 
         :param status:
@@ -399,71 +502,118 @@ class ImageProcessing(object):
 
                         ..warning:
 
-                            This will destroy the information currently computed and represented in the dataframe.
+                            This will destroy the information currently stored in the dataframe.
 
         :type new_analysis: ``bool``
         :return:
         :rtype: ``Pandas DataFrame
         """
+        # Permit Verbosity, if requested by the user upon class instantiation.
+        self._print_update = True
+
         # Run Analysis Battery with Default Paramater Values
-        self.grayscale_analysis(new_analysis)
-        self.logo_analysis()
-        self.border_analysis()
+        self.grayscale_analysis(new_analysis=new_analysis)
+        self.logo_analysis(new_analysis=new_analysis)
+        self.border_analysis(new_analysis=new_analysis)
 
         # Compute Crop location
-        self.crop_decision(new_analysis)
+        self.crop_decision(new_analysis=new_analysis)
 
         # Generate predictions
-        self.img_problems(status=True, new_analysis=False)
+        self.img_problems(new_analysis=new_analysis, status=status)
 
-    def _auto_decision(self, threshold, require_grayscale):
+        # Ban Verbosity
+        self._print_update = False
+
+    def auto_decision(self, threshold, require_grayscale):
         """
 
         :param threshold:
         :param require_grayscale:
         :return:
         """
-        # ToDo: add variable threshold (e.g., arrows and grids).
-        def reject_decision(x):
-            if x['grayscale'] is not None and items_null(x['grayscale']) and \
-                    x['grayscale'] == False and require_grayscale:
-                    return True
-            else:
-                return any(x[1][1] > threshold for x in x['img_problems'])
+        for i in ('grayscale', 'img_problems'):
+            if i not in self.image_dataframe.columns:
+                raise KeyError("`image_dataframe` does not contain a {0} column.".format(i))
 
-        self.image_dataframe['reject'] = self.image_dataframe.apply(reject_decision, axis=1)
+        def img_validity(x):
+            if not items_null(x['grayscale']) and x['grayscale'] == False and require_grayscale:
+                    return False
+            else:  # ToDo: add variable threshold (e.g., arrows and grids).
+                # if all image problem confidence is < threshold, return True; else False.
+                return all(x[1] < threshold for x in x['img_problems'])
 
-    def auto(self, threshold, require_grayscale, status=True, return_result=True, new_analysis=False):
+        self.image_dataframe['valid_image'] = self.image_dataframe.apply(img_validity, axis=1)
+
+    def auto(self, threshold=0.4, require_grayscale=True, status=True, new_analysis=False):
         """
 
         :param threshold:
         :param require_grayscale:
         :param status:
-        :param return_result:
         :param new_analysis:
         :return:
         """
         # Run Auto Analysis
-        self._auto_analysis(status=True, new_analysis=False)
+        self.auto_analysis(new_analysis=new_analysis, status=status)
 
         # Run Auto Decision
-        self._auto_decision(threshold, require_grayscale)
+        self.auto_decision(threshold=threshold, require_grayscale=require_grayscale)
 
-    def save(self, save_path):
+        return self.image_dataframe
+
+    def save(self, save_path, crop_images=True, convert_to_rgb=False, status=True):
         """
 
-        Save processed images
+        Save processed images to disk.
 
+        :param save_path:
+        :param crop_images:
+        :param convert_to_rgb:
+        :param status:
         :return:
         """
-        self.image_dataframe[self.image_dataframe['reject'] == True]
+        if 'valid_image' not in self.image_dataframe.columns:
+            raise KeyError("`image_dataframe` must contain a 'valid_image' column which uses booleans to\n"
+                           "indicate whether or not to include an entry in the cleaned dataset.\n"
+                           "To automate this process, consider using the `auto_decision()` method.")
 
-        to_predict = zip(*[self.image_dataframe[i] for i in ('img_cache_path', 'lower_crop', 'upper_crop', 'vborder')])
-        for img_cache_path, lower_crop, upper_crop, vborder in tqdm(to_predict):
-            # Apply Crop
-            cropped_image = self._apply_cropping(img_cache_path, lower_crop, upper_crop, vborder, return_as_array=False)
-            # Save to disk
-            cropped_image.save(os.path.join(save_path, img_cache_path.split("/")[-1]))
+        # Limit this operation to subsection of the dataframe where valid_image is `True`.
+        valid_df = self.image_dataframe[self.image_dataframe['valid_image'] == True].reset_index(drop=True)
+
+        if crop_images:
+            if self._verbose and self._print_update:
+                print("\n\nCropping Images...")
+            images_to_return = self._cropper(valid_df,
+                                               return_as_array=False,
+                                               include_path=True,
+                                               convert_to_rgb=convert_to_rgb,
+                                               status=status)
+        else:
+            images_to_return = self._pil_load(valid_df['img_cache_path'], convert_to_rgb, status)
+
+        # Save to disk
+        for img, path in self._apply_status(images_to_return, status):
+            img.save(os.path.join(save_path, path.split(os.sep)[-1]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
