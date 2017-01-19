@@ -7,7 +7,6 @@
 # Notes:
 #     Powered by Fast Normalized Cross-Correlation.
 #     See: http://scikit-image.org/docs/dev/api/skimage.feature.html#skimage.feature.match_template.
-#
 #     Here, this algorithm has been bootstrapped to make it robust against variance in scale.
 #
 #     ToDo: This code needs to be refactored.
@@ -24,7 +23,7 @@ from skimage.color.colorconv import rgb2gray
 def _bounds_t_match(pattern_shape, base_shape, prop_scale, scaling_lower_limit):
     """
 
-    Defines a vector over which to iterate when scaling the pattern shape in _scale_invar_match_template.
+    Defines a vector over which to iterate when scaling the pattern shape in ``_scale_invar_match_template()``.
     This algorithm *should* solve the general form of the problem.
 
     Motivation:
@@ -33,15 +32,19 @@ def _bounds_t_match(pattern_shape, base_shape, prop_scale, scaling_lower_limit):
           - set lower bound to be percentage of TL
           - compute sequence from [lower bound, upper bound]
       b. pattern is larger than base
-          - want to known x for P / x until P is suffcently small <- SS (sufficently small)
+          - want to known x for P / x until P is sufficiently small <- SS (sufficiently small)
           - set upper bound to be percentage of SS.
           - compute sequence from [lower bound, upper bound]
 
     :param pattern_shape: the pattern to search for. Form: (nrows, ncols).
+    :type pattern_shape: ``tuple``
     :param base_shape: the image to search for the patten in. Form: (nrows, ncols).
+    :type base_shape:` `tuple``
     :param prop_scale: defines the number of steps to take between the bounds. Must be a float on (0, 1).
                        Note: this interval is not inclusive.
+    :type prop_scale: ``float``
     :param scaling_lower_limit: smallest acceptable bound. Set to 0.0 to disable.
+    :type scaling_lower_limit:  ``float`` or ``int``
     :return: an array of values to scale the pattern by in `_scale_invar_match_template()`.
     :rtype: ``ndarray``
     """
@@ -82,8 +85,10 @@ def _best_guess_location(match_template_result, upscale=1):
     """
 
     Takes the result of skimage.feature.match_template() and returns (top left x, top left y)
+    by selecting the item in ``match_template_result`` with the strongest signal.
 
-    :param match_template_result:
+    :param match_template_result: the output of from skimage.feature import match_template.
+    :type match_template_result: ``ndarray``
     :return:
     """
     ij = np.unravel_index(np.argmax(match_template_result), match_template_result.shape)
@@ -94,11 +99,16 @@ def _best_guess_location(match_template_result, upscale=1):
 def _corners_calc(top_left_, bottom_right_):
     """
 
-    Compute a dict. with
+    Compute a dict. with a bounding box derived from
+    a top left and top right corner
 
-    :param top_left_:
-    :param bottom_right_:
-    :return:
+    :param top_left_: tuple of the form: (x, y).
+    :param top_left_: ``tuple``
+    :param bottom_right_: tuple of the form: (x, y)
+    :param bottom_right_: ``tuple``
+    :return: a dictionary with the following keys: 'top_left', 'top_right', 'bottom_left' and 'bottom_right'.
+             Values are keys of the form (x, y).
+    :rtype: ``dict``
     """
     d = {
         'top_left': top_left_,
@@ -107,11 +117,18 @@ def _corners_calc(top_left_, bottom_right_):
         'bottom_right': bottom_right_}
     return {k: tuple(map(int, v)) for k, v in d.items()}
 
+
 def _scale_invar_match_template_output(d):
     """
 
-    :param d:
-    :return:
+    Generates the output for `_scale_invar_match_template()`
+
+    :param d: the dictionary populated by the `for` loop in `_scale_invar_match_template()`.
+    :type d: ``dict``
+    :return: a dictionary with the following keys: 'match_quality'
+             (the quality for the match as reported by skimage.feature.match_template()) and 'box'
+             (the pattern's bounding box).
+    :rtype: ``dict``
     """
     if not len(list(d.keys())):
         return None
@@ -134,22 +151,33 @@ def _scale_invar_match_template(pattern_img
       1. Loop through various scales of the pattern image.
           2. Resize the pattern image and convert it grayscale
           3. Crop to the image to `base_top_cropping`.
-          4. Run skimage.feature.match_template algorithm.
+          4. Run skimage.feature.match_template() algorithm.
           5. Get top left and bottom right of the bounding box.
       5. Select the best match.
       6. Compute the full bounding box.
       7. Return the best match.
 
-    :param pattern_img:
-    :param base_img:
+    Note: the procedure halts if a match is found with match quality greater than or equal to `end_search_threshold`.
+
+    :param pattern_img: the pattern image represented as a 2D ``ndarray``
+    :type pattern_img: ``ndarray``
+    :param base_img: the base image represented as a 2D ``ndarray``
+    :type base_img: ``ndarray``
     :param base_top_cropping: crops the base image to the top x proportion.
-    :param prop_scale:
-    :param scaling_lower_limit:
-    :return: see robust_match_template()
+    :type base_top_cropping: ``float``
+    :param prop_scale: defines the number of steps to take between the bounds. Must be a float on (0, 1).
+                       Note: this interval is not inclusive. See: ``_bounds_t_match()``.
+    :type prop_scale: ``float``
+    :param scaling_lower_limit: smallest acceptable bound. Set to 0.0 to disable. See: ``_bounds_t_match()``.
+    :type scaling_lower_limit:  ``float`` or ``int``
+    :param base_resize: a scalar denoting by how much the base image has been resized.
+                        This will allow the function correct for this scaling when reporting the pattern's
+                        bounding box.
+    :param base_resize: ``float`` or ``int``
+    :return: see ``robust_match_template()``
     :rtype: ``dict``
     """
-    # ToDo: update algorithm summary as it is no longer accurate.
-    # Top x (1/3) for the base image and crop accordingly
+    # Top x (e.g., 1/3) for the base image and crop accordingly
     top_of_base_img = int(base_img.shape[0] * base_top_cropping)
     base_img_cropped = base_img[:top_of_base_img]
 
@@ -180,15 +208,17 @@ def _scale_invar_match_template(pattern_img
     return _scale_invar_match_template_output(d)
 
 
-def _arrange_one_first(bounds_and_steps):
+def _arrange_one_first(arr):
     """
 
     Function to run np.arrange and put the number '1' first.
 
-    :param bounds_and_steps:
-    :return:
+    :param arr: `base_resizes` in the robust_match_template function
+    :type arr: ``ndarray``
+    :return: rearranges an 1D ndarray such that the first value is 1.
+    :rtype: ``2D ndarray``
     """
-    start, end, step = bounds_and_steps if bounds_and_steps is not None else (1, 1, 1)
+    start, end, step = arr if arr is not None else (1, 1, 1)
     l = np.arange(start, end, step)
     return np.append(1, l[l != 1])
 
@@ -196,9 +226,14 @@ def _arrange_one_first(bounds_and_steps):
 def _robust_match_template_loading(img, param_name):
     """
 
-    :param img:
-    :param param_name:
-    :return:
+    Loads images for `robust_match_template()`
+
+    :param img: a path to an image or the image as a 2D array
+    :type img: ``str`` or ``2D ndarray``
+    :param param_name: the name of the parameter which is being loaded (i.e., `pattern_img` or `base_img`.
+    :type param_name: ``str``
+    :return: an image as an array.
+    :rtype: ``2D ndarray``
     """
     if 'ndarray' in str(type(img)):
         return img
@@ -229,7 +264,7 @@ def robust_match_template(pattern_img
                         If a `ndarray` is passed, it must be preprocessed with
                         ``scipy.misc.imread(pattern_img, flatten=True)``
 
-    :param pattern_img: ``str`` or ``ndarray``
+    :type pattern_img: ``str`` or ``ndarray``
     :param base_img:
 
             ..warning:
@@ -237,18 +272,27 @@ def robust_match_template(pattern_img
                 If a `ndarray` is passed, it must be preprocessed with
                 ``scipy.misc.imread(base_img, flatten=True)``
 
-    :param base_img: ``str`` or ``ndarray``
-    :param base_top_cropping:
-    :param prop_scale:
-    :param scaling_lower_limit:
-    :param end_search_threshold: if a match of this quality is found, end the search.
-                                  Set to any number greater than 1 to disable.
+    :type base_img: ``str`` or ``ndarray``
+    :param base_top_cropping: crops the base image to the top x proportion. See: ``_scale_invar_match_template()``.
+    :type base_top_cropping: ``float``
+    :param prop_scale: defines the number of steps to take between the bounds. Must be a float on (0, 1).
+                       Note: this interval is not inclusive.
+                       See: ``_scale_invar_match_template()`` and ``_bounds_t_match()``.
+    :type prop_scale: ``float``
+    :param scaling_lower_limit: smallest acceptable bound. Set to 0.0 to disable.
+                                See: ``_scale_invar_match_template()`` and ``_bounds_t_match()``.
+    :type scaling_lower_limit:  ``float`` or ``int``
+    :param end_search_threshold: if a match of this quality is found, end the search. Set ``None`` to disable.
+    :type end_search_threshold: ``float`` or  ``None``
     :param base_resizes: scaling of the base image. Tuple of the form (start scalar, end scalar, step size).
-    :param base_img: if `None` the `
-    :type base_img: ``None``, ``ndarray`` or ``str``
-    :return: tuple of the form (best_match_dict, base image shape (x, y)). the 'best_match_dict' is of the form:
+    :type base_resizes: ``tuple``
+    :return: tuple of the form (the dictionary of the best match, base image size on which the match was made (x, y)).
+
+                     The dictionary of the best match is of the form:
+
                      {match_quality: value between 0 and 1 (inclusive),
                      'box': {'bottom_right': (x, y), 'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}}
+
     :rtype: ``tuple``
     """
     # Load the Images
@@ -268,17 +312,12 @@ def robust_match_template(pattern_img
 
         if isinstance(current_match, dict):
             attemps.append(current_match)
-            if current_match['match_quality'] >= end_search_threshold:
-                break
+            if end_search_threshold is not None:
+                if current_match['match_quality'] >= end_search_threshold:
+                    break
 
     single_best_match = max(attemps, key=lambda x: x['match_quality'])
     return single_best_match, base_img.shape[::-1]
-
-
-
-
-
-
 
 
 
