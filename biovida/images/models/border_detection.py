@@ -510,7 +510,7 @@ def border_detection(image
     v_edge_candidates = edge_detection(image_array, axis=0)
     # Run Analysis
     d['vborder'] = _weigh_evidence(v_edge_candidates,
-                                   image_array.shape[1],
+                                   image_array.shape[1],      # Note: we have (rows, columns) = (height, width).
                                    signal_strength_threshold,
                                    min_border_separation)
 
