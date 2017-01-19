@@ -20,7 +20,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   README
+   GettingStarted
    API
 
 Indices and tables

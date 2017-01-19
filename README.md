@@ -22,7 +22,7 @@ $ pip install git+git://github.com/TariqAHassan/BioVida@master
 
 ###Dependencies
 
-BioVida requires: [pandas], [numpy], [requests], [tqdm], [scipy] and [keras].
+BioVida requires: [pandas], [numpy], [requests], [tqdm], [scipy], [scikit-image] and [keras].
 
 ------------------------------------------------------------------------
 
@@ -173,6 +173,7 @@ Genomics
 [requests]: http://docs.python-requests.org/en/master/
 [tqdm]: https://github.com/tqdm/tqdm
 [scipy]: https://www.scipy.org
+[scikit-image]: http://scikit-image.org
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
 [here]: https://tariqahassan.github.io/BioVida/API.html

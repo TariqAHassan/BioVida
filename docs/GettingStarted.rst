@@ -3,17 +3,15 @@ Project Overview
 
 This library is primarily intended to help solve an outstanding problem in biomedical data science: a lack of usable data.
 While impressive data mining work in bioinformatics in recent years has helped build clean databases of known gene-disease
-associations, a poverty of machine learning ready biomedical images persists. This is partly because cleaning datasets
-of biomedical images is very complex -- so complex in fact, it must often be done by hand. This package is an attempt
-at automating this process. This is done in two main ways. First, using standard programmatic techniques to
-harvest data from online databases. Second, to clean some forms of data (images namely), machine learning itself is used to
-identify properties which are liable to corrupt the dataset (e.g., large watermarks which obscure an image).
-Steps can then be taken correct or remove this problematic data.
+associations, a poverty of machine learning ready biomedical images persists. BioVida is designed to automate this process,
+reducing, if not eliminating, the need for data cleaning, freeing you up to focus on data analysis itself.
 
-While BioVida is currently focused on harvesting and processing biomedical images, it contains (or will contain)
-tools to perform analogous tasks with other types of data (namely genomics and disease diagnostics).
-For this reason BioVida has modular structure, with different types of biomedical data handled by distinct subpackages
-within `biovida`.
+While focused on image data, BioVida is able to curate a broad range of biomedical data including diagnostics, genomics and images.
+Some of this is accomplished using standard programming techniques, the rest using neural networks.
+It is important to note that the neural networks are intended to operate seamlessly *behind the scenes*.
+Standard use of the library will never bring you into direct contact with anything other than their output.
+
+The guide below provides a brief introduction to getting started with BioVida.
 
 --------------
 
@@ -36,24 +34,28 @@ BioVida requires: `pandas <http://pandas.pydata.org>`__,
 `requests <http://docs.python-requests.org/en/master/>`__,
 `tqdm <https://github.com/tqdm/tqdm>`__,
 `scipy <https://www.scipy.org>`__ and
+`scikit-image <http://scikit-image.org>`__ and
 `keras <https://tariqahassan.github.io/BioVida/index.html>`__
+
+
+All of these dependencies should be installed automatically when installing BioVida.
+
+**Note**: Keras is used to power the Convolutional Neural Networks used in this project.
+This library can use either `TensorFlow <https://www.tensorflow.org>`__ or
+`Theano <http://deeplearning.net/software/theano/>`__ as a computational backend.
+If neither is installed, BioVida will automatically install TensorFlow for you.
 
 --------------
 
 Image Data
 ----------
 
-Import the Interface for the NIH's Open-i API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Import and Instantiate the Open-i Interface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
     from biovida.images.openi_interface import OpenInterface
-
-Create an Instance of the Tool
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code:: python
 
     opi = OpenInterface()
 
@@ -95,6 +97,53 @@ automatically be harvested (unless specified otherwise).
 
 †\ *Note*: by default, data harvesting is truncated after the first 60
 results.
+
+
+Automated Image Data Cleaning
+-----------------------------
+
+Cleaning the downloaded images is extremely simple.
+
+
+Import the ImageProcessing Class
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    from biovida.images.image_processing import ImageProcessing
+
+
+Use a Search Result to Instantiate the Class
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    ip = ImageProcessing(df)
+
+
+Clean the Image Data
+^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    cdf = ip.auto()
+
+
+Save the Cleaned Images
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    ip.save("/save/directory/")
+
+
+That's it.
+
+
+While the `ImageProcessing` classes allows you to
+to control the image processing more precisely if you
+wish (see the documentation `here <https://tariqahassan.github.io/BioVida/API.html#image-processing>`__), this
+fully automated approach should suffice in most cases.
 
 --------------
 
