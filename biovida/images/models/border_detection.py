@@ -472,7 +472,7 @@ def border_detection(image
                                       for an area required to be considered a 'lower bar'.
                                       Internally, this is measured as a location deviation from
                                       the median signal strength of the average image.
-    :type signal_strength_threshold: ``int``
+    :type signal_strength_threshold: ``float``
     :param min_border_separation: a value between 0 and 1 that determines the proportion of the axis
                                   that two edges must be separated for them to be considered borders.
                                   (i.e., ``axis_size`` * ``min_border_separation``)

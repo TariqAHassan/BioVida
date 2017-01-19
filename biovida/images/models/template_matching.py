@@ -44,7 +44,7 @@ def _bounds_t_match(pattern_shape, base_shape, prop_scale, scaling_lower_limit):
                        Note: this interval is not inclusive.
     :type prop_scale: ``float``
     :param scaling_lower_limit: smallest acceptable bound. Set to 0.0 to disable.
-    :type scaling_lower_limit:  ``float`` or ``int``
+    :type scaling_lower_limit: ``int`` or ``float``
     :return: an array of values to scale the pattern by in `_scale_invar_match_template()`.
     :rtype: ``ndarray``
     """
@@ -286,7 +286,7 @@ def robust_match_template(pattern_img
     :type end_search_threshold: ``float`` or  ``None``
     :param base_resizes: scaling of the base image. Tuple of the form (start scalar, end scalar, step size).
     :type base_resizes: ``tuple``
-    :return: tuple of the form (the dictionary of the best match, base image size on which the match was made (x, y)).
+    :return: tuple of the form (the dictionary of the best match, base image size (x, y)).
 
                      The dictionary of the best match is of the form:
 
@@ -299,7 +299,7 @@ def robust_match_template(pattern_img
     pattern_img_raw = _robust_match_template_loading(pattern_img, "pattern_img")
     base_img_raw = _robust_match_template_loading(base_img, "base_img")
 
-    attemps = list()
+    attempts = list()
     for base_resize in _arrange_one_first(base_resizes):
         base_img = imresize(base_img_raw, base_resize)
         current_match = _scale_invar_match_template(pattern_img_raw,
@@ -311,13 +311,14 @@ def robust_match_template(pattern_img
                                                     end_search_threshold)
 
         if isinstance(current_match, dict):
-            attemps.append(current_match)
+            attempts.append(current_match)
             if end_search_threshold is not None:
                 if current_match['match_quality'] >= end_search_threshold:
                     break
 
-    single_best_match = max(attemps, key=lambda x: x['match_quality'])
-    return single_best_match, base_img.shape[::-1]
+    single_best_match = max(attempts, key=lambda x: x['match_quality'])
+    return single_best_match, base_img_raw.shape[::-1]
+
 
 
 
