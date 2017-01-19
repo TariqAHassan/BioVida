@@ -91,7 +91,7 @@ df = dna.pull('curated')
 
 ###Documentation
 
-You can view a more extensive Getting Started guide by clicking [here]
+You can view a more extensive Getting Started guide by [clicking here]
 and API documentation [here].
 
 ------------------------------------------------------------------------
@@ -138,8 +138,7 @@ Genomics
 [scikit-image]: http://scikit-image.org
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
-[here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
+[clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
 [disease-ontology.org]: http://disease-ontology.org
-
 
