@@ -31,8 +31,8 @@ BioVida requires: [pandas], [numpy], [requests], [tqdm], [scipy], [scikit-image]
 
 ###Image Data
 
-In just a few lines of code, you can download and clean 
-images from the NIH's Open-i Biomedical Search Database.
+In just a few lines of code, you can download and clean images from <br/>
+the NIH's [Open-i] Biomedical Search Database.
 
 ####Downloading Images
 ```python
