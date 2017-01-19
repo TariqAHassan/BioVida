@@ -47,7 +47,7 @@ opi = OpenInterface()
 opi.search("aneurysm", image_type=['mri', 'pet'])  # Results Found: 1,586.
 
 # 4. Pull the data
-df = opi.pull()
+search_df = opi.pull()
 ```
 
 ####Cleaning Images
@@ -56,7 +56,7 @@ df = opi.pull()
 from biovida.images.image_processing import ImageProcessing
 
 # 2. Create an Instance of the Tool using the Search Data
-ip = ImageProcessing(df)
+ip = ImageProcessing(search_df)
  
 # 3. Clean the Image Data
 cdf = ip.auto()
