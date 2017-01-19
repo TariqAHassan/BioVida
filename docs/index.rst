@@ -11,7 +11,7 @@ Automated BioMedical Data Curation
 
 | Welcome to the site for the BioVida Python Library.
 |
-| Please note that this tool is under active development and is currently in alpha.
+| Please note that this tool is under active development and is currently in pre-alpha.
 | So, feel free to post issues and pull requests though the GitHub repository for this project.
 
 Contents

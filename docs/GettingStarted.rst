@@ -1,5 +1,5 @@
-Project Overview
-----------------
+Getting Started
+---------------
 
 This library is primarily intended to help solve an outstanding problem in biomedical data science: a lack of usable data.
 While impressive data mining work in bioinformatics in recent years has helped build clean databases of known gene-disease
