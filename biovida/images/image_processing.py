@@ -560,6 +560,7 @@ class ImageProcessing(object):
         Currently, the model can identify the follow problems:
 
             - arrows in images
+            - ellipses in images
             - images arrayed as grids
 
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.

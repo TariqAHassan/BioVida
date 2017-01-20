@@ -11,12 +11,14 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from PIL import Image
+from PIL import ImageDraw
 from random import randint
 
 from data.training.temp import (arrow_path,
                                 base_img_path,
                                 grid_save_location,
-                                arrow_save_location)
+                                arrow_save_location,
+                                ellipses_save_location)
 
 
 # ------------------------------------------------------------------------------------------
@@ -25,7 +27,7 @@ from data.training.temp import (arrow_path,
 
 
 # Define Images to Use
-base_images = [os.path.join(valid_mri_path, i) for i in os.listdir(base_img_path) if i.endswith(".png")]
+base_images = [os.path.join(base_img_path, i) for i in os.listdir(base_img_path) if i.endswith(".png")]
 
 
 def base_image_record(images_used, cache_path, save_path):
@@ -81,8 +83,8 @@ def resize_image(img, scalar=1/3):
 def random_tuple_in_range(tpl, border_buffer=0.385):
     """
 
-    :param tpl:
-    :param border:
+    :param tpl: image shape
+    :param border: space from the border of the image
     :return:
     """
     w, h = tpl
@@ -379,56 +381,107 @@ def grid_creator(all_img_options, n, general_name, save_location):
 
 
 # Create the grid training data
-# grid_creator(base_images, n=10000, save_location=grid_save_location)
+# grid_creator(base_images, n=10000, general_name='grid', save_location=grid_save_location)
 
 
 # ------------------------------------------------------------------------------------------
-# Shapes (Circles and Square)
+# Shapes (Ellipses and Square)
 # ------------------------------------------------------------------------------------------
 
+# Vary:
+#   - the number of ellipses (1-3)
+#   - their position and thickness
+#   - shape: cicle or oval (about either x or y)
+#           - how stretched they are about the elongated axis.
 
 
+def stretch_generator(stretch_range=(0.4, 0.75)):
+    """
+
+    Randomly generates a tuple defining an axis to stretch
+    and by how much.
+
+    :param stretch_range:
+    :return:
+    """
+    case = random.choice([0, 1, 2])
+    if case == 0: # no stretch
+        return 1, 1
+    axis_stretch = random.uniform(stretch_range[0], stretch_range[1])
+    if case == 1:  # x axis stretch
+        return axis_stretch, 0
+    elif case == 2:  # y axis stretch
+        return 0, axis_stretch
 
 
+def draw_ellipse(img, position, r, stretch, thickness=4, fill=None, outline='#d3d3d3'):
+    """
+
+    :param img:
+    :param x:
+    :param y:
+    :param r:
+    :param stretch: tuple of the form (x stretch, y stretch) -- (values must be > 0).
+    :param fill:
+    :param outline:
+    :return:
+    """
+    # See: http://stackoverflow.com/a/2980931/4898004
+    draw = ImageDraw.Draw(img)
+
+    # Extract Stretch (if passed)
+    x_s, y_s = tuple(map(int, np.array([r] * 2) * np.array(stretch)))
+
+    # Extract the position
+    x, y = position
+
+    split = int(thickness/2)
+    for rr in np.arange(r-split, r + split + 1):
+        draw.ellipse((x - rr - x_s, y - rr - y_s, x + rr + x_s, y + rr + y_s), outline=outline, fill=fill)
+    return img
 
 
+def ellipse_mash(base_image, border_buffer=0.25, stretch_range=(0.8, 1.2)):
+    """
+
+    :param base_image:
+    :param border_buffer:
+    :param stretch_range:
+    :return:
+    """
+    # Compute the range of radii that will easily fit.
+    radius_range = tuple(map(int, (max(base_image.size)*0.025, max(base_image.size)*0.05)))
+
+    for _ in range(randint(1, 2)):
+        # Define random properties
+        ellipse_position = random_tuple_in_range(base_image.size, border_buffer=border_buffer)
+        ellipse_radius = randint(radius_range[0], radius_range[1])
+        ellipse_thickness = random.choice([2, 4])
+        ellipse_stretch = stretch_generator(stretch_range=stretch_range)
+
+        # Append Image
+        base_image = draw_ellipse(base_image, ellipse_position, ellipse_radius, ellipse_stretch, ellipse_thickness)
+
+    return base_image
 
 
+def ellipse_img_creator(all_img_options, n, general_name, save_location):
+    """
+
+    :param all_img_options:
+    :param n:
+    :param general_name:
+    :param save_location:
+    :return:
+    """
+    for i in tqdm(range(1, n+1)):
+        # Open a random photo and crop
+        base_image = random_crop(Image.open(random.choice(all_img_options)))
+        # Save
+        ellipse_mash(base_image).save("{0}/{1}_{2}.png".format(save_location, i, general_name))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# ellipse_img_creator(base_images, n=10000, general_name='ellipse', save_location=ellipses_save_location)
 
 
 
