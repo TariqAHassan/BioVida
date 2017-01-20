@@ -131,7 +131,7 @@ Genomics
      - likely [disease-ontology.org]
 
 
-[click here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
+[click here]: https://tariqahassan.github.io/BioVida/index.html
 [pandas]: http://pandas.pydata.org
 [numpy]: http://www.numpy.org
 [requests]: http://docs.python-requests.org/en/master/
