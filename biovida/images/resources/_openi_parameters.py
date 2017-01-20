@@ -86,8 +86,6 @@ openi_fields_params = {
 
 
 openi_article_type_params = {
-    # Not explictly exposed.
-    # Not listed on: https://openi.nlm.nih.gov/services.php?it=xg
     'ab': 'abstract',
     'bk': 'book_review',
     'bf': 'brief_report',
@@ -157,12 +155,12 @@ openi_api_search_params = {
     'video': ('&vid', openi_video_params),
     'image_type': ('&it', openi_image_type_params),
     'rankby': ('&favor', openi_rankby_params),
+    'article_type': ('&at', openi_article_type_params),
     'subset': ('&sub', openi_subset_params),
     'collection': ('&coll', openi_collection_params),
     'fields': ('&fields', openi_fields_params),
     'specialties': ('&sp', openi_specialties_params),
 }
-
 
 
 def openi_search_information():
@@ -175,10 +173,12 @@ def openi_search_information():
     :rtype: ``dict``
     """
     # Params in the order the Open-i API expects
-    ordered_params = ['query', '&it', '&favor', '&vid', '&sub', '&coll', '&fields', '&sp']
+    ordered_params = ['query', '&it', '&favor', '&at', '&vid', '&sub', '&coll', '&fields', '&sp']
 
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
     return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
+
+
 
 
 

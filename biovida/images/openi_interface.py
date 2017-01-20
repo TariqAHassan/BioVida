@@ -685,7 +685,7 @@ class OpenInterface(object):
             opts = [i.split("_")[1] for i in exclusions]
         else:
             # Get the relevant dict of params
-            search_dict = _openi_search_information()[0].get(cln(search_parameter).strip().lower(), None)
+            search_dict = openi_search_information()[0].get(cln(search_parameter).strip().lower(), None)
 
             # Report invalid `search_parameter`
             if search_dict is None:
@@ -740,6 +740,7 @@ class OpenInterface(object):
                , query
                , image_type=None
                , rankby=None
+               , article_type=None
                , subset=None
                , collection=None
                , fields=None
@@ -758,6 +759,8 @@ class OpenInterface(object):
         :type image_type: ``list``, ``tuple`` or ``None``.
         :param rankby: see ``OpenInterface().options('rankby')`` for valid values.
         :type rankby: ``list``, ``tuple`` or ``None``.
+        :param article_type: see ``OpenInterface().options('article_type')`` for valid values.
+        :type article_type: ``list``, ``tuple`` or ``None``.
         :param subset: see ``OpenInterface().options('subset')`` for valid values.
         :type subset: ``list``, ``tuple`` or ``None``.
         :param collection: see ``OpenInterface().options('collection')`` for valid values.
@@ -1211,7 +1214,6 @@ class OpenInterface(object):
             self._image_cache_record_management()
 
         return search_data
-
 
 
 
