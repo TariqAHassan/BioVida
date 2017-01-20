@@ -5,9 +5,21 @@
 
 
 .. image:: logo/biovida_logo_site_scaled.png
-    :width: 600px
-    :align: center
+    :width: 559px
+    :align: left
     :height: 200px
+
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+
 
 Automated BioMedical Data Curation
 ----------------------------------
