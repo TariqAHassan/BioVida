@@ -13,7 +13,7 @@ def required_dependencies():
     """
     Adds TensorFlow to dependencies if Theano cannot be imported.
     """
-    dependencies = ['pandas', 'numpy', 'requests', 'tqdm', 'scipy', 'scikit-image', 'keras']
+    dependencies = ['pandas', 'numpy', 'requests', 'tqdm', 'Pillow', 'scipy', 'scikit-image', 'keras']
     try:
         import theano
     except ImportError:

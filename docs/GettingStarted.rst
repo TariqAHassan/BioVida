@@ -33,6 +33,7 @@ BioVida requires: `pandas <http://pandas.pydata.org>`__,
 `numpy <http://www.numpy.org>`__,
 `requests <http://docs.python-requests.org/en/master/>`__,
 `tqdm <https://github.com/tqdm/tqdm>`__,
+`pillow <https://github.com/python-pillow/Pillow>`__,
 `scipy <https://www.scipy.org>`__,
 `scikit-image <http://scikit-image.org>`__ and
 `keras <https://keras.io>`__
