@@ -8,16 +8,58 @@ import os
 import random
 import warnings
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from PIL import Image
 from random import randint
 
 from data.training.temp import (arrow_path,
-                                valid_mri_path,
+                                base_img_path,
                                 grid_save_location,
                                 arrow_save_location)
 
-# warnings.filterwarnings("error")
+
+# ------------------------------------------------------------------------------------------
+# Define Images to use
+# ------------------------------------------------------------------------------------------
+
+
+# Define Images to Use
+base_images = [os.path.join(valid_mri_path, i) for i in os.listdir(base_img_path) if i.endswith(".png")]
+
+
+def base_image_record(images_used, cache_path, save_path):
+    """
+    
+    Tool to create a csv of images saved.
+    
+    :param images_used: list of images
+    :type images_used: ``list``
+    :param cache_path: where the cache record is located.
+    :type cache_path: ``str``
+    :param save_path: where the record should be saved.
+    :type save_path: ``str``
+    """
+    # Convert the list into a pandas dataframe
+    images_used = pd.DataFrame(images_used).rename(columns={0: "ImageName"})
+    images_used['ImageName'] = images_used['ImageName'].map(lambda x: x.split("/")[-1])
+    
+    # Create an instance of the OpenInterface() to extract URLs
+    from biovida.images.models.temp import cache_path
+    from biovida.images.openi_interface import OpenInterface
+    opi = OpenInterface(cache_path)
+    df = opi.image_record_database
+    
+    # Extract the URL data from the image record database
+    df['img_names'] = df['img_cache_path'].map(lambda x: x.split("/")[-1])
+    name_url_dict = dict(zip(df['img_names'], df['img_large']))
+    
+    # Map the URL data onto the image names
+    images_used['URL'] = images_used['ImageName'].map(lambda x: name_url_dict[x.replace(" (1)", "")])
+
+    # Save as a csv.
+    images_used.to_csv(save_path, index=False)
+
 
 # ------------------------------------------------------------------------------------------
 # General Tools
@@ -122,9 +164,6 @@ def open_muliple_and_random_crop(image_list):
 #     - random size (in some range)
 #     - random rotation
 
-# Load MRIs
-valid_mris = [os.path.join(valid_mri_path, i) for i in os.listdir(valid_mri_path) if i.endswith(".png")]
-
 # Load arrows
 arrows_raw = [i for i in os.listdir(arrow_path) if i.endswith(".png")]
 sorted_arrows = sorted(arrows_raw, key=lambda x: int(x.split("_")[0]))
@@ -214,11 +253,13 @@ def arrow_creator(background_options, foreground_options, n, general_name, save_
 
 
 # Create the arrow training data
-arrow_creator(valid_mris, arrows, n=10000, save_location=arrow_save_location)
+# arrow_creator(base_images, arrows, n=10000, save_location=arrow_save_location)
+
 
 # ------------------------------------------------------------------------------------------
 # Grids
 # ------------------------------------------------------------------------------------------
+
 
 # Probabilities for
 # Image Creation:
@@ -334,16 +375,16 @@ def grid_creator(all_img_options, n, general_name, save_location):
     :return:
     """
     for i in tqdm(range(1, n+1)):
-        grid_masher(valid_mris, name="{0}_{1}".format(i, general_name), save_location=save_location)
+        grid_masher(base_images, name="{0}_{1}".format(i, general_name), save_location=save_location)
 
 
 # Create the grid training data
-grid_creator(valid_mris, n=10000, save_location=grid_save_location)
+# grid_creator(base_images, n=10000, save_location=grid_save_location)
 
 
-
-
-
+# ------------------------------------------------------------------------------------------
+# Shapes (Circles and Square)
+# ------------------------------------------------------------------------------------------
 
 
 
