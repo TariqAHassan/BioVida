@@ -7,7 +7,7 @@
 BioVida is a library designed to automate both the harvesting and 
 post-processing of biomedical data. The novel datasets it produces
 are intended to need little, if any, cleaning by the user.
-Part of this automation is powered by convolution neural networks
+Part of this automation is powered by convolutional neural networks
 which operate seamlessly *behind the scenes*, helping to automagically
 clean the data.
 
