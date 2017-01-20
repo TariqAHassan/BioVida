@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/TariqAHassan/BioVida/blob/5e96d3cd725a6bb1ad958b9cf46100ea0eead606/docs/logo/biovida_logo_scaled.png"><br>
+  <img src="https://github.com/TariqAHassan/BioVida/blob/master/docs/logo/biovida_logo_scaled.png"><br>
 </div>
 
 -----------------
@@ -132,13 +132,13 @@ Genomics
 
 
 [click here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
-[Keras]: https://keras.io
 [pandas]: http://pandas.pydata.org
 [numpy]: http://www.numpy.org
 [requests]: http://docs.python-requests.org/en/master/
 [tqdm]: https://github.com/tqdm/tqdm
 [scipy]: https://www.scipy.org
 [scikit-image]: http://scikit-image.org
+[keras]: https://keras.io
 [Open-i]: https://openi.nlm.nih.gov
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
