@@ -165,8 +165,8 @@ Create an Instance of the Tool
 
     dna = DisgenetInterface()
 
-Options: Explore Available Databases
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Explore Available Databases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
