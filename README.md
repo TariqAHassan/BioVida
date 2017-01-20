@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/TariqAHassan/BioVida/blob/master/docs/logo/biovida_logo_scaled.png"><br>
+  <img src="https://github.com/TariqAHassan/BioVida/blob/master/docs/logo/biovida_logo_regular_scaled.png"><br>
 </div>
 
 -----------------
