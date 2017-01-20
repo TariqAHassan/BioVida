@@ -67,17 +67,20 @@ def items_null(element):
         return pd.isnull(element)
 
 
-def list_to_bulletpoints(l):
+def list_to_bulletpoints(l, sort_elements=True):
     """
 
     Convert a list to bullet points.
 
     :param l: a list (in the colloquial sense) of strings.
     :type l: ``list`` or ``tuple``
+    :param sort_elements: if ``True``, sort the elements in the list. Defaults to ``True``.
+    :type sort_elements: ``bool``
     :return: list itmes formatted as a string of bullet points (with line breaks).
     :rtype: ``str``
     """
-    return "".join(map(lambda x: "  - '{0}'\n".format(x), list(l)))[:-1]
+    to_format = sorted(l) if sort_elements else list(l)
+    return "".join(map(lambda x: "  - '{0}'\n".format(x), to_format))[:-1]
 
 
 def header(string, flank=True):
