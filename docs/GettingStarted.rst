@@ -35,7 +35,7 @@ BioVida requires: `pandas <http://pandas.pydata.org>`__,
 `tqdm <https://github.com/tqdm/tqdm>`__,
 `scipy <https://www.scipy.org>`__,
 `scikit-image <http://scikit-image.org>`__ and
-`keras <https://tariqahassan.github.io/BioVida/index.html>`__
+`keras <https://keras.io>`__
 
 
 All of these dependencies should be installed automatically when installing BioVida.
