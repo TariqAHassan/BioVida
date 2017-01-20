@@ -17,6 +17,8 @@ import os
 import sys
 # import sphinx_rtd_theme
 import sphinx_bootstrap_theme
+# Note: a fork of the 'sphinx_bootstrap_theme' package was use which can be downloaded
+# as follows: $ pip3 install git+git://github.com/TariqAHassan/sphinx-bootstrap-theme@master
 import rst2pdf
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -135,7 +137,6 @@ html_theme = 'bootstrap'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 html_theme_options = {
