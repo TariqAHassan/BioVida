@@ -15,7 +15,6 @@ import pickle
 
 from tqdm import tqdm
 
-from biovida.support_tools.support_tools import header
 from biovida.images.image_tools import load_and_scale_imgs
 
 from keras import callbacks
@@ -56,11 +55,6 @@ class ImageRecognitionCNN(object):
                        See: ``keras.preprocessing.ImageDataGenerator().flow_from_directory()``.
                        Defaults to 32.
     :type batch_size: ``int``
-    :param dim_ordering: one of: 'tf', 'th'. If keras raises an error of the form:
-                                  "'ValueError' a Negative dimension size caused by..." consider changing the
-                                   parameter to `tf'. Defaults to 'th'. See: ``keras.layers.Convolution2D()``
-                                   and ``keras.layers.MaxPooling2D()``.
-    :type dim_ordering: ``str``
     """
 
     def __init__(self
@@ -70,8 +64,7 @@ class ImageRecognitionCNN(object):
                  , shear_range=0.1
                  , zoom_range=0.35
                  , horizontal_flip=True
-                 , batch_size=32
-                 , dim_ordering='th'):
+                 , batch_size=4):
         self._data_path = data_path
         self.img_shape = img_shape
         self.rescale = rescale
@@ -79,7 +72,6 @@ class ImageRecognitionCNN(object):
         self._zoom_range = zoom_range
         self._horizontal_flip = horizontal_flip
         self._batch_size = batch_size
-        self._dim_ordering = dim_ordering
 
         # Define data location
         if self._data_path is not None:
@@ -161,10 +153,6 @@ class ImageRecognitionCNN(object):
 
         Define and Compile the Image Recognition Convolutional Neural Network.
 
-        Model Description:
-            - 3 convolution layers (ReLU activation).
-            - 3 max-pooling layers
-            - 512 Dense (*0.25 Dropout) + 256 Dense (*0.25 Dropout) + 128 Dense (*0.5 Dropout) --> Output Layer.
 
         :param loss: Loss function. Defaults to 'categorical_crossentropy'.
                      See: ``keras.models.Sequential()``.
@@ -181,7 +169,7 @@ class ImageRecognitionCNN(object):
             self._data_stream()
 
         # Get the number of classes
-        nb_classes = len(self.data_classes.keys()) if self.data_classes is not None else 2
+        nb_classes = len(self.data_classes.keys())
 
         # Define the Model
         self.model = Sequential()
@@ -196,11 +184,6 @@ class ImageRecognitionCNN(object):
         self.model.add(Convolution2D(32, 3, 3, dim_ordering=self._dim_ordering, activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
 
-        self.model.add(Convolution2D(64, 3, 3, dim_ordering=self._dim_ordering, activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
-
-        # Fully Connected Layers, i.e., a standard
-        # neural net being fed features from above.
         self.model.add(Flatten())
         self.model.add(Dense(64, activation='relu'))
         self.model.add(Dropout(0.5))
@@ -230,7 +213,7 @@ class ImageRecognitionCNN(object):
 
         Fit the model to the training data and run a validation.
 
-        :param nb_epoch: number of iterations. See: ``keras.models.Sequential()``. Defaults to 10.
+        :param nb_epoch: number of epochs. See: ``keras.models.Sequential()``. Defaults to 10.
         :type nb_epoch: ``int``
         :param min_delta: see ``keras.callbacks.EarlyStopping()``.
         :type min_delta: ``float``
@@ -270,7 +253,6 @@ class ImageRecognitionCNN(object):
                 self._zoom_range,
                 self._horizontal_flip,
                 self._batch_size,
-                self._dim_ordering,
                 self.data_classes]
 
         # Pickle the `data` dictionary.
@@ -318,8 +300,7 @@ class ImageRecognitionCNN(object):
         self._zoom_range = data[4]
         self._horizontal_flip = data[5]
         self._batch_size = data[6]
-        self._dim_ordering = data[7]
-        self.data_classes = data[8]
+        self.data_classes = data[7]
 
     def load(self, path, override_existing=False, default_model_load=False):
         """
@@ -361,7 +342,7 @@ class ImageRecognitionCNN(object):
         predictions = ((d[e], i) for e, i in enumerate(single_img_prediction))
         return sorted(predictions, key=lambda x: x[1], reverse=True)
 
-    def predict(self, list_of_images, status=False, verbose=False):
+    def predict(self, list_of_images, status=True, verbose=False):
         """
 
         :param list_of_images: a list of paths (strings) to images or ``ndarrays``.
@@ -375,7 +356,7 @@ class ImageRecognitionCNN(object):
         if self.model is None:
             raise AttributeError("Predictions cannot be made until a model is loaded or trained.")
 
-        def status(x): # ToDo: Not working properly
+        def status_bar(x): # ToDo: Not working properly
             return tqdm(x) if status else x
 
         number_ndarray = ['ndarray' in str(type(i)) for i in list_of_images]
@@ -386,14 +367,14 @@ class ImageRecognitionCNN(object):
             raise ValueError("Only some of the items in `list_of_images` we found to be `ndarrays`.")
         else:
             if verbose:
-                print("Loading Images...")
-            images = load_and_scale_imgs(list_of_images, img_size=self.img_shape, status=tqdm if status else None)
+                print("\nPreparing Images for Neural Network...")
+            images = load_and_scale_imgs(list_of_images, img_size=self.img_shape, status=status)
 
         if verbose:
-            print("Generating Predictions...")
+            print("\nGenerating Predictions...")
 
         data_classes_reversed = {v: k for k, v in self.data_classes.items()}
-        return [self._prediction_labels(i, data_classes_reversed) for i in status(self.model.predict(images))]
+        return [self._prediction_labels(i, data_classes_reversed) for i in status_bar(self.model.predict(images))]
 
 
 
