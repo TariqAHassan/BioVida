@@ -7,7 +7,7 @@
         this script is configured to use
         THEANO as a computational back end.
         To use TensorFlow, make the following
-        change
+        change:
 
         K.set_image_dim_ordering('th')
 
