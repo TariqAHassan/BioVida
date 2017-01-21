@@ -122,7 +122,7 @@ class ImageProcessing(object):
         self._ircnn = ImageRecognitionCNN()
 
         # Load the model weights and architecture.
-        MODEL_PATH = pkg_resources.resource_filename('biovida', 'images/_resources/img_problem_model.h5')
+        MODEL_PATH = pkg_resources.resource_filename('biovida', 'images/_resources/img_problems_model.h5')
         if model_location is None:
             self._ircnn.load(MODEL_PATH, override_existing=True)
         elif not isinstance(model_location, str):
