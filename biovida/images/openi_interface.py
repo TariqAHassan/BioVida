@@ -27,9 +27,9 @@ from biovida.images._openi_support_tools import numb_extract
 from biovida.images._openi_support_tools import url_combine
 
 # Open-i API Parameters Information
-from biovida.images.resources._openi_parameters import openi_image_type_params
-from biovida.images.resources._openi_parameters import openi_search_information
-from biovida.images.resources._openi_parameters import openi_article_type_params
+from biovida.images._resources.openi_parameters import openi_image_type_params
+from biovida.images._resources.openi_parameters import openi_search_information
+from biovida.images._resources.openi_parameters import openi_article_type_params
 
 # Tools for Text Feature Extraction
 from biovida.images.text_processing import feature_extract
@@ -449,8 +449,8 @@ class OpenInterface(object):
 
     Python Interface for the NIH's Open-i API.
 
-    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
-                       Default to ``None`` (which will generate a cache in the home folder).
+    :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
+                       one will created. Default to ``None``, which will generate a cache in the home folder.
     :type cache_path: ``str`` or ``None``
     :param download_limit: max. number of results to download.
                            If ``None``, no limit will be imposed (not recommended). Defaults to 60.
@@ -458,7 +458,7 @@ class OpenInterface(object):
     :param img_sleep_time: time to sleep (in seconds) between requests for images. Noise is added on each call
                            by adding a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5 seconds.
     :type img_sleep_time: ``int`` or ``float``
-    :param date_format: Defaults to '%d/%m/%Y'.
+    :param date_format: Defaults to ``'%d/%m/%Y'``.
     :type date_format: ``str``
     :param records_sleep_mini: Tuple of the form: (every x downloads, short peroid of time [seconds]). Defaults to (2, 5).
     :type records_sleep_mini: ``tuple``
