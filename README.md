@@ -47,7 +47,7 @@ from biovida.images.openi_interface import OpenInterface
 opi = OpenInterface()
  
 # 3. Perform a search
-opi.search("aneurysm", image_type=['mri', 'pet'])  # Results Found: 1,586.
+opi.search("aneurysm", image_type=['mri', 'ct'])  # Results Found: 3,973.
 
 # 4. Pull the data
 search_df = opi.pull()
@@ -68,10 +68,21 @@ cdf = ip.auto()
 ip.save("/save/directory/")
 ```
 
-Note: this library is still in *pre-alpha*.
-Therefore, the procedures that power the above code snippet are
-still being refined and improved.
-
+Notes:
+ 
+   1. This library is still in *pre-alpha*. Therefore, the procedures that power
+      the above code snippet are still being refined and improved.
+   
+   2. The model has been trained and validated using a total of 20,000 images, 
+      synthesized from a collection of ~1,500 CT and *structural* MRI scans.
+      
+   3. While the model will likely generalize to x-ray and ultrasound images,
+      it has not been tested. In the future, the model will be explictly trained
+      on these types of images.
+   
+   4. **For images which are not grayscale, such a photographs, fMRI and PET scans,
+      the model is almost certian to provide completely erronous predictions**.
+   
 ------------------------------------------------------------------------
 
 ###Genomic Data
