@@ -114,8 +114,8 @@ Import the ImageProcessing Class
     from biovida.images.image_processing import ImageProcessing
 
 
-# Instantiate the Tool using the OpenInterface Instance
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Instantiate the Tool using the OpenInterface Instance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
