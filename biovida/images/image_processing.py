@@ -74,7 +74,7 @@ def _extract_search_class_db(database_to_extract, search_class):
     if database_to_extract == 'search':
         extracted_db = search_class.current_search_database
     elif database_to_extract == 'record':
-        extracted_db = search_class.current_search_database
+        extracted_db = search_class.image_record_database
     else:
         raise ValueError("`database_to_extract` must be one of: 'search', 'record'.")
 
@@ -122,7 +122,7 @@ class ImageProcessing(object):
         self._ircnn = ImageRecognitionCNN()
 
         # Load the model weights and architecture.
-        MODEL_PATH = pkg_resources.resource_filename('biovida', 'images/_resources/model_weights.h5')
+        MODEL_PATH = pkg_resources.resource_filename('biovida', 'images/_resources/img_problem_model.h5')
         if model_location is None:
             self._ircnn.load(MODEL_PATH, override_existing=True)
         elif not isinstance(model_location, str):
