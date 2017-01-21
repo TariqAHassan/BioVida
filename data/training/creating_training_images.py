@@ -14,11 +14,12 @@ from PIL import Image
 from PIL import ImageDraw
 from random import randint
 
-from data.training.temp import (arrow_path,
-                                base_img_path,
-                                grid_save_location,
-                                arrow_save_location,
-                                ellipses_save_location)
+from data.training.my_file_paths import (cache_path,
+                                         arrow_path,
+                                         base_img_path,
+                                         grid_save_location,
+                                         arrow_save_location,
+                                         ellipses_save_location)
 
 
 # ------------------------------------------------------------------------------------------
@@ -47,7 +48,6 @@ def base_image_record(images_used, cache_path, save_path):
     images_used['ImageName'] = images_used['ImageName'].map(lambda x: x.split("/")[-1])
     
     # Create an instance of the OpenInterface() to extract URLs
-    from biovida.images.models.temp import cache_path
     from biovida.images.openi_interface import OpenInterface
     opi = OpenInterface(cache_path)
     df = opi.image_record_database
@@ -159,7 +159,6 @@ def open_muliple_and_random_crop(image_list):
 # Arrows
 # ------------------------------------------------------------------------------------------
 
-
 # Random valid MRI as background
 # Random arrow
 #     - location in image
@@ -255,7 +254,7 @@ def arrow_creator(background_options, foreground_options, n, general_name, save_
 
 
 # Create the arrow training data
-# arrow_creator(base_images, arrows, n=10000, save_location=arrow_save_location)
+arrow_creator(base_images, arrows, n=10000, general_name="arrow", save_location=arrow_save_location)
 
 
 # ------------------------------------------------------------------------------------------
