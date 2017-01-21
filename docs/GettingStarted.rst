@@ -65,8 +65,8 @@ Perform a Search
 
 .. code:: python
 
-    opi.search("aneurysm", image_type=['mri', 'pet'])
-    # Results Found: 1,586.
+    opi.search("aneurysm", image_type=['mri', 'ct'])
+    # Results Found: 3,973.
 
 The values accepted by the ``image_type`` argument above can easily be
 reviewed:
@@ -80,10 +80,10 @@ Additionally, searches can easily be reviewed:
 .. code:: python
 
     opi.current_search
-    # {'image_type': ['mri', 'pet', 'exclude_graphics'], 'query': 'aneurysm'}
+    # {'image_type': ['mri', 'ct', 'exclude_graphics'], 'query': 'aneurysm'}
 
     opi.current_search_total
-    # 1586
+    # 3973
 
 Pull the data
 ^^^^^^^^^^^^^
