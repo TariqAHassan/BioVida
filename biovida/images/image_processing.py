@@ -8,6 +8,7 @@
 import os
 import numpy as np
 import pandas as pd
+import pkg_resources
 from PIL import Image
 from tqdm import tqdm
 from PIL import ImageStat
@@ -17,10 +18,7 @@ from scipy.misc import imread
 from biovida.support_tools.support_tools import items_null
 
 # Tools form the image subpackage
-import biovida.images.resources # ToDo: generalize save and load location (needed to generate medpix logo.)
 from biovida.images.image_tools import load_and_scale_imgs
-
-from biovida.images.models.temp import cnn_model_location, cache_path, resources_path  # ToDo: remove.
 
 # Models
 from biovida.images.models.border_detection import border_detection
@@ -61,40 +59,76 @@ pd.options.mode.chained_assignment = None
 # ---------------------------------------------------------------------------------------------
 
 
+def _extract_search_class_db(database_to_extract, search_class):
+    """
+
+    Extracts a database from the `search_class` parameter of ImageProcessing().
+
+    :param database_to_extract: see ``ImageProcessing()``.
+    :type database_to_extract: ``str``
+    :param search_class: see ``ImageProcessing()``.
+    :type search_class: ``OpenInterface Class``
+    :return: extract database
+    :rtype: ``Pandas DataFrame``
+    """
+    if database_to_extract == 'search':
+        extracted_db = search_class.current_search_database
+    elif database_to_extract == 'record':
+        extracted_db = search_class.current_search_database
+    else:
+        raise ValueError("`database_to_extract` must be one of: 'search', 'record'.")
+
+    if extracted_db is None:
+        raise AttributeError("The {0} database provided was `None`.".format(database_to_extract))
+    else:
+        return extracted_db
+
+
 class ImageProcessing(object):
     """
 
     This class is designed to allow easy analysis of cached image data.
 
-    :param image_dataframe: a search dataframe from ``biovida.images.models.img_classification.ImageRecognitionCNN()``
-    :type image_dataframe: ``Pandas DataFrame``
+    :param search_class: a search dataframe from ``biovida.images.openi_interface.OpenInterface()``
+    :type search_class: ``OpenInterface Class``
     :param model_location: the location of the model for Convnet.
                           If `None`, the default model will be used. Defaults to ``None``.
     :type model_location: ``str``
+    :param database_to_extract: 'search' to extract the ``current_search_database`` from ``search_class`` or
+                                 'record' to extract ``image_record_database``. Defaults to 'search'.
+    :type database_to_extract: ``str``
     :param verbose: if ``True``, print additional details. Defaults to ``False``.
     :type verbose: ``bool``
 
     :var image_dataframe: this is the search dataframe that was passed when instantiating the class and
                           contains a record of all analyses run as new columns.
     """
+    def __init__(self, search_class, model_location=None, database_to_extract='search', verbose=True):
+        if "OpenInterface" not in str(type(search_class)):
+            raise ValueError("`search_class` must be a OpenInterface instance.")
 
-    def __init__(self, image_dataframe, model_location=None, verbose=True):
-        self.image_dataframe = image_dataframe
-        self._verbose = verbose
+        # Extract the search/record database
+        self.image_dataframe = _extract_search_class_db(database_to_extract, search_class)
 
-        # Start tqdm
+        # Extract path to the MedPix Logo
+        self._medpix_path = os.path.join(search_class.root_path, "medpix_logo.png")
+
+        # Spin up tqdm
         tqdm.pandas("status")
+
+        self._verbose = verbose
 
         # Load the CNN
         self._ircnn = ImageRecognitionCNN()
 
         # Load the model weights and architecture.
+        MODEL_PATH = pkg_resources.resource_filename('biovida', 'images/_resources/model_weights.h5')
         if model_location is None:
-            self._ircnn.load(cnn_model_location, override_existing=True)
+            self._ircnn.load(MODEL_PATH, override_existing=True)
         elif not isinstance(model_location, str):
             raise ValueError("`model_location` must either be a string or `None`.")
         elif os.path.isfile(model_location):
-            self._ircnn.load(cnn_model_location, override_existing=True)
+            self._ircnn.load(MODEL_PATH, override_existing=True)
         else:
             raise FileNotFoundError("'{0}' could not be located.".format(str(model_location)))
 
@@ -326,8 +360,8 @@ class ImageProcessing(object):
         # Package Params
         output_params = (match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1], return_full)
 
-        # Load the Pattern. ToDo: 1. generalize `resources_path` location. 2. Allow for other logos.
-        medline_template_img = imread(os.path.join(resources_path, "medpix_logo.png"), flatten=True)
+        # Load the Pattern. ToDo: Allow for non MedPix logos logos.
+        medline_template_img = imread(self._medpix_path, flatten=True)
 
         def robust_match_template_wrapper(img):
             return robust_match_template(pattern_img=medline_template_img,
@@ -546,7 +580,9 @@ class ImageProcessing(object):
         cropped_images_for_analysis = self._cropper(data_frame=None, return_as_array=True)
 
         # Transform the cropped images into a form `ImageRecognitionCNN.predict()` can accept
-        transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self._ircnn.img_shape)
+        if self._verbose and self._print_update:
+            print("\n\nPreparing Images for Neural Network...")
+        transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self._ircnn.img_shape, status=status)
 
         # Make the predictions and Save
         self.image_dataframe['img_problems'] = self._ircnn.predict([transformed_images], status=status)
@@ -650,12 +686,12 @@ class ImageProcessing(object):
 
         self.image_dataframe['valid_image'] = self.image_dataframe.apply(img_validity, axis=1)
 
-    def auto(self, img_problem_threshold=0.4, require_grayscale=True, new_analysis=False, status=True):
+    def auto(self, img_problem_threshold=0.45, require_grayscale=True, new_analysis=False, status=True):
         """
 
         Automatically carry out all aspects of image preprocessing (recommended).
 
-        :param img_problem_threshold: see `auto_decision()`. Defaults to 0.4.
+        :param img_problem_threshold: see `auto_decision()`. Defaults to 0.45.
         :type img_problem_threshold: ``float``
         :param require_grayscale: see `auto_decision()`. Defaults to ``True``
         :type require_grayscale: ``bool``
@@ -675,7 +711,7 @@ class ImageProcessing(object):
 
         return self.image_dataframe
 
-    def save(self, save_path, crop_images=True, convert_to_rgb=False, status=True):
+    def save(self, save_path, crop_images=True, convert_to_rgb=False, block_duplicates=True, status=True):
         """
 
         Save processed images to disk.
@@ -687,6 +723,8 @@ class ImageProcessing(object):
         :type crop_images: ``bool``
         :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.
         :type convert_to_rgb: ``bool``
+        :param block_duplicates: if ``True``, prohibit writing duplicates. Defaults to ``True``.
+        :type block_duplicates: ``bool``
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
         """
@@ -710,14 +748,16 @@ class ImageProcessing(object):
             images_to_return = self._pil_load(valid_df['img_cache_path'], convert_to_rgb, status)
 
         # Save to disk
+        img_record = set()
         for img, path in self._apply_status(images_to_return, status):
-            img.save(os.path.join(save_path, path.split(os.sep)[-1]))
+            full_save_path = os.path.join(save_path, path.split(os.sep)[-1])
 
-
-
-
-
-
+            if block_duplicates:
+                if full_save_path not in img_record:
+                    img_record.add(full_save_path)
+                    img.save(full_save_path)
+            else:
+                img.save(full_save_path)
 
 
 

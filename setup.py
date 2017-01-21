@@ -33,6 +33,7 @@ setup(
     keywords='medicine, bioinformatics, biological sciences, machine learning, data science',
     url='https://github.com/TariqAHassan/BioVida.git',
     packages=find_packages(),
+    package_data={'biovida': ['images/resources/*.h5'],},
     data_files=[('', ['LICENSE.md'])],
     install_requires=required_dependencies(),
     classifiers=['Development Status :: 2 - Pre-Alpha',

@@ -6,6 +6,7 @@
 """
 import numpy as np
 from PIL import Image
+from tqdm import tqdm
 from scipy.misc import imread, imresize
 from keras.preprocessing import image
 from skimage.color.colorconv import rgb2gray
@@ -38,7 +39,7 @@ def image_transposer(converted_image, img_size, axes=(2, 0, 1)):
     return np.transpose(imresize(converted_image, img_size), axes).astype('float32')
 
 
-def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=None):
+def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=True):
     """
 
     :param list_of_images:
@@ -49,7 +50,10 @@ def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=None):
     """
     # Source: https://blog.rescale.com/neural-networks-using-keras-on-rescale/
     def status_bar(x):
-        return x if status == None else status(x)
+        if status:
+            return tqdm(x)
+        else:
+            return x
 
     def load_func(img):
         if 'ndarray' in str(type(img)):
