@@ -5,7 +5,7 @@
 
 
 .. image:: logo/biovida_logo_site_scaled.png
-    :width: 559px
+    :width: 562px
     :align: left
     :height: 200px
 
