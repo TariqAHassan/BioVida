@@ -58,8 +58,8 @@ search_df = opi.pull()
 # 1. Import Image Processing Tools
 from biovida.images.image_processing import ImageProcessing
 
-# 2. Create an Instance of the Tool using the Search Data
-ip = ImageProcessing(search_df)
+# 2. Instantiate the Tool using the OpenInterface Instance
+ip = ImageProcessing(opi)
  
 # 3. Clean the Image Data
 cdf = ip.auto()
