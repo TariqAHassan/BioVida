@@ -114,12 +114,12 @@ Import the ImageProcessing Class
     from biovida.images.image_processing import ImageProcessing
 
 
-Use a Search Result to Instantiate the Class
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Instantiate the Tool using the OpenInterface Instance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
-    ip = ImageProcessing(search_df)
+    ip = ImageProcessing(opi)
 
 
 Clean the Image Data
