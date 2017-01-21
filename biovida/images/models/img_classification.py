@@ -178,11 +178,11 @@ class ImageRecognitionCNN(object):
         # for the fully connected layers below.
         self.model.add(Convolution2D(32, 3, 3
                                      , input_shape=(3, self.img_shape[0], self.img_shape[1])
-                                     , dim_ordering=self._dim_ordering, activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
+                                     , activation='relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        self.model.add(Convolution2D(32, 3, 3, dim_ordering=self._dim_ordering, activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2), dim_ordering=self._dim_ordering))
+        self.model.add(Convolution2D(32, 3, 3, activation='relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
 
         self.model.add(Flatten())
         self.model.add(Dense(64, activation='relu'))
