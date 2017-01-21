@@ -70,18 +70,21 @@ ip.save("/save/directory/")
 
 Notes:
  
-   1. This library is still in *pre-alpha*. Therefore, the procedures that power
-      the above code snippet are still being refined and improved.
+   1. This library is still in *pre-alpha*. That is, formal unit testing has
+      not yet been implemented. **Until unit testing is implemented,
+      the reliability of this library cannot be assured**.
    
-   2. The model has been trained and validated using a total of 20,000 images, 
-      synthesized from a collection of ~1,500 CT and *structural* MRI scans.
+   2. The model has been trained and validated to detect two kinds of problems:
+      arrows in the image and 'grids' of images. This was performed using
+      a total of 20,000 images, synthesized from a collection of ~1,500 CT
+      and *structural* MRI scans.
       
    3. While the model will likely generalize to x-ray and ultrasound images,
-      it has not been tested. In the future, the model will be explictly trained
-      on these types of images.
+      this has not been formally tested. In the future, the model will be 
+      explicitly trained on these types of images.
    
-   4. **For images which are not grayscale, such a photographs, fMRI and PET scans,
-      the model is almost certian to provide completely erronous predictions**.
+   4. *For images which are not grayscale, such a photographs, fMRI and PET scans,
+      the model is almost certain to provide completely erroneous predictions*.
    
 ------------------------------------------------------------------------
 
@@ -139,7 +142,7 @@ Genomics
     
    2. Diagnostic Data
    
-     - likely [disease-ontology.org]
+     - Likely [disease-ontology.org].
 
 
 [click here]: https://tariqahassan.github.io/BioVida/index.html

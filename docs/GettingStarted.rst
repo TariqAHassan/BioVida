@@ -146,6 +146,14 @@ to control the image processing more precisely if you
 wish (see the documentation `here <https://tariqahassan.github.io/BioVida/API.html#image-processing>`__), this
 fully automated approach should suffice in most cases.
 
+
+Notice:
+
+This library is still in *pre-alpha*.
+That is, formal unit testing has not yet been implemented. **Until unit testing is implemented,
+the reliability of this library cannot be assured**.
+
+
 --------------
 
 Genomic Data
