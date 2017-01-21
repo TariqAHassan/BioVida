@@ -8,9 +8,32 @@
 """
 # Imports
 import os
+import requests
+from PIL import Image
 
 # General Support Tools
 from biovida.support_tools.support_tools import list_to_bulletpoints
+
+
+def _medpix_logo_download(save_path,
+                          image_web_address='https://openi.nlm.nih.gov/imgs/512/341/1544/MPX1544_synpic54565.png'):
+    """
+
+    Download and save the MedPix logo from a representative image.
+    (The image is needed for image processing).
+
+    :param image_web_address: the location of the image which contains the MedPix Logo
+    :type image_web_address: ``str``
+    """
+    full_save_path = os.path.join(save_path, "medpix_logo.png")
+
+    if not os.path.isfile(full_save_path):
+        # Get representative images
+        img = Image.open(requests.get(image_web_address, stream=True).raw)
+        # Crop and Save
+        img_cropped = img.crop((406, 6, 502, 27))
+        img_cropped.save(full_save_path)
+        print("\nThe MedPix Logo, required for image processing, has been saved to:\n'{0}'.".format(full_save_path))
 
 
 def _sub_directory_creator(root_path, to_create):
@@ -26,12 +49,14 @@ def _sub_directory_creator(root_path, to_create):
 
     # Create sub directories
     for sub_dir in to_create:
+        # Check if the directory exists
         if not os.path.isdir(os.path.join(root_path, sub_dir)):
             # Create sub_dir
             os.makedirs(os.path.join(root_path, sub_dir))
             # Record sub_dir's full path
             created_dirs[(sub_dir, True)] = (os.sep).join(os.path.join(root_path, sub_dir).split(os.sep)[-2:])
         else:
+            # Note that it was not created
             created_dirs[(sub_dir, False)] = (os.sep).join(os.path.join(root_path, sub_dir).split(os.sep)[-2:])
 
     return created_dirs
@@ -133,8 +158,12 @@ def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     # Create main
     root_path = _directory_creator(cache_path, verbose)
 
-    # The full path to the
+    # The full path to the subdirectory
     sub_dir_full_path = os.path.join(root_path, sub_dir.replace("/", "").strip() + "_cache")
+
+    # Download the medpix logo to the sub_dir, if sub_dir is 'images'.
+    if sub_dir == 'images':
+        _medpix_logo_download(sub_dir_full_path)
 
     # Ask for sub directories to be created
     package_created_dirs = _sub_directory_creator(sub_dir_full_path, to_create)
