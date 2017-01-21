@@ -89,7 +89,7 @@ class ImageProcessing(object):
 
     This class is designed to allow easy analysis of cached image data.
 
-    :param search_class: a search dataframe from ``biovida.images.openi_interface.OpenInterface()``
+    :param search_class: aninstance of the ``biovida.images.openi_interface.OpenInterface()`` class.
     :type search_class: ``OpenInterface Class``
     :param model_location: the location of the model for Convnet.
                           If `None`, the default model will be used. Defaults to ``None``.
