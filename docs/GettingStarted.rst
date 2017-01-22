@@ -148,7 +148,7 @@ fully automated approach should suffice in most cases.
 
 
 **Notice**: This library is still in *pre-alpha*. That is, formal unit testing has not yet been implemented.
-**Until unit testing is implemented, the reliability of this library cannot be assured**.
+**Until it is, this software should be considered experimental**.
 
 
 --------------
