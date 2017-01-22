@@ -460,9 +460,9 @@ class OpenInterface(object):
     :type img_sleep_time: ``int`` or ``float``
     :param date_format: Defaults to ``'%d/%m/%Y'``.
     :type date_format: ``str``
-    :param records_sleep_mini: Tuple of the form: (every x downloads, short peroid of time [seconds]). Defaults to (2, 5).
+    :param records_sleep_mini: Tuple of the form: (every x downloads, short peroid of time [seconds]). Defaults to (5, 1.5).
     :type records_sleep_mini: ``tuple``
-    :param records_sleep_main: Tuple of the form: (every x downloads, long peroid of time [seconds]). Defaults to (50, 300).
+    :param records_sleep_main: Tuple of the form: (every x downloads, long peroid of time [seconds]). Defaults to (50, 60).
     :type records_sleep_main: ``tuple``
     :param verbose: print additional details.
     :type verbose: ``bool``
