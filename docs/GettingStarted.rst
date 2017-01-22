@@ -93,10 +93,10 @@ Pull the data
     search_df = opi.pull()
 
 The DataFrame created above, ``df``, contains data from all fields
-provided by the Open-i API.† Images referenced in the DataFrame will
+provided by the Open-i API. :superscript:`†` Images referenced in the DataFrame will
 automatically be harvested (unless specified otherwise).
 
-†\ *Note*: by default, data harvesting is truncated after the first 60
+:superscript:`†` *Note:* by default, data harvesting is truncated after the first 60
 results.
 
 
