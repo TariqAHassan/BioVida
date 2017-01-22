@@ -71,8 +71,8 @@ ip.save("/save/directory/")
 Notes:
  
    1. This library is still in *pre-alpha*. That is, formal unit testing has
-      not yet been implemented. **Until unit testing is implemented,
-      the reliability of this library cannot be assured**.
+      not yet been implemented. **Until it is, this software should be 
+      considered experimental**.
    
    2. The model has been trained and validated to detect two kinds of problems:
       arrows in the image and 'grids' of images. This was performed using
