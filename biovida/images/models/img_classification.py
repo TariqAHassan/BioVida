@@ -12,9 +12,7 @@
 # Imports
 import os
 import pickle
-
 from tqdm import tqdm
-
 from biovida.images.image_tools import load_and_scale_imgs
 
 from keras import callbacks
@@ -27,8 +25,6 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
 # Solution: replace "tf" with "th" in ~/.keras/keras.json.
 # Note: `MaxPooling2D` has a `dim_ordering` param which can do the same thing.
-# When deployed, `dim_ordering` should equal 'th' to avoid users having this problem.
-# The same goes to all function below which have this param.
 
 
 class ImageRecognitionCNN(object):
@@ -176,35 +172,16 @@ class ImageRecognitionCNN(object):
 
         # # Convolution layers to generate features
         # # for the fully connected layers below.
-        # self.model.add(Convolution2D(32, 3, 3
-        #                              , input_shape=(3, self.img_shape[0], self.img_shape[1])
-        #                              , activation='relu'))
-        # self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        #
-        # self.model.add(Convolution2D(32, 3, 3, activation='relu'))
-        # self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        #
-        # self.model.add(Flatten())
-        # self.model.add(Dense(64, activation='relu'))
-        # self.model.add(Dropout(0.5))
-        # self.model.add(Dense(nb_classes))
-        # self.model.add(Activation('sigmoid'))
-
         self.model.add(Convolution2D(32, 3, 3
                                      , input_shape=(3, self.img_shape[0], self.img_shape[1])
-                                     , activation='relu'
-                                     , border_mode='same'))
+                                     , activation='relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+
         self.model.add(Convolution2D(32, 3, 3, activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Dropout(0.25))
-
-        self.model.add(Convolution2D(64, 3, 3, border_mode='same', activation='relu'))
-        self.model.add(Convolution2D(64, 3, 3, activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Dropout(0.25))
 
         self.model.add(Flatten())
-        self.model.add(Dense(512, activation='relu'))
+        self.model.add(Dense(64, activation='relu'))
         self.model.add(Dropout(0.5))
         self.model.add(Dense(nb_classes))
         self.model.add(Activation('sigmoid'))
