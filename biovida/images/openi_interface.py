@@ -462,7 +462,7 @@ class OpenInterface(object):
     :type date_format: ``str``
     :param records_sleep_mini: Tuple of the form: (every x downloads, short peroid of time [seconds]). Defaults to (2, 5).
     :type records_sleep_mini: ``tuple``
-    :param records_sleep_main: Tuple of the form: (every x downloads, long peroid of time [seconds]). Defaults to (50, 300)
+    :param records_sleep_main: Tuple of the form: (every x downloads, long peroid of time [seconds]). Defaults to (50, 300).
     :type records_sleep_main: ``tuple``
     :param verbose: print additional details.
     :type verbose: ``bool``
@@ -471,10 +471,10 @@ class OpenInterface(object):
     def __init__(self
                  , cache_path=None
                  , download_limit=60
-                 , img_sleep_time=5
+                 , img_sleep_time=1.5
                  , date_format='%d/%m/%Y'
-                 , records_sleep_mini=(2, 5)
-                 , records_sleep_main=(50, 300)
+                 , records_sleep_mini=(5, 1.5)
+                 , records_sleep_main=(50, 60)
                  , verbose=True):
         """
 

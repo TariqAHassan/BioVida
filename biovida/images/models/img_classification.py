@@ -59,7 +59,7 @@ class ImageRecognitionCNN(object):
 
     def __init__(self
                  , data_path=None
-                 , img_shape=(150, 150)
+                 , img_shape=(125, 125)
                  , rescale=1/255.0
                  , shear_range=0.1
                  , zoom_range=0.35
@@ -174,18 +174,37 @@ class ImageRecognitionCNN(object):
         # Define the Model
         self.model = Sequential()
 
-        # Convolution layers to generate features
-        # for the fully connected layers below.
+        # # Convolution layers to generate features
+        # # for the fully connected layers below.
+        # self.model.add(Convolution2D(32, 3, 3
+        #                              , input_shape=(3, self.img_shape[0], self.img_shape[1])
+        #                              , activation='relu'))
+        # self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        #
+        # self.model.add(Convolution2D(32, 3, 3, activation='relu'))
+        # self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        #
+        # self.model.add(Flatten())
+        # self.model.add(Dense(64, activation='relu'))
+        # self.model.add(Dropout(0.5))
+        # self.model.add(Dense(nb_classes))
+        # self.model.add(Activation('sigmoid'))
+
         self.model.add(Convolution2D(32, 3, 3
                                      , input_shape=(3, self.img_shape[0], self.img_shape[1])
-                                     , activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-
+                                     , activation='relu'
+                                     , border_mode='same'))
         self.model.add(Convolution2D(32, 3, 3, activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(0.25))
+
+        self.model.add(Convolution2D(64, 3, 3, border_mode='same', activation='relu'))
+        self.model.add(Convolution2D(64, 3, 3, activation='relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(0.25))
 
         self.model.add(Flatten())
-        self.model.add(Dense(64, activation='relu'))
+        self.model.add(Dense(512, activation='relu'))
         self.model.add(Dropout(0.5))
         self.model.add(Dense(nb_classes))
         self.model.add(Activation('sigmoid'))
