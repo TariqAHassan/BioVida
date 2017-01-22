@@ -147,11 +147,8 @@ wish (see the documentation `here <https://tariqahassan.github.io/BioVida/API.ht
 fully automated approach should suffice in most cases.
 
 
-Notice:
-
-This library is still in *pre-alpha*.
-That is, formal unit testing has not yet been implemented. **Until unit testing is implemented,
-the reliability of this library cannot be assured**.
+**Notice**: This library is still in *pre-alpha*. That is, formal unit testing has not yet been implemented.
+**Until unit testing is implemented, the reliability of this library cannot be assured**.
 
 
 --------------
