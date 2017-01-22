@@ -70,7 +70,7 @@ ip.save("/save/directory/")
 
 Notes:
  
-   1. This library is still in *pre-alpha*. That is, formal unit testing has
+   1. This library is in *pre-alpha*. That is, formal unit testing has
       not yet been implemented. **Until it is, this software should be 
       considered experimental**.
    
