@@ -19,6 +19,7 @@ from data.training.my_file_paths import (cache_path,
                                          base_img_path,
                                          grid_save_location,
                                          arrow_save_location,
+                                         valid_img_save_location,
                                          ellipses_save_location)
 
 
@@ -93,22 +94,30 @@ def random_tuple_in_range(tpl, border_buffer=0.385):
     return rand_x, rand_y
 
 
-def random_crop(img, choice_override=False):
+def random_crop(img, choice_override=None, top_crop=0.2, lower_crop=0.9):
     """
 
     :param img:
     :param choice_override:
+    :param top_crop: the amount of the top of the image to crop
+    :param lower_crop: the amount of the botto of the image to crop
     :return:
     """
     w, h = img.size
-    w2, h2 = np.round(np.array(img.size) / 2).astype(int)
+    if top_crop is not None:
+        img = img.crop((0, int(h * top_crop), w, h))
+    w, h = img.size
+    if lower_crop is not None:
+        img = img.crop((0, 0, w, int(h * lower_crop)))
 
-    if choice_override:
+    w, h = img.size
+    w2, h2 = np.round(np.array(img.size) / 2).astype(int)
+    if isinstance(choice_override, int):
         choice = choice_override
     else:
         choice = randint(0, 2)
-    side = randint(0, 1)
 
+    side = randint(0, 1)
     if choice == 0:
         return img
     elif choice == 1: # crop w.r.t. width
@@ -150,14 +159,40 @@ def open_muliple_and_random_crop(image_list):
     """
     to_crop_or_not_to_crop = randint(0, 1)
     if to_crop_or_not_to_crop == 0:
-        return [Image.open(i) for i in image_list]
+        return [random_crop(Image.open(i), choice_override=0) for i in image_list]
     else:
-        return [random_crop(Image.open(i), randint(1, 2)) for i in image_list]
+        return [random_crop(Image.open(i), choice_override=randint(1, 2)) for i in image_list]
 
+
+# ------------------------------------------------------------------------------------------
+# valid_img
+# ------------------------------------------------------------------------------------------
+
+
+def valid_img_creator(image_options, n, general_name, save_location):
+    """
+
+    :param image_options:
+    :param n:
+    :param general_name:
+    :param save_location:
+    :return:
+    """
+    for i in tqdm(range(1, n+1)):
+        # Open and randomly crop
+        img = random_crop(Image.open(random.choice(image_options)))
+        # Randomly rescale
+        img = resize_image(img, random.uniform(0.8, 1.2))
+        # Save
+        img.save(os.path.join(save_location, "{0}_{1}.png".format(i, general_name)))
+
+
+valid_img_creator(base_images, 10000, "valid_img", valid_img_save_location)
 
 # ------------------------------------------------------------------------------------------
 # Arrows
 # ------------------------------------------------------------------------------------------
+
 
 # Random valid MRI as background
 # Random arrow
@@ -173,9 +208,9 @@ arrows = [os.path.join(arrow_path, i) for i in sorted_arrows]
 
 def arrow_back_foreground_mash(background_path
                                , foreground_path
-                               , foreground_scale_range=(0.1, 0.275)
+                               , foreground_scale_range=(0.2, 0.275)
                                , foreground_stretch_by=(0.8, 2.0)
-                               , location_border_buffer=0.2):
+                               , location_border_buffer=0.375):
     """
 
     :param background_path:
@@ -254,7 +289,7 @@ def arrow_creator(background_options, foreground_options, n, general_name, save_
 
 
 # Create the arrow training data
-arrow_creator(base_images, arrows, n=10000, general_name="arrow", save_location=arrow_save_location)
+# arrow_creator(base_images, arrows, n=10000, general_name="arrow", save_location=arrow_save_location)
 
 
 # ------------------------------------------------------------------------------------------
@@ -310,7 +345,6 @@ def side_by_side_stacker(image_list, stacker_a, stacker_b):
     :return:
     """
     # Open the images
-    # imgs = [Image.open(i) for i in image_list]
     imgs = open_muliple_and_random_crop(image_list)
 
     # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)

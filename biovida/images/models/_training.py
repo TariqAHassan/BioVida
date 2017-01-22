@@ -16,8 +16,15 @@
         K.set_image_dim_ordering('tf')
 
 """
+import pkg_resources
+try:
+    from biovida.images.models._training_data_path import add_to_path, training_data_path
+except:
+    add_to_path = pkg_resources.resource_filename("biovida", "images")[:-15]
+    training_data_path = input("Please enter the path to the data directory: ")
+
 import sys
-sys.path.append("")
+sys.path.append(add_to_path)
 
 # General Imports
 import numpy as np
@@ -27,6 +34,7 @@ K.set_image_dim_ordering('th')
 
 from keras.preprocessing.image import load_img
 from biovida.images.models.img_classification import ImageRecognitionCNN
+
 
 # ------------------------------------------------------------------------------------------
 # Image Classification
@@ -51,7 +59,9 @@ def _image_rcognition_cnn_training(nb_epoch, training_data_path, save_name):
     ircnn.save(save_name)
 
 
-_image_rcognition_cnn_training(1, "", "arrows_grids_1_epochs")
+save_name = input("Please enter the name of the file: ")
+_image_rcognition_cnn_training(1, training_data_path, save_name)
+
 
 
 
