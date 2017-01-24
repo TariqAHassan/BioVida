@@ -5,22 +5,34 @@
 
 """
 import os
+import PIL
 import random
 import warnings
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from PIL import Image
+from io import StringIO
 from PIL import ImageDraw
+from PIL import ImageFont
 from random import randint
+from itertools import chain
 
 from data.training.my_file_paths import (cache_path,
                                          arrow_path,
                                          base_img_path,
                                          grid_save_location,
+                                         occluding_text_save_location,
                                          arrow_save_location,
                                          valid_img_save_location,
                                          ellipses_save_location)
+
+
+# ToDo: create 'grids' with black spaces added to each image on either side images.
+quality = 95  # set image quality
+
+
+# Note: Some of this code is somewhat messy because I am still prototyping how to solve these problems.
 
 
 # ------------------------------------------------------------------------------------------
@@ -69,15 +81,56 @@ def base_image_record(images_used, cache_path, save_path):
 # ------------------------------------------------------------------------------------------
 
 
-def resize_image(img, scalar=1/3):
+def avg_color(background, location, window=50):
+    """
+
+    Gets the average color about some location
+    Note: this may have bugs!
+
+    :param background: PIL image
+    :param location: (w, h)
+    :type location: tuple
+    :param window: region
+    :type window: ``int``
+    :return:
+    :rtype: ``float``
+    """
+
+    # Get the size of the background
+    bw, bh = background.size
+
+    # Get the location the arrow would be plot
+    rw, rh = location
+
+    # Compute the window which is actually possible
+    left, upper = max(0, rw - window), max(0, rh - window)  # kind of looks like Relu!
+    right, lower = min(bw, rw + window), min(bh, rh + window)
+
+    # Crop
+    bg_cropped = background.crop((left, upper, right, lower))
+
+    # Report the average RGB color.
+    return np.mean(np.asarray(bg_cropped))
+
+
+def resize_image(img, scalar=1/3, min_size=15):
     """
 
     :param image:
     :param scalar:
+    :param min_size: the min. size in pixels that a resized image can be;
+                     pass 0 to disable.
     :return:
     """
     width, height = img.size
-    img = img.resize((int(width * scalar), int(height * scalar)))
+
+    new_width, new_height = int(width * scalar), int(height * scalar)
+
+    if new_width < min_size or new_height < min_size:
+        new_width += abs(new_width - min_size)
+        new_height += abs(new_height - min_size)
+
+    img = img.resize((new_width, new_height), Image.ANTIALIAS)
     return img
 
 
@@ -146,9 +199,9 @@ def random_stretch(img, stretch_by):
     if choice == 0:
         return img
     elif choice == 1:
-        return img.resize((int(w * scale_by), h))
+        return img.resize((int(w * scale_by), h), Image.ANTIALIAS)
     elif choice == 2:
-        return img.resize((w, int(h * scale_by)))
+        return img.resize((w, int(h * scale_by)), Image.ANTIALIAS)
 
 
 def open_muliple_and_random_crop(image_list):
@@ -164,12 +217,35 @@ def open_muliple_and_random_crop(image_list):
         return [random_crop(Image.open(i), choice_override=randint(1, 2)) for i in image_list]
 
 
+def opposite_color(color_val, buffer=7.5):
+    """
+
+    :param color_val:
+    :param buffer:
+    :return:
+    """
+    color_midpoint = 255 / 2.0
+
+    upper = color_midpoint + buffer
+    lower = color_midpoint - buffer
+
+    if color_val > upper:
+        color = randint(0, 10)
+    elif color_val < lower:
+        color = randint(245, 255)
+    else:
+        color = randint(int(lower), int(np.ceil(upper)))
+
+    # Return a pure color
+    return tuple([color] * 3)
+
+
 # ------------------------------------------------------------------------------------------
 # valid_img
 # ------------------------------------------------------------------------------------------
 
 
-def valid_img_creator(image_options, n, general_name, save_location):
+def valid_img_creator(image_options, start, end, general_name, save_location):
     """
 
     :param image_options:
@@ -178,20 +254,24 @@ def valid_img_creator(image_options, n, general_name, save_location):
     :param save_location:
     :return:
     """
-    for i in tqdm(range(1, n+1)):
+    for i in tqdm(range(start+1, end+1)):
         # Open and randomly crop
         img = random_crop(Image.open(random.choice(image_options)))
         # Randomly rescale
         img = resize_image(img, random.uniform(0.8, 1.2))
         # Save
-        img.save(os.path.join(save_location, "{0}_{1}.png".format(i, general_name)))
+        img.save(os.path.join(save_location, "{0}_{1}.png".format(i, general_name)), quality=quality)
 
 
-valid_img_creator(base_images, 10000, "valid_img", valid_img_save_location)
+# valid_img_creator(base_images, 17000, 30000, "valid_img", valid_img_save_location)
 
 # ------------------------------------------------------------------------------------------
 # Arrows
 # ------------------------------------------------------------------------------------------
+
+# In short, here the desired output is N images with arrows ontop of base images
+# These images should not overlap (at least not by very much), be clearly visible
+# and appear close to the center of the image
 
 
 # Random valid MRI as background
@@ -200,17 +280,126 @@ valid_img_creator(base_images, 10000, "valid_img", valid_img_save_location)
 #     - random size (in some range)
 #     - random rotation
 
+
 # Load arrows
 arrows_raw = [i for i in os.listdir(arrow_path) if i.endswith(".png")]
-sorted_arrows = sorted(arrows_raw, key=lambda x: int(x.split("_")[0]))
-arrows = [os.path.join(arrow_path, i) for i in sorted_arrows]
+# sorted_arrows = sorted(arrows_raw, key=lambda x: extract_digit(x))
+arrows = [os.path.join(arrow_path, i) for i in arrows_raw]
 
 
-def arrow_back_foreground_mash(background_path
-                               , foreground_path
-                               , foreground_scale_range=(0.2, 0.275)
-                               , foreground_stretch_by=(0.8, 2.0)
-                               , location_border_buffer=0.375):
+def distance_between_points(point_a, point_b):
+    return np.sqrt(np.sum((np.array(point_a) - np.array(point_b))**2))
+
+def distance_all(new_position, prior_locations, min_distance_appart):
+    l = [distance_between_points(new_position, i) for i in prior_locations]
+    return all(i >= min_distance_appart for i in l), min(l)
+
+
+def random_tuple_away(background_shape, prior_locations, border_buffer, min_sep=0.3, limt=350):
+    """
+
+    Compute a location that is some min. distance away from all prior locations
+
+    :param background_shape:
+    :param prior_locations:
+    :param border_buffer:
+    :param min_sep:
+    :return:
+    """
+    # Compute a new location
+    new_position = random_tuple_in_range(background_shape, border_buffer)
+
+    # Return if no prior locations
+    if not len(prior_locations):
+        return new_position
+
+    # Compute the distance that arrows must be appart
+    min_distance_appart = int(min(background_shape) * min_sep)
+
+    # Compute distances
+    d = distance_all(new_position, prior_locations, min_distance_appart)
+
+    best = (new_position, d[1])
+
+    c = 0
+    while not d[0] and c <= limt:
+        new_position = random_tuple_in_range(background_shape, border_buffer)
+        d = distance_all(new_position, prior_locations, min_distance_appart)
+
+        if d[0]:
+            return new_position
+        if d[1] > best[1]:
+            best = (new_position, d[1])
+        c += 1
+
+    return best[0]
+
+
+def _load_background(background_options):
+    """
+
+    :param background_options:
+    :return:
+    """
+    # Select random element
+    background_path = random.choice(background_options)
+
+    # Load a Background
+    background = Image.open(background_path).convert("RGBA")
+
+    # Randomly crop background
+    background = random_crop(background)
+
+    # Randomly rescale background
+    background = resize_image(background, random.uniform(0.8, 1.2))
+
+    return background
+
+
+def _load_background_min(background_options, min_size, limit=250):
+    """
+
+    :param background_options:
+    :param min_size:
+    :param limit:
+    :return:
+    """
+    bg = _load_background(background_options)
+
+    c = 0
+    while c <= limit and min(bg.size) < min_size:
+        bg =  _load_background(background_options)
+        c += 1
+
+    return bg
+
+
+def min_contrast_met(background, foreground, random_background_loc, min_delta=65):
+    """
+
+    Compare the foreground and the background to decide if the foreground would be visible if plotted.
+
+    :return:
+    """
+    # Get the average color about the plot location (0-255)
+    avg_background_color_region = avg_color(background, random_background_loc, window=max(foreground.size))
+
+    # Get the median color of the foreground (0-255)
+    foreground_color = np.median(np.asarray(foreground))
+
+    # Compute the absolute difference
+    if abs(avg_background_color_region - foreground_color) < min_delta:
+        return False
+    else:
+        return True
+
+
+def arrow_back_foreground_mash(background_options
+                               , foreground_options
+                               , bg_min_ceiling=295
+                               , foreground_scale_range=(0.21, 0.225)
+                               , foreground_stretch_by=(0.85, 1.25)
+                               , location_border_buffer=0.38):
     """
 
     :param background_path:
@@ -220,39 +409,58 @@ def arrow_back_foreground_mash(background_path
     :return:
     """
     # Load a Background
-    background = Image.open(background_path).convert("RGBA")
+    background = _load_background_min(background_options, min_size=125)
 
-    # Randomly rescale background
-    background = resize_image(background, random.uniform(0.8, 1.2))
+    # Number of arrows
+    prior_positions = list()
+    lock_size = random.choice([True, True, False])
+    prior_size = None
+    attempts = 0
+    count = 0
+    N = np.random.choice([1, 2, 3, 4, 5], 1, p=[0.48, 0.38, 0.11, 0.02, 0.01])[0]
+    while count < N:
 
-    # Randomly crop background
-    background = random_crop(background)
+        if attempts > 5000:
+            background = _load_background_min(background_options, min_size=125)
+            prior_size = None
+            count = 0
+            attempts = 0
 
-    # Load the foreground and convert to grayscale
-    foreground = Image.open(foreground_path).convert("RGBA")
+        # randomly Load the foreground and convert to grayscale
+        forground_choice = random.choice(foreground_options)
 
-    for _ in range(1, randint(2, 4)):
+        foreground = Image.open(forground_choice).convert("RGBA")
+
         # Randomly stretch about a given axis
         foreground = random_stretch(foreground, foreground_stretch_by)
 
         # Change contrast
-        foreground = foreground.point(lambda p: p * random.uniform(0.87, 0.92))
+        # foreground = foreground.point(lambda p: p * random.uniform(0.87, 0.92))
 
-        # Scale the foreground by a random amount in some range
-        foreground_scalar = random.uniform(foreground_scale_range[0], foreground_scale_range[1])
+        if (lock_size and prior_size is None) or lock_size is False:
+            # Scale the foreground by a random amount in some range
+            foreground_scalar = random.uniform(foreground_scale_range[0], foreground_scale_range[1])
+        elif lock_size and prior_size is not None:
+            foreground_sclar = prior_size
 
         # Compute the correct scalar to make foreground `foreground_scalar` times
         # the size of the smallest axis in the background.
+        bg_min_axis = min(background.size) if min(background.size) < bg_min_ceiling else bg_min_ceiling
         scale_image_by = (min(background.size) * (foreground_scalar)) / max(foreground.size)
 
-        # Rescale the foreground and rotate
-        foreground = resize_image(foreground, scale_image_by).rotate(randint(0, 360))
+        # Rescale the foreground and rotate; expand=1 expands the canvis to stop the image being cut off
+        foreground = resize_image(foreground, scale_image_by).rotate(randint(0, 360), expand=1)
 
         # Random location to place the image
-        random_background_loc = random_tuple_in_range(background.size, location_border_buffer)
+        random_background_loc = random_tuple_away(background.size, prior_positions, location_border_buffer)
+        prior_positions.append(random_background_loc)
 
-        # Paste the foreground onto the background
-        background.paste(foreground, random_background_loc, foreground)
+        # Paste the foreground onto the background IF it would be visible
+        if min_contrast_met(background, foreground, random_background_loc):
+            background.paste(foreground, random_background_loc, foreground)
+            count += 1
+
+        attempts += 1
 
     return background
 
@@ -264,18 +472,14 @@ def arrow_masher(background_options, foreground_options, name, save_location):
     :param foreground_options:
     :return:
     """
-    # Select random element
-    bg = random.choice(background_options)
-    fg = random.choice(foreground_options)
-
     # Compute mash and convert to grayscale
-    rslt = arrow_back_foreground_mash(bg, fg).convert("LA")
+    rslt = arrow_back_foreground_mash(background_options, foreground_options).convert("LA")
 
     # Save to disk
-    rslt.save("{0}/{1}.png".format(save_location, name))
+    rslt.save("{0}/{1}.png".format(save_location, name), quality=quality)
 
 
-def arrow_creator(background_options, foreground_options, n, general_name, save_location):
+def arrow_creator(background_options, foreground_options, start, end, general_name, save_location):
     """
 
     :param background_options:
@@ -284,12 +488,12 @@ def arrow_creator(background_options, foreground_options, n, general_name, save_
     :param save_location:
     :return:
     """
-    for i in tqdm(range(1, n+1)):
+    for i in tqdm(range(start+1, end+1)):
         arrow_masher(background_options, foreground_options, name="{0}_{1}".format(i, general_name), save_location=save_location)
 
 
 # Create the arrow training data
-# arrow_creator(base_images, arrows, n=10000, general_name="arrow", save_location=arrow_save_location)
+# arrow_creator(base_images, arrows, 17000, 30000, general_name="arrow", save_location=arrow_save_location)
 
 
 # ------------------------------------------------------------------------------------------
@@ -335,7 +539,7 @@ def img_stacker(image_list, stacker=np.hstack, min_shape_override=None):
         min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
 
     # Combine
-    return stacker((np.asarray(i.resize(min_shape)) for i in imgs))
+    return stacker((np.asarray(i.resize(min_shape,  Image.ANTIALIAS)) for i in imgs))
 
 
 def side_by_side_stacker(image_list, stacker_a, stacker_b):
@@ -398,10 +602,10 @@ def grid_masher(all_img_options, name, save_location):
     rslt = Image.fromarray(grid)
 
     # Convert to an image and Save to disk
-    rslt.save("{0}/{1}.png".format(save_location, name))
+    rslt.save("{0}/{1}.png".format(save_location, name), quality=quality)
 
 
-def grid_creator(all_img_options, n, general_name, save_location):
+def grid_creator(all_img_options, start, end, general_name, save_location):
     """
 
     :param all_img_options:
@@ -409,12 +613,299 @@ def grid_creator(all_img_options, n, general_name, save_location):
     :param save_location:
     :return:
     """
-    for i in tqdm(range(1, n+1)):
+    for i in tqdm(range(start+1, end+1)):
         grid_masher(base_images, name="{0}_{1}".format(i, general_name), save_location=save_location)
 
 
 # Create the grid training data
-# grid_creator(base_images, n=10000, general_name='grid', save_location=grid_save_location)
+# grid_creator(base_images, 17000, 35000, general_name='grid', save_location=grid_save_location)
+
+
+# ------------------------------------------------------------------------------------------
+# Text
+# ------------------------------------------------------------------------------------------
+
+
+def get_fonts():
+
+    font_locations = ["/Library/Fonts", "/System/Library/Fonts/"] # This is only valid on macOS!
+    def font_extract(font_path, allowed_formats=('.ttf', 'ttc')):
+        def allowed_tails(s):
+            return any(s.endswith(a) for a in allowed_formats)
+        return [os.path.join(font_path, font) for font in os.listdir(font_path) if allowed_tails(font)]
+
+    font_complete_list = list(chain(*map(font_extract, font_locations)))
+    allowed_font_famlies = ('arial', 'courier', 'times', 'sans ')
+    banned_fonts = ['unicode', 'arialhb']
+
+    # Define a list of allowed fonts.
+    all_fonts = [f for f in font_complete_list if any(i in f.lower() for i in allowed_font_famlies)
+                 and not any(i in f.lower() for i in banned_fonts)]
+
+    return all_fonts
+
+all_fonts = get_fonts()
+
+# Source: https://www.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html
+letter_data = """Letter,Count,Letter,Frequency
+E,21912,E,12.02
+T,16587,T,9.10
+A,14810,A,8.12
+O,14003,O,7.68
+I,13318,I,7.31
+N,12666,N,6.95
+S,11450,S,6.28
+R,10977,R,6.02
+H,10795,H,5.92
+D,7874,D,4.32
+L,7253,L,3.98
+U,5246,U,2.88
+C,4943,C,2.71
+M,4761,M,2.61
+F,4200,F,2.30
+Y,3853,Y,2.11
+W,3819,W,2.09
+G,3693,G,2.03
+P,3316,P,1.82
+B,2715,B,1.49
+V,2019,V,1.11
+K,1257,K,0.69
+X,315,X,0.17
+Q,205,Q,0.11
+J,188,J,0.10
+Z,128,Z,0.07
+"""
+
+def letters_freqs():
+    """
+
+    Define lists of letter Freqs.
+
+    :return:
+    """
+    letter_freq = pd.read_csv(StringIO(letter_data), sep=",")[['Letter', 'Count']]
+    letter_freq_dict = dict(zip(letter_freq['Letter'], letter_freq['Count']))
+    letter_freq_dict = {k.lower(): float(v / sum(letter_freq_dict.values())) for k, v in letter_freq_dict.items()}
+
+    # Procedual approach (not very fancy, but reduces the chance of any mix ups).
+    letters, freqs = list(), list()
+    for k, v in letter_freq_dict.items():
+        letters.append(k)
+        freqs.append(v)
+
+    return letters, freqs
+
+
+# Drop into globals
+letters, freqs = letters_freqs()
+
+
+def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
+    """
+
+    :param n:
+    :return:
+    """
+    def random_int(tpl):
+        return randint(tpl[0], tpl[1])
+
+    def random_letters():
+        return np.random.choice(letters, random_int(n_chars), p=freqs)
+
+    def random_numbers():
+        numbers = list(np.random.choice(list(map(str, range(1, 11))), random_int(n_chars)))
+        def random_astrix(n):
+            options = [("*", n, ""), ("", n, "*"), ("", n, "")]
+            return "".join(options[randint(0, 2)])
+        return [random_astrix(n) if randint(0, 3) == 1 else n for n in numbers]
+
+    def pseudo_words():
+        return ("".join(random_letters()) for _ in range(random_int(n_words)))
+
+    # Define a container for the phrases
+    phrases = list()
+
+    # Randomly decide to add 1-2 asterisks, or none.
+    phrases += ["*"] * np.random.choice([0, 1, 2], 1, p=[0.90, 0.09, 0.01])[0]
+
+    # Decide whether or not to only return numbers (and possibly asterisks)
+    if randint(0, 1) == 1:
+        return random_numbers() + phrases
+
+    # Create a random number of pseudo phrases
+    phrases += [" ".join(pseudo_words()) for _ in range(random_int(n_phrases))]
+
+    # Randomly decide to add some natural numbers
+    if randint(0, 1) == 1:
+        phrases += random_numbers()
+
+    # Return words composed of single letters as seperate elements
+    return list(chain(*[i.split() if max(map(len, i.split())) == 1 else [i] for i in phrases]))
+
+
+def font_size_picker(img, text, font_name, text_size_proportion):
+    """
+
+    :param img:
+    :param text:
+    :param font_name:
+    :param text_size_proportion:
+    :return:
+    """
+
+    def font_size(text, font_name, size_of_font):
+        f = ImageFont.truetype(font_name, size_of_font)
+        return f.getsize(text)
+
+    # Get the width of the image
+    image_width, _ = img.size
+
+    # Compute the ideal width of the text
+    goal_size = text_size_proportion * image_width
+
+    # Get Width of the text all all font sizes from 1 to 100
+    all_sizes = (font_size(text, font_name, int(s))[0] for s in range(1, 80))
+
+    # Find the font size which is closest to the desired width
+    return min(all_sizes, key=lambda x: abs(x - goal_size))
+
+
+def add_text(img, text, font, position, color):
+    """
+
+    :param img:
+    :param text:
+    :param font:
+    :param position:
+    :param size:
+    :param color:
+    :return:
+    """
+    draw = ImageDraw.Draw(img)
+    draw.text(position, text, color, font=font)
+    return img
+
+
+def text_background_window(background, text_loc, text_dim, black_color_threshold=35):
+    """
+
+    Summary of a the background for a text block.
+    Currently computes the median color for this region.
+
+    :param background:
+    :param text_loc:
+    :param text_dim:
+    :return:
+    """
+    # Crop = (left, upper, right, lower)
+    # Get the bounds
+    right = min(background.size[0], text_loc[0] + text_dim[0])
+    lower = min(background.size[1], text_loc[1] + text_dim[1])
+
+    # Select the corresponding part of the background
+    cropped_background = background.crop((text_loc[0], text_loc[1], right, lower))
+
+    # Background as an array
+    background_arr = np.asarray(cropped_background)
+
+    # Test if the background is all black
+    all_black_background = all(i < black_color_threshold for i in background_arr.flatten())
+
+    # Return the median color
+    return np.mean(background_arr), all_black_background
+
+
+# ---------------------------------------------
+# Occluding Text
+# ---------------------------------------------
+
+
+def occluding_text_masher(background_options, border_buffer=0.40):
+    """
+
+    Generate Images where the text occludes the image.
+    The probability of this function working are tied to `border_buffer`.
+    The higher this value, the more likely the images will actually occlude the image.
+
+    :param background_options:
+    :return:
+    """
+    # Generate Some random text
+    list_of_text = random_text_gen(n_words=(2, 2))
+
+    # Randomly load and crop a background
+    background = random_crop(_load_background_min(background_options, min_size=150))
+
+    c, attempts = 0, 0
+    prior_locations = list()
+    while c < len(list_of_text):
+
+        text = list_of_text[c]
+
+        # Reset if it appears an impossible task has been created.
+        if attempts > 500:
+            c, attempts = 0, 0
+            prior_locations = list()
+            background = random_crop(_load_background_min(background_options, min_size=150))
+
+        # 1. Get a random location on the image
+        text_loc = random_tuple_away(background.size, prior_locations, border_buffer=border_buffer)
+        prior_locations.append(text_loc)
+
+        # 2. Randomly pick a size for the font
+        text_size_proportion = np.random.uniform(0.055, 0.07)
+
+        # 3. Randomly pick a font
+        font_name = np.random.choice(all_fonts)
+
+        # 4. Compute the size of the font required span the desired proportion of the image
+        size_of_font = font_size_picker(background, text, font_name, text_size_proportion)
+
+        # 5. Generate the font
+        font = ImageFont.truetype(font_name, size_of_font)
+
+        # 6. Get the size of the font
+        text_dim = font.getsize(text)
+
+        # 7. Get the color of the background in that area
+        summary_background_color = text_background_window(background, text_loc, text_dim)
+
+        # Check the background is 1. on average not black and 2. has some variance (sd).
+        if not summary_background_color[1]: # ToDo: THis is not working quite right...
+            # 8. Choose the text color
+            text_color = opposite_color(summary_background_color[0])
+
+            # 9. Add the text
+            background = add_text(background, text, font, text_loc, text_color)
+
+            # Update record of text that has been appended to the background
+            c += 1
+
+        attempts += 1
+
+    return background
+
+
+def occluding_text_creator(all_img_options, start, end, general_name, save_location):
+    """
+
+    :param all_img_options:
+    :param n:
+    :param save_location:
+    :return:
+    """
+    for i in tqdm(range(start+1, end+1)):
+        # Define the save location
+        img_name ="{0}_{1}.png".format(i, general_name)
+        save_path = os.path.join(save_location, img_name)
+        # Generate and Save
+        occluding_text_masher(all_img_options).save(save_path)
+
+
+occluding_text_creator(base_images, 0, 33000, "occluding_text", occluding_text_save_location)
+
+
+# ToDo: Non-Occluding Text
 
 
 # ------------------------------------------------------------------------------------------
@@ -483,7 +974,7 @@ def ellipse_mash(base_image, border_buffer=0.25, stretch_range=(0.8, 1.2)):
     :return:
     """
     # Compute the range of radii that will easily fit.
-    radius_range = tuple(map(int, (max(base_image.size)*0.025, max(base_image.size)*0.05)))
+    radius_range = tuple(map(int, (max(base_image.size) * 0.025, max(base_image.size) * 0.05)))
 
     for _ in range(randint(1, 2)):
         # Define random properties
@@ -498,7 +989,7 @@ def ellipse_mash(base_image, border_buffer=0.25, stretch_range=(0.8, 1.2)):
     return base_image
 
 
-def ellipse_img_creator(all_img_options, n, general_name, save_location):
+def ellipse_img_creator(all_img_options, start, end, general_name, save_location):
     """
 
     :param all_img_options:
@@ -507,14 +998,25 @@ def ellipse_img_creator(all_img_options, n, general_name, save_location):
     :param save_location:
     :return:
     """
-    for i in tqdm(range(1, n+1)):
+    for i in tqdm(range(start+1, end+1)):
         # Open a random photo and crop
         base_image = random_crop(Image.open(random.choice(all_img_options)))
         # Save
-        ellipse_mash(base_image).save("{0}/{1}_{2}.png".format(save_location, i, general_name))
+        ellipse_mash(base_image).save("{0}/{1}_{2}.png".format(save_location, i, general_name), quality=quality)
 
 
-# ellipse_img_creator(base_images, n=10000, general_name='ellipse', save_location=ellipses_save_location)
+# ellipse_img_creator(base_images, start=0, end=30000, general_name='ellipse', save_location=ellipses_save_location)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
