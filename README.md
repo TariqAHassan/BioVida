@@ -86,7 +86,7 @@ Notes:
    4. *For images which are not grayscale, such a photographs, fMRI and PET scans,
       the model is almost certain to provide completely erroneous predictions*.
    
-* While this may raise concerns about overfitting, it is important to note
+*While this may raise concerns about overfitting, it is important to note
 that the model was tasked with differentiating between images which had been permuted 
 (e.g., had arrows added) with those that had not (random cropping notwithstanding). 
 Moreover, in informal testing, this model appears to be be performing very well with new data.
