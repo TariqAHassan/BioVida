@@ -20,7 +20,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential, load_model, model_from_json
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
-
+from keras.optimizers import RMSprop
 
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
 # Solution: replace "tf" with "th" in ~/.keras/keras.json.
@@ -30,36 +30,38 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 class ImageRecognitionCNN(object):
     """
 
-    Convolutional Neural Network used to Model and Detect the Presence of Invalid Images.
-    Keras Sequential Model used.
+    Keras Convolutional Neural Network Interface.
 
     :param data_path: path to the directory with the subdirectories entitled 'train' and 'validation'.
-                      This directory *must* have this structure. Defaults to ``None`` (to be use when loaded
+                      This directory *must* have this structure. Defaults to ``None`` (to be use when loading
                       pre-computed weights).
     :type data_path: ``str``
-    :param img_shape: the (width, height) to rescale the images to. Elements must be ``ints``. Defaults to (150, 150).
+    :param img_shape: the (width, height) to rescale the images to. Elements must be ``ints``. Defaults to ``(150, 150)``.
     :type img_shape: ``tuple`` or ``list``.
-    :param rescale: Defaults to 1/255. See: ``keras.preprocessing.image.ImageDataGenerator()``.
+    :param rescale: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to 1/255.
     :type rescale: ``float``
-    :param shear_range: Defaults to 0.1. See: ``keras.preprocessing.image.ImageDataGenerator()``.
+    :param shear_range: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to 0.1.
     :type shear_range: ``float``
-    :param zoom_range: Defaults to 0.35. See: ``keras.preprocessing.image.ImageDataGenerator()``.
+    :param zoom_range: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to 0.35.
     :type zoom_range: ``float``
-    :param horizontal_flip: See: ``keras.preprocessing.image.ImageDataGenerator()``.
+    :param horizontal_flip: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to ``True``.
     :type horizontal_flip: ``bool``
+    :param vertical_flip: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to ``True``.
+    :type vertical_flip: ``bool``
     :param batch_size: Samples to propagate through the model.
                        See: ``keras.preprocessing.ImageDataGenerator().flow_from_directory()``.
-                       Defaults to 32.
+                       Defaults to 4.
     :type batch_size: ``int``
     """
 
     def __init__(self
                  , data_path=None
-                 , img_shape=(125, 125)
+                 , img_shape=(150, 150)
                  , rescale=1/255.0
-                 , shear_range=0.1
-                 , zoom_range=0.35
+                 , shear_range=0.05
+                 , zoom_range=0.30
                  , horizontal_flip=True
+                 , vertical_flip=False
                  , batch_size=4):
         self._data_path = data_path
         self.img_shape = img_shape
@@ -67,6 +69,7 @@ class ImageRecognitionCNN(object):
         self._shear_range = shear_range
         self._zoom_range = zoom_range
         self._horizontal_flip = horizontal_flip
+        self._vertical_flip = vertical_flip
         self._batch_size = batch_size
 
         # Define data location
@@ -92,6 +95,7 @@ class ImageRecognitionCNN(object):
         train_datagen = ImageDataGenerator(rescale=self.rescale
                                            , shear_range=self._shear_range
                                            , zoom_range=self._zoom_range
+                                           , vertical_flip=self._vertical_flip
                                            , horizontal_flip=self._horizontal_flip)
 
         # Indefinitely generate batches of augmented train image data
@@ -144,7 +148,7 @@ class ImageRecognitionCNN(object):
 
         self.data_classes = train_classes
 
-    def convnet(self, loss='categorical_crossentropy', optimizer='rmsprop', metrics=('accuracy',)):
+    def convnet(self, loss='binary_crossentropy', optimizer='default', metrics=('accuracy',)):
         """
 
         Define and Compile the Image Recognition Convolutional Neural Network.
@@ -153,7 +157,7 @@ class ImageRecognitionCNN(object):
         :param loss: Loss function. Defaults to 'categorical_crossentropy'.
                      See: ``keras.models.Sequential()``.
         :type loss: ``str``
-        :param optimizer: Optimizer name. Defaults to `rmsprop`.
+        :param optimizer: Optimizer name. Defaults to 'default', which will use RMSprop with learning rate = ``0.0001``.
                           See: ``keras.models.Sequential()``.
         :type optimizer: ``str``
         :param metrics: Metrics to evaluate. Defaults to ('accuracy',).
@@ -169,9 +173,6 @@ class ImageRecognitionCNN(object):
 
         # Define the Model
         self.model = Sequential()
-
-        # # Convolution layers to generate features
-        # # for the fully connected layers below.
         self.model.add(Convolution2D(32, 3, 3
                                      , input_shape=(3, self.img_shape[0], self.img_shape[1])
                                      , activation='relu'))
@@ -186,8 +187,14 @@ class ImageRecognitionCNN(object):
         self.model.add(Dense(nb_classes))
         self.model.add(Activation('sigmoid'))
 
+        # Define optimizer
+        if optimizer == 'default':
+            optimizer_to_pass = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=0.0)
+        else:
+            optimizer_to_pass = optimizer
+
         # Compilation
-        self.model.compile(loss=loss, optimizer=optimizer, metrics=list(metrics))
+        self.model.compile(loss=loss, optimizer=optimizer_to_pass, metrics=list(metrics))
 
     def _model_existence_check(self, first_format, second_format, additional=''):
         """
@@ -237,9 +244,9 @@ class ImageRecognitionCNN(object):
 
         Supporting Data For the Model.
 
-        :param save_name:
+        :param save_name: see ``save()``
         :type save_name: ``str``
-        :param save_path:
+        :param save_path: see ``save()``
         :type save_path: ``str``
         """
         data = [self._data_path,
@@ -283,7 +290,7 @@ class ImageRecognitionCNN(object):
 
         Loads supporting data saved along with the model
 
-        :param path:
+        :param path: see ``load()``.
         :type path: ``str``
         """
         load_location = "{0}_support.p".format(path[:-3])
@@ -326,20 +333,24 @@ class ImageRecognitionCNN(object):
         # Load the Model
         self.model = load_model(path)
 
-    def _prediction_labels(self, single_img_prediction, d):
+    def _prediction_labels(self, single_img_prediction):
         """
 
-        :param single_img_prediction:
+        Convert a single prediction into a human-readable list of tuples.
+
+        :param single_img_prediction: see ``predict()``
         :type single_img_prediction: list of ndarray arrays.
-        :param d: data_classes_reversed
-        :type d: ``dict``
-        :return:
+        :return: a list of tuples where the elements are of the form ``(label, P(label))``
+        :rtype: ``list``
         """
-        predictions = ((d[e], i) for e, i in enumerate(single_img_prediction))
+        data_classes_reversed = {v: k for k, v in self.data_classes.items()}
+        predictions = ((data_classes_reversed[e], i) for e, i in enumerate(single_img_prediction))
         return sorted(predictions, key=lambda x: x[1], reverse=True)
 
     def predict(self, list_of_images, status=True, verbose=False):
         """
+
+        Generate Predictions for a list of images.
 
         :param list_of_images: a list of paths (strings) to images or ``ndarrays``.
         :param status: True for a tqdm status bar; False for no status bar. Defaults to True.
@@ -352,7 +363,7 @@ class ImageRecognitionCNN(object):
         if self.model is None:
             raise AttributeError("Predictions cannot be made until a model is loaded or trained.")
 
-        def status_bar(x): # ToDo: Not working properly
+        def status_bar(x): # ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)
             return tqdm(x) if status else x
 
         number_ndarray = ['ndarray' in str(type(i)) for i in list_of_images]
@@ -363,14 +374,13 @@ class ImageRecognitionCNN(object):
             raise ValueError("Only some of the items in `list_of_images` we found to be `ndarrays`.")
         else:
             if verbose:
-                print("\nPreparing Images for Neural Network...")
-            images = load_and_scale_imgs(list_of_images, img_size=self.img_shape, status=status)
+                print("\n\nPreparing Images for Neural Network...")
+            images = load_and_scale_imgs(list_of_images, img_size=self.img_shape, status=status, grayscale_first=True)
 
         if verbose:
-            print("\nGenerating Predictions...")
+            print("\n\nGenerating Predictions...")
+        return [self._prediction_labels(i) for i in status_bar(self.model.predict(images))]
 
-        data_classes_reversed = {v: k for k, v in self.data_classes.items()}
-        return [self._prediction_labels(i, data_classes_reversed) for i in status_bar(self.model.predict(images))]
 
 
 
