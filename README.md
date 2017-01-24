@@ -76,8 +76,8 @@ Notes:
    
    2. The model has been trained and validated to detect two kinds of problems:
       arrows in the image and 'grids' of images. This was performed using
-      a total of 20,000 images, synthesized from a collection of ~1,500 CT
-      and *structural* MRI scans.
+      a total of 99,000 images, synthesized from a collection of ~1,500 CT
+      and *structural* MRI scans*.
       
    3. While the model will likely generalize to x-ray and ultrasound images,
       this has not been formally tested. In the future, the model will be 
@@ -86,6 +86,11 @@ Notes:
    4. *For images which are not grayscale, such a photographs, fMRI and PET scans,
       the model is almost certain to provide completely erroneous predictions*.
    
+* While this may raise concerns about overfitting, it is important to note
+that the model was tasked with differentiating between images which had been permuted 
+(e.g., had arrows added) with those that had not (random cropping notwithstanding). 
+Moreover, in informal testing, this model appears to be be performing very well with new data.
+
 ------------------------------------------------------------------------
 
 ###Genomic Data
