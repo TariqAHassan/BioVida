@@ -127,6 +127,7 @@ def dict_pretty_printer(d, max_value_length=70):
                             between braces.
     :type max_value_length: ``int``
     """
+    # ToDo: rename to dict_pprint
     print_mold = " - {0} "
 
     # Compute the length of the longest key
@@ -242,7 +243,7 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False):
         pd.set_option('display.max_columns', 20)
 
 
-def pandas_pretty_printer(data_frame, col_align='right', header_align='center', full_rows=False, full_cols=False):
+def pandas_pprint(data_frame, col_align='right', header_align='center', full_rows=False, full_cols=False):
     """
 
     Pretty Print a Pandas DataFrame.
