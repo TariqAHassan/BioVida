@@ -39,13 +39,14 @@ def image_transposer(converted_image, img_size, axes=(2, 0, 1)):
     return np.transpose(imresize(converted_image, img_size), axes).astype('float32')
 
 
-def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=True):
+def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=True, grayscale_first=False):
     """
 
     :param list_of_images:
     :param img_size:
     :param axes:
     :param status:
+    :param grayscale_first: convert the image to grayscale first.
     :return:
     """
     # Source: https://blog.rescale.com/neural-networks-using-keras-on-rescale/
@@ -59,8 +60,14 @@ def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=True):
         if 'ndarray' in str(type(img)):
             converted_image = img
         else:
-            # Grayscale images by first converting them to RGB (otherwise, `imresize()` will break).
-            converted_image = np.asarray(Image.open(img).convert("RGB"))
+            # Load grayscale images by first converting them to RGB (otherwise, `imresize()` will break).
+            if grayscale_first:
+                loaded_img = Image.open(img).convert("LA")
+                loaded_img = loaded_img.convert("RGB")
+            else:
+                loaded_img = Image.open(img).convert("RGB")
+
+            converted_image = np.asarray(loaded_img)
         return image_transposer(converted_image, img_size, axes=axes)
 
     return np.array([load_func(img_name) for img_name in status_bar(list_of_images)]) / 255.0

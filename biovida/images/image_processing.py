@@ -81,7 +81,8 @@ def _extract_search_class_db(database_to_extract, search_class):
     if extracted_db is None:
         raise AttributeError("The {0} database provided was `None`.".format(database_to_extract))
     else:
-        return extracted_db
+        to_return = extracted_db.copy(deep=True)
+        return to_return
 
 
 class ImageProcessing(object):
@@ -582,10 +583,16 @@ class ImageProcessing(object):
         # Transform the cropped images into a form `ImageRecognitionCNN.predict()` can accept
         if self._verbose and self._print_update:
             print("\n\nPreparing Images for Neural Network...")
+            verbose_prediction = True
+        else:
+            verbose_prediction= False
+
         transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self._ircnn.img_shape, status=status)
 
         # Make the predictions and Save
-        self.image_dataframe['img_problems'] = self._ircnn.predict([transformed_images], status=status)
+        self.image_dataframe['img_problems'] = self._ircnn.predict([transformed_images],
+                                                                   status=status,
+                                                                   verbose=verbose_prediction)
 
     def img_problems(self, new_analysis=False, status=True):
         """
@@ -596,7 +603,6 @@ class ImageProcessing(object):
         Currently, the model can identify the follow problems:
 
             - arrows in images
-            - ellipses in images
             - images arrayed as grids
 
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
@@ -657,7 +663,7 @@ class ImageProcessing(object):
         # Ban Verbosity
         self._print_update = False
 
-    def auto_decision(self, img_problem_threshold, require_grayscale):
+    def auto_decision(self, img_problem_threshold, require_grayscale, valid_floor=0.01):
         """
 
         Automatically generate 'valid_image' column in the `image_dataframe`
@@ -671,6 +677,8 @@ class ImageProcessing(object):
         :type img_problem_threshold: ``float``
         :param require_grayscale: if True, require that images are grayscale to be considered valid.
         :type require_grayscale: ``bool``
+        :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
+        :type valid_floor: ``float``
         """
         # ToDo: make `require_grayscale` flexible s.t. it can be imposed only on images of a certain type (e.g., MRI).
         for i in ('grayscale', 'img_problems'):
@@ -682,17 +690,27 @@ class ImageProcessing(object):
                     return False
             else:  # ToDo: add variable img_problem_threshold (e.g., arrows and grids).
                 # if all image problem confidence is < img_problem_threshold, return True; else False.
-                return all(x[1] < img_problem_threshold for x in x['img_problems'])
+                i = x['img_problems']
+                if i[0][0] == 'valid_img' and i[0][1] < valid_floor:
+                    return False
+                elif i[0][0] != 'valid_img' and i[0][1] > img_problem_threshold:
+                    return False
+                elif i[0][0] == 'valid_img' and i[1][1] > img_problem_threshold:
+                    return False
+                else:
+                    return True
 
         self.image_dataframe['valid_image'] = self.image_dataframe.apply(img_validity, axis=1)
 
-    def auto(self, img_problem_threshold=0.45, require_grayscale=True, new_analysis=False, status=True):
+    def auto(self, img_problem_threshold=0.275, valid_floor=0.01, require_grayscale=True, new_analysis=False, status=True):
         """
 
         Automatically carry out all aspects of image preprocessing (recommended).
 
-        :param img_problem_threshold: see `auto_decision()`. Defaults to 0.45.
+        :param img_problem_threshold: see `auto_decision()`. Defaults to `0.275`.
         :type img_problem_threshold: ``float``
+        :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
+        :type valid_floor: ``float``
         :param require_grayscale: see `auto_decision()`. Defaults to ``True``
         :type require_grayscale: ``bool``
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
