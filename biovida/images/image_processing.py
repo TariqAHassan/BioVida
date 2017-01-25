@@ -35,7 +35,7 @@ pd.options.mode.chained_assignment = None
 #
 #   1. Check if grayscale                                                       X
 #         - mark finding in dataframe.
-#   2. Look for MedLine(R) logo                                                 P
+#   2. Look for MedLine(R) logo                                                 X
 #         - if true, try to crop
 #   3. Look for text bar                                                        P
 #         - if true, try crop
@@ -209,7 +209,7 @@ class ImageProcessing(object):
         # See: http://stackoverflow.com/q/23660929/4898004
         if img_path is None or items_null(img_path):
             return np.NaN
-        img = Image.open(img_path) # ToDo: find way to call only once inside this class (similar to _ndarray_extract)
+        img = Image.open(img_path) # ToDo: find way to call only once inside this class (similar to _ndarray_extract())
         stat = ImageStat.Stat(img.convert("RGB"))
         return np.mean(stat.sum) == stat.sum[0]
 
@@ -234,39 +234,39 @@ class ImageProcessing(object):
             self.image_dataframe['grayscale'] = self.image_dataframe['img_cache_path'].progress_map(
                 self._grayscale_img, na_action='ignore')
 
-    def _logo_analysis_out(self, match, base_img_shape, output_params):
+    def _logo_analysis_out(self, analysis_results, output_params):
         """
 
         Decides the output for the `logo_analysis` function.
         If the bonding box is in an improbable location, NaN is returned.
         Otherwise, the bonding box, or some portion of it (i.e., the lower left) will be returned.
 
-        :param match: the bounding box for the location which provided the highest quality match.
-        :type match: ``dict``
-        :param base_img_shape: the shape of the base image (where the algorithm was trying to find the given pattern).
-                               Form: (x, y).
-        :type base_img_shape: ``tuple``
-        :param output_params: tuple of the form:
-                                (threshold, xy_position_threshold[0], xy_position_threshold[1], return_full)
-        :type output_params: ``tuple``
+        :param analysis_results: the output of ``biovida.images.models.template_matching.robust_match_template()``.
+        :type analysis_results: ``dict``
         :return: the output requested by the ``logo_analysis()`` method.
         :rtype: ``NaN``, ``dict`` or ``tuple``
         """
+        # Unpack ``output_params``
         match_quality_threshold, x_greater_check, y_greater_check, return_full = output_params
 
-        # Check match quality
-        if not isinstance(match, dict) or match['match_quality'] < match_quality_threshold:
+        # Unpack ``analysis_results``
+        bounding_box = analysis_results['bounding_box']
+        match_quality = analysis_results['match_quality']
+        base_img_shape = analysis_results['base_img_shape']
+
+        # Check match quality.
+        if match_quality < match_quality_threshold:
             return np.NaN
 
-        # Check the box is in the top right
-        if match['box']['bottom_left'][0] < (base_img_shape[0] * x_greater_check) or \
-                match['box']['bottom_left'][1] > (base_img_shape[1] * y_greater_check):
+        # Check the box is in the top right (as defined by ``x_greater_check`` and ``y_greater_check``).
+        if bounding_box['bottom_left'][0] < (base_img_shape[0] * x_greater_check) or \
+                        bounding_box['bottom_left'][1] > (base_img_shape[1] * y_greater_check):
             return np.NaN
 
         if return_full:
-            return match['box']
+            return bounding_box
         else:
-            return match['box']['bottom_left']
+            return bounding_box['bottom_left']
 
     def _logo_processor(self, robust_match_template_wrapper, output_params, status):
         """
@@ -297,20 +297,18 @@ class ImageProcessing(object):
             if 'medpix' not in str(journal).lower():
                 results.append(np.NaN)
             else:
-                match, base_img_shape = robust_match_template_wrapper(img)
-                current = self._logo_analysis_out(match, base_img_shape, output_params)
+                analysis_results = robust_match_template_wrapper(img)
+                current = self._logo_analysis_out(analysis_results, output_params)
                 results.append(current)
 
         return results
 
     def logo_analysis(self,
                       match_quality_threshold=0.25,
-                      xy_position_threshold=(1/3.0, 1/2.5),
-                      base_top_cropping=0.14,
-                      prop_scale=0.075,
-                      scaling_lower_limit=0.25,
+                      xy_position_threshold=(1 / 3.0, 1 / 2.5),
+                      base_resizes=(0.5, 2.5, 0.1),
                       end_search_threshold=0.875,
-                      base_resizes=(1.25, 2.75, 0.25),
+                      base_img_cropping=(0.15, 0.5),
                       return_full=False,
                       new_analysis=False,
                       status=True):
@@ -321,37 +319,30 @@ class ImageProcessing(object):
         with its a. full bonding box (if ``return_full`` is `True`) or lower left corner otherwise.
 
         :param match_quality_threshold: the minimum match quality required to accept the match.
-                                        See: ``skimage.feature.match_template()`` for more.
+                                        See: ``skimage.feature.match_template()`` for more information.
         :type match_quality_threshold: ``float``
         :param xy_position_threshold: tuple of the form: (x_greater_check, y_greater_check).
                                       For instance the default (``(1/3.0, 1/2.5)``) requires that the
                                       x position of the logo is greater than 1/3 of the image's width
                                       and less than 1/2.5 of the image's height.
         :type xy_position_threshold: ``tuple``
-        :param base_top_cropping: See: ``biovida.images.models.template_matching.robust_match_template()``.
-        :type base_top_cropping: ``float``
-        :param prop_scale: See: ``biovida.images.models.template_matching.robust_match_template()``.
-        :type prop_scale: ``float``
-        :param scaling_lower_limit: See: ``biovida.images.models.template_matching.robust_match_template()``.
-        :type scaling_lower_limit: ``int`` or ``float``
-        :param end_search_threshold: See: ``biovida.images.models.template_matching.robust_match_template()``.
-        :type end_search_threshold:
         :param base_resizes: See: ``biovida.images.models.template_matching.robust_match_template()``.
         :type base_resizes: ``tuple``
+        :param end_search_threshold: See: ``biovida.images.models.template_matching.robust_match_template()``.
+        :type end_search_threshold: ``float``
+        :param base_img_cropping: See: ``biovida.images.models.template_matching.robust_match_template()``
+        :type base_img_cropping: ``tuple``
         :param return_full: if ``True``, return a dictionary with the location of all four corners for the
                             logo's bounding box. Otherwise, only the bottom left corner will be returned.
                             Defaults to ``False``.
-                            Note: ``True`` **cannot** be used in conjunction with 'auto' methods.
+                            Note: ``True`` **cannot** be used in conjunction with 'auto' methods in this class.
         :type return_full: ``bool``
         :param new_analysis: rerun the analysis if it has already been computed.
         :type new_analysis: ``bool``
-        :param status: display status bar. Defaults to True.
+        :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
-        :return: the bottom left corner of the bounding box for the medpix logo.
-        :rtype: ``tuple``
         """
-        # Note: wraps ``biovida.images.models.template_matching.robust_match_template()``.
-
+        # Note: this method wraps ``biovida.images.models.template_matching.robust_match_template()``.
         if 'medpix_logo_lower_left' in self.image_dataframe.columns and not new_analysis:
             return None
 
@@ -367,11 +358,9 @@ class ImageProcessing(object):
         def robust_match_template_wrapper(img):
             return robust_match_template(pattern_img=medline_template_img,
                                          base_img=img,
-                                         base_top_cropping=base_top_cropping,
-                                         prop_scale=prop_scale,
-                                         scaling_lower_limit=scaling_lower_limit,
+                                         base_resizes=base_resizes,
                                          end_search_threshold=end_search_threshold,
-                                         base_resizes=base_resizes)
+                                         base_img_cropping=base_img_cropping)
 
         # Run the algorithm searching for the medpix logo in the base image
         results = self._logo_processor(robust_match_template_wrapper, output_params, status)
@@ -532,8 +521,8 @@ class ImageProcessing(object):
         :type data_frame: ``None`` or ``Pandas DataFrame``
         :param return_as_array: if True, convert the PIL object to an ``ndarray``. Defaults to True.
         :type return_as_array: ``bool``
-        :param include_path: if ``True``, generate a list of lists of the form: ``[(PIL image, path to the image)...]``.
-                             if ``False``, generate a list of lists of the form ``[PIL image, PIL Image, PIL Image...]``.
+        :param include_path: if ``True`` generate a list of lists of the form: ``[(PIL image, path to the image)...]``.
+                             if ``False`` generate a list of lists of the form ``[PIL image, PIL Image, PIL Image...]``.
         :type include_path: ``bool``
         :param convert_to_rgb: if True, use the PIL library to convert the images to RGB. Defaults to False.
         :type convert_to_rgb: ``bool``
@@ -702,7 +691,12 @@ class ImageProcessing(object):
 
         self.image_dataframe['valid_image'] = self.image_dataframe.apply(img_validity, axis=1)
 
-    def auto(self, img_problem_threshold=0.275, valid_floor=0.01, require_grayscale=True, new_analysis=False, status=True):
+    def auto(self
+             , img_problem_threshold=0.275
+             , valid_floor=0.01
+             , require_grayscale=True
+             , new_analysis=False
+             , status=True):
         """
 
         Automatically carry out all aspects of image preprocessing (recommended).
@@ -755,7 +749,7 @@ class ImageProcessing(object):
         valid_df = self.image_dataframe[self.image_dataframe['valid_image'] == True].reset_index(drop=True)
 
         if crop_images:
-            if self._verbose and self._print_update:
+            if self._verbose:
                 print("\n\nCropping Images...")
             images_to_return = self._cropper(valid_df,
                                              return_as_array=False,
@@ -763,9 +757,13 @@ class ImageProcessing(object):
                                              convert_to_rgb=convert_to_rgb,
                                              status=status)
         else:
+            if self._verbose:
+                print("\n\nLoading Images...")
             images_to_return = self._pil_load(valid_df['img_cache_path'], convert_to_rgb, status)
 
         # Save to disk
+        if self._verbose:
+            print("\n\nSaving Images...")
         img_record = set()
         for img, path in self._apply_status(images_to_return, status):
             full_save_path = os.path.join(save_path, path.split(os.sep)[-1])
@@ -776,12 +774,6 @@ class ImageProcessing(object):
                     img.save(full_save_path)
             else:
                 img.save(full_save_path)
-
-
-
-
-
-
 
 
 

@@ -4,24 +4,22 @@
     ~~~~~~~~~~~~~~~~~
 
 """
-# Notes:
-#     Powered by Fast Normalized Cross-Correlation.
-#     See: http://scikit-image.org/docs/dev/api/skimage.feature.html#skimage.feature.match_template.
-#     Here, this algorithm has been bootstrapped to make it robust against variance in scale.
-
-
 # Imports
 import numpy as np
 from scipy.misc import imread
 from scipy.misc import imresize
 from skimage.feature import match_template
-from skimage.color.colorconv import rgb2gray
+
+
+# Notes:
+#     See: http://scikit-image.org/docs/dev/api/skimage.feature.html#skimage.feature.match_template.
+#     Here, this algorithm has been bootstrapped to make it robust against variance in scale.
 
 
 def _arange_one_first(start, end, step, precision=1):
     """
 
-    Wrapper for np.arange where the number '1' is always first.
+    Wrapper for ``numpy.arange()`` where the number '1' is always first.
     Note: zero will be removed, if created, from the final array.
 
     :param start: the starting value.
@@ -32,7 +30,7 @@ def _arange_one_first(start, end, step, precision=1):
     :type step: ``int``
     :param precision: number of decimals to evenly round the array.
     :type precision:  ``int``
-    :return: an array created by arange where the number `1` is invariably the first element in the array.
+    :return: an array created by ``numpy.arange()`` where the number `1` is invariably the first element in the array.
     :rtype: ``ndarray``
     """
     arr = np.around(np.arange(start, end, step), precision)
@@ -40,7 +38,7 @@ def _arange_one_first(start, end, step, precision=1):
     return np.append(1, arr[arr != 1.0])
 
 
-def _cropper(base, h_prop, v_prop):
+def _cropper(base, v_prop, h_prop):
     """
 
     Crops an image horizontally and vertically.
@@ -53,21 +51,20 @@ def _cropper(base, h_prop, v_prop):
 
     :param base: an image represented as a 2D array.
     :type base: ``2D ndarray``
-    :param h_prop: the proportion of the image to remove with respect to the x axis.
-    :type h_prop: ``float``
-    :param v_prop: the proportion of the image to remove with respect to the y axis.
+    :param v_prop: the proportion of the image to remove with respect to its height.
     :type v_prop: ``float``
+    :param h_prop: the proportion of the image to remove with respect to its width.
+    :type h_prop: ``float``
     :return: a cropped image as a 2D array
     :rtype: ``2D ndarray``
     """
+    # Note: image.shape = (height, width).
+
     # Crop to the left
-    hcrop = int(base.shape[0] * h_prop)
-    hcrop_base = base[:, hcrop:]
+    hcrop_base = base[:, int(base.shape[1] * h_prop):]
 
-    # Crop to the top
-    hcrop_vcrop_base = hcrop_base[0:int(hcrop_base.shape[1] * v_prop)]
-
-    return hcrop_vcrop_base
+    # Crop with respect to height and return
+    return hcrop_base[:int(base.shape[0] * v_prop)]
 
 
 def _best_guess_location(match_template_result, scaling=1):
@@ -105,15 +102,15 @@ def _robust_match_template_loading(img, param_name):
         raise ValueError("`{0}` must either be a `ndarray` or a path to an image.".format(param_name))
 
 
-def _min_base_rescale(base, pattern, base_rescale, round_to=3):
+def _min_base_rescale(base, pattern, base_resizes, round_to=3):
     """
 
-    Corrects ``base_rescale`` in instances where it would result
+    Corrects ``base_resizes`` in instances where it would result
     in the ``base`` image being rescaled to a size which is smaller than the ``pattern`` image.
 
     Notes:
 
-        - if ``abs(base_rescale[1] - base_rescale[0]) < step size`` at the end of the this function,
+        - if ``abs(base_resizes[1] - base_resizes[0]) < step size`` at the end of the this function,
            only the unit transformation will take place in ``_matching_engine()``.
 
         - this function cannot handle the rare case where the pattern is larger than the base.
@@ -122,14 +119,16 @@ def _min_base_rescale(base, pattern, base_rescale, round_to=3):
     :type base: ``2D ndarray``
     :param pattern: the pattern image as a 2D array.
     :type pattern: ``2D ndarray``
-    :param base_rescale: the range over which to rescale the base image.Define as a tuple of the
+    :param base_resizes: the range over which to rescale the base image.Define as a tuple of the
                          form ``(start, end, step size)``.
-    :type base_rescale: ``tuple``
+    :type base_resizes: ``tuple``
     :param round_to: how many places after the decimal to round to. Defaults to 3.
     :type round_to: ``int``
-    :return: ``base_rescale`` either 'as is' or updated to prevent the case outlined in this function's description.
+    :return: ``base_resizes`` either 'as is' or updated to prevent the case outlined in this function's description.
     :rtype: ``tuple``
     """
+    # ToDo: Does not always block base < pattern.
+
     # Pick the limiting axis in the base image (smallest)
     smallest_base_axis = min(base.shape)
 
@@ -139,30 +138,31 @@ def _min_base_rescale(base, pattern, base_rescale, round_to=3):
     # Compute the smallest scalar
     min_scalar_for_base = float(np.around(size_floor / smallest_base_axis, round_to))
 
-    # Convert `base_rescale` into a list
-    base_rescale = list(base_rescale)
+    # Convert `base_resizes` into a list
+    base_resizes = list(base_resizes)
 
     # Move the rescale into valid range, if needed
-    if base_rescale[0] < min_scalar_for_base:
-        base_rescale[0] = min_scalar_for_base
-    if base_rescale[1] < min_scalar_for_base:
-        base_rescale[1] = base_rescale[1] + min_scalar_for_base
+    if base_resizes[0] < min_scalar_for_base:
+        base_resizes[0] = min_scalar_for_base
+    if base_resizes[1] < min_scalar_for_base:
+        base_resizes[1] += min_scalar_for_base
 
-    return tuple(base_rescale)
+    return tuple(base_resizes)
 
-def _matching_engine(base, pattern, base_rescale, base_h_crop, end_search_threshold):
+
+def _matching_engine(base, pattern, base_resizes, base_h_crop, end_search_threshold):
     """
 
-    Runs ``skimage.feature.match_template()`` against ``base`` for a given pattern
-    at various resizings of the base image.
+    Runs ``skimage.feature.match_template()`` against ``base`` for a given ``pattern``
+    at various sizes of the base image.
 
     :param base: the base image (typically cropped)
     :type base: ``2D ndarray``
     :param pattern: the pattern image
     :type pattern: `2D ndarray``
-    :param base_rescale: the range over which to rescale the base image.Define as a tuple of the
+    :param base_resizes: the range over which to rescale the base image.Define as a tuple of the
                          form ``(start, end, step size)``.
-    :type base_rescale: ``tuple``
+    :type base_resizes: ``tuple``
     :param base_h_crop: the amount of ``base`` which was cropped prior to it being passed to this function.
     :type base_h_crop: ``float``
     :param end_search_threshold: if a match of this quality is found, end the search. Set ``None`` to disable.
@@ -173,7 +173,7 @@ def _matching_engine(base, pattern, base_rescale, base_h_crop, end_search_thresh
     :rtype: ``dict``
     """
     # Apply tool to ensure the base will always be larger than the pattern
-    start, end, step = _min_base_rescale(base, pattern, base_rescale, round_to=3)
+    start, end, step = _min_base_rescale(base, pattern, base_resizes, round_to=3)
 
     match_dict = dict()
     for scale in _arange_one_first(start=start, end=end, step=step):
@@ -193,7 +193,7 @@ def _matching_engine(base, pattern, base_rescale, base_h_crop, end_search_thresh
         # Record
         match_dict[scale] = (list(top_left_adj), list(bottom_right), match_quality)
 
-        # Test if the match was sufficently strong
+        # Test if the match was sufficiently strong
         if isinstance(end_search_threshold, (int, float)):
             if match_quality >= end_search_threshold:
                 break
@@ -207,16 +207,16 @@ def _corners_calc(top_left, bottom_right):
     Compute a dict. with a bounding box derived from
     a top left and top right corner
 
-    :param top_left_: tuple of the form: (x, y).
-    :param top_left_: ``tuple``
-    :param bottom_right_: tuple of the form: (x, y)
-    :param bottom_right_: ``tuple``
+    :param top_left: tuple of the form: (x, y).
+    :param top_left: ``tuple``
+    :param bottom_right: tuple of the form: (x, y)
+    :param bottom_right: ``tuple``
     :return: a dictionary with the following keys: 'top_left', 'top_right', 'bottom_left' and 'bottom_right'.
              Values are keys of the form (x, y).
     :rtype: ``dict``
     """
     d = {'top_left': top_left,
-         'top_right': (bottom_right[0],top_left[1]),
+         'top_right': (bottom_right[0], top_left[1]),
          'bottom_left': (top_left[0], bottom_right[1]),
          'bottom_right': bottom_right}
     return {k: tuple(map(int, v)) for k, v in d.items()}
@@ -224,9 +224,9 @@ def _corners_calc(top_left, bottom_right):
 
 def robust_match_template(pattern_img,
                           base_img,
-                          base_rescale=(0.5, 2.0, 0.1),
+                          base_resizes=(0.5, 2.5, 0.1),
                           end_search_threshold=0.875,
-                          base_cropping=(0.5, 1/3)):
+                          base_img_cropping=(0.15, 0.5)):
     """
 
     Search for a pattern image in a base image using a algorithm which is robust
@@ -237,46 +237,52 @@ def robust_match_template(pattern_img,
     Limitations:
 
         - Cropping is limited to the the top left of the base image. The can be circumvented by setting
-          ``base_cropping=(1, 1)`` and cropping ``base_img`` oneself.
+          ``base_img_cropping=(1, 1)`` and cropping ``base_img`` oneself.
+
+        - This function may become unstable in situations where the pattern image is larger than the base image.
 
     :param pattern_img: the pattern image.
 
             .. warning::
 
-                    If a `ndarray` is passed to `pattern_img`, it *must* be preprocessed with
-                    ``scipy.misc.imread(pattern_img, flatten=True)``
+                    If a `ndarray` is passed to `pattern_img`, it *must* be preprocessed to be a 2D array,
+                    e.g., ``scipy.misc.imread(pattern_img, flatten=True)``
 
     :type pattern_img: ``str`` or ``ndarray``
     :param base_img: the base image in which to look for the ``pattern_img``.
 
              .. warning::
 
-                    If a `ndarray` is passed to `base_img`, it must be preprocessed with
-                    ``scipy.misc.imread(base_img, flatten=True)``
+                    If a `ndarray` is passed to `base_img`, it *must* be preprocessed to be a 2D array,
+                    e.g., ``scipy.misc.imread(base_img, flatten=True)``
 
     :type base_img: ``str`` or ``ndarray``
-    :param base_rescale: the range over which to rescale the base image.Define as a tuple of the
+    :param base_resizes: the range over which to rescale the base image.Define as a tuple of the
                          form ``(start, end, step size)``. Defaults to ``(0.5, 2.0, 0.1)``.
-    :type base_rescale: ``tuple``
-    :param end_search_threshold: if a match of this quality is found, end the search. Set ``None`` to disable.
+    :type base_resizes: ``tuple``
+    :param end_search_threshold: if a match of this quality is found, end the search. Set equal to ``None`` to disable.
                                  Defaults to 0.875.
     :type end_search_threshold: ``float`` or  ``None``
-    :param base_cropping: the amount of the image to crop with respect to the x and y axis.
-                          form: ``(horizontal (x), vertical (y))``.
-                          Note:
+    :param base_img_cropping: the amount of the image to crop with respect to the x and y axis.
+                          form: ``(height, width)``. Defaults to ``(0.15, 0.5)``.
+                          
+                      Notes:
 
-                            - increasing ``(x)`` will increase the amount of the image's left half removed.
+                        - Decreasing ``height`` will increase the amount of the lower part of the image removed.
 
-                            - increasing ``(y)`` will increase the amount of the lower part of the image removed.
+                        - Increasing ``width`` will increase the amount of the image's left half removed.
 
-    :type base_cropping: ``tuple``
-    :return: A dictionary of the form: ``{"bounding_box": ..., "match_quality": ..., "base_img_size": ...}``.
+                        - Cropping more of the base image reduces the probability that the algorithm getting confused.
+                          However, if the image is cropped too much, the target pattern itself could be removed.
+
+    :type base_img_cropping: ``tuple``
+    :return: A dictionary of the form: ``{"bounding_box": ..., "match_quality": ..., "base_img_shape": ...}``.
 
             - bounding_box (``dict``): ``{'bottom_right': (x, y), 'top_right':.., 'top_left':.., 'bottom_left':...)}}``.
 
             - match quality (``float``): quality of the match.
 
-            - base_img_size (``tuple``): the size of the base image provied. Form: ``(width (x), height(y))``.
+            - base_img_shape (``tuple``): the size of the base image provided. Form: ``(width (x), height(y))``.
 
     :rtype: ``dict``
     """
@@ -286,12 +292,12 @@ def robust_match_template(pattern_img,
     # Load the base
     base = _robust_match_template_loading(base_img, "base_img")
 
-    # Crop the base
-    base_h_crop = int(base.shape[0] * base_cropping[0])
-    cropped_base = _cropper(base, h_prop=base_cropping[0], v_prop=base_cropping[1])
+    # Crop the base image
+    base_h_crop = int(base.shape[1] * base_img_cropping[1])
+    cropped_base = _cropper(base, v_prop=base_img_cropping[0], h_prop=base_img_cropping[1])
 
     # Search for matches
-    match_dict = _matching_engine(cropped_base, pattern, base_rescale, base_h_crop, end_search_threshold)
+    match_dict = _matching_engine(cropped_base, pattern, base_resizes, base_h_crop, end_search_threshold)
 
     # Extract the best match
     best_match = max(list(match_dict.values()), key=lambda x: x[2])
@@ -300,7 +306,7 @@ def robust_match_template(pattern_img,
     bounding_box = _corners_calc(best_match[0], best_match[1])
 
     # Return the bounding box, match quality and the size of the base image
-    return {"bounding_box": bounding_box, "match_quality": best_match[2], "base_img_size": base.shape[::-1]}
+    return {"bounding_box": bounding_box, "match_quality": best_match[2], "base_img_shape": base.shape[::-1]}
 
 
 def _box_show(base_img_path, pattern_img_path):
@@ -321,7 +327,7 @@ def _box_show(base_img_path, pattern_img_path):
     pattern_img = imread(pattern_img_path, flatten=True)
 
     # Run the analysis
-    rslt = robust_match_template(base_img, pattern_img)
+    rslt = robust_match_template(pattern_img, base_img)
 
     # Extract the top left and top right
     top_left = rslt['bounding_box']['top_left']
@@ -332,18 +338,12 @@ def _box_show(base_img_path, pattern_img_path):
     height = abs(bottom_right[1] - top_left[1])
 
     # Show the base image
-    fig, (ax1) = plt.subplots(ncols=1, figsize=(8, 8), sharex=True, sharey=True)
+    fig, (ax1) = plt.subplots(ncols=1, figsize=(5, 5), sharex=True, sharey=True)
     ax1.imshow(base_img, 'gray')
 
     # Add the bounding box
     ax1.add_patch(patches.Rectangle(top_left, width, height, fill=False, edgecolor="red"))
     fig.show()
-
-
-
-
-
-
 
 
 
