@@ -255,7 +255,7 @@ class ImageProcessing(object):
         base_img_shape = analysis_results['base_img_shape']
 
         # Check match quality.
-        if match_quality < match_quality_threshold:
+        if bounding_box is None or match_quality < match_quality_threshold:
             return np.NaN
 
         # Check the box is in the top right (as defined by ``x_greater_check`` and ``y_greater_check``).
