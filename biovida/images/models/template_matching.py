@@ -236,10 +236,10 @@ def robust_match_template(pattern_img,
 
     Limitations:
 
-        - Cropping is limited to the the top left of the base image. The can be circumvented by setting
-          ``base_img_cropping=(1, 1)`` and cropping ``base_img`` oneself.
+    - Cropping is limited to the the top left of the base image. The can be circumvented by setting
+      ``base_img_cropping=(1, 1)`` and cropping ``base_img`` oneself.
 
-        - This function may become unstable in situations where the pattern image is larger than the base image.
+    - This function may become unstable in situations where the pattern image is larger than the base image.
 
     :param pattern_img: the pattern image.
 
@@ -266,14 +266,14 @@ def robust_match_template(pattern_img,
     :param base_img_cropping: the amount of the image to crop with respect to the x and y axis.
                           form: ``(height, width)``. Defaults to ``(0.15, 0.5)``.
                           
-                      Notes:
+    Notes:
 
-                        - Decreasing ``height`` will increase the amount of the lower part of the image removed.
+    - Decreasing ``height`` will increase the amount of the lower part of the image removed.
 
-                        - Increasing ``width`` will increase the amount of the image's left half removed.
+    - Increasing ``width`` will increase the amount of the image's left half removed.
 
-                        - Cropping more of the base image reduces the probability that the algorithm getting confused.
-                          However, if the image is cropped too much, the target pattern itself could be removed.
+    - Cropping more of the base image reduces the probability that the algorithm getting confused.
+      However, if the image is cropped too much, the target pattern itself could be removed.
 
     :type base_img_cropping: ``tuple``
     :return: A dictionary of the form: ``{"bounding_box": ..., "match_quality": ..., "base_img_shape": ...}``.

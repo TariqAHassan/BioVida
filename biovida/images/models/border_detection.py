@@ -160,7 +160,7 @@ def _array_cleaner(arr, round_by=5, anomaly_window=2):
     :type round_by: ``int``
     :param anomaly_window: window on which to check for a replace anomalies. See _anomaly_removal().
     :type anomaly_window: ``int``
-    :return: an array of the smooted valued.
+    :return: an array of the smoothed values.
     :rtype: ``ndarray``
     """
     rounded_arr = _rounder(arr, round_by)
@@ -487,9 +487,13 @@ def border_detection(image
     :type rescale_input_ndarray: ``bool``
     :return: a dictionary of the form:
              ``{'vborder': (left, right) or None, 'hborder': (upper, lower) or None, 'hbar': int or None}``
-              where 'vborder' denotes the vertical borders, 'hborder' denotes the horizontal borders and 'hbar'
-              provides the height of the horizontal bar.
-              dentotes the location of the lower bar.
+
+            - 'vborder' gives the locations of vertical borders.
+
+            - 'hborder' gives the locations of horizontal borders.
+
+            - 'hbar' gives the location for the top of the horizontal bar at the bottom of the image.
+
     :rtype: ``dict``
     """
     if 'numpy' in str(type(image)):

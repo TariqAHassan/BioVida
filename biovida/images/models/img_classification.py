@@ -274,7 +274,7 @@ class ImageRecognitionCNN(object):
         :type path: ``str``
         :param overwrite: overwrite the existing copy of the data
         :type overwrite: ``bool``
-        :raises: AttributeError if `ImageRecognitionCNN().fit_gen()` is yet to be called.
+        :raises: AttributeError if ``ImageRecognitionCNN().fit_gen()`` is yet to be called.
         """
         self._model_existence_check("saved", "fit",  " Alternatively, you can call .load().")
         save_path = self._data_path if (path is None and self._data_path is not None) else path

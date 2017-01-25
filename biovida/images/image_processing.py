@@ -591,8 +591,8 @@ class ImageProcessing(object):
 
         Currently, the model can identify the follow problems:
 
-            - arrows in images
-            - images arrayed as grids
+        - arrows in images
+        - images arrayed as grids
 
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
@@ -604,18 +604,18 @@ class ImageProcessing(object):
 
         >>> DataFrame['img_problems']
         ...
-        0   [(arrows, 0.197112), (grids, 0.0109332)]
-        1   [(arrows, 0.211948), (grids, 0.00918275)]
-        2   [(arrows, 0.473652), (grids, 0.00578115)]
-        3   [(arrows, 0.43337),  (grids, 0.00857231)]
-        4   [(grids, 0.928362), (arrows, 1.10526e-06)]
+        0 [('valid_img', 0.97158539), ('arrows', 0.066939682), ('grids', 0.0010551035)]
+        1 [('valid_img', 0.98873705), ('arrows', 0.024444019), ('grids', 0.0001462775)]
+        2 [('valid_img', 0.89019465), ('arrows', 0.16754828), ('grids', 0.009004808)]
+        3 [('grids', 0.85855108), ('valid_img', 0.0002961561), ('arrows', 6.8026602e-09)]
+
 
         The first value in the tuple represents the problem identified and second
-        value represents its associated probability (for the sake of *simplicity*,
-        this be interpreted as the model's confidence).
-
-        For example, in the final row we can see that the model strongly 'believes' both
-        that the image is, in fact, a grid of images and that it does not contain arrows.
+        value represents its associated probability. For example, in the final row
+        we can see that the model strongly 'believes' both that the image is, in fact,
+        a single image composed of several images (forming an image 'grid'). Conversely,
+        it believes all of the other images are likely devoid of problems it has been
+        trained to detect.
         """
         # Note: This method is a wrapper for `_image_problems_predictions()`
         if self._verbose and self._print_update:
