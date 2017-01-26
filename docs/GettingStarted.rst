@@ -3,15 +3,14 @@ Getting Started
 
 This library is primarily intended to collect, integrate and automatically clean biomedical data stored in
 public online databases. This makes it is a nascent effort in using software in conjunction with machine learning
-to automatically construct novel data sets which *appear* to have been created by hand. It is hoped that this
-will catalyze new understanding by transforming large repositories of messy data into clean datasets easily amenable to
-data analysis.
+to automatically construct novel datasets. It is hoped that this will catalyze new insights and understanding by
+transforming large repositories of messy data into clean datasets easily amenable to data analysis.
 
-BioVida aims to curate a broad range of biomedical information, including diagnostic and genomic data.
-A particular focus however is placed on image data as historically this has been a highly intransigent problem.
-Excitingly, with recent advances in so-called 'deep' learning and convolutional neural networks, this problem is
-quickly becoming tractable. This library makes extensive use of these advances, with these tools and other operating
-seamlessly *behind the scenes* to help process harvested data.
+BioVida aims to curate a broad range of biomedical information. In areas such as diagnostic and genomic data, this
+involves drawing on the work of others, such as the impressive work by the DisGeNET team. In the case of image data
+however, BioVida performs the 'heavy lifting' of preparing data from online sources, such as the National Institutes of
+Health's Open-i image database. Some of this work is automated using recent advances from the world of machine learning,
+such as convolutional neural networks.
 
 The guide below provides a brief introduction to getting started with BioVida.
 
@@ -150,7 +149,7 @@ fully automated approach should suffice in most cases.
 
 
 **Notice**: This library is still in *pre-alpha*. That is, formal unit testing has not yet been implemented.
-**Until it is, this software should be considered experimental**.
+**Until it is, this software should be considered to be experimental**.
 
 
 --------------
