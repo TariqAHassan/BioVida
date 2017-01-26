@@ -1,15 +1,17 @@
 Getting Started
 ---------------
 
-This library is primarily intended to help solve an outstanding problem in biomedical data science: a lack of usable data.
-While impressive data mining work in bioinformatics in recent years has helped build clean databases of known gene-disease
-associations, a poverty of machine learning ready biomedical images persists. BioVida is designed to automate this process,
-reducing, if not eliminating, the need for data cleaning, freeing you up to focus on data analysis itself.
+This library is primarily intended to collect, integrate and automatically clean biomedical data stored in
+public online databases. This makes it is a nascent effort in using software in conjunction with machine learning
+to automatically construct novel data sets which *appear* to have been created by hand. It is hoped that this
+will catalyze new understanding by transforming large repositories of messy data into clean datasets easily amenable to
+data analysis.
 
-While focused on image data, BioVida is able to curate a broad range of biomedical data including diagnostics and genomics.
-Some of this is accomplished using standard programming techniques, the rest using neural networks.
-It is important to note that the neural networks are intended to operate seamlessly *behind the scenes*.
-Standard use of the library will never bring you into direct contact with anything other than their output.
+BioVida aims to curate a broad range of biomedical information, including diagnostic and genomic data.
+A particular focus however is placed on image data as historically this has been a highly intransigent problem.
+Excitingly, with recent advances in so-called 'deep' learning and convolutional neural networks, this problem is
+quickly becoming tractable. This library makes extensive use of these advances, with these tools and other operating
+seamlessly *behind the scenes* to help process harvested data.
 
 The guide below provides a brief introduction to getting started with BioVida.
 
