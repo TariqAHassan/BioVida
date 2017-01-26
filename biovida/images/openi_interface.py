@@ -527,7 +527,7 @@ class OpenInterface(object):
         :param data_frame:
         :return:
         """
-        # snake_case from camelCase and lower. ToDo: move out of this method when `_post_processing_img()` is created.
+        # snake_case from camelCase and lower.
         data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
         # Run Feature Extracting Tool and Join with `data_frame`.
@@ -543,6 +543,9 @@ class OpenInterface(object):
         data_frame['article_type'] = data_frame['article_type'].map(
             lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore'
         )
+
+        # Replace 'Not Available' with NaN
+        data_frame = data_frame.replace({'[nN]ot [aA]vailable.?': np.NaN}, regex=True)
 
         return data_frame
 

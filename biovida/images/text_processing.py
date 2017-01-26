@@ -5,18 +5,8 @@
 
 """
 # ToDo:
-#     1. search abstract for diagnostic information.
-#     2. search the 'problems' column for diagnosis information.
-#     3. mine abstract for imaging_tech (or 'image_caption' column)
-#     4. group images by patient
-#     5. add ethnicity feature extraction
-#     6. handle ethnicity and sex extraction (e.g., WF = white, female)
-#     7. add extraction of illness length (e.g., 'x month history of...')
-#     8. Check the 'image_mention' column for MRI, CT, etc. because it
-#        seems to accurately relay what's technology actually created the image.
-#           - Also check image_caption.
-#     9. Replace 'Not Available.' with NaN.
-#    10. Check 'image_caption' for biographic information.
+#     1. group images by patient. Possible to do this properly?
+
 
 # Imports
 import re
@@ -52,16 +42,14 @@ def _mexpix_info_extract(abstract):
     return features_dict
 
 
-def _patient_sex_guess(abstract):
+def _patient_sex_extract(image_summary_info):
     """
 
-    Tries to extract the sex of the patient (female or male).
-
-    :param abstract:
+    :param image_summary_info:
     :return:
     """
-    counts_dict_f = {t: abstract.lower().count(t) for t in ['female', 'woman', 'girl',' f ']}
-    counts_dict_m = {t: abstract.lower().count(t) for t in ['male', 'man', 'boy', ' m ']}
+    counts_dict_f = {t: image_summary_info.lower().count(t) for t in ['female', 'woman', 'girl',' f ']}
+    counts_dict_m = {t: image_summary_info.lower().count(t) for t in ['male', 'man', 'boy', ' m ']}
 
     # Block Conflicting Information
     if sum(counts_dict_f.values()) > 0 and sum([v for k, v in counts_dict_m.items() if k not in ['male', 'man']]) > 0:
@@ -72,6 +60,26 @@ def _patient_sex_guess(abstract):
         return 'female'
     elif any(x > 0 for x in counts_dict_m.values()):
         return 'male'
+    else:
+        return None
+
+
+def _patient_sex_guess(history, abstract, image_caption, image_mention):
+    """
+
+    Tries to extract the sex of the patient (female or male).
+
+    :param history:
+    :param abstract:
+    :param image_caption:
+    :param image_mention:
+    :return:
+    """
+    for source in (history, abstract, image_caption, image_mention):
+        if isinstance(source, str):
+            extract = _patient_sex_extract(source)
+            if isinstance(extract, str):
+                return extract
     else:
         return None
 
@@ -99,25 +107,14 @@ def _age_refine(age_list):
     return max(to_return)
 
 
-def _patient_age_guess(abstract):
+def _patient_age_guess_abstract_clean(abstract):
     """
 
-    Forms:
-        - x yo
-        - x year
-        - x-year
-        - DOB: x
-        - DOB x
-
-    Note: should also consider 'elderly' if no other information can be harvested
+    Cleans the abstract for ``_patient_age_guess()``
 
     :param abstract:
     :return:
     """
-    back = [" y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year",
-            "month old", " month old", "-month old", "months old", " months old", "-months old"]
-    # front = ["dob: ", "dob "]
-
     # Block: 'x year history'
     history_block = ["year history", " year history", "-year history"]
     hist_matches = [re.findall(r'\d*\.?\d+' + drop, abstract) for drop in history_block]
@@ -127,19 +124,189 @@ def _patient_age_guess(abstract):
     hist_matches_flat = filter_unnest(hist_matches)
 
     if len(hist_matches_flat):
-        cleaned_abstract = num_word_to_int(" ".join([abstract.replace(r, "") for r in hist_matches_flat])).strip()
+        return num_word_to_int(" ".join([abstract.replace(r, "") for r in hist_matches_flat])).strip()
     else:
-        cleaned_abstract = num_word_to_int(abstract)
+        return num_word_to_int(abstract)
 
-    # Block processing of empty strings
-    if not len(cleaned_abstract):
+
+def _age_marker_match(image_summary_info):
+    """
+
+    :param image_summary_info:
+    :return:
+    """
+    age_markers = [" y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year",
+                   "month old", " month old", "-month old", "months old", " months old", "-months old"]
+
+    # Clean the input text
+    cleaned_input = _patient_age_guess_abstract_clean(image_summary_info)
+
+    # Check abstract
+    if len(cleaned_input):
+        return filter_unnest([re.findall(r'\d+' + b, cleaned_input) for b in age_markers])
+    else:
         return None
 
-    # Try back
-    front_finds = filter_unnest([re.findall(r'\d+' + b, cleaned_abstract) for b in back])
 
-    # Return
-    return _age_refine(front_finds) if len(front_finds) else None
+def _patient_age_guess(history, abstract, image_caption, image_mention):
+    """
+
+    :param abstract:
+    :param image_caption:
+    :param image_mention:
+    :param History:
+    :return:
+    """
+    # Loop through the inputs, search all of them for age matches
+    for source in (history, abstract, image_caption, image_caption):
+        if isinstance(source, str):
+            matches = _age_marker_match(source)
+            if isinstance(matches, list) and len(matches):
+                return _age_refine(matches)
+    else:
+        return None
+
+
+def _imaging_technology_guess(abstract, image_caption, image_mention):
+    """
+
+    :param abstract:
+    :param image_caption:
+    :param image_mention:
+    :return:
+    """
+    # {abbreviated name, [alternative names]}
+    terms_dict = {"ct": ['computed topography'],
+                  "mri": ['magnetic resonance imaging'],
+                  "x-ray": ['xray'],
+                  "ultrasound": []}
+
+    # Loop though and look for matches
+    matches = set()
+    for source in (abstract, image_caption, image_mention):
+        if isinstance(source, str):
+            for k, v in terms_dict.items():
+                if k in source.lower() or any(i in source.lower() for i in v):
+                    matches.add(k)
+
+    return list(matches)[0] if len(matches) == 1 else None
+
+
+def _illness_duration_guess_engine(image_summary_info):
+    """
+
+    :param image_summary_info:
+    :return:
+    """
+    cleaned_source = cln(image_summary_info.replace("-", " "), extent=1)
+
+    match_terms = [('month history of', 'm'), ('year history of', 'y')]
+    hist_matches = [(re.findall(r"\d*\.?\d+ (?=" + t + ")", cleaned_source), u) for (t, u) in match_terms]
+
+    def time_adj(mt):
+        if len(mt[0]) == 1:
+            cleaned_date = re.sub("[^0-9.]", "", cln(mt[0][0], extent=2)).strip()
+            if cleaned_date.count(".") > 1:
+                return None
+            if mt[1] == 'y':
+                return float(cleaned_date)
+            elif mt[1] == 'm':
+                return float(cleaned_date) / 12.0
+        else:
+            return None
+
+    # Filter invalid extracts
+    durations = list(filter(None, map(time_adj, hist_matches)))
+
+    return durations[0] if len(durations) == 1 else None
+
+
+def _illness_duration_guess(history, abstract, image_caption, image_mention):
+    """
+
+    :param history:
+    :param abstract:
+    :param image_caption:
+    :param image_mention:
+    :return:
+    """
+    for source in (history, abstract, image_caption, image_mention):
+        if isinstance(source, str):
+            duration_guess = _illness_duration_guess_engine(source)
+            if isinstance(duration_guess, float):
+                return duration_guess
+    else:
+        return None
+
+
+def _ethnicity_guess_engine(image_summary_info):
+    """
+
+    :param image_summary_info:
+    :return:
+    """
+    # Init
+    e_matches, s_matches = set(), set()
+
+    # Clean the input
+    image_summary_info_cln = cln(image_summary_info).lower()
+
+    # Define long form of references to ethnicity
+    long_form_ethnicities = [('caucasian', 'white'),
+                             ('black', 'african american'),
+                             ('latino',),
+                             ('hispanic',),
+                             ('asian',),
+                             ('native american',),
+                             ('first nations',)]
+
+    for i in long_form_ethnicities:
+        for j in i:
+            if j in image_summary_info_cln:
+                e_matches.add(i[0])
+
+    # Define short form of references to ethnicity
+    short_form_ethnicities = [(' am ', 'asian', 'male'), (' af ', 'asian', 'female'),
+                              (' bm ', 'black', 'male'), (' bf ', 'black', 'female'),
+                              (' wm ', 'caucasian', 'male'), (' wf ', 'caucasian', 'female')]
+
+    for (abbrev, eth, sex) in short_form_ethnicities:
+        if abbrev in image_summary_info_cln:
+            e_matches.add(eth)
+            s_matches.add(sex)
+
+    # Render output
+    patient_ethnicity = list(e_matches)[0] if len(e_matches) == 1 else None
+    patient_sex = list(s_matches)[0] if len(s_matches) == 1 else None
+
+    return patient_ethnicity, patient_sex
+
+
+def _ethnicity_guess(history, abstract, image_caption, image_mention):
+    """
+
+    :param history:
+    :param abstract:
+    :param image_caption:
+    :param image_mention:
+    :return:
+    """
+    matches = list()
+    for source in (history, abstract, image_caption, image_mention):
+        if isinstance(source, str):
+            matches.append(_ethnicity_guess_engine(source))
+
+    # 1. Prefer both pieces of information
+    both_matches = [i for i in matches if not all(j is None for j in i)]
+    if len(both_matches):
+        return both_matches[0]  # simply use the first one
+
+    # 2. Search for single matches
+    single_matches = [i for i in matches if any(j is not None for j in i)]
+    if len(single_matches):
+        return single_matches[0]  # again, simply use the first one
+    else:
+        return None, None
 
 
 def feature_extract(x):
@@ -169,22 +336,50 @@ def feature_extract(x):
     if 'medpix' in x['journal_title'].lower():
         d = _mexpix_info_extract(x['abstract'])
 
-    # Define string to use when trying to harvest sex and age information.
-    if not isinstance(x['abstract'], str):
-        guess_string = None
-    elif d['History'] is None:
-        guess_string = x['abstract'].lower()
-    else:
-        guess_string = d['History'].lower()
+    # Guess Age
+    d['age'] = _patient_age_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
 
     # Guess Sex
-    d['sex'] = _patient_sex_guess(guess_string) if isinstance(guess_string, str) else np.NaN
+    d['sex'] = _patient_sex_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
 
-    # Guess Age
-    d['age'] = _patient_age_guess(guess_string) if isinstance(guess_string, str) else np.NaN
+    # Guess illness duration
+    d['illness_duration'] = _illness_duration_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
+
+    # Guess the imaging technology used
+    d['caption_imaging_tech'] = _imaging_technology_guess(x['abstract'], x['image_caption'], x['image_mention'])
+
+    # Guess Ethnicity
+    ethnicity, e_sex = _ethnicity_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
+    d['ethnicity'] = ethnicity
+
+    # Try to Extract Age from Ethnicity analysis
+    if d['sex'] is None and d['sex'] != None:
+        d['sex'] = e_sex
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
