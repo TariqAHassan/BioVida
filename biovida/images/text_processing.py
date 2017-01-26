@@ -249,7 +249,8 @@ def _ethnicity_guess_engine(image_summary_info):
     e_matches, s_matches = set(), set()
 
     # Clean the input
-    image_summary_info_cln = cln(image_summary_info).lower()
+    image_summary_info_cln = cln(image_summary_info)
+    image_summary_info_cln_lwr = image_summary_info_cln.lower()
 
     # Define long form of references to ethnicity
     long_form_ethnicities = [('caucasian', 'white'),
@@ -266,9 +267,9 @@ def _ethnicity_guess_engine(image_summary_info):
                 e_matches.add(i[0])
 
     # Define short form of references to ethnicity
-    short_form_ethnicities = [(' am ', 'asian', 'male'), (' af ', 'asian', 'female'),
-                              (' bm ', 'black', 'male'), (' bf ', 'black', 'female'),
-                              (' wm ', 'caucasian', 'male'), (' wf ', 'caucasian', 'female')]
+    short_form_ethnicities = [(' AM ', 'asian', 'male'), (' AF ', 'asian', 'female'),
+                              (' BM ', 'black', 'male'), (' BF ', 'black', 'female'),
+                              (' WM ', 'caucasian', 'male'), (' WF ', 'caucasian', 'female')]
 
     for (abbrev, eth, sex) in short_form_ethnicities:
         if abbrev in image_summary_info_cln:
@@ -349,16 +350,15 @@ def feature_extract(x):
     d['caption_imaging_tech'] = _imaging_technology_guess(x['abstract'], x['image_caption'], x['image_mention'])
 
     # Guess Ethnicity
-    ethnicity, e_sex = _ethnicity_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
+    ethnicity, eth_sex = _ethnicity_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
     d['ethnicity'] = ethnicity
 
     # Try to Extract Age from Ethnicity analysis
-    if d['sex'] is None and d['sex'] != None:
-        d['sex'] = e_sex
+    if d['sex'] is None and eth_sex is not None:
+        d['sex'] = eth_sex
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
-
 
 
 

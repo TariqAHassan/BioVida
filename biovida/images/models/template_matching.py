@@ -310,7 +310,7 @@ def robust_match_template(pattern_img,
         # Compute the bounding box
         bounding_box = _corners_calc(best_match[0], best_match[1])
     else:
-        best_match = None
+        best_match = [None] * 3
         bounding_box = None
 
     # Return the bounding box, match quality and the size of the base image
