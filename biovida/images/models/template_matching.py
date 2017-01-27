@@ -150,7 +150,7 @@ def _min_base_rescale(base, pattern, base_resizes, round_to=3):
     return tuple(base_resizes)
 
 
-def _matching_engine(base, pattern, base_resizes, base_h_crop, end_search_threshold):
+def _matching_engine(base, pattern, base_resizes, base_img_cropping, end_search_threshold):
     """
 
     Runs ``skimage.feature.match_template()`` against ``base`` for a given ``pattern``
@@ -163,8 +163,8 @@ def _matching_engine(base, pattern, base_resizes, base_h_crop, end_search_thresh
     :param base_resizes: the range over which to rescale the base image.Define as a tuple of the
                          form ``(start, end, step size)``.
     :type base_resizes: ``tuple``
-    :param base_h_crop: the amount of ``base`` which was cropped prior to it being passed to this function.
-    :type base_h_crop: ``float``
+    :param base_img_cropping: see ``robust_match_template()``.
+    :type base_img_cropping: ``tuple``
     :param end_search_threshold: if a match of this quality is found, end the search. Set ``None`` to disable.
     :type end_search_threshold: ``float`` or  ``None``
     :return: a dictionary of matches made by the ``skimage.feature.match_template()`` function
@@ -172,13 +172,17 @@ def _matching_engine(base, pattern, base_resizes, base_h_crop, end_search_thresh
              The values are ``tuples`` of the form ``(top left corner, bottom right corner, match quality)``.
     :rtype: ``dict``
     """
+    # Crop the base image
+    base_h_crop = int(base.shape[1] * base_img_cropping[1])
+    cropped_base = _cropper(base, v_prop=base_img_cropping[0], h_prop=base_img_cropping[1])
+
     # Apply tool to ensure the base will always be larger than the pattern
-    start, end, step = _min_base_rescale(base, pattern, base_resizes, round_to=3)
+    start, end, step = _min_base_rescale(cropped_base, pattern, base_resizes, round_to=3)
 
     match_dict = dict()
     for scale in _arange_one_first(start=start, end=end, step=step):
         # Rescale the image
-        scaled_cropped_base = imresize(base, scale, interp='lanczos')
+        scaled_cropped_base = imresize(cropped_base, scale, interp='lanczos')
 
         # ToDo: this should not be needed.
         try:
@@ -296,12 +300,8 @@ def robust_match_template(pattern_img,
     # Load the base
     base = _robust_match_template_loading(base_img, "base_img")
 
-    # Crop the base image
-    base_h_crop = int(base.shape[1] * base_img_cropping[1])
-    cropped_base = _cropper(base, v_prop=base_img_cropping[0], h_prop=base_img_cropping[1])
-
     # Search for matches
-    match_dict = _matching_engine(cropped_base, pattern, base_resizes, base_h_crop, end_search_threshold)
+    match_dict = _matching_engine(base, pattern, base_resizes, base_img_cropping, end_search_threshold)
 
     if len(list(match_dict.keys())):
         # Extract the best match
@@ -357,9 +357,9 @@ def _box_show(base_img_path, pattern_img_path):
 
 
 
-
-
-
+b = '/Users/tariq/Desktop/test.png'
+p = '/Users/tariq/Desktop/medpix_logo.png'
+_box_show(base_img_path=b, pattern_img_path=p)
 
 
 
