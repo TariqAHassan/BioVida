@@ -15,6 +15,10 @@ from skimage.feature import match_template
 #     See: http://scikit-image.org/docs/dev/api/skimage.feature.html#skimage.feature.match_template.
 #     Here, this algorithm has been bootstrapped to make it robust against variance in scale.
 
+# ToDo: the solution implimented here, while it works somewhat well, is lacking.
+#       The correct approach is to systematically crop the image as long as the signal
+#       continues to increases, up to some ceiling value.
+
 
 def _arange_one_first(start, end, step, precision=1):
     """
