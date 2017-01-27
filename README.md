@@ -152,6 +152,9 @@ Genomics
       Ferran Sanz, Laura I. Furlong. DisGeNET: a discovery platform for the dynamical exploration of human 
       diseases and their genes. Database (2015) doi:10.1093/database/bav028
 
+Diagnostics
+
+   - [DiseaseOntology]
 
 ------------------------------------------------------------------------
 
@@ -175,4 +178,4 @@ Genomics
 [DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
-[disease-ontology.org]: http://disease-ontology.org
+[DiseaseOntology]: http://disease-ontology.org
