@@ -357,9 +357,11 @@ def _box_show(base_img_path, pattern_img_path):
 
 
 
-b = '/Users/tariq/Desktop/test.png'
-p = '/Users/tariq/Desktop/medpix_logo.png'
-_box_show(base_img_path=b, pattern_img_path=p)
+
+
+
+
+
 
 
 
