@@ -20,7 +20,10 @@ API
 	:members:
 
 .. automodule:: biovida.genomics.disgenet_interface
-	:members:	
+	:members:
+
+.. automodule:: biovida.diagnostics.disease_ont_interface
+	:members:
 
 .. automodule:: biovida.support_tools.printing
 	:members:

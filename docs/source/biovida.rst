@@ -66,6 +66,14 @@ biovida.genomics.disgenet_interface module
     :undoc-members:
     :show-inheritance:
 
+biovida.diagnostics.disease_ont_interface
+-----------------------------------------
+
+.. automodule:: biovida.diagnostics.disease_ont_interface
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 biovida.support_tools.printing module
 -------------------------------------
 

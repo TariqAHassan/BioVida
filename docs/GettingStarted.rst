@@ -104,7 +104,7 @@ results.
 Automated Image Data Cleaning
 -----------------------------
 
-Cleaning the downloaded images is extremely simple.
+Cleaning the images which have been downloaded is extremely simple.
 
 
 Import the ImageProcessing Class
@@ -157,8 +157,8 @@ fully automated approach should suffice in most cases.
 Genomic Data
 ------------
 
-Import the Interface for DisGeNET
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Import the Interface for DisGeNET.org
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
@@ -217,6 +217,48 @@ Information about the database:
 
     dna.current_database_description
     # 'The file contains gene-disease associations from...'
+
+
+--------------
+
+Diagnostic Data
+---------------
+
+Import the Interface for DiseaseOntology.org
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+
+Create an Instance of the Tool
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    doi = DiseaseOntInterface()
+
+Pull the data
+^^^^^^^^^^^^^
+
+.. code:: python
+
+    ddf = doi.pull()
+
+One can gain access to the database, by following
+the approach shown above (with ``ddf``) or as follows:
+
+.. code:: python
+
+    doi.disease_db()
+
+It is also possible to inspect the date on which
+the database was created by *DiseaseOntology.org*:
+
+.. code:: python
+
+    doi.db_date
+    # datetime.datetime(2017, 1, 13, 0, 0)
 
 
 Resources
