@@ -10,9 +10,11 @@ import pickle
 import requests
 import numpy as np
 import pandas as pd
+from warnings import warn
 from itertools import chain
 from datetime import datetime
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
 from biovida.support_tools._cache_management import _package_cache_creator
 
@@ -20,7 +22,7 @@ from biovida.support_tools._cache_management import _package_cache_creator
 class DiseaseOntInterface(object):
     """
 
-    Python Interface for Harvesting the Complete Disease Ontology Database.
+    Python Interface for Harvesting the Disease Ontology Database.
 
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                    Default to ``None`` (which will generate a cache in the home folder).
@@ -43,7 +45,9 @@ class DiseaseOntInterface(object):
         """
     
         :param q:
+        :type q:
         :return:
+        :rtype:
         """
         return list(map(cln, filter(None, q.split("\""))))
     
@@ -73,6 +77,7 @@ class DiseaseOntInterface(object):
     
         :param is_a:
         :return:
+        :rtype:
         """
         if " ! " not in is_a:
             return is_a
@@ -85,6 +90,7 @@ class DiseaseOntInterface(object):
         :param k:
         :param v:
         :return:
+        :rtype:
         """
         if k == 'def':
             return self._def_url_parser(v)
@@ -111,6 +117,7 @@ class DiseaseOntInterface(object):
     
         :param parsed_term:
         :return:
+        :rtype:
         """
         d = dict()
         keys_with_lists = set()
@@ -149,6 +156,7 @@ class DiseaseOntInterface(object):
         :param term:
         :type term:
         :return:
+        :rtype:
         """
         # Split the term on line breaks
         split_term = list(filter(None, cln(term).split("\n")))
@@ -165,6 +173,7 @@ class DiseaseOntInterface(object):
         :param data_frame:
         :param columns_with_lists:
         :return:
+        :rtype:
         """
         # Homogenize columns with lists
         for c in columns_with_lists:
@@ -186,10 +195,14 @@ class DiseaseOntInterface(object):
 
         :param first_parsed_by_term:
         :return:
+        :rtype:
         """
-        extracted_date = re.search('data-version: (.*)\n', first_parsed_by_term).group(1)
-        extracted_date_cleaned = "".join((i for i in extracted_date if i.isdigit() or i == "-")).strip()
-        self.db_date = datetime.strptime(extracted_date_cleaned, "%Y-%m-%d")
+        try:
+            extracted_date = re.search('data-version: (.*)\n', first_parsed_by_term).group(1)
+            extracted_date_cleaned = "".join((i for i in extracted_date if i.isdigit() or i == "-")).strip()
+            self.db_date = datetime.strptime(extracted_date_cleaned, "%Y-%m-%d")
+        except:
+            warn("\nCould not extract the date on which the Disease Ontology database was generated.")
 
     def _harvest(self, disease_ontology_db_url):
         """
@@ -224,7 +237,7 @@ class DiseaseOntInterface(object):
     def pull(self, download_override=False, disease_ontology_db_url='http://purl.obolibrary.org/obo/doid.obo'):
         """
 
-        Pull (i.e., download) the ODisease Ontology Database.
+        Pull (i.e., download) the Disease Ontology Database.
 
         Note: if a database is already cached, it will be used instead of downloading
         (the `download_override` argument can be used override this behaviour).
@@ -235,7 +248,8 @@ class DiseaseOntInterface(object):
         :param disease_ontology_db_url: URL to the disease ontology .obo database.
                                         Defaults to 'http://purl.obolibrary.org/obo/doid.obo'.
         :type disease_ontology_db_url: ``str``
-        :return:
+        :return: the Disease Ontology database as as a DataFrame.
+        :rtype: ``Pandas DataFrame``
         """
         save_path = os.path.join(self._created_disease_ont_dirs['disease_ontology'], "disease_ontology_db")
         db_path = "{0}.csv".format(save_path)
@@ -243,18 +257,15 @@ class DiseaseOntInterface(object):
 
         if not os.path.isfile(db_path) or download_override:
             if self._verbose:
-                print("Downloading Database...")
+                header("Downloading Disease Ontology Database... ")
             self._harvest(disease_ontology_db_url)
             self.disease_db.to_csv(db_path, index=False)
             pickle.dump(self.db_date, open(support_path, "wb"))
-        elif 'dataframe' not in str(type(self.disease_db)).lower() or 'datetime' not in str(type(self.db_date)).lower():
+        elif 'dataframe' not in str(type(self.disease_db)).lower():
             self.db_date = pickle.load(open(support_path, "rb"))
             self.disease_db = pd.read_csv(db_path)
 
         return self.disease_db
-
-
-
 
 
 

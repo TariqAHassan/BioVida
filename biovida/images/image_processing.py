@@ -613,7 +613,7 @@ class ImageProcessing(object):
         The first value in the tuple represents the problem identified and second
         value represents its associated probability. For example, in the final row
         we can see that the model strongly 'believes' both that the image is, in fact,
-        a single image composed of several images (forming an image 'grid'). Conversely,
+        an image composed of several smaller images (forming an image 'grid'). Conversely,
         it believes all of the other images are likely devoid of problems it has been
         trained to detect.
         """

@@ -62,7 +62,7 @@ from biovida.images.image_processing import ImageProcessing
 ip = ImageProcessing(opi)
  
 # 3. Clean the Image Data
-cdf = ip.auto()
+idf = ip.auto()
 
 # 4. Save the Cleaned Images
 ip.save("/save/directory/")
@@ -77,7 +77,7 @@ Notes:
    2. The model has been trained and validated to detect two kinds of problems:
       arrows in the image and 'grids' of images. This was performed using
       a total of 99,000 images, synthesized from a collection of ~1,500 CT
-      and *structural* MRI scans*.
+      and *structural* MRI scans.*
       
    3. While the model will likely generalize to x-ray and ultrasound images,
       this has not been formally tested. In the future, the model will be 
@@ -95,8 +95,7 @@ Moreover, in informal testing, this model appears to be be performing very well 
 
 ###Genomic Data
 
-BioVida provides an easy interface for obtaining
-Genomic data.
+BioVida provides a simple interface for obtaining genomic data.
 
 ```python
 # 1. Import the Interface for DisGeNET.org
