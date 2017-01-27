@@ -285,3 +285,7 @@ Genomics
       DisGeNET: a discovery platform for the dynamical exploration of
       human diseases and their genes. Database (2015)
       doi:10.1093/database/bav028
+
+Diagnostics
+
+- `DiseaseOntology <http://disease-ontology.org/>`__
