@@ -16,15 +16,11 @@
         K.set_image_dim_ordering('tf')
 
 """
-import pkg_resources
-try:
-    from biovida.images.models._training_data_path import add_to_path, training_data_path
-except:
-    add_to_path = pkg_resources.resource_filename("biovida", "images")[:-15]
-    training_data_path = input("Please enter the path to the data directory: ")
-
+import os
 import sys
-sys.path.append(add_to_path)
+biovida_path = input("Please enter the full path to BioVida: ")
+sys.path.append(biovida_path)
+from biovida.images.models._training_data_path import training_data_path
 
 # General Imports
 import numpy as np
@@ -60,19 +56,8 @@ def _image_rcognition_cnn_training(nb_epoch, training_data_path, save_name):
 
 
 save_name = input("Please enter the name of the file: ")
-_image_rcognition_cnn_training(1, training_data_path, save_name)
-
-
-
-
-
-
-
-
-
-
-
-
+iters = int(input("Please enter the number of iterations: "))
+_image_rcognition_cnn_training(iters, training_data_path, save_name)
 
 
 
