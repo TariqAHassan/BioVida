@@ -95,18 +95,35 @@ Moreover, in informal testing, this model appears to be be performing very well 
 
 ###Genomic Data
 
-BioVida also provides an easy interface for obtaining
+BioVida provides an easy interface for obtaining
 Genomic data.
 
 ```python
-# 1. Import the Interface for DisGeNET
+# 1. Import the Interface for DisGeNET.org
 from biovida.genomics.disgenet_interface import DisgenetInterface
 
 # 2. Create an Instance of the Tool
 dna = DisgenetInterface()
 
 # 3. Pull a Database
-df = dna.pull('curated')
+gdf = dna.pull('curated')
+```
+
+------------------------------------------------------------------------
+
+###Diagnostic Data
+
+BioVida also makes it easy to obtain diagnostics data.
+
+```python
+# 1. Import the Interface for DiseaseOntology.org
+from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+
+# 2. Create an Instance of the Tool
+doi = DiseaseOntInterface()
+
+# 3. Pull the Database
+ddf = doi.pull()
 ```
 
 ------------------------------------------------------------------------
@@ -144,10 +161,6 @@ Genomics
    1. Images
    
      - Stabalize image processing procedures.
-    
-   2. Diagnostic Data
-   
-     - Likely [disease-ontology.org].
 
 
 [click here]: https://tariqahassan.github.io/BioVida/index.html
@@ -164,4 +177,3 @@ Genomics
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
 [disease-ontology.org]: http://disease-ontology.org
-
