@@ -71,11 +71,11 @@ def _disgenet_readme(created_gene_dirs):
 
     # Write if the file does not exist
     if not os.path.isfile(save_address):
-        # Resquest
-        r = requests.get(readme_url, stream=True)
-
         # URL to DisGeNET README
         readme_url = 'http://www.disgenet.org/ds/DisGeNET/results/readme.txt'
+
+        # Resquest
+        r = requests.get(readme_url, stream=True)
 
         # Write
         with open(save_address, 'wb') as f:
