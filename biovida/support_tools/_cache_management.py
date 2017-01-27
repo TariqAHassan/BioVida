@@ -139,10 +139,10 @@ def _directory_creator(cache_path=None, verbose=True):
 def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     """
 
-    :param sub_dir: e.g., 'image' (do not include "_cache").
-                    Must be one of: 'search_cache', 'images_cache', 'genomics_cache', 'diagnostics_cache'.
-    :param cache_path:
+    :param sub_dir: e.g., 'images' (do not include "_cache").
+                    Must be one of: 'search', 'images', 'genomics', 'diagnostics'.
     :param to_create:
+    :param cache_path:
     :param verbose:
     :return:
     """
