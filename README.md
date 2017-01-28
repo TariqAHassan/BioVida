@@ -156,14 +156,6 @@ Diagnostics
 
    - [DiseaseOntology]
 
-------------------------------------------------------------------------
-
-###Outstanding Objectives
-
-   1. Images
-   
-     - Stabalize image processing procedures.
-
 
 [click here]: https://tariqahassan.github.io/BioVida/index.html
 [pandas]: http://pandas.pydata.org
