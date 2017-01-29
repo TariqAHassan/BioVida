@@ -123,7 +123,7 @@ class DiseaseOntInterface(object):
 
             - "information within quotes in v" = 'the quick brown fox'.
 
-            - "list information in v" = ['the', 'quick', 'brown', 'fox']  (true python list, just just a string).
+            - "list information in v" = ['the', 'quick', 'brown', 'fox']  (true python list, not just a string).
 
         :rtype: ``list``
         """
@@ -304,10 +304,10 @@ class DiseaseOntInterface(object):
 
         - multiple values are separated by semicolons followed by a space, i.e., "; ".
 
-        :param download_override: If True, override any existing database currently cached and download a new one.
-                                  Defaults to False.
+        :param download_override: If ``True``, override any existing database currently cached and download a new one.
+                                  Defaults to ``False``.
         :type download_override: ``bool``
-        :param disease_ontology_db_url: URL to the disease ontology .obo database.
+        :param disease_ontology_db_url: URL to the disease ontology database in '.obo' format.
                                         Defaults to 'http://purl.obolibrary.org/obo/doid.obo'.
         :type disease_ontology_db_url: ``str``
         :return: the Disease Ontology database as as a DataFrame.
