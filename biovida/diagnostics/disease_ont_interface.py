@@ -43,20 +43,31 @@ class DiseaseOntInterface(object):
 
     def _quote_value_parse(self, q):
         """
+
+        Splits a string on the presence of quotes (") inside the string itself.
     
-        :param q:
-        :type q:
-        :return:
-        :rtype:
+        :param q: a string containing quotes.
+        :type q: ``str``
+        :return: ``[text in quotes, text outside of quotes]``
+        :rtype: ``list``
         """
         return list(map(cln, filter(None, q.split("\""))))
     
     def _def_url_parser(self, definition):
         """
+
+        Separate the text of a disease definition from the list of reference URLs for that definition.
     
-        :param definition:
-        :return:
+        :param definition: the raw text of the definition as represented in the Disease Ontology Database.
+        :type definition: ``str``
+        :return: a list of two ``tuple``s of the form:
+                ``[('def', disease definition), ('def_urls', urls to def. sources)]``
+        :rtype: ``list``
         """
+        # Note: this method automatically replaces the underscores in the definition quotes.
+        # this seems to be valid currently as this shortcut seems to invariably produce the same
+        # result as would be obtained by following the list of mappings at the top of the .obo
+        # database file. *This could change*.
         if definition.count("\"") != 2 or definition.count("[") != 1 or definition.count("]") != 1:
             return [("def", definition), ("def_urls", np.NaN)]
     
@@ -70,14 +81,18 @@ class DiseaseOntInterface(object):
         cleaned_urls = [u.replace("\:/", ":/") for u in urls]
     
         # Return the quote and the urls as seperate entities
-        return [("def", parsed_definition[0]), ("def_urls", cleaned_urls)]
+        return [("def", parsed_definition[0].replace("_", " ")), ("def_urls", cleaned_urls)]
     
     def _is_a_parser(self, is_a):
         """
-    
-        :param is_a:
-        :return:
-        :rtype:
+
+        Seperates the DOID from the text of the entry in a 'is_a' entry.
+
+        :param is_a: a value corresponding to a term entry 'is_a' in the Disease Ontology database
+        :type is_a: ``str``
+        :return: list of tuples of the form:
+                `` [("is_a", text of entry), ("is_a_doid", DOID number of entry)]``
+        :rtype: ``list``
         """
         if " ! " not in is_a:
             return is_a
@@ -86,17 +101,37 @@ class DiseaseOntInterface(object):
     
     def _value_parser(self, k, v):
         """
+
+        Parses the ``v`` evolved inside ``DiseaseOntInterface()._parsed_term_to_dict()`` based on ``k``.
     
-        :param k:
-        :param v:
-        :return:
-        :rtype:
+        :param k: the k (key) passed inside of ``DiseaseOntInterface()._parsed_term_to_dict`` .
+        :type k: ``str``
+        :param v: the v (value) passed inside of ``DiseaseOntInterface()._parsed_term_to_dict``.
+        :type v: ``str``
+        :return: one of:
+
+        - ``[('def', disease definition), ('def_urls', urls to def. sources)]``
+
+        - ``[(KEY, value.replace("DOID:", ""))]``
+
+        - ``[(KEY, information within quotes in v), (KEY_FLAG, list information in v)]``*
+
+        - ``[(KEY, value)]``
+
+        *Example: "'the quick brown fox' EXACT [info1, info2, info3]", where 'EXACT' is the FLAG.
+        Here:
+
+            - "information within quotes in v" = 'the quick brown fox'.
+
+            - "list information in v" = ['the', 'quick', 'brown', 'fox']  (true python list, just just a string).
+
+        :rtype: ``list``
         """
         if k == 'def':
             return self._def_url_parser(v)
         elif k == 'is_a':
             return self._is_a_parser(v)
-        elif k in ['id', 'alt_id']:
+        elif k in ('id', 'alt_id'):
             return [(k, v.upper().replace("DOID:", ""))]
         elif v.count("\"") == 2 and v.count("[") == 1 and v.count("]") == 1:
             # Split the true quote and the 'flags' (e.g., 'EXACT').
@@ -114,15 +149,18 @@ class DiseaseOntInterface(object):
     
     def _parsed_term_to_dict(self, parsed_term):
         """
+
+        Parses an individual "[Term]" in the database and recasts it as a dictionary.
     
-        :param parsed_term:
-        :return:
-        :rtype:
+        :param parsed_term: a list of the form [[KEY, VALUE]...] as described
+        :type parsed_term: ``list``
+        :return: ``parsed_term`` converted into a dictionary where the information as well as a list of the keys 
+                (future column names) which contain lists.
+        :rtype: ``tuple``
         """
         d = dict()
         keys_with_lists = set()
         for (k, v) in parsed_term:
-            # Split values by the presence of quotes.
             parsed = self._value_parser(k, v=cln(v))
             for (kp, vp) in parsed:
                 if kp not in d:
@@ -152,14 +190,20 @@ class DiseaseOntInterface(object):
     
     def _do_term_parser(self, term):
         """
-    
-        :param term:
-        :type term:
-        :return:
-        :rtype:
+        
+        This method splits a "[Term]" on line breaks ("\n"), the resultant list
+        is then converted to a list of lists (where the sublists are invariably of length `2`),
+        by splitting the elements into keys and values, e.g., ``['id', '000000']``.
+        This list of lists is passed to ``DiseaseOntInterface()._parsed_term_to_dict()`` where it
+        is converted into a dictionary.
+        
+        :param term: a single "[Term]" from the Disease Ontology Database.
+        :type term: ``str``
+        :return: a term which as been parsed by ``DiseaseOntInterface()._parsed_term_to_dict()``.
+        :rtype: ``dict``
         """
         # Split the term on line breaks
-        split_term = list(filter(None, cln(term).split("\n")))
+        split_term = filter(None, cln(term).split("\n"))
     
         # Split each element in `term` on the ": " pattern.
         parsed_term = [i.split(": ", 1) for i in split_term]
@@ -169,23 +213,33 @@ class DiseaseOntInterface(object):
     
     def _do_df_cleaner(self, data_frame, columns_with_lists):
         """
+
+        This method cleans the final Disease Ontology database in the following ways:
+
+            - converts columns which contains lists to strings.
+            
+            - lowers all strings in the following columns: 'name', 'synonym', 'subset' and 'is_a'.
+            
+            - converts the 'true' string in the 'is_obsolete' column to an actual python boolean ``True``.
     
-        :param data_frame:
-        :param columns_with_lists:
-        :return:
-        :rtype:
+        :param data_frame: the dataframe evolved in the ``DiseaseOntInterface()._harvest()`` method.
+        :type data_frame: ``Pandas DataFrame``
+        :param columns_with_lists: a 'list' of columns in the dataframe which contain lists.
+        :type columns_with_lists: ``iterable``
+        :return: a dataframe with the above mentioned cleaning steps taken.
+        :rtype: ``Pandas DataFrame``
         """
         # Homogenize columns with lists
         for c in columns_with_lists:
             data_frame[c] = data_frame[c].map(lambda x: "; ".join(x) if isinstance(x, list) else x, na_action='ignore')
     
         # Lower columns to make it easier to match in the future
-        for c in ['name', 'synonym', 'subset', 'is_a']:
-            data_frame[c] = data_frame[c].map(lambda x: x.lower(), na_action='ignore')
+        for c in ('name', 'synonym', 'subset', 'is_a'):
+            data_frame[c] = data_frame[c].map(lambda x: str(x).lower(), na_action='ignore')
     
-        # Fix 'is_obsolete'
+        # Convert 'true' in the 'is_obsolete' column to an actual python boolean ``True``.
         data_frame['is_obsolete'] = data_frame['is_obsolete'].map(
-            lambda x: True if not items_null(x) and x.lower().strip() == 'true' else x, na_action='ignore'
+            lambda x: True if not items_null(x) and str(x).lower().strip() == 'true' else x, na_action='ignore'
         )
     
         return data_frame
@@ -193,9 +247,10 @@ class DiseaseOntInterface(object):
     def _extract_date_version(self, first_parsed_by_term):
         """
 
-        :param first_parsed_by_term:
-        :return:
-        :rtype:
+        Extracts the date the Disease Ontology data was created.
+
+        :param first_parsed_by_term: the first element in the list obtained by splitting the database on '[Term]'.
+        :type first_parsed_by_term: ``str``
         """
         try:
             extracted_date = re.search('data-version: (.*)\n', first_parsed_by_term).group(1)
@@ -206,7 +261,10 @@ class DiseaseOntInterface(object):
 
     def _harvest(self, disease_ontology_db_url):
         """
-    
+
+        This method Harvests and orchestrates and conversion of the Disease Ontology Database
+        from '.obo' format to a Pandas DataFrame.
+
         :param disease_ontology_db_url: see: ``DiseaseOntInterface().pull()``.
         :type disease_ontology_db_url: ``str``
         """
@@ -225,7 +283,7 @@ class DiseaseOntInterface(object):
         # Extract the dicts
         list_of_dicts = [i[0] for i in fully_parsed_terms]
     
-        # Extract keys (future columns) which contain lists
+        # Extract keys (future column names) which contain lists
         keys_with_lists = filter(None, (i[1] for i in fully_parsed_terms))
     
         # Compress `keys_with_lists` to uniques.
@@ -239,8 +297,12 @@ class DiseaseOntInterface(object):
 
         Pull (i.e., download) the Disease Ontology Database.
 
-        Note: if a database is already cached, it will be used instead of downloading
-        (the `download_override` argument can be used override this behaviour).
+        Notes:
+
+        - if a database is already cached, it will be used instead of downloading
+         (the `download_override` argument can be used override this behaviour).
+
+        - multiple values are separated by semicolons followed by a space, i.e., "; ".
 
         :param download_override: If True, override any existing database currently cached and download a new one.
                                   Defaults to False.
@@ -266,29 +328,6 @@ class DiseaseOntInterface(object):
             self.disease_db = pd.read_csv(db_path)
 
         return self.disease_db
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
