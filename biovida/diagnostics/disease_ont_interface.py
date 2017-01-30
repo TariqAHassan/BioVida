@@ -86,7 +86,7 @@ class DiseaseOntInterface(object):
     def _is_a_parser(self, is_a):
         """
 
-        Seperates the DOID from the text of the entry in a 'is_a' entry.
+        Seperates the DOID from the text of the entry in an 'is_a' entry.
 
         :param is_a: a value corresponding to a term entry 'is_a' in the Disease Ontology database
         :type is_a: ``str``
@@ -123,7 +123,7 @@ class DiseaseOntInterface(object):
 
             - "information within quotes in v" = 'the quick brown fox'.
 
-            - "list information in v" = ['the', 'quick', 'brown', 'fox']  (true python list, not just a string).
+            - "list information in v": "[info1, info2, info3]" (string) --> ['info1', 'info2', 'info3']  (python list).
 
         :rtype: ``list``
         """
@@ -216,11 +216,11 @@ class DiseaseOntInterface(object):
 
         This method cleans the final Disease Ontology database in the following ways:
 
-            - converts columns which contains lists to strings.
-            
-            - lowers all strings in the following columns: 'name', 'synonym', 'subset' and 'is_a'.
-            
-            - converts the 'true' string in the 'is_obsolete' column to an actual python boolean ``True``.
+        - converts columns which contains lists to strings.
+
+        - lowers all strings in the following columns: 'name', 'synonym', 'subset' and 'is_a'.
+
+        - converts the 'true' string in the 'is_obsolete' column to an actual python boolean ``True``.
     
         :param data_frame: the dataframe evolved in the ``DiseaseOntInterface()._harvest()`` method.
         :type data_frame: ``Pandas DataFrame``
@@ -299,8 +299,7 @@ class DiseaseOntInterface(object):
 
         Notes:
 
-        - if a database is already cached, it will be used instead of downloading
-         (the `download_override` argument can be used override this behaviour).
+        - if a database is already cached, it will be used instead of downloading (use ``download_override`` to override).
 
         - multiple values are separated by semicolons followed by a space, i.e., "; ".
 
@@ -328,6 +327,7 @@ class DiseaseOntInterface(object):
             self.disease_db = pd.read_csv(db_path)
 
         return self.disease_db
+
 
 
 
