@@ -5,11 +5,10 @@
 -----------------
 
 BioVida is a library designed to automate both the harvesting and 
-post-processing of biomedical data. The novel datasets it produces
-are intended to need little, if any, cleaning by the user.
-Part of this automation is powered by convolutional neural networks
-which operate seamlessly *behind the scenes*, helping to automagically
-clean the data.
+post-processing of biomedical data. This automation is accomplished
+with a combination of traditional software engineering approaches
+and the latest machine learning techniques, namely convolutional
+neural networks.
 
 To view this project's website, please [click here].
 
@@ -155,7 +154,12 @@ Genomics
 Diagnostics
 
    - [DiseaseOntology]
+   
+------------------------------------------------------------------------
+   
+###Future Sources:
 
+   - [CancerImagingArchive]
 
 [click here]: https://tariqahassan.github.io/BioVida/index.html
 [pandas]: http://pandas.pydata.org
@@ -172,3 +176,4 @@ Diagnostics
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
 [DiseaseOntology]: http://disease-ontology.org
+[CancerImagingArchive]: https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide+-+v1
