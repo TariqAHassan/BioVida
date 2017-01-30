@@ -13,12 +13,13 @@
 import os
 import pickle
 from tqdm import tqdm
+from warnings import warn
 from biovida.images.image_tools import load_and_scale_imgs
 
 from keras import callbacks
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential, load_model, model_from_json
-from keras.layers import Convolution2D, MaxPooling2D
+from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.optimizers import RMSprop
 
@@ -148,30 +149,93 @@ class ImageRecognitionCNN(object):
 
         self.data_classes = train_classes
 
-    def convnet(self, loss='binary_crossentropy', optimizer='default', metrics=('accuracy',)):
+    def _impose_vgg_img_reqs(self):
         """
 
-        Define and Compile the Image Recognition Convolutional Neural Network.
+        Imposes the (224x224) image size requirement.
 
-
-        :param loss: Loss function. Defaults to 'categorical_crossentropy'.
-                     See: ``keras.models.Sequential()``.
-        :type loss: ``str``
-        :param optimizer: Optimizer name. Defaults to 'default', which will use RMSprop with learning rate = ``0.0001``.
-                          See: ``keras.models.Sequential()``.
-        :type optimizer: ``str``
-        :param metrics: Metrics to evaluate. Defaults to ('accuracy',).
-                        Note: if round braces are used, it MUST contain a comma (to make it a tuple).
-                        See: ``keras.models.Sequential()``.
-        :type metrics: ``tuple``
         """
-        if self._data_path is not None:
-            self._data_stream()
+        if self.img_shape[0] != 224:
+            warn("{0} is an invalid image height for vgg_19; falling back 224.".format(self.img_shape[0]))
+            self.img_shape[0] = 224
+        if self.img_shape[1] != 224:
+            warn("{0} is an invalid image width for vgg_19; falling back to 224.".format(self.img_shape[1]))
+            self.img_shape[1] == 224
 
-        # Get the number of classes
-        nb_classes = len(self.data_classes.keys())
+    def _vgg_19(self, nb_classes):
+        """
 
-        # Define the Model
+        Keras Implimentation of the VGG_19 Model
+
+        SOURCES:
+        -------
+
+        1. Model Authors:
+           Very Deep Convolutional Networks for Large-Scale Image Recognition
+           K. Simonyan, A. Zisserman
+           arXiv:1409.1556
+        2. Keras Implimentation: https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py
+
+        :param nb_classes: number of neuron in the output layer (which equals the number of classes).
+        :type nb_classes: ``int``
+        """
+        self.model = Sequential()
+
+        self.model.add(ZeroPadding2D((1, 1), input_shape=(3, 224, 224)))
+        self.model.add(Convolution2D(64, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(64, 3, 3, activation='relu'))
+        self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(128, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(128, 3, 3, activation='relu'))
+        self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(256, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(256, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(256, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(256, 3, 3, activation='relu'))
+        self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(ZeroPadding2D((1, 1)))
+        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+        self.model.add(Flatten())
+        self.model.add(Dense(4096, activation='relu'))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(4096, activation='relu'))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(nb_classes, activation='sigmoid'))
+
+    def _default_model(self, nb_classes):
+        """
+
+        :param nb_classes: number of neuron in the output layer (which equals the number of classes).
+        :type nb_classes: ``int``
+        """
         self.model = Sequential()
         self.model.add(Convolution2D(32, 3, 3
                                      , input_shape=(3, self.img_shape[0], self.img_shape[1])
@@ -186,6 +250,48 @@ class ImageRecognitionCNN(object):
         self.model.add(Dropout(0.5))
         self.model.add(Dense(nb_classes))
         self.model.add(Activation('sigmoid'))
+
+    def convnet(self, model_to_use='default', loss='binary_crossentropy', optimizer='default', metrics=('accuracy',)):
+        """
+
+        Define and Compile the Image Recognition Convolutional Neural Network.
+
+        :param model_to_use: one of:
+
+        - 'default': a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling);
+                     one hidden layer and 0.5 drop out. Activation on output layer: 'sigmoid'.
+        - 'vgg19': the VGG 19 model. Activation on output layer: 'sigmoid'.
+
+        Defaults to 'default'.
+
+        :type model_to_use: ``str``
+        :param loss: Loss function. Defaults to 'categorical_crossentropy'.
+                     See: ``keras.models.Sequential()``.
+        :type loss: ``str``
+        :param optimizer: Optimizer name. Defaults to 'default', which will use RMSprop with learning rate = ``0.0001``.
+                          See: ``keras.models.Sequential()``.
+        :type optimizer: ``str`` or ``keras.optimizers``
+        :param metrics: Metrics to evaluate. Defaults to ('accuracy',).
+                        Note: if round braces are used, it MUST contain a comma (to make it a tuple).
+                        See: ``keras.models.Sequential()``.
+        :type metrics: ``tuple``
+        """
+        if model_to_use == 'vgg19':
+            self._impose_vgg_img_reqs()
+
+        if self._data_path is not None:
+            self._data_stream()
+
+        # Get the number of classes
+        nb_classes = len(self.data_classes.keys())
+
+        # Define the Model
+        if model_to_use == 'default':
+            self._default_model(nb_classes)
+        elif model_to_use == 'vgg19':
+            self._vgg_19(nb_classes)
+        else:
+            raise ValueError("'{0}' is an invalid value for `model_to_use`.".format(model_to_use))
 
         # Define optimizer
         if optimizer == 'default':
