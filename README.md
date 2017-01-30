@@ -46,8 +46,8 @@ from biovida.images.openi_interface import OpenInterface
 # 2. Create an Instance of the Tool
 opi = OpenInterface()
  
-# 3. Perform a search
-opi.search("aneurysm", image_type=['mri', 'ct'])  # Results Found: 3,973.
+# 3. Perform a general search for MRIs and CTs
+opi.search(query=None, image_type=['mri', 'ct'])  # Results Found: 134,113.
 
 # 4. Pull the data
 search_df = opi.pull()
