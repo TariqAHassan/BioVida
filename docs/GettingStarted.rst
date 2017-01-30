@@ -1,16 +1,15 @@
 Getting Started
 ---------------
 
-This library is primarily intended to collect, integrate and automatically clean biomedical data stored in
-public online databases. This makes it is a nascent effort in using software in conjunction with machine learning
-to automatically construct novel datasets. It is hoped that this will catalyze new insights and understanding by
+This library is primarily intended to automate the collection, integration and post-processing of biomedical data stored
+in public online databases. This problem is tackled with a combination of traditional software engineering approaches
+in conjunction with machine learning. It is hoped that this effort will catalyze new insights and understanding by
 transforming large repositories of messy data into clean datasets easily amenable to data analysis.
 
-BioVida aims to curate a broad range of biomedical information. In areas such as diagnostic and genomic data, this
-involves drawing on the work of others, such as the impressive work by the DisGeNET team. In the case of image data
-however, BioVida performs the 'heavy lifting' of preparing data from online sources, such as the National Institutes of
-Health's Open-i image database. Some of this work is automated using recent advances from the world of machine learning,
-such as convolutional neural networks.
+BioVida aims to curate a broad range of biomedical information. In areas such as diagnostics and genomics, this
+involves drawing on the work of others, such as the impressive work by the Disease Ontology and DisGeNET teams.
+In the case of image data however, BioVida itself performs the 'heavy lifting' of preparing raw data from online sources.
+Much of this automation is made possible by recent advances in machine learning, namely convolutional neural networks.
 
 The guide below provides a brief introduction to getting started with BioVida.
 
@@ -42,9 +41,9 @@ BioVida requires: `pandas <http://pandas.pydata.org>`__,
 
 All of these dependencies should be installed automatically when installing BioVida.
 
-**Note**: Keras is used to power the Convolutional Neural Networks used in this project, meaning
-either `TensorFlow <https://www.tensorflow.org>`__ or
-`Theano <http://deeplearning.net/software/theano/>`__ can be used as a computational backend when using BioVida.
+**Note**: Keras is used to power the convolutional neural networks in this project. This has the advantage of
+allowing either `TensorFlow <https://www.tensorflow.org>`__ or
+`Theano <http://deeplearning.net/software/theano/>`__ to be used as a computational backend.
 If neither is present at install time, BioVida will automatically install TensorFlow for you.
 
 --------------
@@ -66,8 +65,8 @@ Perform a Search
 
 .. code:: python
 
-    opi.search("aneurysm", image_type=['mri', 'ct'])
-    # Results Found: 3,973.
+    # Perform a general search for MRIs and CTs
+    opi.search(query=None, image_type=['mri', 'ct'])  # Results Found: 134,113.
 
 The values accepted by the ``image_type`` argument above can easily be
 reviewed:
@@ -81,10 +80,10 @@ Additionally, searches can easily be reviewed:
 .. code:: python
 
     opi.current_search
-    # {'image_type': ['mri', 'ct', 'exclude_graphics'], 'query': 'aneurysm'}
+    # {'image_type': ['mri', 'ct', 'exclude_graphics'], 'query': ''}
 
     opi.current_search_total
-    # 3973
+    # 134113
 
 Pull the data
 ^^^^^^^^^^^^^
@@ -142,7 +141,7 @@ Save the Cleaned Images
 That's it.
 
 
-While the `ImageProcessing` classes allows you to
+While the ``ImageProcessing()`` classes allows you to
 to control the image processing more precisely if you
 wish (see the documentation `here <https://tariqahassan.github.io/BioVida/API.html#image-processing>`__), this
 fully automated approach should suffice in most cases.
@@ -250,10 +249,10 @@ the approach shown above (with ``ddf``) or as follows:
 
 .. code:: python
 
-    doi.disease_db()
+    doi.disease_db
 
 It is also possible to inspect the date on which
-the database was created by *DiseaseOntology.org*:
+the database was created by *DiseaseOntology.org:*
 
 .. code:: python
 
