@@ -27,6 +27,9 @@ from keras.optimizers import RMSprop
 # Solution: replace "tf" with "th" in ~/.keras/keras.json.
 # Note: `MaxPooling2D` has a `dim_ordering` param which can do the same thing.
 
+# ToDo: it's not currently obvious if keras.preprocessing.ImageDataGenerator().flow_from_directory()
+# performs the preprocessing described in https://arxiv.org/pdf/1409.1556.pdf
+
 
 class ImageRecognitionCNN(object):
     """
@@ -37,7 +40,7 @@ class ImageRecognitionCNN(object):
                       This directory *must* have this structure. Defaults to ``None`` (to be use when loading
                       pre-computed weights).
     :type data_path: ``str``
-    :param img_shape: the (width, height) to rescale the images to. Elements must be ``ints``. Defaults to ``(150, 150)``.
+    :param img_shape: the (height, width) to rescale the images to. Elements must be ``ints``. Defaults to ``(150, 150)``.
     :type img_shape: ``tuple`` or ``list``.
     :param rescale: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to 1/255.
     :type rescale: ``float``
@@ -152,15 +155,15 @@ class ImageRecognitionCNN(object):
     def _impose_vgg_img_reqs(self):
         """
 
-        Imposes the (224x224) image size requirement.
+        This method imposes the 224x224 image size requirement made by VGG 19.
 
         """
         if self.img_shape[0] != 224:
-            warn("{0} is an invalid image height for vgg_19; falling back 224.".format(self.img_shape[0]))
+            warn("{0} is an invalid image height for vgg_19. Falling back 224.".format(self.img_shape[0]))
             self.img_shape[0] = 224
         if self.img_shape[1] != 224:
-            warn("{0} is an invalid image width for vgg_19; falling back to 224.".format(self.img_shape[1]))
-            self.img_shape[1] == 224
+            warn("{0} is an invalid image width for vgg_19. Falling back to 224.".format(self.img_shape[1]))
+            self.img_shape[1] = 224
 
     def _vgg_19(self, nb_classes):
         """
@@ -256,7 +259,7 @@ class ImageRecognitionCNN(object):
 
         Define and Compile the Image Recognition Convolutional Neural Network.
 
-        :param model_to_use: one of:
+        :param model_to_use: one of: 'default', 'vgg19'.
 
         - 'default': a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling);
                      one hidden layer and 0.5 drop out. Activation on output layer: 'sigmoid'.
