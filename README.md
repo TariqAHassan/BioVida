@@ -26,7 +26,7 @@ $ pip install git+git://github.com/TariqAHassan/BioVida@master
 
 ###Dependencies
 
-BioVida requires: [pandas], [numpy], [requests], [tqdm], [pillow], [scipy], [scikit-image] and [keras].
+BioVida requires: [pandas], [numpy], [requests], [tqdm], [pillow], [h5py], [scipy], [scikit-image] and [keras].
 
 ------------------------------------------------------------------------
 
@@ -163,6 +163,7 @@ Diagnostics
 [requests]: http://docs.python-requests.org/en/master/
 [tqdm]: https://github.com/tqdm/tqdm
 [pillow]: https://github.com/python-pillow/Pillow
+[h5py]: http://www.h5py.org
 [scipy]: https://www.scipy.org
 [scikit-image]: http://scikit-image.org
 [keras]: https://keras.io
