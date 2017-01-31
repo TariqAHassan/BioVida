@@ -3,6 +3,7 @@
 </div>
 
 -----------------
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/TariqAHassan/BioVida/blob/master/LICENSE.md)
 
 BioVida is a library designed to automate both the harvesting and 
 post-processing of biomedical data. This automation is accomplished
@@ -11,8 +12,6 @@ and the latest machine learning techniques, namely convolutional
 neural networks.
 
 To view this project's website, please [click here].
-
-------------------------------------------------------------------------
 
 ###Installation
 
