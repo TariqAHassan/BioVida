@@ -4,7 +4,7 @@ Getting Started
 This library is primarily intended to automate the collection, integration and post-processing of biomedical data stored
 in public online databases. This problem is tackled with a combination of traditional software engineering approaches
 in conjunction with machine learning. It is hoped that this effort will catalyze new insights and understanding by
-transforming large repositories of messy data into clean datasets easily amenable to data analysis.
+transforming multiple, distinct data repositories into unified datasets easily amenable to data analysis.
 
 BioVida aims to curate a broad range of biomedical information. In areas such as diagnostics and genomics, this
 involves drawing on the work of others, such as the impressive work by the Disease Ontology and DisGeNET teams.
