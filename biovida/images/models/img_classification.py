@@ -18,10 +18,14 @@ from biovida.images.image_tools import load_and_scale_imgs
 
 from keras import callbacks
 from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential, load_model, model_from_json
+from keras.models import Sequential, load_model, model_from_json, Model
 from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
-from keras.layers import Activation, Dropout, Flatten, Dense
-from keras.optimizers import RMSprop
+from keras.layers import Activation, Dropout, Flatten, Dense, Input, merge
+from keras.optimizers import RMSprop, SGD
+
+# Requires: $ pip3 install git+git://github.com/heuritech/convnets-keras@master
+from convnetskeras.customlayers import convolution2Dgroup, crosschannelnormalization, splittensor, Softmax4D
+
 
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
 # Solution: replace "tf" with "th" in ~/.keras/keras.json.
@@ -66,7 +70,7 @@ class ImageRecognitionCNN(object):
                  , zoom_range=0.30
                  , horizontal_flip=True
                  , vertical_flip=False
-                 , batch_size=4):
+                 , batch_size=1):
         self._data_path = data_path
         self.img_shape = img_shape
         self.rescale = rescale
@@ -158,12 +162,86 @@ class ImageRecognitionCNN(object):
         This method imposes the 224x224 image size requirement made by VGG 19.
 
         """
+        self.img_shape = list(self.img_shape)
         if self.img_shape[0] != 224:
             warn("{0} is an invalid image height for vgg_19. Falling back 224.".format(self.img_shape[0]))
             self.img_shape[0] = 224
         if self.img_shape[1] != 224:
             warn("{0} is an invalid image width for vgg_19. Falling back to 224.".format(self.img_shape[1]))
             self.img_shape[1] = 224
+        self.img_shape = tuple(self.img_shape)
+
+    def _alex_net(self, nb_classes):
+        """
+
+        Sources:
+        -------
+        1. https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf
+
+        2. https://github.com/heuritech/convnets-keras/blob/master/convnetskeras/convnets.py
+
+        Copyright (c) 2016 Heuritech
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+        documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+        the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+        and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in all copies or substantial portions
+        of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+        TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+        THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+        CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+        DEALINGS IN THE SOFTWARE.
+
+        :param nb_classes: number of neuron in the output layer (which equals the number of classes).
+        :type nb_classes: ``int``
+        """
+        inputs = Input(shape=(3, self.img_shape[0], self.img_shape[1]))
+
+        conv_1 = Convolution2D(96, 11, 11,
+                               subsample=(4, 4),
+                               activation='relu',
+                               name='conv_1')(inputs)
+
+        conv_2 = MaxPooling2D((3, 3), strides=(2, 2))(conv_1)
+        conv_2 = crosschannelnormalization(name="convpool_1")(conv_2)
+        conv_2 = ZeroPadding2D((2, 2))(conv_2)
+        conv_2 = merge([
+                           Convolution2D(128, 5, 5, activation="relu", name='conv_2_' + str(i + 1))(
+                               splittensor(ratio_split=2, id_split=i)(conv_2)
+                           ) for i in range(2)], mode='concat', concat_axis=1, name="conv_2")
+
+        conv_3 = MaxPooling2D((3, 3), strides=(2, 2))(conv_2)
+        conv_3 = crosschannelnormalization()(conv_3)
+        conv_3 = ZeroPadding2D((1, 1))(conv_3)
+        conv_3 = Convolution2D(384, 3, 3, activation='relu', name='conv_3')(conv_3)
+
+        conv_4 = ZeroPadding2D((1, 1))(conv_3)
+        conv_4 = merge([
+                           Convolution2D(192, 3, 3, activation="relu", name='conv_4_' + str(i + 1))(
+                               splittensor(ratio_split=2, id_split=i)(conv_4)
+                           ) for i in range(2)], mode='concat', concat_axis=1, name="conv_4")
+
+        conv_5 = ZeroPadding2D((1, 1))(conv_4)
+        conv_5 = merge([
+                           Convolution2D(128, 3, 3, activation="relu", name='conv_5_' + str(i + 1))(
+                               splittensor(ratio_split=2, id_split=i)(conv_5)
+                           ) for i in range(2)], mode='concat', concat_axis=1, name="conv_5")
+
+        dense_1 = MaxPooling2D((3, 3), strides=(2, 2), name="convpool_5")(conv_5)
+
+        dense_1 = Flatten(name="flatten")(dense_1)
+        dense_1 = Dense(4096, activation='relu', name='dense_1')(dense_1)
+        dense_2 = Dropout(0.5)(dense_1)
+        dense_2 = Dense(4096, activation='relu', name='dense_2')(dense_2)
+        dense_3 = Dropout(0.5)(dense_2)
+        dense_3 = Dense(nb_classes, name='dense_3')(dense_3)
+        prediction = Activation("sigmoid", name="sigmoid")(dense_3)
+
+        self.model = Model(input=inputs, output=prediction)
 
     def _vgg_19(self, nb_classes):
         """
@@ -184,7 +262,7 @@ class ImageRecognitionCNN(object):
         """
         self.model = Sequential()
 
-        self.model.add(ZeroPadding2D((1, 1), input_shape=(3, 224, 224)))
+        self.model.add(ZeroPadding2D((1, 1), input_shape=(3, self.img_shape[0], self.img_shape[1])))
         self.model.add(Convolution2D(64, 3, 3, activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
         self.model.add(Convolution2D(64, 3, 3, activation='relu'))
@@ -231,7 +309,7 @@ class ImageRecognitionCNN(object):
         self.model.add(Dropout(0.5))
         self.model.add(Dense(4096, activation='relu'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(nb_classes, activation='sigmoid'))
+        self.model.add(Dense(nb_classes, activation='softmax'))
 
     def _default_model(self, nb_classes):
         """
@@ -259,7 +337,7 @@ class ImageRecognitionCNN(object):
 
         Define and Compile the Image Recognition Convolutional Neural Network.
 
-        :param model_to_use: one of: 'default', 'vgg19'.
+        :param model_to_use: one of: 'default', 'vgg19', 'alex_net'.
 
         - 'default': a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling);
                      one hidden layer and 0.5 drop out. Activation on output layer: 'sigmoid'.
@@ -293,12 +371,16 @@ class ImageRecognitionCNN(object):
             self._default_model(nb_classes)
         elif model_to_use == 'vgg19':
             self._vgg_19(nb_classes)
+        elif model_to_use == 'alex_net':
+            self._alex_net(nb_classes)
         else:
             raise ValueError("'{0}' is an invalid value for `model_to_use`.".format(model_to_use))
 
         # Define optimizer
-        if optimizer == 'default':
+        if optimizer in ('default', 'alex_net'):
             optimizer_to_pass = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=0.0)
+        elif optimizer == 'vgg19':
+            optimizer_to_pass = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
         else:
             optimizer_to_pass = optimizer
 
