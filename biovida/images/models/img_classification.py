@@ -23,9 +23,6 @@ from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.layers import Activation, Dropout, Flatten, Dense, Input, merge
 from keras.optimizers import RMSprop, SGD
 
-# Requires: $ pip3 install git+git://github.com/heuritech/convnets-keras@master
-from convnetskeras.customlayers import convolution2Dgroup, crosschannelnormalization, splittensor, Softmax4D
-
 
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
 # Solution: replace "tf" with "th" in ~/.keras/keras.json.
@@ -199,6 +196,13 @@ class ImageRecognitionCNN(object):
         :param nb_classes: number of neuron in the output layer (which equals the number of classes).
         :type nb_classes: ``int``
         """
+        try:
+            from convnetskeras.customlayers import crosschannelnormalization, splittensor
+        except ImportError:
+            raise ImportError("This method requires the 'convnets-keras' library.\n"
+                              "This library can be installed by running the following command from the command line:\n"
+                              "$ pip install git+git://github.com/heuritech/convnets-keras@master")
+
         inputs = Input(shape=(3, self.img_shape[0], self.img_shape[1]))
 
         conv_1 = Convolution2D(96, 11, 11,
@@ -209,8 +213,7 @@ class ImageRecognitionCNN(object):
         conv_2 = MaxPooling2D((3, 3), strides=(2, 2))(conv_1)
         conv_2 = crosschannelnormalization(name="convpool_1")(conv_2)
         conv_2 = ZeroPadding2D((2, 2))(conv_2)
-        conv_2 = merge([
-                           Convolution2D(128, 5, 5, activation="relu", name='conv_2_' + str(i + 1))(
+        conv_2 = merge([Convolution2D(128, 5, 5, activation="relu", name='conv_2_' + str(i + 1))(
                                splittensor(ratio_split=2, id_split=i)(conv_2)
                            ) for i in range(2)], mode='concat', concat_axis=1, name="conv_2")
 
@@ -226,11 +229,9 @@ class ImageRecognitionCNN(object):
                            ) for i in range(2)], mode='concat', concat_axis=1, name="conv_4")
 
         conv_5 = ZeroPadding2D((1, 1))(conv_4)
-        conv_5 = merge([
-                           Convolution2D(128, 3, 3, activation="relu", name='conv_5_' + str(i + 1))(
+        conv_5 = merge([Convolution2D(128, 3, 3, activation="relu", name='conv_5_' + str(i + 1))(
                                splittensor(ratio_split=2, id_split=i)(conv_5)
                            ) for i in range(2)], mode='concat', concat_axis=1, name="conv_5")
-
         dense_1 = MaxPooling2D((3, 3), strides=(2, 2), name="convpool_5")(conv_5)
 
         dense_1 = Flatten(name="flatten")(dense_1)
