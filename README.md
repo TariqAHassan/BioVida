@@ -13,6 +13,8 @@ neural networks.
 
 To view this project's website, please [click here].
 
+------------------------------------------------------------------------
+
 ###Installation
 
 Latest Build:
