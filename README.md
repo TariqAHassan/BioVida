@@ -3,7 +3,6 @@
 </div>
 
 -----------------
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/TariqAHassan/BioVida/blob/master/LICENSE.md)
 
 BioVida is a library designed to automate both the harvesting and 
 post-processing of biomedical data. This automation is accomplished
