@@ -142,6 +142,26 @@ def cln(i, extent=1, strip=True):
     return to_return.strip() if strip else to_return
 
 
+def n_split(s, n=2, delim='_'):
+    """
+
+    Splits a string into ``n`` groups on a given delimiter.
+
+    Source: http://stackoverflow.com/a/17060409/4898004
+
+    :param s: any string
+    :type s: ``str``
+    :param n: number of groups. Defaults to `2`.
+    :type n: ``int``
+    :param delim: a delimiter. Defaults to '_'.
+    :type delim: ``str``
+    :return: a tuple of with length``n``.
+    :rtype: ``tuple``
+    """
+    groups = s.split(delim)
+    return delim.join(groups[:n]), delim.join(groups[n:])
+
+
 def hashable_cols(data_frame, block_override=[]):
     """
 
@@ -230,6 +250,18 @@ def unique_dics(list_of_dicts):
             list_of_unique_dicts.append(d)
 
     return list_of_unique_dicts
+
+
+def combine_dicts(dict_a, dict_b):
+    """
+
+    :param dict_a:
+    :param dict_b:
+    :return:
+    """
+    new = dict_a.copy()
+    new.update(dict_b)
+    return new
 
 
 def images_in_dir(dir, return_len=False):
