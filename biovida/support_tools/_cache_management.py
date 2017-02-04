@@ -136,7 +136,7 @@ def _directory_creator(cache_path=None, verbose=True):
     return root_path
 
 
-def _package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
+def package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     """
 
     :param sub_dir: e.g., 'images' (do not include "_cache").

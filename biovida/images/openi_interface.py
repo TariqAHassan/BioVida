@@ -35,7 +35,7 @@ from biovida.images._resources.openi_parameters import openi_article_type_params
 from biovida.images.text_processing import feature_extract
 
 # Cache Managment
-from biovida.support_tools._cache_management import _package_cache_creator
+from biovida.support_tools._cache_management import package_cache_creator
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
@@ -485,10 +485,10 @@ class OpenInterface(object):
         self._root_url = 'https://openi.nlm.nih.gov'
 
         # Generate Required Caches
-        pcc = _package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['raw', 'processed'])
+        pcc = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['raw', 'processed'])
         self.root_path, self._created_img_dirs = pcc
 
-        pcc2 = _package_cache_creator(sub_dir='search', cache_path=cache_path, to_create=['search_databases_images'])[1]
+        pcc2 = package_cache_creator(sub_dir='search', cache_path=cache_path, to_create=['search_databases_images'])[1]
         self.search_cache_path = pcc2['search_databases_images']
 
         # Create an instance of the _OpeniRecords() Class

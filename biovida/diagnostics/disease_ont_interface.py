@@ -16,7 +16,7 @@ from datetime import datetime
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
-from biovida.support_tools._cache_management import _package_cache_creator
+from biovida.support_tools._cache_management import package_cache_creator
 
 
 class DiseaseOntInterface(object):
@@ -34,7 +34,7 @@ class DiseaseOntInterface(object):
     def __init__(self, cache_path=None, verbose=True):
         self._verbose = verbose
         # Cache creation
-        pcc = _package_cache_creator(sub_dir='diagnostics', to_create=['disease_ontology'], cache_path=cache_path)
+        pcc = package_cache_creator(sub_dir='diagnostics', to_create=['disease_ontology'], cache_path=cache_path)
         self.root_path, self._created_disease_ont_dirs = pcc
 
         # The database itself

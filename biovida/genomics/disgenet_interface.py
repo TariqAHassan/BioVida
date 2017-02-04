@@ -12,7 +12,7 @@ import pandas as pd
 from pprint import pprint
 
 # Tool to create required caches
-from biovida.support_tools._cache_management import _package_cache_creator
+from biovida.support_tools._cache_management import package_cache_creator
 
 # BioVida Support Tools
 from biovida.support_tools.support_tools import header
@@ -107,7 +107,7 @@ class DisgenetInterface(object):
         self._verbose = verbose
 
         # Cache Creation
-        ppc = _package_cache_creator(sub_dir='genomics', cache_path=cache_path, to_create=['disgenet'])
+        ppc = package_cache_creator(sub_dir='genomics', cache_path=cache_path, to_create=['disgenet'])
         self.root_path, self._created_gene_dirs = ppc
 
         # Check if a readme exists.

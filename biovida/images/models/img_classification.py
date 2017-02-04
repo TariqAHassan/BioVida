@@ -223,8 +223,7 @@ class ImageRecognitionCNN(object):
         conv_3 = Convolution2D(384, 3, 3, activation='relu', name='conv_3')(conv_3)
 
         conv_4 = ZeroPadding2D((1, 1))(conv_3)
-        conv_4 = merge([
-                           Convolution2D(192, 3, 3, activation="relu", name='conv_4_' + str(i + 1))(
+        conv_4 = merge([Convolution2D(192, 3, 3, activation="relu", name='conv_4_' + str(i + 1))(
                                splittensor(ratio_split=2, id_split=i)(conv_4)
                            ) for i in range(2)], mode='concat', concat_axis=1, name="conv_4")
 
@@ -378,7 +377,7 @@ class ImageRecognitionCNN(object):
             raise ValueError("'{0}' is an invalid value for `model_to_use`.".format(model_to_use))
 
         # Define optimizer
-        if optimizer in ('default', 'alex_net'):
+        if optimizer == 'default':
             optimizer_to_pass = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=0.0)
         elif optimizer == 'vgg19':
             optimizer_to_pass = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
