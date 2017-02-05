@@ -243,15 +243,28 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False):
         pd.set_option('display.max_columns', 20)
 
 
-def pandas_pprint(data_frame, col_align='right', header_align='center', full_rows=False, full_cols=False):
+def _pandas_series_print(series):
     """
 
-    Pretty Print a Pandas DataFrame.
+    Fully Print a pandas series.
 
-    :param data_frame: a dataframe.
-    :type data_frame: ``Pandas DataFrame``
+    :param series: a series.
+    :type series: ``Pandas Series``
+    """
+    if len(series) != 0:
+        for i, v in zip(series.index.tolist(), series.tolist()):
+            print("{0}:".format(str(i)), v)
+
+
+def pandas_pprint(data, col_align='right', header_align='center', full_rows=False, full_cols=False):
+    """
+
+    Pretty Print a Pandas DataFrame or Series.
+
+    :param data: a dataframe or series.
+    :type data: ``Pandas DataFrame`` or ``Pandas Series``
     :param col_align: 'left', 'right', 'center' or a dictionary of the form: ``{'column_name': 'alignment'}``,
-                       e.g., {'my_column': 'left', 'my_column2': 'right'}.
+                       e.g., ``{'my_column': 'left', 'my_column2': 'right'}``.
     :type col_align: ``str`` or ``dict``
     :param header_align: alignment of headers. Must be one of: 'left', 'right', 'center'.
     :type header_align: ``str`` or ``dict``
@@ -261,14 +274,15 @@ def pandas_pprint(data_frame, col_align='right', header_align='center', full_row
     :type full_cols: ``bool``
     """
     # Source: https://github.com/TariqAHassan/EasyMoney
-    aligned_df = _align_pandas(data_frame, col_align)
-    pd.set_option('colheader_justify', header_align)
-    _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols)
-    pd.set_option('colheader_justify', 'right')
-
-
-
-
+    if 'DataFrame' in str(type(data)):
+        aligned_df = _align_pandas(data, col_align)
+        pd.set_option('colheader_justify', header_align)
+        _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols)
+        pd.set_option('colheader_justify', 'right')
+    elif 'Series' in str(type(data)):
+        _pandas_series_print(data)
+    else:
+        raise TypeError("Invalid type for `data`.")
 
 
 
