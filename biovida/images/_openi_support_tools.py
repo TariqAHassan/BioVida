@@ -116,10 +116,13 @@ def filter_unnest(l, filter_for=None):
 def num_word_to_int(input_str):
     """
 
-    Replace natural numbers from 1 to 130 with intigers.
+    Replace natural numbers from 1 to 130 with integers.
 
-    :param input_str:
-    :return:
+    :param input_str: any string.
+    :rtype input_str: ``str``
+    :return: ``input_str`` with all numbers from 1-130 in natural language (e.g., 'twenty-five')
+             with the integer equivalent.
+    :rtype: ``str``
     """
     for w, i in age_dict.items():
         for case in [w.upper(), w.lower(), w.title()]: # not perfect, but should do
@@ -130,11 +133,14 @@ def num_word_to_int(input_str):
 def url_path_extract(url):
     """
 
-    :param url:
-    :return:
+    Extracts the path for a given URL.
+
+    :param url: a Uniform Resource Locator (URL).
+    :rtype url: ``str``
+    :return: the path for ``url``.
+    :rtype: ``str``
     """
     return urlsplit(url).path[1:].replace("/", "__")
-
 
 
 

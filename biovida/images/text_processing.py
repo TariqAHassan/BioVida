@@ -10,7 +10,6 @@
 
 # Imports
 import re
-import numpy as np
 from itertools import chain
 
 # Image Support Tools
@@ -26,10 +25,14 @@ from biovida.support_tools.support_tools import cln
 def _mexpix_info_extract(abstract):
     """
 
-    :param abstract:
-    :return:
+    Handles information extraction for MedPix Images
+
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :return: a dictionary with the following keys: 'Diagnosis', 'History', 'Findings'.
+    :rtype: ``dict``
     """
-    features = ['Diagnosis', 'History', 'Findings']
+    features = ('Diagnosis', 'History', 'Findings')
     features_dict = dict.fromkeys(features, None)
     cln_abstract = cln(abstract)
 
@@ -45,8 +48,13 @@ def _mexpix_info_extract(abstract):
 def _patient_sex_extract(image_summary_info):
     """
 
-    :param image_summary_info:
-    :return:
+    Tool to Extract the age of a patient.
+
+    :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
+                               or 'image_mention'.
+    :type image_summary_info: ``str``
+    :return: the sex of the patient.
+    :rtype: ``str`` or ``None``
     """
     counts_dict_f = {t: image_summary_info.lower().count(t) for t in ['female', 'woman', 'girl',' f ']}
     counts_dict_m = {t: image_summary_info.lower().count(t) for t in ['male', 'man', 'boy', ' m ']}
@@ -67,13 +75,18 @@ def _patient_sex_extract(image_summary_info):
 def _patient_sex_guess(history, abstract, image_caption, image_mention):
     """
 
-    Tries to extract the sex of the patient (female or male).
+    Tool to extract the sex of the patient (female or male).
 
-    :param history:
-    :param abstract:
-    :param image_caption:
-    :param image_mention:
-    :return:
+    :param history: the history of the patient.
+    :type history: ``str``
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :param image_mention: an element from the 'image_mention' column.
+    :type image_mention: ``str``
+    :return: the sex of the patent.
+    :rtype: ``str`` or ``None``
     """
     for source in (history, abstract, image_caption, image_mention):
         if isinstance(source, str):
@@ -84,11 +97,17 @@ def _patient_sex_guess(history, abstract, image_caption, image_mention):
         return None
 
 
-def _age_refine(age_list):
+def _age_refine(age_list, upper_age_bound=130):
     """
 
-    :param age_list:
-    :return:
+    Converts ages into floats and ages given in months to years.
+
+    :param age_list: the list of ages evolved inside ``_patient_age_guess()``.
+    :type age_list: ``list``
+    :param upper_age_bound: max. valid age. Defaults to `130`.
+    :type upper_age_bound: ``float`` or ``int``
+    :return: a numeric age.
+    :rtype: ``float`` or ``None``
     """
     to_return = list()
     for a in age_list:
@@ -103,20 +122,34 @@ def _age_refine(age_list):
         except:
             return None
 
+    # Remove Invalid Ages
+    valid_ages = [i for i in to_return if i < upper_age_bound]
+
     # Heuristic: typically the largest value will be the age
-    return max(to_return)
+    if len(valid_ages):
+        return max(to_return)
+    else:
+        return None
 
 
 def _patient_age_guess_abstract_clean(abstract):
     """
 
-    Cleans the abstract for ``_patient_age_guess()``
+    Cleans the abstract for ``_patient_age_guess()``.
+    This includes:
 
-    :param abstract:
-    :return:
+    - removing confusing references to the duration of the illness
+
+    - numeric values from 'one' to 'one hundred and thirty' in natural language.
+
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :return: a cleaned ``abstract``
+    :rtype: ``str``
     """
+    # ToDo: test moving num_word_to_int() to the top of this function; d* won't capture "ten year history", for example.
     # Block: 'x year history'
-    history_block = ["year history", " year history", "-year history"]
+    history_block = ("year history", " year history", "-year history")
     hist_matches = [re.findall(r'\d*\.?\d+' + drop, abstract) for drop in history_block]
 
     # Clean and recompose the string
@@ -132,11 +165,19 @@ def _patient_age_guess_abstract_clean(abstract):
 def _age_marker_match(image_summary_info):
     """
 
-    :param image_summary_info:
-    :return:
+    Extract age from a string based on it being followed by one of:
+
+    " y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year", "month old", " month old", "-month old",
+    "months old", " months old" or "-months old".
+
+    :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
+                               or 'image_mention'.
+    :type image_summary_info: ``str``
+    :return: patient age.
+    :rtype: ``str`` or ``None``
     """
-    age_markers = [" y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year",
-                   "month old", " month old", "-month old", "months old", " months old", "-months old"]
+    age_markers = (" y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year",
+                   "month old", " month old", "-month old", "months old", " months old", "-months old")
 
     # Clean the input text
     cleaned_input = _patient_age_guess_abstract_clean(image_summary_info)
@@ -151,14 +192,22 @@ def _age_marker_match(image_summary_info):
 def _patient_age_guess(history, abstract, image_caption, image_mention):
     """
 
-    :param abstract:
-    :param image_caption:
-    :param image_mention:
-    :param History:
-    :return:
+    Guess the age of the patient.
+
+    :param history: history extract from the abstract of a MedPix image.
+    :type history: ``str``
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :param image_mention: an element from the 'image_mention' column.
+    :type image_mention: ``str``
+    :return: patient age.
+    :rtype: ``float`` or ``None``
     """
+    # ToDo: added `image_mention` to tuple below. Check it does not cause errors.
     # Loop through the inputs, search all of them for age matches
-    for source in (history, abstract, image_caption, image_caption):
+    for source in (history, abstract, image_caption, image_caption, image_mention):
         if isinstance(source, str):
             matches = _age_marker_match(source)
             if isinstance(matches, list) and len(matches):
@@ -170,10 +219,16 @@ def _patient_age_guess(history, abstract, image_caption, image_mention):
 def _imaging_technology_guess(abstract, image_caption, image_mention):
     """
 
-    :param abstract:
-    :param image_caption:
-    :param image_mention:
-    :return:
+    Guess the imaging technology (modality) used to take the picture.
+
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :param image_mention: an element from the 'image_mention' column.
+    :type image_mention: ``str``
+    :return: imaging modality.
+    :rtype: ``str`` or ``None``
     """
     # {abbreviated name, [alternative names]}
     terms_dict = {"ct": ['computed topography'],
@@ -195,8 +250,13 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
 def _illness_duration_guess_engine(image_summary_info):
     """
 
-    :param image_summary_info:
-    :return:
+    Engine to search through the possible ways illness duration information could be represented.
+
+    :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
+                                or 'image_mention'.
+    :type image_summary_info: ``str``
+    :return: the best guess for the length of the illness.
+    :rtype: ``float`` or ``None``.
     """
     cleaned_source = cln(image_summary_info.replace("-", " "), extent=1)
 
@@ -224,11 +284,18 @@ def _illness_duration_guess_engine(image_summary_info):
 def _illness_duration_guess(history, abstract, image_caption, image_mention):
     """
 
-    :param history:
-    :param abstract:
-    :param image_caption:
-    :param image_mention:
+    Guess the duration of an illness.
+
+    :param history: history extract from the abstract of a MedPix image.
+    :type history: ``str``
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :param image_mention: an element from the 'image_mention' column.
+    :type image_mention: ``str``
     :return:
+    :rtype: ``float`` or ``None``
     """
     for source in (history, abstract, image_caption, image_mention):
         if isinstance(source, str):
@@ -242,15 +309,18 @@ def _illness_duration_guess(history, abstract, image_caption, image_mention):
 def _ethnicity_guess_engine(image_summary_info):
     """
 
-    :param image_summary_info:
-    :return:
+    Engine to power ``_ethnicity_guess()``.
+
+    :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption' or 'image_mention'.
+    :type image_summary_info: ``str``
+    :return: tuple of the form ('ethnicity', 'sex'), ('ethnicity', None) or (None, None).
+    :type: ``tuple``
     """
     # Init
     e_matches, s_matches = set(), set()
 
     # Clean the input
     image_summary_info_cln = cln(image_summary_info)
-    image_summary_info_cln_lwr = image_summary_info_cln.lower()
 
     # Define long form of references to ethnicity
     long_form_ethnicities = [('caucasian', 'white'),
@@ -286,11 +356,18 @@ def _ethnicity_guess_engine(image_summary_info):
 def _ethnicity_guess(history, abstract, image_caption, image_mention):
     """
 
-    :param history:
-    :param abstract:
-    :param image_caption:
-    :param image_mention:
-    :return:
+    Guess the ethnicity of the patient.
+
+    :param history: history extract from the abstract of a MedPix image.
+    :type history: ``str``
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :param image_mention: an element from the 'image_mention' column.
+    :type image_mention: ``str``
+    :return: tuple of the form ('ethnicity', 'sex'), ('ethnicity', None) or (None, None).
+    :rtype: ``tuple``
     """
     matches = list()
     for source in (history, abstract, image_caption, image_mention):
@@ -337,6 +414,11 @@ def feature_extract(x):
     if 'medpix' in x['journal_title'].lower():
         d = _mexpix_info_extract(x['abstract'])
 
+    # ToDo: Refactor with a for loop to reduce redundancy. Test this:
+    # pairs = [('age', _patient_age_guess), ('sex', '_patient_sex_guess'), ('illness_duration', _illness_duration_guess)]
+    # for (k, func) in pairs:
+    #     d[k] = func(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
+
     # Guess Age
     d['age'] = _patient_age_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
 
@@ -359,13 +441,6 @@ def feature_extract(x):
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
-
-
-
-
-
-
-
 
 
 
