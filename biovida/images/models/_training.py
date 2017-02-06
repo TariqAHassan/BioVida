@@ -13,23 +13,6 @@
     K.set_image_dim_ordering('th') --> TO --> K.set_image_dim_ordering('tf')
 
 """
-import os
-import sys
-
-# Get path to the BioVida library
-biovida_path = input("Please enter the full path to BioVida: ")
-if not os.path.isdir(biovida_path):
-    raise NotADirectoryError("'{0}' is an invalid path.".format(biovida_path))
-sys.path.append(biovida_path)
-
-# Get path to the training data
-try:
-    from biovida.images.models._training_data_path import training_data_path
-except:
-    training_data_path = input("Please enter the full path to the training data: ")
-    if not os.path.isdir(biovida_path):
-        raise NotADirectoryError("'{0}' is an invalid path.".format(training_data_path))
-
 # General Imports
 import numpy as np
 import scipy.misc
@@ -58,7 +41,7 @@ def _image_rcognition_cnn_training(nb_epoch, training_data_path, save_name):
     :type save_name: ``str``
     """
     ircnn = ImageRecognitionCNN(training_data_path)
-    ircnn.convnet(model_to_use='vgg19')
+    ircnn.convnet(model_to_use='alex_net')
 
     ircnn.fit(nb_epoch=nb_epoch)
     ircnn.save(save_name)
@@ -67,8 +50,6 @@ def _image_rcognition_cnn_training(nb_epoch, training_data_path, save_name):
 save_name = input("Please enter the name of the file: ")
 iters = int(input("Please enter the number of iterations: "))
 _image_rcognition_cnn_training(iters, training_data_path, save_name)
-
-
 
 
 
