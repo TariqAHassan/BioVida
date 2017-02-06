@@ -3,7 +3,6 @@
     Open-i Interface
     ~~~~~~~~~~~~~~~~
 
-
 """
 # Imports
 import re

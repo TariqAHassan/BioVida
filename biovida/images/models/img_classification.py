@@ -339,8 +339,11 @@ class ImageRecognitionCNN(object):
 
         :param model_to_use: one of: 'default', 'vgg19', 'alex_net'.
 
+        - 'alex_net': the 2012 'AlexNet' model. Activation on output layer: 'sigmoid'.
+
         - 'default': a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling);
                      one hidden layer and 0.5 drop out. Activation on output layer: 'sigmoid'.
+
         - 'vgg19': the VGG 19 model. Activation on output layer: 'sigmoid'.
 
         Defaults to 'default'.

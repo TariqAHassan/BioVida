@@ -3,7 +3,6 @@
     DisGeNET Interface
     ~~~~~~~~~~~~~~~~~~
 
-
 """
 # Imports
 import os
@@ -174,8 +173,8 @@ class DisgenetInterface(object):
         :param database: A database to download. Must be one of: 'all', 'curated', 'snp_disgenet' or ``None``.
                          See ``options()`` for more information.
         :type database: ``str``
-        :param download_override: If True, override any existing database currently cached and download a new one.
-                                  Defaults to False.
+        :param download_override: If ``True``, override any existing database currently cached and download a new one.
+                                  Defaults to ``False``.
         :type download_override: ``bool``
         :param snake_case_col_names: if True, convert column names to 'snake case' (e.g., 'this_is_snake_case').
                                      Defaults to False (which will leave the column names in `camelCase`).

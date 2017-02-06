@@ -139,12 +139,22 @@ def _directory_creator(cache_path=None, verbose=True):
 def package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     """
 
+    Create a cache for a given ``sub_dir``. If no biovida path exists in ``cache_path``,
+    all of the following caches will be created: 'search', 'images', 'genomics' and 'diagnostics'.
+
     :param sub_dir: e.g., 'images' (do not include "_cache").
                     Must be one of: 'search', 'images', 'genomics', 'diagnostics'.
-    :param to_create:
-    :param cache_path:
-    :param verbose:
-    :return:
+    :type sub_dir: ``str``
+    :param to_create: subdirectories within ``sub_dir`` to be created.
+    :type to_create: ``iterable``
+    :param cache_path: local path to the desired location of the cache.
+                       If ``None``, will default to the the home directory. Defaults to ``None``.
+    :type cache_path: ``str`` or ``None``
+    :param verbose: If True, print updates. Defaults to True.
+    :type verbose: ``bool``
+    :return: tuple of the form ``(local path to `sub_dir`, `record_dict`)``,
+             where ``record_dict`` is of the form ``{to_create[0]: 'PATH_1', to_create[1]: 'PATH_2', ...}``
+    :rtype: ``tuple``
     """
     # Check `sub_dir` is an allowed type
     allowed_sub_dirs = ['search', 'images', 'genomics', 'diagnostics']
@@ -180,10 +190,6 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
 
     # Return full path & the above mapping
     return sub_dir_full_path, record_dict
-
-
-
-
 
 
 
