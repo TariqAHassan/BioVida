@@ -123,7 +123,7 @@ def _age_refine(age_list, upper_age_bound=130):
             return None
 
     # Remove Invalid Ages
-    valid_ages = [i for i in to_return if i < upper_age_bound]
+    valid_ages = [i for i in to_return if i <= upper_age_bound]
 
     # Heuristic: typically the largest value will be the age
     if len(valid_ages):
