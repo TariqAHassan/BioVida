@@ -4,15 +4,21 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
+import os
 import re
 import requests
 import pandas as pd
 from itertools import chain
 
+# General Support Tools
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import n_split
 from biovida.support_tools.support_tools import combine_dicts
 from biovida.support_tools.support_tools import camel_to_snake_case
+
+# Cache Management
+from biovida.support_tools._cache_management import package_cache_creator
 
 
 def _roll_strs_forward(l):
@@ -128,8 +134,7 @@ def _trcia_api_table_from_html(table_loc):
     return api_df
 
 
-def reference_table(table_loc='https://wiki.cancerimagingarchive.net/display/Public/'
-                             'TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide'):
+def _reference_table(table_loc):
     """
 
     Extract and Parse the API Reference Table from the Cancer Image Archive Usage Guide Wiki.
@@ -161,42 +166,77 @@ def reference_table(table_loc='https://wiki.cancerimagingarchive.net/display/Pub
     return api_df
 
 
-def reference_table_as_dict(table=None):
+def _reference_table_as_dict(api_df):
     """
 
     Return a nested dict of the Cancer Image Archive API Reference table.
 
-    :param table: Cancer Image Archive API Reference table. If ``None``, the table will be extracted from the web
-                  directly. Defaults to ``None``.
-    :type table: ``Pandas DataFrame`` or None.
+    :param api_df: Cancer Image Archive API Reference table (dataframe)
+    :type api_df: ``Pandas DataFrame``
     :return: dictionary of the form:
 
-            ``{'resource': {'query_endpoint': {'query_parameters': ..., 'format': ..., 'description': ...}, ..., ...}``
+            ``{'query_endpoint': {'resource', ...'query_parameters': ..., 'format': ..., 'description': ...}, ...}``
 
     :rtype: ``dict``
     """
-    # Use `table` if it is a DataFrame, otherwise download the table from the web.
-    api_df = table if 'DataFrame' in str(type(table)) else reference_table()
-
     nested_dict = dict()
     for (r, qe, qp, f, d) in zip(*[api_df[c].tolist() for c in api_df.columns]):
-        row_data = {qe: {"query_parameters": qp, "format": f, "description": d}}
+        row_data = {"resource": r, "query_parameters": qp, "format": f, "description": d}
         if r not in nested_dict:
-            nested_dict[r] = row_data
+            nested_dict[qe] = row_data
         else:
-            nested_dict[r] = combine_dicts(nested_dict[r], row_data)
+            nested_dict[qe] = combine_dicts(nested_dict[qe], row_data)
 
     return nested_dict
 
 
+def cancer_img_api_ref(rtype='dataframe',
+                       cache_path=None,
+                       download_override=False,
+                       verbose=False,
+                       table_loc='https://wiki.cancerimagingarchive.net/display/Public/'
+                                 'TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide'):
+    """
 
+    Extracts the API reference for The Cancer Imaging Archive.
 
+    :param rtype: 'dataframe' for a Pandas DataFrame or 'dict' for a nested dict of the form:
 
+            ``{'query_endpoint': {'resource', ..., 'query_parameters': ..., 'format': ..., 'description': ...}, ...}``
 
+    :param rtype: ``str``
+    :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
+                        one will created. Default to ``None``, which will generate a cache in the home folder.
+    :type cache_path: ``str`` or ``None``
+    :param download_override: If ``True``, override any existing database currently cached and download a new one.
+                              Defaults to ``False``.
+    :type download_override: ``bool``
+    :param verbose: if ``True`` print additional information. Defaults to ``False``.
+    :type verbose: ``bool``
+    :param table_loc: URL to the TCIA API Usage Guide.
+    :type table_loc: ``str``
+    :return:  Cancer Imaging Archive API reference.
+    :rtype: ``dict`` or ``Pandas DataFrame``
+    """
+    if rtype not in ['dataframe', 'dict']:
+        raise ValueError("`rtype` must be either 'dataframe' or 'dict'.")
 
+    # Define a location to save the data
+    _, created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['aux'])
 
+    # Define the path to save the data
+    save_path = os.path.join(created_img_dirs['aux'], 'tcia_api_reference.p')
 
+    if not os.path.isfile(save_path) or download_override:
+        if verbose:
+            header("Downloading API Reference Table... ", flank=False)
+        api_reference = _reference_table(table_loc)
+        api_reference.to_pickle(save_path)
+    else:
+        api_reference = pd.read_pickle(save_path)
 
+    # Return based on `rtype`.
+    return api_reference if rtype == 'dataframe' else _reference_table_as_dict(api_reference)
 
 
 
