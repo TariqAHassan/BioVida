@@ -21,6 +21,7 @@ from biovida.support_tools.printing import pandas_pprint
 
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import only_numeric
+from biovida.support_tools.support_tools import combine_dicts
 from biovida.support_tools.support_tools import camel_to_snake_case
 
 cparam = CancerImgArchiveParams()
@@ -31,12 +32,14 @@ dicom_m = cparam.dicom_modality_abbreviations('dict')
 # z = zipfile.ZipFile(io.BytesIO(r.content))
 # z.extractall()
 
+study = 'ISPY1'
+patient = 'ISPY1_1001'
 root_url = 'https://services.cancerimagingarchive.net/services/v3/TCIA'
 
 # 1. Pick a Study
 # 2. Download all the patients in that study
 # 3. Make API calls as the program loops though getSeries' queries.
-# 4. Limit to baseline images (from StudyInstanceUID)
+# 4. patient_limit to baseline images (from StudyInstanceUID)
 
 
 def _extract_study(study):
@@ -51,14 +54,29 @@ def _extract_study(study):
     return pd.DataFrame.from_csv(url).reset_index()
 
 
+def _date_index_map(list_of_dates):
+    """
+
+    Returns a dict of the form: ``{date: index in ``list_of_dates``, ...}``
+
+    :param list_of_dates:
+    :return:
+    """
+    return {k: i for i, k in enumerate(sorted(list_of_dates), start=1)}
+
+
 def _summarize_study_by_patient(study):
     """
 
     Summarizes a study by patient.
-    Note: Limits summary to baseline (i.e., follow ups are excluded).
+    Note: patient_limits summary to baseline (i.e., follow ups are excluded).
 
     :param study:
-    :return:
+    :return: nested dictionary of the form:
+
+            ``{PatientID: {StudyInstanceUID: {'sex':..., 'age': ..., 'stage': ..., 'StudyDate': ...}}}``
+
+    :rtype: ``dict``
     """
     # Download a summary of all patients in a study
     study_df = _extract_study(study)
@@ -66,23 +84,25 @@ def _summarize_study_by_patient(study):
     # Convert StudyDate to datetime
     study_df['StudyDate'] = pd.to_datetime(study_df['StudyDate'], infer_datetime_format=True)
 
-    # Get Unique PatientIDs
-    baseline_date = study_df.groupby('PatientID').apply(lambda x: min(x['StudyDate'].tolist())).to_dict()
+    # Divide Study into stages (e.g., Baseline (stage 1); Baseline + 1 Month (stage 2), etc.
+    stages = study_df.groupby('PatientID').apply(lambda x: _date_index_map(x['StudyDate'].tolist())).to_dict()
 
-    # Get StudyInstanceUID which correspondings to the baseline date
-    study_df['baseline'] = study_df.apply(lambda x: baseline_date[x['PatientID']] == x['StudyDate'], axis=1)
+    # Apply stages
+    study_df['Stage'] = study_df.apply(lambda x: stages[x['PatientID']][x['StudyDate']], axis=1)
 
-    # Drop Non-baseline entries
-    study_df = study_df[study_df['baseline'] == True].reset_index(drop=True).drop('baseline', axis=1)
+    # Define Columns to Extract from study_df
+    valuable_cols = ('PatientID', 'StudyInstanceUID', 'Stage', 'PatientSex', 'PatientAge', 'StudyDate')
 
-    # Mapping of PatientIDs and baseline StudyInstanceUID.
-    baseline_study_uids = dict(zip(study_df['PatientID'], study_df['StudyInstanceUID']))
+    # Convert to a nested dictionary
+    patient_dict = dict()
+    for pid, si_uid, stage, sex, age, date in zip(*[study_df[c] for c in valuable_cols]):
+        inner_nest = {'sex': sex, 'age': age, 'stage': stage, 'StudyDate': date}
+        if pid not in patient_dict:
+            patient_dict[pid] = {si_uid: inner_nest}
+        else:
+            patient_dict[pid] = combine_dicts(patient_dict[pid], {si_uid: inner_nest})
 
-    # Convert the valuable parts of study_df into a dict.
-    study_df_cols = zip(*[study_df[c] for c in ('PatientID', 'PatientSex', 'PatientAge', 'StudyDate', 'StudyInstanceUID')])
-
-    # Return a summary by patient
-    return {p: {'sex': s, 'age': a, 'date': d, 'si_UID': si} for p, s, a, d, si in study_df_cols}
+    return patient_dict
 
 
 def _patient_img_summary(patient, patient_dict):
@@ -99,19 +119,21 @@ def _patient_img_summary(patient, patient_dict):
         root_url, patient, API_KEY)
     patient_df = pd.DataFrame.from_csv(url).reset_index()
 
-    # Filter to baseline
-    patient_df = patient_df[patient_df['StudyInstanceUID'] == patient_dict['si_UID']].reset_index(drop=True)
+    def upper_first(s):
+        return "{0}{1}".format(s[0].upper(), s[1:])
 
-    # Add Sex, Age, StudyDate and PatientID
-    patient_df['Sex'] =patient_dict['sex']
-    patient_df['Age'] = patient_dict['age']
-    patient_df['StudyDate'] = patient_dict['date']
+    # Add Sex, Age, Stage, and StudyDate
+    patient_info = patient_df['StudyInstanceUID'].map(
+        lambda x: {upper_first(k): patient_dict[x][k] for k in ('sex', 'age', 'stage', 'StudyDate')})
+    patient_df = patient_df.join(pd.DataFrame(patient_info.tolist()))
+
+    # Add PatientID
     patient_df['PatientID'] = patient
 
     return patient_df
 
 
-def _clean_baseline_df(baseline_df):
+def _clean_patient_study_df(patient_study_df):
     """
 
     Cleans the input in the following ways:
@@ -126,76 +148,75 @@ def _clean_baseline_df(baseline_df):
 
     - Convert the 'SeriesDate' column to datetime
 
-    :param baseline_df: the ``baseline_df`` evolved inside ``baseline_records()``
-    :type baseline_df: ``Pandas DataFrame``
-    :return: a cleaned ``baseline_df``
+    :param patient_study_df: the ``patient_study_df`` evolved inside ``baseline_records()``
+    :type patient_study_df: ``Pandas DataFrame``
+    :return: a cleaned ``patient_study_df``
     :rtype: ``Pandas DataFrame``
     """
     # convert 'F' --> 'female' and 'M' --> 'male'.
-    baseline_df['Sex'] = baseline_df['Sex'].map(
+    patient_study_df['Sex'] = patient_study_df['Sex'].map(
         lambda x: {'F': 'female', 'M': 'male'}.get(cln(str(x)).upper(), x), na_action='ignore')
 
     # Convert entries in the 'Age' Column to floats.
-    baseline_df['Age'] = baseline_df['Age'].map(
+    patient_study_df['Age'] = patient_study_df['Age'].map(
         lambda x: only_numeric(x) / 12.0 if 'M' in str(x).upper() else only_numeric(x), na_action='ignore')
 
     # Remove uneeded line break marker
     for c in ('ProtocolName', 'SeriesDescription'):
-        baseline_df[c] = baseline_df[c].map(lambda x: cln(x.replace("\/", " ")), na_action='ignore')
+        patient_study_df[c] = patient_study_df[c].map(lambda x: cln(x.replace("\/", " ")), na_action='ignore')
 
     # Add the full name for modality.
-    baseline_df['ModalityFull'] = baseline_df['Modality'].map(lambda x: dicom_m.get(x, np.NaN), na_action='ignore')
+    patient_study_df['ModalityFull'] = patient_study_df['Modality'].map(
+        lambda x: dicom_m.get(x, np.NaN), na_action='ignore'
+    )
 
     # Convert SeriesDate to datetime
-    baseline_df['SeriesDate'] = pd.to_datetime(baseline_df['SeriesDate'], infer_datetime_format=True)
+    patient_study_df['SeriesDate'] = pd.to_datetime(patient_study_df['SeriesDate'], infer_datetime_format=True)
 
-    return baseline_df
+    # Sort and Return
+    return patient_study_df.sort_values(by=['PatientID', 'Stage'])
 
 
-def baseline_records(study, limit=3):
+def study_records(study, patient_limit=3):
     """
     
-    Extract all baselines images for all patients in a given study.
+    Extract record of all images for all patients in a given study.
     
     :param study:
     :type study: ``str``
-    :param limit: limit on the number of patients to extract. Patient IDs are sorted prior to this limit being imposed.
-                  if ``None``, no limit will be imposed. Defaults to `3`.
-    :type limit: ``int`` or ``None``
+    :param patient_limit: patient_limit on the number of patients to extract.
+                         Patient IDs are sorted prior to this patient_limit being imposed.
+                         If ``None``, no patient_limit will be imposed. Defaults to `3`.
+    :type patient_limit: ``int`` or ``None``
     :return: a dataframe of all baseline images
     :rtype: ``Pandas DataFrame``
     """
     # Summarize a study by patient
     study_dict = _summarize_study_by_patient(study)
 
-    # Check for invalid `limit` values:
-    if not isinstance(limit, int) and limit is not None:
-        raise ValueError('`limit` must be an intiger or `None`.')
-    elif isinstance(limit, int) and limit < 1:
-        raise ValueError('If `limit` is an intiger it must be >= 1.')
+    # Check for invalid `patient_limit` values:
+    if not isinstance(patient_limit, int) and patient_limit is not None:
+        raise ValueError('`patient_limit` must be an intiger or `None`.')
+    elif isinstance(patient_limit, int) and patient_limit < 1:
+        raise ValueError('If `patient_limit` is an intiger it must be >= 1.')
 
     # Define number of patients to extract
-    patients_to_obtain = sorted(study_dict.keys())[:limit] if isinstance(limit, int) else sorted(study_dict.keys())
+    s_patients = sorted(study_dict.keys())
+    patients_to_obtain = s_patients[:patient_limit] if isinstance(patient_limit, int) else s_patients
 
     # Evolve a dataframe ('frame') for the baseline images of all patients
     frames = list()
     for patient in tqdm(patients_to_obtain):
-        frames.append(_patient_img_summary(patient, study_dict[patient]))
-
+        frames.append(_patient_img_summary(patient, patient_dict=study_dict[patient]))
+    
     # Concatenate baselines frame for each patient
-    baseline_df = pd.concat(frames, ignore_index=True)
+    patient_study_df = pd.concat(frames, ignore_index=True)
+
+    # Add Study name
+    patient_study_df['StudyName'] = study
 
     # Clean the dataframe and return
-    return _clean_baseline_df(baseline_df)
-
-
-
-
-
-
-
-
-
+    return _clean_patient_study_df(patient_study_df)
 
 
 
