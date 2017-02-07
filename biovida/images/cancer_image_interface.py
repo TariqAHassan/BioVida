@@ -5,24 +5,23 @@
 
 """
 import io
+import os
 import pickle
 import zipfile
 import requests
 import numpy as np
 import pandas as pd
-from datetime import datetime
 from tqdm import tqdm
 
 from biovida.images.ci_api_key import API_KEY
 
 from biovida.support_tools._cache_management import package_cache_creator
 from biovida.images._resources.cancer_image_parameters import CancerImgArchiveParams
-from biovida.support_tools.printing import pandas_pprint
 
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import combine_dicts
-from biovida.support_tools.support_tools import camel_to_snake_case
 
 cparam = CancerImgArchiveParams()
 ref = cparam.cancer_img_api_ref()
@@ -32,8 +31,156 @@ dicom_m = cparam.dicom_modality_abbreviations('dict')
 # z = zipfile.ZipFile(io.BytesIO(r.content))
 # z.extractall()
 
+
+# ---------------------------------------------------------------------------------------------
+# Summarize Studies Provided Through The Cancer Imaging Archive
+# ---------------------------------------------------------------------------------------------
+
+
+class CancerImgArchiveOverview(object):
+    """
+
+    Overview of Information Available on The Cancer Imaging Archive.
+
+    :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
+                        one will created. Default to ``None``, which will generate a cache in the home folder.
+    :type cache_path: ``str`` or ``None``
+    :param verbose: if ``True`` print additional information. Defaults to ``False``.
+    :type verbose: ``bool``
+    :param tcia_homepage: URL to the The Cancer Imaging Archive's homepage.
+    :type tcia_homepage: ``str``
+    """
+    def __init__(self, verbose=False, cache_path=None, tcia_homepage='http://www.cancerimagingarchive.net'):
+        self._verbose = verbose
+        self._tcia_homepage = tcia_homepage
+        _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['aux'])
+
+    def _all_studies_parser(self):
+        """
+
+        Get a record of all studies on The Cancer Imaging Archive.
+
+        :return: the table on the homepage
+        :rtype: ``Pandas DataFrame``
+        """
+        # Extract the main summary table from the home page
+        summary_df = pd.read_html(str(requests.get(self._tcia_homepage).text), header=0)[0]
+
+        # Drop Studies which are 'Coming Soon'.
+        summary_df = summary_df[summary_df['Status'].str.strip().str.lower() != 'coming soon']
+
+        # Drop Studies which are on phantoms
+        summary_df = summary_df[~summary_df['Location'].str.lower().str.contains('phantom')]
+
+        # Drop Studies which are on mice or phantoms
+        summary_df = summary_df[~summary_df['Collection'].str.lower().str.contains('mouse|phantom')]
+
+        # Only Keep Studies which are public
+        summary_df = summary_df[summary_df['Access'].str.strip().str.lower() == 'public'].reset_index(drop=True)
+
+        # Add Full Name for Modalities
+        summary_df['ModalitiesFull'] = summary_df['Modalities'].map(
+            lambda x: [dicom_m.get(cln(i), i) for i in cln(x).split(", ")])
+
+        # Parse the Location Column (account for special case: 'Head-Neck').
+        summary_df['Location'] = summary_df['Location'].map(
+            lambda x: cln(x.replace(" and ", ", ").replace("Head-Neck", "Head, Neck")).split(", "))
+
+        # Convert 'Update' to Datetime
+        summary_df['Updated'] = pd.to_datetime(summary_df['Updated'], infer_datetime_format=True)
+
+        # Clean Column names
+        summary_df.columns = list(map(lambda x: cln(x, extent=2), summary_df.columns))
+
+        return summary_df
+
+    def _all_studies_cache_mngt(self, download_override):
+        """
+
+        Obtain and Manage a copy the table which summarizes the The Cancer Imaging Archive
+        on the organization's homepage.
+
+        :param download_override: If ``True``, override any existing database currently cached and download a new one.
+        :type download_override: ``bool``
+        :return: summary table hosted on the home page of The Cancer Imaging Archive.
+        :rtype: ``Pandas DataFrame``
+        """
+        # Define the path to save the data
+        save_path = os.path.join(self._created_img_dirs['aux'], 'all_tcia_studies.p')
+
+        if not os.path.isfile(save_path) or download_override:
+            if self._verbose:
+                header("Downloading Record of Available Studies... ", flank=False)
+            summary_df = self._all_studies_parser()
+            summary_df.to_pickle(save_path)
+        else:
+            summary_df = pd.read_pickle(save_path)
+
+        return summary_df
+
+    def studies(self, collection=None, cancer_type=None, location=None, download_override=False):
+        """
+
+        Method to Search for studies on The Cancer Imaging Archive.
+
+        :param collection: a collection (study) hosted by The Cancer Imaging Archive.
+        :type collection: ``str`` or ``None``
+        :param cancer_type: a string or list/tuple of specifying cancer types.
+        :type cancer_type: ``str``, ``iterable`` or ``None``
+        :param location: a string or list/tuple of specifying body locations.
+        :type location: ``str``, ``iterable`` or ``None``
+        :param download_override: If ``True``, override any existing database currently cached and download a new one.
+                                  Defaults to ``False``.
+        :return: a dataframe containing the search results.
+        :rtype: ``Pandas DataFrame``
+
+        :Example:
+
+        >>> CancerImgArchiveOverview().studies(cancer_type=['Squamous'], location=['head', 'neck'])
+        ...
+           Collection               CancerType               Modalities  Subjects     Location    Metadata  ...
+        0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
+
+        """
+        # Load the Summary Table
+        summary_df = self._all_studies_cache_mngt(download_override)
+
+        # Filter by Collection
+        if isinstance(collection, str) and any(i is not None for i in (cancer_type, location)):
+            raise ValueError("Both `cancer_types` and `location` must be ``None`` if a `collection` name is passed.")
+        elif isinstance(collection, str):
+            summary_df = summary_df[summary_df['Collection'].str.strip().str.lower() == collection.strip().lower()]
+            if summary_df.shape[0] == 0:
+                raise AttributeError("No Collection with the name '{0}' could be found.".format(collection))
+            else:
+                return summary_df
+
+        # Filter by `cancer_type`
+        if isinstance(cancer_type, (str, list, tuple)):
+            if isinstance(cancer_type, (list, tuple)):
+                cancer_type = "|".join(map(lambda x: cln(x).lower(), cancer_type))
+            else:
+                cancer_type = cln(cancer_type).lower()
+            summary_df = summary_df[summary_df['CancerType'].str.lower().str.contains(cancer_type)]
+
+        # Filter by `location`
+        if isinstance(location, (str, list, tuple)):
+            location = [location] if isinstance(location, str) else location
+            summary_df = summary_df[summary_df['Location'].map(
+                lambda x: any([cln(l).lower() in i.lower() for i in x for l in location]))]
+
+        if summary_df.shape[0] == 0:
+            raise AttributeError("No Results Found. Try Broading the Search Criteria.")
+        else:
+            return summary_df.reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------------------------
+# Pull Records from The Cancer Imaging Archive
+# ---------------------------------------------------------------------------------------------
+
+
 study = 'ISPY1'
-patient = 'ISPY1_1001'
 root_url = 'https://services.cancerimagingarchive.net/services/v3/TCIA'
 
 # 1. Pick a Study
@@ -148,7 +295,7 @@ def _clean_patient_study_df(patient_study_df):
 
     - Convert the 'SeriesDate' column to datetime
 
-    :param patient_study_df: the ``patient_study_df`` evolved inside ``baseline_records()``
+    :param patient_study_df: the ``patient_study_df`` evolved inside ``study_records()``
     :type patient_study_df: ``Pandas DataFrame``
     :return: a cleaned ``patient_study_df``
     :rtype: ``Pandas DataFrame``
@@ -179,9 +326,9 @@ def _clean_patient_study_df(patient_study_df):
 
 def study_records(study, patient_limit=3):
     """
-    
+
     Extract record of all images for all patients in a given study.
-    
+
     :param study:
     :type study: ``str``
     :param patient_limit: patient_limit on the number of patients to extract.
@@ -198,7 +345,7 @@ def study_records(study, patient_limit=3):
     if not isinstance(patient_limit, int) and patient_limit is not None:
         raise ValueError('`patient_limit` must be an intiger or `None`.')
     elif isinstance(patient_limit, int) and patient_limit < 1:
-        raise ValueError('If `patient_limit` is an intiger it must be >= 1.')
+        raise ValueError('If `patient_limit` is an intiger it must be greater than or equal to 1.')
 
     # Define number of patients to extract
     s_patients = sorted(study_dict.keys())
@@ -208,7 +355,7 @@ def study_records(study, patient_limit=3):
     frames = list()
     for patient in tqdm(patients_to_obtain):
         frames.append(_patient_img_summary(patient, patient_dict=study_dict[patient]))
-    
+
     # Concatenate baselines frame for each patient
     patient_study_df = pd.concat(frames, ignore_index=True)
 
