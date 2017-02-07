@@ -8,6 +8,7 @@
 # Imports
 import os
 import re
+import numpy as np
 import pandas as pd
 from collections import Hashable
 from itertools import chain
@@ -281,8 +282,20 @@ def images_in_dir(dir, return_len=False):
     return len(n_images) if return_len else n_images
 
 
+def only_numeric(s):
+    """
 
+    Remove all non-numeric characters from a string
+    (excluding decimals).
 
+    :param s: a string containing numbers
+    :type s: ``str``
+    :return: the number contained within ``s``.
+    :rtype: ``float`` or ``None``
+    """
+    # See: http://stackoverflow.com/a/947789/4898004
+    cleaned = re.sub(r'[^\d.]+', '', s).strip()
+    return float(cleaned) if len(cleaned) else np.NaN
 
 
 
