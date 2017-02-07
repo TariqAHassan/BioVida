@@ -50,10 +50,12 @@ class CancerImgArchiveOverview(object):
     :param tcia_homepage: URL to the The Cancer Imaging Archive's homepage.
     :type tcia_homepage: ``str``
     """
+
     def __init__(self, verbose=False, cache_path=None, tcia_homepage='http://www.cancerimagingarchive.net'):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
         _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['aux'])
+        self.dicom_m = cparam.dicom_modality_abbreviations('dict')
 
     def _all_studies_parser(self):
         """
@@ -82,7 +84,7 @@ class CancerImgArchiveOverview(object):
         summary_df['ModalitiesFull'] = summary_df['Modalities'].map(
             lambda x: [dicom_m.get(cln(i), i) for i in cln(x).split(", ")])
 
-        # Parse the Location Column (account for special case: 'Head-Neck').
+        # Parse the Location Column (and account for special case: 'Head-Neck').
         summary_df['Location'] = summary_df['Location'].map(
             lambda x: cln(x.replace(" and ", ", ").replace("Head-Neck", "Head, Neck")).split(", "))
 
@@ -118,7 +120,45 @@ class CancerImgArchiveOverview(object):
 
         return summary_df
 
-    def studies(self, collection=None, cancer_type=None, location=None, download_override=False):
+    def _studies_filter(self, summary_df, cancer_type, location, modality):
+        """
+
+        Apply Filters passed to ``studies()``.
+
+        :param summary_df: see: ``studies()``.
+        :type summary_df: ``Pandas DataFrame``
+        :param cancer_type: see: ``studies()``.
+        :type cancer_type: ``str``, ``iterable`` or ``None``
+        :param location: see: ``studies()``.
+        :type location: ``str``, ``iterable`` or ``None``
+        :param modality: see: ``studies()``.
+        :type modality: ``str``, ``iterable`` or ``None``
+        :return: ``summary_df`` with filters applied.
+        :type: ``Pandas DataFrame``
+        """
+        # Filter by `cancer_type`
+        if isinstance(cancer_type, (str, list, tuple)):
+            if isinstance(cancer_type, (list, tuple)):
+                cancer_type = "|".join(map(lambda x: cln(x).lower(), cancer_type))
+            else:
+                cancer_type = cln(cancer_type).lower()
+            summary_df = summary_df[summary_df['CancerType'].str.lower().str.contains(cancer_type)]
+
+        # Filter by `location`
+        if isinstance(location, (str, list, tuple)):
+            location = [location] if isinstance(location, str) else location
+            summary_df = summary_df[summary_df['Location'].map(
+                lambda x: any([cln(l).lower() in i.lower() for i in x for l in location]))]
+
+        # Filter by `modality`.
+        if isinstance(modality, (str, list, tuple)):
+            modality = [modality] if isinstance(modality, str) else modality
+            summary_df = summary_df[summary_df['Modalities'].map(
+                lambda x: any([cln(m).lower() in i.lower() for i in cln(x).split(", ") for m in modality]))]
+
+        return summary_df
+
+    def studies(self, collection=None, cancer_type=None, location=None, modality=None, download_override=False):
         """
 
         Method to Search for studies on The Cancer Imaging Archive.
@@ -129,6 +169,8 @@ class CancerImgArchiveOverview(object):
         :type cancer_type: ``str``, ``iterable`` or ``None``
         :param location: a string or list/tuple of specifying body locations.
         :type location: ``str``, ``iterable`` or ``None``
+        :param modality: see: ``CancerImgArchiveOverview().dicom_m`` for valid values (the keys must be used).
+        :type modality: ``str``, ``iterable`` or ``None``
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
                                   Defaults to ``False``.
         :return: a dataframe containing the search results.
@@ -145,7 +187,7 @@ class CancerImgArchiveOverview(object):
         # Load the Summary Table
         summary_df = self._all_studies_cache_mngt(download_override)
 
-        # Filter by Collection
+        # Filter by `collection`
         if isinstance(collection, str) and any(i is not None for i in (cancer_type, location)):
             raise ValueError("Both `cancer_types` and `location` must be ``None`` if a `collection` name is passed.")
         elif isinstance(collection, str):
@@ -155,22 +197,11 @@ class CancerImgArchiveOverview(object):
             else:
                 return summary_df
 
-        # Filter by `cancer_type`
-        if isinstance(cancer_type, (str, list, tuple)):
-            if isinstance(cancer_type, (list, tuple)):
-                cancer_type = "|".join(map(lambda x: cln(x).lower(), cancer_type))
-            else:
-                cancer_type = cln(cancer_type).lower()
-            summary_df = summary_df[summary_df['CancerType'].str.lower().str.contains(cancer_type)]
-
-        # Filter by `location`
-        if isinstance(location, (str, list, tuple)):
-            location = [location] if isinstance(location, str) else location
-            summary_df = summary_df[summary_df['Location'].map(
-                lambda x: any([cln(l).lower() in i.lower() for i in x for l in location]))]
+        # Apply Filters
+        summary_df = self._studies_filter(summary_df, cancer_type, location, modality)
 
         if summary_df.shape[0] == 0:
-            raise AttributeError("No Results Found. Try Broading the Search Criteria.")
+            raise AttributeError("No Results Found. Try Broadening the Search Criteria.")
         else:
             return summary_df.reset_index(drop=True)
 
@@ -291,7 +322,7 @@ def _clean_patient_study_df(patient_study_df):
 
     - Remove line breaks in the 'ProtocolName' and 'SeriesDescription' columns
 
-    - Add Full name for modaility (ModailityFull)
+    - Add Full name for modality (ModailityFull)
 
     - Convert the 'SeriesDate' column to datetime
 
