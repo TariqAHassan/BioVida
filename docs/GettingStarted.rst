@@ -34,6 +34,7 @@ BioVida requires: `pandas <http://pandas.pydata.org>`__,
 `requests <http://docs.python-requests.org/en/master/>`__,
 `tqdm <https://github.com/tqdm/tqdm>`__,
 `pillow <https://github.com/python-pillow/Pillow>`__,
+`pydicom <https://github.com/darcymason/pydicom`__,
 `h5py <http://www.h5py.org>`__,
 `scipy <https://www.scipy.org>`__,
 `scikit-image <http://scikit-image.org>`__ and
