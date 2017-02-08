@@ -755,7 +755,7 @@ class OpenInterface(object):
         Tool to generate a search term (URL) for the NIH's Open-i API.
         The computed term is stored as a class attribute.
 
-        :param query: a search term. ``None`` will converter to an empty string.
+        :param query: a search term. ``None`` will be converted to an empty string.
         :type query: ``str`` or ``None``
         :param image_type: see ``OpenInterface().options('image_type')`` for valid values.
         :type image_type: ``list``, ``tuple`` or ``None``.
