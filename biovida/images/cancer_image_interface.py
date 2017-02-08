@@ -27,17 +27,15 @@ from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import combine_dicts
 
-cparam = CancerImgArchiveParams()
-ref = cparam.cancer_img_api_ref()
-dicom_m = cparam.dicom_modality_abbreviations('dict')
 
+dicom_m = CancerImgArchiveParams().dicom_modality_abbreviations('dict')
 
 # ---------------------------------------------------------------------------------------------
 # Summarize Studies Provided Through The Cancer Imaging Archive
 # ---------------------------------------------------------------------------------------------
 
 
-class CancerImgArchiveOverview(object):
+class _CancerImgArchiveOverview(object):
     """
 
     Overview of Information Available on The Cancer Imaging Archive.
@@ -82,7 +80,7 @@ class CancerImgArchiveOverview(object):
 
         # Add Full Name for Modalities
         summary_df['ModalitiesFull'] = summary_df['Modalities'].map(
-            lambda x: [dicom_m.get(cln(i), i) for i in cln(x).split(", ")])
+            lambda x: [self.dicom_m.get(cln(i), i) for i in cln(x).split(", ")])
 
         # Parse the Location Column (and account for special case: 'Head-Neck').
         summary_df['Location'] = summary_df['Location'].map(
@@ -158,7 +156,7 @@ class CancerImgArchiveOverview(object):
 
         return summary_df
 
-    def studies(self, collection=None, cancer_type=None, location=None, modality=None, download_override=False):
+    def search(self, collection=None, cancer_type=None, location=None, modality=None, download_override=False):
         """
 
         Method to Search for studies on The Cancer Imaging Archive.
@@ -169,7 +167,7 @@ class CancerImgArchiveOverview(object):
         :type cancer_type: ``str``, ``iterable`` or ``None``
         :param location: a string or list/tuple of specifying body locations.
         :type location: ``str``, ``iterable`` or ``None``
-        :param modality: see: ``CancerImgArchiveOverview().dicom_m`` for valid values (the keys must be used).
+        :param modality: see: ``_CancerImgArchiveOverview().dicom_m`` for valid values (the keys must be used).
         :type modality: ``str``, ``iterable`` or ``None``
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
                                   Defaults to ``False``.
@@ -178,7 +176,7 @@ class CancerImgArchiveOverview(object):
 
         :Example:
 
-        >>> CancerImgArchiveOverview().studies(cancer_type=['Squamous'], location=['head'])
+        >>> _CancerImgArchiveOverview().studies(cancer_type=['Squamous'], location=['head'])
         ...
            Collection               CancerType               Modalities  Subjects     Location    Metadata  ...
         0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
@@ -211,471 +209,476 @@ class CancerImgArchiveOverview(object):
 # ---------------------------------------------------------------------------------------------
 
 
-study = 'ISPY1'
-root_url = 'https://services.cancerimagingarchive.net/services/v3/TCIA'
-
-# Overview:
-#     1. Pick a Study
-#     2. Download all the patients in that study
-#     3. Make API calls as the program loops though getSeries' queries.
-#     4. patient_limit to baseline images (from StudyInstanceUID)
-
-
-def _extract_study(study):
+class _CancerImgArchiveRecords(object):
     """
 
-    Download all patients in a given study.
-
-    :param study:
-    :type study: ``str``
-    :return:
-    """
-    url = '{0}/query/getPatientStudy?Collection={1}&format=csv&api_key={2}'.format(root_url, study, API_KEY)
-    return pd.DataFrame.from_csv(url).reset_index()
-
-
-def _date_index_map(list_of_dates):
+    :param root_url: the root URL for the The Cancer Imaging Archive's API.
+    :type root_url: ``str``
     """
 
-    Returns a dict of the form: ``{date: index in ``list_of_dates``, ...}``
+    def __init__(self, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+        self._root_url = root_url
 
-    :param list_of_dates:
-    :type list_of_dates:
-    :return:
-    """
-    return {k: i for i, k in enumerate(sorted(list_of_dates), start=1)}
+    def _extract_study(self, study):
+        """
 
+        Download all patients in a given study.
 
-def _summarize_study_by_patient(study):
-    """
+        :param study:
+        :type study: ``str``
+        :return:
+        """
+        url = '{0}/query/getPatientStudy?Collection={1}&format=csv&api_key={2}'.format(
+            self._root_url, study, API_KEY)
+        return pd.DataFrame.from_csv(url).reset_index()
 
-    Summarizes a study by patient.
-    Note: patient_limits summary to baseline (i.e., follow ups are excluded).
+    def _date_index_map(self, list_of_dates):
+        """
 
-    :param study:
-    :type study: ``str``
-    :return: nested dictionary of the form:
+        Returns a dict of the form: ``{date: index in ``list_of_dates``, ...}``
 
-            ``{PatientID: {StudyInstanceUID: {'sex':..., 'age': ..., 'session': ..., 'StudyDate': ...}}}``
+        :param list_of_dates:
+        :type list_of_dates:
+        :return:
+        """
+        return {k: i for i, k in enumerate(sorted(list_of_dates), start=1)}
 
-    :rtype: ``dict``
-    """
-    # Download a summary of all patients in a study
-    study_df = _extract_study(study)
+    def _summarize_study_by_patient(self, study):
+        """
 
-    # Convert StudyDate to datetime
-    study_df['StudyDate'] = pd.to_datetime(study_df['StudyDate'], infer_datetime_format=True)
+        Summarizes a study by patient.
+        Note: patient_limits summary to baseline (i.e., follow ups are excluded).
 
-    # Divide Study into stages (e.g., Baseline (session 1); Baseline + 1 Month (session 2), etc.
-    stages = study_df.groupby('PatientID').apply(lambda x: _date_index_map(x['StudyDate'].tolist())).to_dict()
+        :param study:
+        :type study: ``str``
+        :return: nested dictionary of the form:
 
-    # Apply stages
-    study_df['Session'] = study_df.apply(lambda x: stages[x['PatientID']][x['StudyDate']], axis=1)
+                ``{PatientID: {StudyInstanceUID: {'sex':..., 'age': ..., 'session': ..., 'StudyDate': ...}}}``
 
-    # Define Columns to Extract from study_df
-    valuable_cols = ('PatientID', 'StudyInstanceUID', 'Session', 'PatientSex', 'PatientAge', 'StudyDate')
+        :rtype: ``dict``
+        """
+        # Download a summary of all patients in a study
+        study_df = self._extract_study(study)
 
-    # Convert to a nested dictionary
-    patient_dict = dict()
-    for pid, si_uid, session, sex, age, date in zip(*[study_df[c] for c in valuable_cols]):
-        inner_nest = {'sex': sex, 'age': age, 'session': session, 'StudyDate': date}
-        if pid not in patient_dict:
-            patient_dict[pid] = {si_uid: inner_nest}
-        else:
-            patient_dict[pid] = combine_dicts(patient_dict[pid], {si_uid: inner_nest})
+        # Convert StudyDate to datetime
+        study_df['StudyDate'] = pd.to_datetime(study_df['StudyDate'], infer_datetime_format=True)
 
-    return patient_dict
+        # Divide Study into stages (e.g., Baseline (session 1); Baseline + 1 Month (session 2), etc.
+        stages = study_df.groupby('PatientID').apply(lambda x: self._date_index_map(x['StudyDate'].tolist())).to_dict()
 
+        # Apply stages
+        study_df['Session'] = study_df.apply(lambda x: stages[x['PatientID']][x['StudyDate']], axis=1)
 
-def _patient_img_summary(patient, patient_dict):
-    """
+        # Define Columns to Extract from study_df
+        valuable_cols = ('PatientID', 'StudyInstanceUID', 'Session', 'PatientSex', 'PatientAge', 'StudyDate')
 
-    Harvests the Cancer Image Archive's Text Record of all baseline images for a given patient
-    in a given study.
-
-    :param patient:
-    :return:
-    """
-    # Select an individual Patient
-    url = '{0}/query/getSeries?Collection=ISPY1&PatientID={1}&format=csv&api_key={2}'.format(
-        root_url, patient, API_KEY)
-    patient_df = pd.DataFrame.from_csv(url).reset_index()
-
-    def upper_first(s):
-        return "{0}{1}".format(s[0].upper(), s[1:])
-
-    # Add Sex, Age, Session, and StudyDate
-    patient_info = patient_df['StudyInstanceUID'].map(
-        lambda x: {upper_first(k): patient_dict[x][k] for k in ('sex', 'age', 'session', 'StudyDate')})
-    patient_df = patient_df.join(pd.DataFrame(patient_info.tolist()))
-
-    # Add PatientID
-    patient_df['PatientID'] = patient
-
-    return patient_df
-
-
-def _clean_patient_study_df(patient_study_df):
-    """
-
-    Cleans the input in the following ways:
-
-    - convert 'F' --> 'Female' and 'M' --> 'Male'
-
-    - Converts the 'Age' column to numeric (years)
-
-    - Remove line breaks in the 'ProtocolName' and 'SeriesDescription' columns
-
-    - Add Full name for modality (ModalityFull)
-
-    - Convert the 'SeriesDate' column to datetime
-
-    :param patient_study_df: the ``patient_study_df`` dataframe evolved inside ``_pull_records()``.
-    :type patient_study_df: ``Pandas DataFrame``
-    :return: a cleaned ``patient_study_df``
-    :rtype: ``Pandas DataFrame``
-    """
-    # convert 'F' --> 'female' and 'M' --> 'male'.
-    patient_study_df['Sex'] = patient_study_df['Sex'].map(
-        lambda x: {'F': 'female', 'M': 'male'}.get(cln(str(x)).upper(), x), na_action='ignore')
-
-    # Convert entries in the 'Age' Column to floats.
-    patient_study_df['Age'] = patient_study_df['Age'].map(
-        lambda x: only_numeric(x) / 12.0 if 'M' in str(x).upper() else only_numeric(x), na_action='ignore')
-
-    # Remove unneeded line break marker
-    for c in ('ProtocolName', 'SeriesDescription'):
-        patient_study_df[c] = patient_study_df[c].map(lambda x: cln(x.replace("\/", " ")), na_action='ignore')
-
-    # Add the full name for modality.
-    patient_study_df['ModalityFull'] = patient_study_df['Modality'].map(
-        lambda x: dicom_m.get(x, np.NaN), na_action='ignore')
-
-    # Convert SeriesDate to datetime
-    patient_study_df['SeriesDate'] = pd.to_datetime(patient_study_df['SeriesDate'], infer_datetime_format=True)
-
-    # Sort and Return
-    return patient_study_df.sort_values(by=['PatientID', 'Session'])
-
-
-def _pull_records(study, patient_limit=3):
-    """
-
-    Extract record of all images for all patients in a given study.
-
-    :param study:
-    :type study: ``str``
-    :param patient_limit: patient_limit on the number of patients to extract.
-                         Patient IDs are sorted prior to this patient_limit being imposed.
-                         If ``None``, no patient_limit will be imposed. Defaults to `3`.
-    :type patient_limit: ``int`` or ``None``
-    :return: a dataframe of all baseline images
-    :rtype: ``Pandas DataFrame``
-    """
-    # ToDo: add illness name to dataframe.
-    # ToDo: consider adding record dataframe cacheing
-    # Summarize a study by patient
-    study_dict = _summarize_study_by_patient(study)
-
-    # Check for invalid `patient_limit` values:
-    if not isinstance(patient_limit, int) and patient_limit is not None:
-        raise ValueError('`patient_limit` must be an integer or `None`.')
-    elif isinstance(patient_limit, int) and patient_limit < 1:
-        raise ValueError('If `patient_limit` is an integer it must be greater than or equal to 1.')
-
-    # Define number of patients to extract
-    s_patients = sorted(study_dict.keys())
-    patients_to_obtain = s_patients[:patient_limit] if isinstance(patient_limit, int) else s_patients
-
-    # Evolve a dataframe ('frame') for the baseline images of all patients
-    frames = list()
-    for patient in tqdm(patients_to_obtain):
-        frames.append(_patient_img_summary(patient, patient_dict=study_dict[patient]))
-
-    # Concatenate baselines frame for each patient
-    patient_study_df = pd.concat(frames, ignore_index=True)
-
-    # Add Study name
-    patient_study_df['StudyName'] = study
-
-    # Clean the dataframe and return
-    return _clean_patient_study_df(patient_study_df)
-
-
-def _download_zip(root_url, series_uid, save_location):
-    """
-
-    :param root_url:
-    :param series_uid:
-    :param save_location:
-    :return: list of paths to the new files.
-    """
-    # See: http://stackoverflow.com/a/14260592/4898004
-
-    # Define URL to extract the images from
-    url = '{0}/query/getImage?SeriesInstanceUID={1}&format=csv&api_key={2}'.format(root_url, series_uid, API_KEY)
-    r = requests.get(url)
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(save_location)
-    def file_path_full(f):
-        base_name = cln(os.path.basename(f.filename))
-        return os.path.join(save_location, base_name) if len(base_name) else None
-    return list(filter(None, [file_path_full(f) for f in z.filelist]))
-
-
-def _image_processing(f, pull_position, conversion, save_location, new_file_name, img_format):
-    """
-
-    This method handles the act of saving images.
-    An image (``f``) can be either 2 or 3 Dimensional.
-
-    :param f:
-    :param pull_position: the position of the file in the list of files pulled from the database.
-    :type pull_position: ``int``
-    :param conversion:
-    :param save_location:
-    :param new_file_name:
-    :type new_file_name: ``str``
-    :param img_format:
-    :type img_format: ``str``
-    :return:
-    """
-    # Define a list to populate with a record of all images saved
-    all_save_paths = list()
-
-    # Extract a pixel array from the dicom file.
-    pixel_arr = f.pixel_array
-
-    def save_path(instance):
-        """Define the path to save the image to."""
-        head = "{0}_{1}".format(instance, pull_position)
-        file_name = "{0}__{1}__D.{2}".format(head, os.path.basename(new_file_name), img_format.replace(".", ""))
-        return os.path.join(save_location, file_name)
-
-    if pixel_arr.ndim == 2:
-        # Define save name by combining the images instance in the set, `new_file_name` and `img_format`.
-        instance = cln(str(f.InstanceNumber)) if len(cln(str(f.InstanceNumber))) else '0'
-        path = save_path(instance)
-        Image.fromarray(pixel_arr).convert(conversion).save(path)
-        all_save_paths.append(path)
-    # If ``f`` is a 3D image (e.g., segmentation dicom files), save each layer as a seperate file/image.
-    elif pixel_arr.ndim == 3:
-        for instance, layer in enumerate(range(pixel_arr.shape[0]), start=1):
-            path = save_path(instance)
-            Image.fromarray(pixel_arr[layer:layer + 1][0]).convert(conversion).save(path)
-            all_save_paths.append(path)
-    else:
-        raise ValueError("Cannot coerce {0} dimensional image arrays. Images must be 2D or 3D.".format(pixel_arr.ndim))
-
-    return all_save_paths
-
-
-def _save_dicom(path_to_dicom_file, save_location, pull_position, save_name=None, color=False, img_format='png'):
-    """
-
-    Save a DICOM image as a more common file format.
-
-    :param path_to_dicom_file: path to a dicom image
-    :type path_to_dicom_file: ``str``
-    :param save_location: directory to save the converted image to
-    :type save_location: ``str``
-    :param pull_position:
-    :type pull_position: ``int``
-    :param save_name: name of the new file (do *NOT* include a file extension).
-                      To specifiy a file format, use ``img_format``.
-                      If ``None``, name from ``path_to_dicom_file`` will be conserved.
-    :type save_name: ``str``
-    :param color: If ``True``, convert the image to RGB before saving. If ``False``, save as a grayscale image.
-                  Defaults to ``False``
-    :type color: ``bool``
-    :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
-    :type img_format: ``str``
-    """
-    # Load the DICOM file into RAM
-    f = dicom.read_file(path_to_dicom_file)
-
-    # Conversion (needed so the resultant image is not pure black)
-    conversion = 'RGB' if color else 'LA'  # note: 'LA' = grayscale.
-
-    if isinstance(save_name, str):
-        new_file_name = save_name
-    else:
-        # Remove the file extension and then extract the base name from the path.
-        new_file_name = os.path.basename(os.path.splitext(path_to_dicom_file)[0])
-
-    # Convert the image into a PIL object and Save
-    return _image_processing(f, pull_position, conversion, save_location, new_file_name, img_format)
-
-
-def _move_dicom_files(dicom_files, series_abbreviation, dicoms_save_location):
-    """
-
-    Move the dicom source files to ``dicoms_save_location``.
-    Employ to prevent the raw dicom files from being destroyed.
-
-    :param dicom_files:
-    :param series_abbreviation:
-    :param dicoms_save_location:
-    :return:
-    """
-    new_dircom_paths = list()
-    for f in dicom_files:
-        f_parsed = list(os.path.splitext(os.path.basename(f)))
-        new_dicom_file_name = "{0}__{1}{2}".format(f_parsed[0], series_abbreviation, f_parsed[1])
-
-        # Define the location of the new files
-        new_location = os.path.join(dicoms_save_location, new_dicom_file_name)
-        new_dircom_paths.append(new_location)
-
-        # Move the dicom file from __temp__ --> to --> new location
-        os.rename(f, new_location)
-
-    return tuple(new_dircom_paths)
-
-
-def _cache_check(check_cache_first, series_abbreviation, save_location, dicoms_save_location, n_images_min):
-    """
-
-    Check that caches likely contain that data which would be obtained by downloading it from the database.
-
-    :param series_abbreviation:
-    :param save_location:
-    :param dicoms_save_location:
-    :return: tuple of the form:
-
-            ``(cache likely complete,
-               series_abbreviation matches in save_location,
-               series_abbreviation matches in save_location)``
-
-    :type: ``tuple``
-    :param n_images_min:
-    :type n_images_min: ``int``
-    """
-    # Instruct ``_pull_images_engine()`` to download the images without checking the cache first.
-    if check_cache_first is False:
-        return False, None, None
-
-    # Check that `save_location` has files which contain the string `series_abbreviation`.
-    save_location_summary = [f for f in os.listdir(save_location) if series_abbreviation in f]
-
-    # Check that `dicoms_save_location` has files which contain the string `series_abbreviation`.
-    dicoms_save_location_summary_complete = False
-    if dicoms_save_location is not None:
-        dicoms_save_location_summary = [f for f in os.listdir(dicoms_save_location) if series_abbreviation in f]
-        dicoms_save_location_summary_complete = len(dicoms_save_location_summary) >= n_images_min
-    else:
-        dicoms_save_location_summary = np.NaN
-        dicoms_save_location_summary_complete = True
-
-    # Compose completeness boolean from the status of `save_location` and `dicoms_save_location`
-    complete = len(save_location_summary) >= n_images_min and dicoms_save_location_summary_complete
-
-    return complete, save_location_summary, dicoms_save_location_summary
-
-
-def _pull_images_engine(img_records, save_location, dicoms_save_location, img_format, check_cache_first):
-    """
-
-    :param img_records:
-    :param save_location:
-    :param dicoms_save_location:
-    :param img_format:
-    :param check_cache_first:
-    :return:
-    """
-    # ToDo: add real-time record keeping for files as they are downloaded.
-    converted_files, raw_dicom_files = list(), list()
-
-    # Note: tqdm appears to be unstable with generators (hence `list()`).
-    pairings = list(zip(*[img_records[c] for c in ('SeriesInstanceUID', 'PatientID', 'ImageCount')]))
-
-    def create_temp():
-        """Define a temporary folder to save the raw dicom files to."""
-        temp_folder = os.path.join(save_location, "__temp__")
-        if os.path.isdir(temp_folder):
-            shutil.rmtree(temp_folder, ignore_errors=True)
-        os.makedirs(temp_folder)
-        return temp_folder
-
-    for series_uid, patient_id, image_count in tqdm(pairings):
-        # Compose central part of the file name from 'PatientID' and the last ten digits of 'SeriesInstanceUID'
-        # (the last ten digits is what the cancer imaging archive uses to reference images cached in their database).
-        series_abbreviation = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
-
-        # Analyze the cache to determine whether or not downloading the images is warented
-        cache_complete, sl_summary, dsl_summary = _cache_check(check_cache_first, series_abbreviation, save_location,
-                                                               dicoms_save_location, image_count)
-
-        if not cache_complete:
-            # Create temp. foloder
-            temp_folder = create_temp()
-
-            # Download the images into a temp. folder
-            dicom_files = _download_zip(root_url, series_uid, save_location=temp_folder)
-
-            # Convert dicom files to `img_format`
-            cfs = [_save_dicom(f, save_location, pull_position=e, save_name=series_abbreviation, img_format=img_format)
-                   for e, f in enumerate(dicom_files, start=1)]
-            converted_files.append(cfs)
-
-            # Save raw dicom files
-            if isinstance(dicoms_save_location, str):
-                raw_dicom_files.append(_move_dicom_files(dicom_files, series_abbreviation, dicoms_save_location))
+        # Convert to a nested dictionary
+        patient_dict = dict()
+        for pid, si_uid, session, sex, age, date in zip(*[study_df[c] for c in valuable_cols]):
+            inner_nest = {'sex': sex, 'age': age, 'session': session, 'StudyDate': date}
+            if pid not in patient_dict:
+                patient_dict[pid] = {si_uid: inner_nest}
             else:
-                raw_dicom_files.append(np.NaN)
+                patient_dict[pid] = combine_dicts(patient_dict[pid], {si_uid: inner_nest})
 
-            # Delete the temp folder.
-            shutil.rmtree(temp_folder, ignore_errors=True)
+        return patient_dict
+
+    def _patient_img_summary(self, patient, patient_dict):
+        """
+
+        Harvests the Cancer Image Archive's Text Record of all baseline images for a given patient
+        in a given study.
+
+        :param patient:
+        :return:
+        """
+        # Select an individual Patient
+        url = '{0}/query/getSeries?Collection=ISPY1&PatientID={1}&format=csv&api_key={2}'.format(
+            self._root_url, patient, API_KEY)
+        patient_df = pd.DataFrame.from_csv(url).reset_index()
+
+        def upper_first(s):
+            return "{0}{1}".format(s[0].upper(), s[1:])
+
+        # Add Sex, Age, Session, and StudyDate
+        patient_info = patient_df['StudyInstanceUID'].map(
+            lambda x: {upper_first(k): patient_dict[x][k] for k in ('sex', 'age', 'session', 'StudyDate')})
+        patient_df = patient_df.join(pd.DataFrame(patient_info.tolist()))
+
+        # Add PatientID
+        patient_df['PatientID'] = patient
+
+        return patient_df
+
+    def _clean_patient_study_df(self, patient_study_df):
+        """
+
+        Cleans the input in the following ways:
+
+            - convert 'F' --> 'Female' and 'M' --> 'Male'
+
+            - Converts the 'Age' column to numeric (years)
+
+            - Remove line breaks in the 'ProtocolName' and 'SeriesDescription' columns
+
+            - Add Full name for modality (ModalityFull)
+
+            - Convert the 'SeriesDate' column to datetime
+
+        :param patient_study_df: the ``patient_study_df`` dataframe evolved inside ``_pull_records()``.
+        :type patient_study_df: ``Pandas DataFrame``
+        :return: a cleaned ``patient_study_df``
+        :rtype: ``Pandas DataFrame``
+        """
+        # convert 'F' --> 'female' and 'M' --> 'male'.
+        patient_study_df['Sex'] = patient_study_df['Sex'].map(
+            lambda x: {'F': 'female', 'M': 'male'}.get(cln(str(x)).upper(), x), na_action='ignore')
+
+        # Convert entries in the 'Age' Column to floats.
+        patient_study_df['Age'] = patient_study_df['Age'].map(
+            lambda x: only_numeric(x) / 12.0 if 'M' in str(x).upper() else only_numeric(x), na_action='ignore')
+
+        # Remove unneeded line break marker
+        for c in ('ProtocolName', 'SeriesDescription'):
+            patient_study_df[c] = patient_study_df[c].map(lambda x: cln(x.replace("\/", " ")), na_action='ignore')
+
+        # Add the full name for modality.
+        patient_study_df['ModalityFull'] = patient_study_df['Modality'].map(
+            lambda x: dicom_m.get(x, np.NaN), na_action='ignore')
+
+        # Convert SeriesDate to datetime
+        patient_study_df['SeriesDate'] = pd.to_datetime(patient_study_df['SeriesDate'], infer_datetime_format=True)
+
+        # Sort and Return
+        return patient_study_df.sort_values(by=['PatientID', 'Session'])
+
+    def pull(self, study, patient_limit=3):
+        """
+
+        Extract record of all images for all patients in a given study.
+
+        :param study:
+        :type study: ``str``
+        :param patient_limit: patient_limit on the number of patients to extract.
+                             Patient IDs are sorted prior to this patient_limit being imposed.
+                             If ``None``, no patient_limit will be imposed. Defaults to `3`.
+        :type patient_limit: ``int`` or ``None``
+        :return: a dataframe of all baseline images
+        :rtype: ``Pandas DataFrame``
+        """
+        # ToDo: add illness name to dataframe.
+        # ToDo: consider adding record dataframe cacheing
+        # Summarize a study by patient
+        study_dict = self._summarize_study_by_patient(study)
+
+        # Check for invalid `patient_limit` values:
+        if not isinstance(patient_limit, int) and patient_limit is not None:
+            raise ValueError('`patient_limit` must be an integer or `None`.')
+        elif isinstance(patient_limit, int) and patient_limit < 1:
+            raise ValueError('If `patient_limit` is an integer it must be greater than or equal to 1.')
+
+        # Define number of patients to extract
+        s_patients = sorted(study_dict.keys())
+        patients_to_obtain = s_patients[:patient_limit] if isinstance(patient_limit, int) else s_patients
+
+        # Evolve a dataframe ('frame') for the baseline images of all patients
+        frames = list()
+        for patient in tqdm(patients_to_obtain):
+            frames.append(self._patient_img_summary(patient, patient_dict=study_dict[patient]))
+
+        # Concatenate baselines frame for each patient
+        patient_study_df = pd.concat(frames, ignore_index=True)
+
+        # Add Study name
+        patient_study_df['StudyName'] = study
+
+        # Clean the dataframe and return
+        return self._clean_patient_study_df(patient_study_df)
+
+
+# ---------------------------------------------------------------------------------------------
+# Pull Images from The Cancer Imaging Archive
+# ---------------------------------------------------------------------------------------------
+
+
+class _CancerImgArchiveImages(object):
+    """
+
+    :param root_url: the root URL for the The Cancer Imaging Archive's API.
+    :type root_url: ``str``
+    """
+
+    def __init__(self, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+        self._root_url = root_url
+
+    def _download_zip(self, series_uid, save_location):
+        """
+
+        :param series_uid:
+        :param save_location:
+        :return: list of paths to the new files.
+        """
+        # See: http://stackoverflow.com/a/14260592/4898004
+
+        # Define URL to extract the images from
+        url = '{0}/query/getImage?SeriesInstanceUID={1}&format=csv&api_key={2}'.format(
+            self._root_url, series_uid, API_KEY)
+        r = requests.get(url)
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        z.extractall(save_location)
+        def file_path_full(f):
+            base_name = cln(os.path.basename(f.filename))
+            return os.path.join(save_location, base_name) if len(base_name) else None
+        return list(filter(None, [file_path_full(f) for f in z.filelist]))
+
+    def _image_processing(self, f, pull_position, conversion, save_location, new_file_name, img_format):
+        """
+
+        This method handles the act of saving images.
+        An image (``f``) can be either 2 or 3 Dimensional.
+
+        :param f:
+        :param pull_position: the position of the file in the list of files pulled from the database.
+        :type pull_position: ``int``
+        :param conversion:
+        :param save_location:
+        :param new_file_name:
+        :type new_file_name: ``str``
+        :param img_format:
+        :type img_format: ``str``
+        :return:
+        """
+        # Define a list to populate with a record of all images saved
+        all_save_paths = list()
+
+        # Extract a pixel array from the dicom file.
+        pixel_arr = f.pixel_array
+
+        def save_path(instance):
+            """Define the path to save the image to."""
+            head = "{0}_{1}".format(instance, pull_position)
+            file_name = "{0}__{1}__D.{2}".format(head, os.path.basename(new_file_name), img_format.replace(".", ""))
+            return os.path.join(save_location, file_name)
+
+        if pixel_arr.ndim == 2:
+            # Define save name by combining the images instance in the set, `new_file_name` and `img_format`.
+            instance = cln(str(f.InstanceNumber)) if len(cln(str(f.InstanceNumber))) else '0'
+            path = save_path(instance)
+            Image.fromarray(pixel_arr).convert(conversion).save(path)
+            all_save_paths.append(path)
+        # If ``f`` is a 3D image (e.g., segmentation dicom files), save each layer as a seperate file/image.
+        elif pixel_arr.ndim == 3:
+            for instance, layer in enumerate(range(pixel_arr.shape[0]), start=1):
+                path = save_path(instance)
+                Image.fromarray(pixel_arr[layer:layer + 1][0]).convert(conversion).save(path)
+                all_save_paths.append(path)
         else:
-            converted_files.append([sl_summary])
-            raw_dicom_files.append(tuple(dsl_summary))
+            raise ValueError("Cannot coerce {0} dimensional image arrays. Images must be 2D or 3D.".format(pixel_arr.ndim))
 
-    # Return the position of all files (flatten the inner most dimension of `converted_files` first).
-    return [tuple(chain(*cf)) for cf in converted_files], raw_dicom_files
+        return all_save_paths
 
+    def _save_dicom(self, path_to_dicom_file, save_location, pull_position, save_name=None, color=False, img_format='png'):
+        """
 
-def _pull_images(records,
-                 save_location,
-                 session_limit=1,
-                 img_format='png',
-                 dicoms_save_location=None,
-                 check_cache_first=True):
-    """
+        Save a DICOM image as a more common file format.
 
-    :param records:
-    :param save_location:
-    :param session_limit: restruct image harvesting to the first ``n`` sessions, where ``n`` is the value passed
-                          to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
-    :type session_limit: ``int``
-    :param img_format:
-    :param dicoms_save_location:
-    :param check_cache_first:
-    :return:
-    """
-    # Apply limit on number of sessions, if any
-    if isinstance(session_limit, int):
-        if session_limit < 1:
-            raise ValueError("`session_limit` must be an intiger greater than or equal to 1.")
-        img_records = records[records['Session'].map(
-            lambda x: float(x) <= session_limit if pd.notnull(x) else False)].reset_index(drop=True)
+        :param path_to_dicom_file: path to a dicom image
+        :type path_to_dicom_file: ``str``
+        :param save_location: directory to save the converted image to
+        :type save_location: ``str``
+        :param pull_position:
+        :type pull_position: ``int``
+        :param save_name: name of the new file (do *NOT* include a file extension).
+                          To specifiy a file format, use ``img_format``.
+                          If ``None``, name from ``path_to_dicom_file`` will be conserved.
+        :type save_name: ``str``
+        :param color: If ``True``, convert the image to RGB before saving. If ``False``, save as a grayscale image.
+                      Defaults to ``False``
+        :type color: ``bool``
+        :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
+        :type img_format: ``str``
+        """
+        # Load the DICOM file into RAM
+        f = dicom.read_file(path_to_dicom_file)
 
-    # if verbose:
-    #   header("Downloading Batches of Images... ")
+        # Conversion (needed so the resultant image is not pure black)
+        conversion = 'RGB' if color else 'LA'  # note: 'LA' = grayscale.
 
-    # Harvest images
-    converted_files, raw_dicom_files = _pull_images_engine(img_records, save_location, dicoms_save_location,
-                                                           img_format, check_cache_first)
+        if isinstance(save_name, str):
+            new_file_name = save_name
+        else:
+            # Remove the file extension and then extract the base name from the path.
+            new_file_name = os.path.basename(os.path.splitext(path_to_dicom_file)[0])
 
-    # Add paths to the images
-    img_records['ConvertedFilesPaths'] = converted_files
-    img_records['RawDicomFilesPaths'] = raw_dicom_files
+        # Convert the image into a PIL object and Save
+        return self._image_processing(f, pull_position, conversion, save_location, new_file_name, img_format)
 
-    # Add column which provides the number of images each SeriesInstanceUID yeilded
-    # Note: this may be discrepant with the 'ImageCount' column because 3D images are expanded into
-    #       their individual frames when saved to the converted images cache.
-    img_records['ImageCountConvertedCache'] = img_records['ConvertedFilesPaths'].map(len, na_action='ignore')
+    def _move_dicom_files(self, dicom_files, series_abbreviation, dicoms_save_location):
+        """
 
-    return img_records
+        Move the dicom source files to ``dicoms_save_location``.
+        Employ to prevent the raw dicom files from being destroyed.
+
+        :param dicom_files:
+        :param series_abbreviation:
+        :param dicoms_save_location:
+        :return:
+        """
+        new_dircom_paths = list()
+        for f in dicom_files:
+            f_parsed = list(os.path.splitext(os.path.basename(f)))
+            new_dicom_file_name = "{0}__{1}{2}".format(f_parsed[0], series_abbreviation, f_parsed[1])
+
+            # Define the location of the new files
+            new_location = os.path.join(dicoms_save_location, new_dicom_file_name)
+            new_dircom_paths.append(new_location)
+
+            # Move the dicom file from __temp__ --> to --> new location
+            os.rename(f, new_location)
+
+        return tuple(new_dircom_paths)
+
+    def _cache_check(self, check_cache_first, series_abbreviation, save_location, dicoms_save_location, n_images_min):
+        """
+
+        Check that caches likely contain that data which would be obtained by downloading it from the database.
+
+        :param series_abbreviation:
+        :param save_location:
+        :param dicoms_save_location:
+        :return: tuple of the form:
+
+                ``(cache likely complete,
+                   series_abbreviation matches in save_location,
+                   series_abbreviation matches in save_location)``
+
+        :type: ``tuple``
+        :param n_images_min:
+        :type n_images_min: ``int``
+        """
+        # Instruct ``_pull_images_engine()`` to download the images without checking the cache first.
+        if check_cache_first is False:
+            return False, None, None
+
+        # Check that `save_location` has files which contain the string `series_abbreviation`.
+        save_location_summary = [f for f in os.listdir(save_location) if series_abbreviation in f]
+
+        # Check that `dicoms_save_location` has files which contain the string `series_abbreviation`.
+        dicoms_save_location_summary_complete = False
+        if dicoms_save_location is not None:
+            dicoms_save_location_summary = [f for f in os.listdir(dicoms_save_location) if series_abbreviation in f]
+            dicoms_save_location_summary_complete = len(dicoms_save_location_summary) >= n_images_min
+        else:
+            dicoms_save_location_summary = np.NaN
+            dicoms_save_location_summary_complete = True
+
+        # Compose completeness boolean from the status of `save_location` and `dicoms_save_location`
+        complete = len(save_location_summary) >= n_images_min and dicoms_save_location_summary_complete
+
+        return complete, save_location_summary, dicoms_save_location_summary
+
+    def _pull_images_engine(self, img_records, save_location, dicoms_save_location, img_format, check_cache_first):
+        """
+
+        :param img_records:
+        :param save_location:
+        :param dicoms_save_location:
+        :param img_format:
+        :param check_cache_first:
+        :return:
+        """
+        # ToDo: add real-time record keeping for files as they are downloaded.
+        converted_files, raw_dicom_files = list(), list()
+
+        # Note: tqdm appears to be unstable with generators (hence `list()`).
+        pairings = list(zip(*[img_records[c] for c in ('SeriesInstanceUID', 'PatientID', 'ImageCount')]))
+
+        def create_temp():
+            """Construct a temporary folder to save the raw dicom files to."""
+            temp_folder = os.path.join(save_location, "__temp__")
+            if os.path.isdir(temp_folder):
+                shutil.rmtree(temp_folder, ignore_errors=True)
+            os.makedirs(temp_folder)
+            return temp_folder
+
+        for series_uid, patient_id, image_count in tqdm(pairings):
+            # Compose central part of the file name from 'PatientID' and the last ten digits of 'SeriesInstanceUID'
+            series_abbreviation = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
+
+            # Analyze the cache to determine whether or not downloading the images is warented
+            cache_complete, sl_summary, dsl_summary = self._cache_check(check_cache_first, series_abbreviation,
+                                                                       save_location, dicoms_save_location, image_count)
+
+            if not cache_complete:
+                # Create temp. foloder
+                temp_folder = create_temp()
+
+                # Download the images into a temp. folder
+                dicom_files = self._download_zip(series_uid, save_location=temp_folder)
+
+                # Convert dicom files to `img_format`
+                cfs = [self._save_dicom(f, save_location, e, save_name=series_abbreviation, img_format=img_format)
+                       for e, f in enumerate(dicom_files, start=1)]
+                converted_files.append(cfs)
+
+                # Save raw dicom files
+                if isinstance(dicoms_save_location, str):
+                    raw_dicom_files.append(self._move_dicom_files(dicom_files, series_abbreviation, dicoms_save_location))
+                else:
+                    raw_dicom_files.append(np.NaN)
+
+                # Delete the temp folder.
+                shutil.rmtree(temp_folder, ignore_errors=True)
+            else:
+                converted_files.append([sl_summary])
+                raw_dicom_files.append(tuple(dsl_summary))
+
+        # Return the position of all files (flatten the inner most dimension of `converted_files` first).
+        return [tuple(chain(*cf)) for cf in converted_files], raw_dicom_files
+
+    def pull(self,
+             records,
+             save_location,
+             session_limit=1,
+             img_format='png',
+             dicoms_save_location=None,
+             check_cache_first=True):
+        """
+
+        :param records:
+        :param save_location:
+        :param session_limit: restruct image harvesting to the first ``n`` sessions, where ``n`` is the value passed
+                              to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
+        :type session_limit: ``int``
+        :param img_format:
+        :param dicoms_save_location:
+        :param check_cache_first:
+        :return:
+        """
+        # Apply limit on number of sessions, if any
+        if isinstance(session_limit, int):
+            if session_limit < 1:
+                raise ValueError("`session_limit` must be an intiger greater than or equal to 1.")
+            img_records = records[records['Session'].map(
+                lambda x: float(x) <= session_limit if pd.notnull(x) else False)].reset_index(drop=True)
+
+        # if verbose:
+        #   header("Downloading Batches of Images... ")
+
+        # Harvest images
+        converted_files, raw_dicom_files = self._pull_images_engine(img_records, save_location, dicoms_save_location,
+                                                                    img_format, check_cache_first)
+
+        # Add paths to the images
+        img_records['ConvertedFilesPaths'] = converted_files
+        img_records['RawDicomFilesPaths'] = raw_dicom_files
+
+        # Add column which provides the number of images each SeriesInstanceUID yeilded
+        # Note: this may be discrepant with the 'ImageCount' column because 3D images are expanded into
+        #       their individual frames when saved to the converted images cache.
+        img_records['ImageCountConvertedCache'] = img_records['ConvertedFilesPaths'].map(len, na_action='ignore')
+
+        return img_records
 
 
 
