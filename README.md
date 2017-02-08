@@ -4,9 +4,9 @@
 
 -----------------
 
-BioVida is a library designed to automate both the harvesting and 
-post-processing of biomedical data. This automation is accomplished
-with a combination of traditional software engineering approaches
+BioVida is a library designed to automate both the harvesting, 
+post-processing and integration of biomedical data. This automation
+is accomplished with a combination of traditional software development approaches
 and the latest machine learning techniques, namely convolutional
 neural networks.
 
