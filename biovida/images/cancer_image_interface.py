@@ -373,6 +373,7 @@ def _pull_records(study, patient_limit=3):
     :rtype: ``Pandas DataFrame``
     """
     # ToDo: add illness name to dataframe.
+    # ToDo: consider adding record dataframe cacheing
     # Summarize a study by patient
     study_dict = _summarize_study_by_patient(study)
 
@@ -401,14 +402,18 @@ def _pull_records(study, patient_limit=3):
     return _clean_patient_study_df(patient_study_df)
 
 
-def _download_zip(url, save_location="/Users/tariq/Desktop/temp"):
+def _download_zip(root_url, series_uid, save_location):
     """
 
-    :param url:
+    :param root_url:
+    :param series_uid:
     :param save_location:
     :return: list of paths to the new files.
     """
     # See: http://stackoverflow.com/a/14260592/4898004
+
+    # Define URL to extract the images from
+    url = '{0}/query/getImage?SeriesInstanceUID={1}&format=csv&api_key={2}'.format(root_url, series_uid, API_KEY)
     r = requests.get(url)
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(save_location)
@@ -418,7 +423,7 @@ def _download_zip(url, save_location="/Users/tariq/Desktop/temp"):
     return list(filter(None, [file_path_full(f) for f in z.filelist]))
 
 
-def _image_processing(f, pull_position, conversion, save_location, new_file_name, img_format, override_existing=False):
+def _image_processing(f, pull_position, conversion, save_location, new_file_name, img_format):
     """
 
     This method handles the act of saving images.
@@ -451,15 +456,13 @@ def _image_processing(f, pull_position, conversion, save_location, new_file_name
         # Define save name by combining the images instance in the set, `new_file_name` and `img_format`.
         instance = cln(str(f.InstanceNumber)) if len(cln(str(f.InstanceNumber))) else '0'
         path = save_path(instance)
-        if not os.path.isfile(path) or override_existing:
-            Image.fromarray(pixel_arr).convert(conversion).save(path)
+        Image.fromarray(pixel_arr).convert(conversion).save(path)
         all_save_paths.append(path)
     # If ``f`` is a 3D image (e.g., segmentation dicom files), save each layer as a seperate file/image.
     elif pixel_arr.ndim == 3:
         for instance, layer in enumerate(range(pixel_arr.shape[0]), start=1):
             path = save_path(instance)
-            if not os.path.isfile(path) or override_existing:
-                Image.fromarray(pixel_arr[layer:layer + 1][0]).convert(conversion).save(path)
+            Image.fromarray(pixel_arr[layer:layer + 1][0]).convert(conversion).save(path)
             all_save_paths.append(path)
     else:
         raise ValueError("Cannot coerce {0} dimensional image arrays. Images must be 2D or 3D.".format(pixel_arr.ndim))
@@ -530,53 +533,113 @@ def _move_dicom_files(dicom_files, series_abbreviation, dicoms_save_location):
     return tuple(new_dircom_paths)
 
 
-def _image_downloads_engine(img_records, save_location, dicoms_save_location, img_format):
+def _cache_check(check_cache_first, series_abbreviation, save_location, dicoms_save_location, n_images_min):
+    """
+
+    Check that caches likely contain that data which would be obtained by downloading it from the database.
+
+    :param series_abbreviation:
+    :param save_location:
+    :param dicoms_save_location:
+    :return: tuple of the form:
+
+            ``(cache likely complete,
+               series_abbreviation matches in save_location,
+               series_abbreviation matches in save_location)``
+
+    :type: ``tuple``
+    :param n_images_min:
+    :type n_images_min: ``int``
+    """
+    # Instruct ``_pull_images_engine()`` to download the images without checking the cache first.
+    if check_cache_first is False:
+        return False, None, None
+
+    # Check that `save_location` has files which contain the string `series_abbreviation`.
+    save_location_summary = [f for f in os.listdir(save_location) if series_abbreviation in f]
+
+    # Check that `dicoms_save_location` has files which contain the string `series_abbreviation`.
+    dicoms_save_location_summary_complete = False
+    if dicoms_save_location is not None:
+        dicoms_save_location_summary = [f for f in os.listdir(dicoms_save_location) if series_abbreviation in f]
+        dicoms_save_location_summary_complete = len(dicoms_save_location_summary) >= n_images_min
+    else:
+        dicoms_save_location_summary = np.NaN
+        dicoms_save_location_summary_complete = True
+
+    # Compose completeness boolean from the status of `save_location` and `dicoms_save_location`
+    complete = len(save_location_summary) >= n_images_min and dicoms_save_location_summary_complete
+
+    return complete, save_location_summary, dicoms_save_location_summary
+
+
+def _pull_images_engine(img_records, save_location, dicoms_save_location, img_format, check_cache_first):
     """
 
     :param img_records:
+    :param save_location:
+    :param dicoms_save_location:
+    :param img_format:
+    :param check_cache_first:
     :return:
     """
+    # ToDo: add real-time record keeping for files as they are downloaded.
     converted_files, raw_dicom_files = list(), list()
 
     # Note: tqdm appears to be unstable with generators (hence `list()`).
-    pairings = list(zip(*[img_records[c] for c in ('SeriesInstanceUID', 'PatientID')]))
+    pairings = list(zip(*[img_records[c] for c in ('SeriesInstanceUID', 'PatientID', 'ImageCount')]))
 
-    for series_uid, patient_id in tqdm(pairings):
-        # Define a temporary folder to save the raw dicom files to
+    def create_temp():
+        """Define a temporary folder to save the raw dicom files to."""
         temp_folder = os.path.join(save_location, "__temp__")
         if os.path.isdir(temp_folder):
             shutil.rmtree(temp_folder, ignore_errors=True)
         os.makedirs(temp_folder)
+        return temp_folder
 
-        # Define URL to extract the images from
-        url = '{0}/query/getImage?SeriesInstanceUID={1}&format=csv&api_key={2}'.format(root_url, series_uid, API_KEY)
-
-        # Download the images into a temp. folder
-        dicom_files = _download_zip(url, temp_folder)
-
+    for series_uid, patient_id, image_count in tqdm(pairings):
         # Compose central part of the file name from 'PatientID' and the last ten digits of 'SeriesInstanceUID'
         # (the last ten digits is what the cancer imaging archive uses to reference images cached in their database).
         series_abbreviation = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
 
-        # Save all images in the Series
-        cfs = [_save_dicom(f, save_location, pull_position=e, save_name=series_abbreviation, img_format=img_format)
-               for e, f in enumerate(dicom_files, start=1)]
-        converted_files.append(cfs)
+        # Analyze the cache to determine whether or not downloading the images is warented
+        cache_complete, sl_summary, dsl_summary = _cache_check(check_cache_first, series_abbreviation, save_location,
+                                                               dicoms_save_location, image_count)
 
-        # ToDo: add real-time record keeping for files as they download.
-        if isinstance(dicoms_save_location, str):
-            raw_dicom_files.append(_move_dicom_files(dicom_files, series_abbreviation, dicoms_save_location))
+        if not cache_complete:
+            # Create temp. foloder
+            temp_folder = create_temp()
+
+            # Download the images into a temp. folder
+            dicom_files = _download_zip(root_url, series_uid, save_location=temp_folder)
+
+            # Convert dicom files to `img_format`
+            cfs = [_save_dicom(f, save_location, pull_position=e, save_name=series_abbreviation, img_format=img_format)
+                   for e, f in enumerate(dicom_files, start=1)]
+            converted_files.append(cfs)
+
+            # Save raw dicom files
+            if isinstance(dicoms_save_location, str):
+                raw_dicom_files.append(_move_dicom_files(dicom_files, series_abbreviation, dicoms_save_location))
+            else:
+                raw_dicom_files.append(np.NaN)
+
+            # Delete the temp folder.
+            shutil.rmtree(temp_folder, ignore_errors=True)
         else:
-            raw_dicom_files.append(np.NaN)
+            converted_files.append([sl_summary])
+            raw_dicom_files.append(tuple(dsl_summary))
 
-        # Delete the `__temp__` folder.
-        shutil.rmtree(temp_folder, ignore_errors=True)
-
-    # Return the position of all files (flatten the inner most dimension for `converted_files` first).
+    # Return the position of all files (flatten the inner most dimension of `converted_files` first).
     return [tuple(chain(*cf)) for cf in converted_files], raw_dicom_files
 
 
-def _pull_images(records, save_location, session_limit=1, img_format='png', dicoms_save_location=None):
+def _pull_images(records,
+                 save_location,
+                 session_limit=1,
+                 img_format='png',
+                 dicoms_save_location=None,
+                 check_cache_first=True):
     """
 
     :param records:
@@ -586,10 +649,9 @@ def _pull_images(records, save_location, session_limit=1, img_format='png', dico
     :type session_limit: ``int``
     :param img_format:
     :param dicoms_save_location:
+    :param check_cache_first:
     :return:
     """
-    # ToDo: move `img_format` to class' init.
-
     # Apply limit on number of sessions, if any
     if isinstance(session_limit, int):
         if session_limit < 1:
@@ -599,28 +661,21 @@ def _pull_images(records, save_location, session_limit=1, img_format='png', dico
 
     # if verbose:
     #   header("Downloading Batches of Images... ")
+
     # Harvest images
-    converted_files, raw_dicom_files = _image_downloads_engine(img_records,
-                                                               save_location,
-                                                               dicoms_save_location,
-                                                               img_format)
+    converted_files, raw_dicom_files = _pull_images_engine(img_records, save_location, dicoms_save_location,
+                                                           img_format, check_cache_first)
 
     # Add paths to the images
     img_records['ConvertedFilesPaths'] = converted_files
     img_records['RawDicomFilesPaths'] = raw_dicom_files
 
+    # Add column which provides the number of images each SeriesInstanceUID yeilded
+    # Note: this may be discrepant with the 'ImageCount' column because 3D images are expanded into
+    #       their individual frames when saved to the converted images cache.
+    img_records['ImageCountConvertedCache'] = img_records['ConvertedFilesPaths'].map(len, na_action='ignore')
+
     return img_records
-
-
-
-
-
-
-
-
-
-
-
 
 
 
