@@ -5,6 +5,7 @@
 
 """
 # Imports
+import numpy as np
 import pandas as pd
 from copy import deepcopy
 
@@ -193,6 +194,11 @@ def _pandas_series_alignment(pandas_series, justify):
             return "[{0}]".format(", ".join(map(str, list(x))))
         elif isinstance(x, tuple):
             return "({0})".format(", ".join(map(str, x)))
+        elif 'pandas' in str(type(x)) and 'Timestamp' in str(type(x)):
+            if all((x.hour == 0, x.minute == 0, x.second == 0)):
+                return x.strftime('%Y-%m-%d')
+            else:
+                return str(x)
         else:
             return str(x)
 
@@ -227,17 +233,19 @@ def _align_pandas(data_frame, to_align='right'):
     return data_frame
 
 
-def _pandas_print_full(pd_df, full_rows=False, full_cols=False):
+def _pandas_print_full(pd_df, full_rows=False, full_cols=False, lift_column_width_limit=False):
     """
 
     Print *all* of a Pandas DataFrame.
 
     :param pd_df: DataFrame to printed in its entirety.
     :type pd_df: ``Pandas DataFrame``
-    :param full_rows: print all rows if True. Defaults to False.
+    :param full_rows: print all rows if ``True``. Defaults to ``False``.
     :type full_rows: ``bool``
-    :param full_cols: print all columns side-by-side if True. Defaults to True.
+    :param full_cols: print all columns side-by-side if True. Defaults to ``True``.
     :type full_cols: ``bool``
+    :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
+    :type lift_column_width_limit: ``bool``
     """
     # Source: https://github.com/TariqAHassan/EasyMoney
     if full_rows:
@@ -245,14 +253,21 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False):
     if full_cols:
         pd.set_option('expand_frame_repr', False)
         pd.set_option('display.max_columns', pd_df.shape[1])
+    if lift_column_width_limit:
+        pd.set_option('display.width', 10000)
+        pd.set_option('display.max_colwidth', 10000)
 
     print(pd_df)
 
+    # Restore Pandas Printing Defaults
     if full_rows:
         pd.reset_option('display.max_rows')
     if full_cols:
         pd.set_option('expand_frame_repr', True)
         pd.set_option('display.max_columns', 20)
+    if lift_column_width_limit:
+        pd.reset_option('display.width')
+        pd.reset_option('display.max_colwidth')
 
 
 def _pandas_series_print(series):
@@ -268,7 +283,12 @@ def _pandas_series_print(series):
             print("{0}:".format(str(i)), v)
 
 
-def pandas_pprint(data, col_align='right', header_align='center', full_rows=False, full_cols=False):
+def pandas_pprint(data,
+                  col_align='right',
+                  header_align='center',
+                  full_rows=False,
+                  full_cols=False,
+                  lift_column_width_limit=False):
     """
 
     Pretty Print a Pandas DataFrame or Series.
@@ -284,12 +304,14 @@ def pandas_pprint(data, col_align='right', header_align='center', full_rows=Fals
     :type full_rows: ``bool``
     :param full_cols: print all columns.
     :type full_cols: ``bool``
+    :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
+    :type lift_column_width_limit: ``bool``
     """
     # Source: https://github.com/TariqAHassan/EasyMoney
     if 'DataFrame' in str(type(data)):
         aligned_df = _align_pandas(data, col_align)
         pd.set_option('colheader_justify', header_align)
-        _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols)
+        _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols, lift_column_width_limit)
         pd.set_option('colheader_justify', 'right')
     elif 'Series' in str(type(data)):
         _pandas_series_print(data)
