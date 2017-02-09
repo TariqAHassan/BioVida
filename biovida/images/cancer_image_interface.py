@@ -20,8 +20,6 @@ from warnings import warn
 from itertools import chain
 from time import sleep
 
-from biovida.images.ci_api_key import API_KEY
-
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import only_numeric
@@ -52,7 +50,11 @@ class _CancerImgArchiveOverview(object):
     :type tcia_homepage: ``str``
     """
 
-    def __init__(self, dicom_modaility_abbrevs, verbose=False, cache_path=None, tcia_homepage='http://www.cancerimagingarchive.net'):
+    def __init__(self,
+                 dicom_modaility_abbrevs,
+                 verbose=False,
+                 cache_path=None,
+                 tcia_homepage='http://www.cancerimagingarchive.net'):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
         _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['aux'])
@@ -172,13 +174,16 @@ class _CancerImgArchiveRecords(object):
     :type root_url: ``str``
     """
 
-    def __init__(self, dicom_modaility_abbrevs, cancer_img_archive_overview, root_url):
-        self._root_url = root_url
+    def __init__(self, api_key, dicom_modaility_abbrevs, cancer_img_archive_overview, root_url):
+        self._ROOT_URL = root_url
         self.records_df = None
         self.dicom_modaility_abbrevs = dicom_modaility_abbrevs
         self._Overview = cancer_img_archive_overview
+        self.API_KEY = api_key
 
-    def _extract_study(self, study):
+        self._url_sep = '+'
+
+    def _study_extract(self, study):
         """
 
         Download all patients in a given study.
@@ -188,8 +193,25 @@ class _CancerImgArchiveRecords(object):
         :return:
         """
         url = '{0}/query/getPatientStudy?Collection={1}&format=csv&api_key={2}'.format(
-            self._root_url, cln(study).replace(' ', '+'), API_KEY)
+            self._ROOT_URL, cln(study).replace(' ', self._url_sep), self.API_KEY)
         return pd.DataFrame.from_csv(url).reset_index()
+
+    def _robust_study_extract(self, study):
+        """
+
+        :param study:
+        :return:
+        """
+        study_df = self._study_extract(study)
+        if study_df.shape[0] == 0:
+            self._url_sep = '-'
+            study_df = self._study_extract(study)
+            if study_df.shape[0] == 0:
+                raise ValueError("Cannot extract collection/study data.\n"
+                                 "The seperator being used to replace spaces in the URL is may incorrect. An attempt\n"
+                                 "was made with the following seperators: '+' and '-'. Alternatively, this problem\n"
+                                 "could be caused by a problem with The Cancer Imaging Archive API.")
+        return study_df
 
     def _date_index_map(self, list_of_dates):
         """
@@ -217,7 +239,7 @@ class _CancerImgArchiveRecords(object):
         :rtype: ``dict``
         """
         # Download a summary of all patients in a study
-        study_df = self._extract_study(study)
+        study_df = self._robust_study_extract(study)
 
         # Convert StudyDate to datetime
         study_df['StudyDate'] = pd.to_datetime(study_df['StudyDate'], infer_datetime_format=True)
@@ -253,7 +275,7 @@ class _CancerImgArchiveRecords(object):
         """
         # Select an individual Patient
         url = '{0}/query/getSeries?Collection={1}&PatientID={2}&format=csv&api_key={3}'.format(
-            self._root_url, cln(study).replace(' ', '+'), patient, API_KEY)
+            self._ROOT_URL, cln(study).replace(' ', self._url_sep), patient, self.API_KEY)
         patient_df = pd.DataFrame.from_csv(url).reset_index()
 
         def upper_first(s):
@@ -332,8 +354,8 @@ class _CancerImgArchiveRecords(object):
 
         :param study:
         :type study: ``str``
-        :param patient_limit: patient_limit on the number of patients to extract.
-                             Patient IDs are sorted prior to this patient_limit being imposed.
+        :param patient_limit: limit on the number of patients to extract.
+                             Patient IDs are sorted prior to this limit being imposed.
                              If ``None``, no patient_limit will be imposed. Defaults to `3`.
         :type patient_limit: ``int`` or ``None``
         :return: a dataframe of all baseline images
@@ -386,11 +408,12 @@ class _CancerImgArchiveImages(object):
     :type root_url: ``str``
     """
 
-    def __init__(self, dicom_modaility_abbrevs, root_url, cache_path=None):
+    def __init__(self, api_key, dicom_modaility_abbrevs, root_url, cache_path=None):
         _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
                                                           to_create=['dicoms', 'raw'])
-        self._root_url = root_url
+        self._ROOT_URL = root_url
         self.dicom_modaility_abbrevs = dicom_modaility_abbrevs
+        self.API_KEY = api_key
 
     def _download_zip(self, series_uid, temporary_folder):
         """
@@ -403,7 +426,7 @@ class _CancerImgArchiveImages(object):
 
         # Define URL to extract the images from
         url = '{0}/query/getImage?SeriesInstanceUID={1}&format=csv&api_key={2}'.format(
-            self._root_url, series_uid, API_KEY)
+            self._ROOT_URL, series_uid, self.API_KEY)
         r = requests.get(url)
         z = zipfile.ZipFile(io.BytesIO(r.content))
         z.extractall(temporary_folder)
@@ -685,21 +708,32 @@ class _CancerImgArchiveImages(object):
 class CancerImageInterface(object):
     """
 
-    :param verbose:
-    :param cache_path:
-    :param root_url:
+    Python Interface for the Cancer Imaging Archive's API.
+
+    :param api_key: an key to the The Cancer Imaging Archive's API.
+                    To request a key, please see:
+                    https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide
+    :type api_key: ``str``
+    :param verbose: print additional details.
+    :type verbose: ``bool``
+    :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
+                       one will created. Default to ``None``, which will generate a cache in the home folder.
+    :type cache_path: ``str`` or ``None``
     """
 
     def __init__(self,
+                 api_key,
                  verbose=True,
-                 cache_path=None,
-                 root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+                 cache_path=None):
         self._verbose = verbose
         self.dicom_modaility_abbrevs = CancerImgArchiveParams().dicom_modality_abbreviations('dict')
 
-        self._Overview = _CancerImgArchiveOverview(self.dicom_modaility_abbrevs, verbose, cache_path=cache_path)
-        self._Records = _CancerImgArchiveRecords(self.dicom_modaility_abbrevs, self._Overview, root_url)
-        self._Images = _CancerImgArchiveImages(self.dicom_modaility_abbrevs, cache_path=cache_path, root_url=root_url)
+        # Root URL to for the Cancer Imaging Archive's REST API
+        root_url = 'https://services.cancerimagingarchive.net/services/v3/TCIA'
+
+        self._Overview = _CancerImgArchiveOverview(self.dicom_modaility_abbrevs, verbose, cache_path)
+        self._Records = _CancerImgArchiveRecords(api_key, self.dicom_modaility_abbrevs, self._Overview, root_url)
+        self._Images = _CancerImgArchiveImages(api_key, self.dicom_modaility_abbrevs, root_url, cache_path)
 
         # DataFrames
         self.current_search = None
@@ -792,8 +826,12 @@ class CancerImageInterface(object):
     def _pull_records(self, patient_limit):
         """
 
-        :param patient_limit:
-        :return:
+        :param patient_limit: limit on the number of patients to extract.
+                             Patient IDs are sorted prior to this limit being imposed.
+                             If ``None``, no patient_limit will be imposed. Defaults to `3`.
+        :type patient_limit: ``int`` or ``None``
+        :return: a list of dataframes
+        :rtype: ``list``
         """
         # Loop through and download all of the studies
         record_frames = list()
@@ -807,11 +845,14 @@ class CancerImageInterface(object):
         """
 
         :param record_frames:
-        :param session_limit:
+        :param session_limit: restruct image harvesting to the first ``n`` sessions, where ``n`` is the value passed
+                              to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
+        :type session_limit: ``int``
         :param img_format:
         :param save_dicoms:
         :param check_cache_first:
-        :return:
+        :return: a list of dataframes
+        :rtype: ``list``
         """
         img_frames = list()
         for records in record_frames:
@@ -824,17 +865,28 @@ class CancerImageInterface(object):
              pull_images=True,
              session_limit=1,
              img_format='png',
-             save_dicoms=True,
+             save_dicoms=False,
              check_cache_first=True):
         """
 
-        :param patient_limit:
-        :param pull_images:
-        :param session_limit:
-        :param img_format:
-        :param save_dicoms:
+        Pull (i.e., download) the current search.
+
+        :param patient_limit: limit on the number of patients to extract.
+                             Patient IDs are sorted prior to this limit being imposed.
+                             If ``None``, no patient_limit will be imposed. Defaults to `3`.
+        :type patient_limit: ``int`` or ``None``
+        :param pull_images: if ``True`` download images. Defaults to ``True``.
+        :type pull_images: ``bool``
+        :param session_limit: restruct image harvesting to the first ``n`` sessions, where ``n`` is the value passed
+                              to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
+        :type session_limit: ``int``
+        :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
+        :type img_format: ``str``
+        :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.
+        :type save_dicoms: ``bool``
         :param check_cache_first:
-        :return:
+        :return: a DataFrame with the record information.
+        :rtype: ``Pandas DataFrame``
         """
         if self.current_search is None:
             raise AttributeError("`current_search` is empty. A search must be performed before `pull()` is called.")
@@ -852,107 +904,6 @@ class CancerImageInterface(object):
         self.pull_records = pd.concat(final_frames, ignore_index=True)
 
         return self.pull_records
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
