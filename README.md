@@ -174,4 +174,4 @@ Diagnostics
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
 [DiseaseOntology]: http://disease-ontology.org
-[The Cancer Imaging Archive]: https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide+-+v1
+[The Cancer Imaging Archive]: http://www.cancerimagingarchive.net
