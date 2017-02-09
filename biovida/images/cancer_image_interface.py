@@ -13,14 +13,14 @@ import zipfile
 import requests
 import numpy as np
 import pandas as pd
+
 from tqdm import tqdm
 from PIL import Image
+from warnings import warn
 from itertools import chain
+from time import sleep
 
 from biovida.images.ci_api_key import API_KEY
-
-from biovida.support_tools._cache_management import package_cache_creator
-from biovida.images._resources.cancer_image_parameters import CancerImgArchiveParams
 
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
@@ -29,12 +29,13 @@ from biovida.support_tools.support_tools import combine_dicts
 from biovida.support_tools.support_tools import items_null
 from biovida.support_tools.printing import pandas_pprint
 
+from biovida.support_tools._cache_management import package_cache_creator
+from biovida.images._resources.cancer_image_parameters import CancerImgArchiveParams
 
-dicom_m = CancerImgArchiveParams().dicom_modality_abbreviations('dict')
 
-# ---------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
 # Summarize Studies Provided Through The Cancer Imaging Archive
-# ---------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
 
 
 class _CancerImgArchiveOverview(object):
@@ -51,11 +52,11 @@ class _CancerImgArchiveOverview(object):
     :type tcia_homepage: ``str``
     """
 
-    def __init__(self, verbose=False, cache_path=None, tcia_homepage='http://www.cancerimagingarchive.net'):
+    def __init__(self, dicom_modaility_abbrevs, verbose=False, cache_path=None, tcia_homepage='http://www.cancerimagingarchive.net'):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
         _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['aux'])
-        self.dicom_m = CancerImgArchiveParams().dicom_modality_abbreviations('dict')
+        self.dicom_modaility_abbrevs = dicom_modaility_abbrevs
 
     def _all_studies_parser(self):
         """
@@ -82,7 +83,7 @@ class _CancerImgArchiveOverview(object):
 
         # Add Full Name for Modalities
         summary_df['ModalitiesFull'] = summary_df['Modalities'].map(
-            lambda x: [self.dicom_m.get(cln(i), i) for i in cln(x).split(", ")])
+            lambda x: [self.dicom_modaility_abbrevs.get(cln(i), i) for i in cln(x).split(", ")])
 
         # Parse the Location Column (and account for special case: 'Head-Neck').
         summary_df['Location'] = summary_df['Location'].map(
@@ -158,68 +159,10 @@ class _CancerImgArchiveOverview(object):
 
         return summary_df
 
-    def search(self,
-               collection=None,
-               cancer_type=None,
-               location=None,
-               modality=None,
-               download_override=False,
-               pretty_print=False):
-        """
 
-        Method to Search for studies on The Cancer Imaging Archive.
-
-        :param collection: a collection (study) hosted by The Cancer Imaging Archive.
-        :type collection: ``str`` or ``None``
-        :param cancer_type: a string or list/tuple of specifying cancer types.
-        :type cancer_type: ``str``, ``iterable`` or ``None``
-        :param location: a string or list/tuple of specifying body locations.
-        :type location: ``str``, ``iterable`` or ``None``
-        :param modality: see: ``_CancerImgArchiveOverview().dicom_m`` for valid values (the keys must be used).
-        :type modality: ``str``, ``iterable`` or ``None``
-        :param download_override: If ``True``, override any existing database currently cached and download a new one.
-                                  Defaults to ``False``.
-        :param pretty_print: if ``True``, pretty print the search results. Defaults to ``False``.
-        :type pretty_print: ``bool``
-        :return: a dataframe containing the search results.
-        :rtype: ``Pandas DataFrame``
-
-        :Example:
-
-        >>> _CancerImgArchiveOverview().studies(cancer_type=['Squamous'], location=['head'])
-        ...
-           Collection               CancerType               Modalities   Subjects    Location    Metadata  ...
-        0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
-
-        """
-        # Load the Summary Table
-        summary_df = self._all_studies_cache_mngt(download_override)
-
-        # Filter by `collection`
-        if isinstance(collection, str) and any(i is not None for i in (cancer_type, location)):
-            raise ValueError("Both `cancer_types` and `location` must be ``None`` if a `collection` name is passed.")
-        elif isinstance(collection, str):
-            summary_df = summary_df[summary_df['Collection'].str.strip().str.lower() == collection.strip().lower()]
-            if summary_df.shape[0] == 0:
-                raise AttributeError("No Collection with the name '{0}' could be found.".format(collection))
-            else:
-                return summary_df
-
-        # Apply Filters
-        summary_df = self._studies_filter(summary_df, cancer_type, location, modality)
-
-        if summary_df.shape[0] == 0:
-            raise AttributeError("No Results Found. Try Broadening the Search Criteria.")
-
-        if pretty_print:
-            pandas_pprint(summary_df.reset_index(drop=True), full_cols=True, col_align='left', lift_column_width_limit=True)
-        else:
-            return summary_df.reset_index(drop=True)
-
-
-# ---------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
 # Pull Records from The Cancer Imaging Archive
-# ---------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
 
 
 class _CancerImgArchiveRecords(object):
@@ -229,9 +172,11 @@ class _CancerImgArchiveRecords(object):
     :type root_url: ``str``
     """
 
-    def __init__(self, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+    def __init__(self, dicom_modaility_abbrevs, cancer_img_archive_overview, root_url):
         self._root_url = root_url
         self.records_df = None
+        self.dicom_modaility_abbrevs = dicom_modaility_abbrevs
+        self._Overview = cancer_img_archive_overview
 
     def _extract_study(self, study):
         """
@@ -358,7 +303,7 @@ class _CancerImgArchiveRecords(object):
 
         # Add the full name for modality.
         patient_study_df['ModalityFull'] = patient_study_df['Modality'].map(
-            lambda x: dicom_m.get(x, np.NaN), na_action='ignore')
+            lambda x: self.dicom_modaility_abbrevs.get(x, np.NaN), na_action='ignore')
 
         # Convert SeriesDate to datetime
         patient_study_df['SeriesDate'] = pd.to_datetime(patient_study_df['SeriesDate'], infer_datetime_format=True)
@@ -366,7 +311,21 @@ class _CancerImgArchiveRecords(object):
         # Sort and Return
         return patient_study_df.sort_values(by=['PatientID', 'Session']).reset_index(drop=True)
 
-    def pull(self, study, patient_limit=3):
+    def _get_illness_name(self, collection_series, overview_download_override):
+        """
+
+        :param collection:
+        :return:
+        """
+        unique_studies = collection_series.unique()
+        if len(unique_studies) == 1:
+            collection = unique_studies[0]
+        else:
+            raise AttributeError("`{0}` studies found in `records`.".format(str(len(unique_studies))))
+        summary_df = self._Overview._all_studies_cache_mngt(download_override=overview_download_override)
+        return summary_df[summary_df['Collection'] == collection]['CancerType'].iloc[0]
+
+    def records_pull(self, study, overview_download_override=False, patient_limit=3):
         """
 
         Extract record of all images for all patients in a given study.
@@ -406,17 +365,20 @@ class _CancerImgArchiveRecords(object):
         # Add Study name
         patient_study_df['StudyName'] = study
 
-        # Clean the dataframe and return
+        # Add the Name of the illness
+        patient_study_df['CancerType'] = self._get_illness_name(patient_study_df['Collection'], overview_download_override)
+
+        # Clean the dataframe
         self.records_df = self._clean_patient_study_df(patient_study_df)
 
         return self.records_df
 
 
-# ---------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
 # Pull Images from The Cancer Imaging Archive
-# ---------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
 
-# ToDo: add record of whether or not an image was extracted.
+
 class _CancerImgArchiveImages(object):
     """
 
@@ -424,10 +386,11 @@ class _CancerImgArchiveImages(object):
     :type root_url: ``str``
     """
 
-    def __init__(self, cache_path=None, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+    def __init__(self, dicom_modaility_abbrevs, root_url, cache_path=None):
         _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
                                                           to_create=['dicoms', 'raw'])
         self._root_url = root_url
+        self.dicom_modaility_abbrevs = dicom_modaility_abbrevs
 
     def _download_zip(self, series_uid, temporary_folder):
         """
@@ -503,7 +466,7 @@ class _CancerImgArchiveImages(object):
     def _save_dicom_as_img(self, path_to_dicom_file, pull_position, save_name=None, color=False, img_format='png'):
         """
 
-        Save a DICOM image as a more common file format.
+        Save a dicom image as a more common file format.
 
         :param path_to_dicom_file: path to a dicom image
         :type path_to_dicom_file: ``str``
@@ -670,12 +633,12 @@ class _CancerImgArchiveImages(object):
         # Return the position of all files
         return cf_flatten(), raw_dicom_files, conversion_success
 
-    def pull(self,
-             records,
-             session_limit=1,
-             img_format='png',
-             save_dicoms=True,
-             check_cache_first=True):
+    def pull_img(self,
+                    records,
+                    session_limit=1,
+                    img_format='png',
+                    save_dicoms=True,
+                    check_cache_first=True):
         """
 
         :param records:
@@ -693,9 +656,6 @@ class _CancerImgArchiveImages(object):
                 raise ValueError("`session_limit` must be an intiger greater than or equal to 1.")
             img_records = records[records['Session'].map(
                 lambda x: float(x) <= session_limit if pd.notnull(x) else False)].reset_index(drop=True)
-
-        # if verbose:
-        #   header("Downloading Batches of Images... ")
 
         # Harvest images
         converted_files, raw_dicom_files, conversion_success = self._pull_images_engine(img_records, save_dicoms,
@@ -715,6 +675,278 @@ class _CancerImgArchiveImages(object):
             lambda x: len(x) if not items_null(x) else 0)
 
         return img_records
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Construct Database
+# ----------------------------------------------------------------------------------------------------------
+
+
+class CancerImageInterface(object):
+    """
+
+    :param verbose:
+    :param cache_path:
+    :param root_url:
+    """
+
+    def __init__(self,
+                 verbose=True,
+                 cache_path=None,
+                 root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+        self._verbose = verbose
+        self.dicom_modaility_abbrevs = CancerImgArchiveParams().dicom_modality_abbreviations('dict')
+
+        self._Overview = _CancerImgArchiveOverview(self.dicom_modaility_abbrevs, verbose, cache_path=cache_path)
+        self._Records = _CancerImgArchiveRecords(self.dicom_modaility_abbrevs, self._Overview, root_url)
+        self._Images = _CancerImgArchiveImages(self.dicom_modaility_abbrevs, cache_path=cache_path, root_url=root_url)
+
+        # DataFrames
+        self.current_search = None
+        self.pull_records = None
+
+    def _collection_filter(self, summary_df, collection, cancer_type, location):
+        """
+
+        Limits `summary_df` to an individual collection.
+
+        :param summary_df:
+        :param collection:
+        :param cancer_type:
+        :param location:
+        :return:
+        """
+        # Filter by `collection`
+        if isinstance(collection, str) and any(i is not None for i in (cancer_type, location)):
+            raise ValueError("Both `cancer_types` and `location` must be ``None`` if a `collection` name is passed.")
+        elif isinstance(collection, str):
+            summary_df = summary_df[summary_df['Collection'].str.strip().str.lower() == collection.strip().lower()]
+            if summary_df.shape[0] == 0:
+                raise AttributeError("No Collection with the name '{0}' could be found.".format(collection))
+            else:
+                return summary_df.reset_index(drop=True)
+
+    def search(self,
+               collection=None,
+               cancer_type=None,
+               location=None,
+               modality=None,
+               download_override=False,
+               pretty_print=True):
+        """
+
+        Method to Search for studies on The Cancer Imaging Archive.
+
+        :param collection: a collection (study) hosted by The Cancer Imaging Archive.
+        :type collection: ``str`` or ``None``
+        :param cancer_type: a string or list/tuple of specifying cancer types.
+        :type cancer_type: ``str``, ``iterable`` or ``None``
+        :param location: a string or list/tuple of specifying body locations.
+        :type location: ``str``, ``iterable`` or ``None``
+        :param modality:
+        :type modality: ``str``, ``iterable`` or ``None``
+        :param download_override: If ``True``, override any existing database currently cached and download a new one.
+                                  Defaults to ``False``.
+        :param pretty_print: if ``True``, pretty print the search results. Defaults to ``True``.
+        :type pretty_print: ``bool``
+        :return: a dataframe containing the search results.
+        :rtype: ``Pandas DataFrame``
+
+        :Example:
+
+        >>> _CancerImgArchiveOverview().studies(cancer_type=['Squamous'], location=['head'])
+        ...
+           Collection               CancerType               Modalities   Subjects    Location    Metadata  ...
+        0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
+
+        """
+        # Load the Summary Table
+        summary_df = self._Overview._all_studies_cache_mngt(download_override)
+
+        # Filter by `collection`
+        if collection is not None:
+            summary_df = self._collection_filter(summary_df, collection, cancer_type,location)
+        else:
+            # Apply Filters
+            summary_df = self._Overview._studies_filter(summary_df, cancer_type, location, modality)
+            if summary_df.shape[0] == 0:
+                class NoResultsFound(Exception):
+                    pass
+                raise NoResultsFound("Try Broadening the Search Criteria.")
+
+        # Cache Search
+        self.current_search = summary_df.reset_index(drop=True)
+
+        if pretty_print:
+            current_search_print = self.current_search.copy()
+            pandas_pprint(current_search_print, full_cols=True, col_align='left', lift_column_width_limit=True)
+
+        if all([collection == None, cancer_type == None, location == None, modality == None]):
+            sleep(0.25)
+            warn("\nSpecific search critera have not been applied.\n"
+                 "If `pull()` is called, *all* collections will be downloaded.\n"
+                 "Such a request could yeild several terabytes of data.\n"
+                 "If you still wish to procede, consider adjusting `pull()`'s\n"
+                 "`patient_limit` and `session_limit` parameters.")
+
+    def _pull_records(self, patient_limit):
+        """
+
+        :param patient_limit:
+        :return:
+        """
+        # Loop through and download all of the studies
+        record_frames = list()
+        for collection in self.current_search['Collection']:
+            if self._verbose:
+                print("\nDownloading records the '{0}' Collection...".format(collection))
+            record_frames.append(self._Records.records_pull(collection, patient_limit=patient_limit))
+        return record_frames
+
+    def _pull_images(self, record_frames, session_limit, img_format, save_dicoms, check_cache_first):
+        """
+
+        :param record_frames:
+        :param session_limit:
+        :param img_format:
+        :param save_dicoms:
+        :param check_cache_first:
+        :return:
+        """
+        img_frames = list()
+        for records in record_frames:
+            current_img_frame = self._Images.pull_img(records, session_limit, img_format, save_dicoms, check_cache_first)
+            img_frames.append(current_image_frame)
+        return img_frames
+
+    def pull(self,
+             patient_limit=3,
+             pull_images=True,
+             session_limit=1,
+             img_format='png',
+             save_dicoms=True,
+             check_cache_first=True):
+        """
+
+        :param patient_limit:
+        :param pull_images:
+        :param session_limit:
+        :param img_format:
+        :param save_dicoms:
+        :param check_cache_first:
+        :return:
+        """
+        if self.current_search is None:
+            raise AttributeError("`current_search` is empty. A search must be performed before `pull()` is called.")
+
+        # Download Records for all of the studies
+        record_frames = self._pull_records(patient_limit)
+
+        # Download the images for all of the studies
+        if pull_images:
+            final_frames = self._pull_images(record_frames, session_limit, img_format, save_dicoms, check_cache_first)
+        else:
+            final_frames = record_frames
+
+        # Concatenate and save
+        self.pull_records = pd.concat(final_frames, ignore_index=True)
+
+        return self.pull_records
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
