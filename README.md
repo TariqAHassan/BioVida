@@ -138,6 +138,8 @@ and API documentation [here].
 Images
 
    - The [Open-i] BioMedical Image Search Engine (NIH)
+   
+   - [The Cancer Imaging Archive]
 
 Genomics
 
@@ -155,12 +157,7 @@ Diagnostics
 
    - [DiseaseOntology]
    
-------------------------------------------------------------------------
    
-###Future Sources:
-
-   - [CancerImagingArchive]
-
 [click here]: https://tariqahassan.github.io/BioVida/index.html
 [pandas]: http://pandas.pydata.org
 [numpy]: http://www.numpy.org
