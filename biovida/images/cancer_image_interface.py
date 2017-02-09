@@ -26,6 +26,7 @@ from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import combine_dicts
+from biovida.support_tools.support_tools import items_null
 from biovida.support_tools.printing import pandas_pprint
 
 
@@ -415,7 +416,7 @@ class _CancerImgArchiveRecords(object):
 # Pull Images from The Cancer Imaging Archive
 # ---------------------------------------------------------------------------------------------
 
-
+# ToDo: add record of whether or not an image was extracted.
 class _CancerImgArchiveImages(object):
     """
 
@@ -423,7 +424,7 @@ class _CancerImgArchiveImages(object):
     :type root_url: ``str``
     """
 
-    def __init__(self, cache_path, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+    def __init__(self, cache_path=None, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
         _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
                                                           to_create=['dicoms', 'raw'])
         self._root_url = root_url
@@ -448,13 +449,14 @@ class _CancerImgArchiveImages(object):
             return os.path.join(temporary_folder, base_name) if len(base_name) else None
         return list(filter(None, [file_path_full(f) for f in z.filelist]))
 
-    def _image_processing(self, f, pull_position, conversion, new_file_name, img_format):
+    def _dicom_to_standard_image(self, f, pull_position, conversion, new_file_name, img_format):
         """
 
-        This method handles the act of saving images.
+        This method handles the act of saving dicom images as in a more common file format (e.g., .png).
         An image (``f``) can be either 2 or 3 Dimensional.
 
-        :param f:
+        :param f: a dicom image.
+        :type f:
         :param pull_position: the position of the file in the list of files pulled from the database.
         :type pull_position: ``int``
         :param conversion:
@@ -462,13 +464,17 @@ class _CancerImgArchiveImages(object):
         :type new_file_name: ``str``
         :param img_format:
         :type img_format: ``str``
-        :return:
+        :return: tuple of the form: ``(a list of paths to saved images, boolean denoting success)``
+        :rtype: ``tuple``
         """
         # Define a list to populate with a record of all images saved
         all_save_paths = list()
 
         # Extract a pixel array from the dicom file.
-        pixel_arr = f.pixel_array
+        try:
+            pixel_arr = f.pixel_array
+        except UnboundLocalError:  # ToDO: change to TypeError pending https://github.com/darcymason/pydicom/pull/309
+            return [], False
 
         save_location = self._created_img_dirs['raw']
         def save_path(instance):
@@ -492,7 +498,7 @@ class _CancerImgArchiveImages(object):
         else:
             raise ValueError("Cannot coerce {0} dimensional image arrays. Images must be 2D or 3D.".format(pixel_arr.ndim))
 
-        return all_save_paths
+        return all_save_paths, True
 
     def _save_dicom_as_img(self, path_to_dicom_file, pull_position, save_name=None, color=False, img_format='png'):
         """
@@ -512,6 +518,8 @@ class _CancerImgArchiveImages(object):
         :type color: ``bool``
         :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
         :type img_format: ``str``
+        :return: ``_dicom_to_standard_image()``
+        :rtype: ``tuple``
         """
         # Load the DICOM file into RAM
         f = dicom.read_file(path_to_dicom_file)
@@ -526,23 +534,23 @@ class _CancerImgArchiveImages(object):
             new_file_name = os.path.basename(os.path.splitext(path_to_dicom_file)[0])
 
         # Convert the image into a PIL object and Save
-        return self._image_processing(f, pull_position, conversion, new_file_name, img_format)
+        return self._dicom_to_standard_image(f, pull_position, conversion, new_file_name, img_format)
 
-    def _move_dicom_files(self, dicom_files, series_abbreviation):
+    def _move_dicoms(self, dicom_files, series_abbrev):
         """
 
         Move the dicom source files to ``self._created_img_dirs['dicoms']``.
         Employ to prevent the raw dicom files from being destroyed.
 
         :param dicom_files:
-        :param series_abbreviation:
+        :param series_abbrev:
         :return:
         """
         new_dircom_paths = list()
         for f in dicom_files:
-            # Define a name for the new file by extracting the dicom file name and combining with `series_abbreviation`.
+            # Define a name for the new file by extracting the dicom file name and combining with `series_abbrev`.
             f_parsed = list(os.path.splitext(os.path.basename(f)))
-            new_dicom_file_name = "{0}__{1}{2}".format(f_parsed[0], series_abbreviation, f_parsed[1])
+            new_dicom_file_name = "{0}__{1}{2}".format(f_parsed[0], series_abbrev, f_parsed[1])
 
             # Define the location of the new files
             new_location = os.path.join(self._created_img_dirs['dicoms'], new_dicom_file_name)
@@ -553,17 +561,17 @@ class _CancerImgArchiveImages(object):
 
         return tuple(new_dircom_paths)
 
-    def _cache_check(self, check_cache_first, series_abbreviation, n_images_min, save_dicoms):
+    def _cache_check(self, check_cache_first, series_abbrev, n_images_min, save_dicoms):
         """
 
         Check that caches likely contain that data which would be obtained by downloading it from the database.
 
-        :param series_abbreviation:
+        :param series_abbrev:
         :return: tuple of the form:
 
                 ``(cache likely complete,
-                   series_abbreviation matches in self._created_img_dirs['raw'],
-                   series_abbreviation matches in self._created_img_dirs['dicoms'])``
+                   series_abbrev matches in self._created_img_dirs['raw'],
+                   series_abbrev matches in self._created_img_dirs['dicoms'])``
 
         :type: ``tuple``
         :param n_images_min:
@@ -573,13 +581,13 @@ class _CancerImgArchiveImages(object):
         if check_cache_first is False:
             return False, None, None
 
-        # Check that `self._created_img_dirs['raw']` has files which contain the string `series_abbreviation`.
-        save_location_summary = [f for f in os.listdir(self._created_img_dirs['raw']) if series_abbreviation in f]
+        # Check that `self._created_img_dirs['raw']` has files which contain the string `series_abbrev`.
+        save_location_summary = [f for f in os.listdir(self._created_img_dirs['raw']) if series_abbrev in f]
 
-        # Check that `self._created_img_dirs['dicoms'])` has files which contain the string `series_abbreviation`.
+        # Check that `self._created_img_dirs['dicoms'])` has files which contain the string `series_abbrev`.
         dicoms_save_location_summary_complete = False
         if save_dicoms:
-            dicoms_save_location_summary = [f for f in os.listdir(self._created_img_dirs['dicoms']) if series_abbreviation in f]
+            dicoms_save_location_summary = [f for f in os.listdir(self._created_img_dirs['dicoms']) if series_abbrev in f]
             dicoms_save_location_summary_complete = len(dicoms_save_location_summary) >= n_images_min
         else:
             dicoms_save_location_summary = np.NaN
@@ -616,17 +624,16 @@ class _CancerImgArchiveImages(object):
         """
         # ToDo: consider extracting patient weight from the dicom file.
         # ToDo: add real-time record keeping for files as they are downloaded.
-        converted_files, raw_dicom_files = list(), list()
+        converted_files, conversion_success, raw_dicom_files = list(), list(), list()
 
         # Note: tqdm appears to be unstable with generators (hence `list()`).
         pairings = list(zip(*[img_records[c] for c in ('SeriesInstanceUID', 'PatientID', 'ImageCount')]))
-
         for series_uid, patient_id, image_count in tqdm(pairings):
             # Compose central part of the file name from 'PatientID' and the last ten digits of 'SeriesInstanceUID'
-            series_abbreviation = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
+            series_abbrev = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
 
             # Analyze the cache to determine whether or not downloading the images is warented
-            cache_complete, sl_summary, dsl_summary = self._cache_check(check_cache_first, series_abbreviation,
+            cache_complete, sl_summary, dsl_summary = self._cache_check(check_cache_first, series_abbrev,
                                                                         image_count, save_dicoms)
 
             if not cache_complete:
@@ -637,24 +644,31 @@ class _CancerImgArchiveImages(object):
                 dicom_files = self._download_zip(series_uid, temporary_folder=temporary_folder)
 
                 # Convert dicom files to `img_format`
-                cfs = [self._save_dicom_as_img(f, pull_position=e, save_name=series_abbreviation, img_format=img_format)
+                cfs = [self._save_dicom_as_img(f, pull_position=e, save_name=series_abbrev, img_format=img_format)
                        for e, f in enumerate(dicom_files, start=1)]
-                converted_files.append(cfs)
+                converted_files.append([i[0] for i in cfs])
+                conversion_success += [i[1] for i in cfs]
 
                 # Save raw dicom files
-                if save_dicoms:
-                    raw_dicom_files.append(self._move_dicom_files(dicom_files, series_abbreviation))
-                else:
-                    raw_dicom_files.append(np.NaN)
+                raw_dicom_files.append(self._move_dicoms(dicom_files, series_abbrev) if save_dicoms else np.NaN)
 
                 # Delete the temp folder.
-                shutil.rmtree(temp_folder, ignore_errors=True)
+                shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
                 converted_files.append([sl_summary])
                 raw_dicom_files.append(tuple(dsl_summary))
+                conversion_success.append(True)
 
-        # Return the position of all files (flatten the inner most dimension of `converted_files` first).
-        return [tuple(chain(*cf)) for cf in converted_files], raw_dicom_files
+        def cf_flatten():
+            """Flatten the inner most dimension of `converted_files`."""
+            to_return = list()
+            for cf in converted_files:
+                flat = tuple(chain(*cf))
+                to_return.append(flat if len(flat) else np.NaN)
+            return to_return
+
+        # Return the position of all files
+        return cf_flatten(), raw_dicom_files, conversion_success
 
     def pull(self,
              records,
@@ -684,25 +698,23 @@ class _CancerImgArchiveImages(object):
         #   header("Downloading Batches of Images... ")
 
         # Harvest images
-        converted_files, raw_dicom_files = self._pull_images_engine(img_records, save_dicoms,
-                                                                    img_format, check_cache_first)
+        converted_files, raw_dicom_files, conversion_success = self._pull_images_engine(img_records, save_dicoms,
+                                                                                        img_format, check_cache_first)
 
         # Add paths to the images
         img_records['ConvertedFilesPaths'] = converted_files
         img_records['RawDicomFilesPaths'] = raw_dicom_files
 
+        # Add record of whether or not the dicom file could be converted to a standard image type
+        img_records['ConversionSuccess'] = conversion_success
+
         # Add column which provides the number of images each SeriesInstanceUID yeilded
         # Note: this may be discrepant with the 'ImageCount' column because 3D images are expanded into
         #       their individual frames when saved to the converted images cache.
-        img_records['ImageCountConvertedCache'] = img_records['ConvertedFilesPaths'].map(len, na_action='ignore')
+        img_records['ImageCountConvertedCache'] = img_records['ConvertedFilesPaths'].map(
+            lambda x: len(x) if not items_null(x) else 0)
 
         return img_records
-
-
-
-
-
-
 
 
 
