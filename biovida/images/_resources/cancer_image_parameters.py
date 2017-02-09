@@ -206,7 +206,7 @@ class CancerImgArchiveParams(object):
                                                    'DICOM+Modality+Abbreviations'):
         """
         
-        Download a DICOM Modality Table.
+        Download a dicom Modality Table.
 
         :param rtype: 'dataframe' for a Pandas DataFrame or 'dict' for a dictionary of the form:
 
