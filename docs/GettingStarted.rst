@@ -1,15 +1,15 @@
 Getting Started
 ---------------
 
-This library is primarily intended to automate the collection, integration and post-processing of biomedical data stored
-in public online databases. This problem is tackled with a combination of traditional software engineering approaches
-in conjunction with machine learning. It is hoped that this effort will catalyze new insights and understanding by
+This library is primarily intended to automate the collection, post-processing and integration of biomedical data stored
+in public online databases. It is hoped that this effort will catalyze new insights and understanding by
 transforming multiple, distinct data repositories into unified datasets easily amenable to data analysis.
 
 BioVida aims to curate a broad range of biomedical information. In areas such as diagnostics and genomics, this
 involves drawing on the work of others, such as the impressive work by the Disease Ontology and DisGeNET teams.
-In the case of image data however, BioVida itself performs the 'heavy lifting' of preparing raw data from online sources.
-Much of this automation is made possible by recent advances in machine learning, namely convolutional neural networks.
+In the case of image data however, BioVida itself performs the 'heavy lifting' of preparing raw data from online
+sources. This automation is made possible by combining traditional software development approaches with recent advances
+in machine learning, namely convolutional neural networks.
 
 The guide below provides a brief introduction to getting started with BioVida.
 
