@@ -185,8 +185,20 @@ def _pandas_series_alignment(pandas_series, justify):
     # Source: https://github.com/TariqAHassan/EasyMoney
     if justify == 'right':
         return pandas_series
-    longest_string = max([len(s) for s in pandas_series.astype('unicode')])
-    return [_padding(s, longest_string - len(s), justify) if not items_null(s) else s for s in pandas_series]
+
+    def series_to_string(x):
+        if items_null(x):
+            return x
+        if isinstance(x, list) or 'ndarray' in str(type(x)):
+            return "[{0}]".format(", ".join(map(str, list(x))))
+        elif isinstance(x, tuple):
+            return "({0})".format(", ".join(map(str, x)))
+        else:
+            return str(x)
+
+    pandas_series_str = pandas_series.map(series_to_string)
+    longest_string = max([len(s) for s in pandas_series_str.astype('unicode')])
+    return [_padding(s, longest_string - len(s), justify) if not items_null(s) else s for s in pandas_series_str]
 
 
 def _align_pandas(data_frame, to_align='right'):
@@ -204,7 +216,7 @@ def _align_pandas(data_frame, to_align='right'):
     # Source: https://github.com/TariqAHassan/EasyMoney
     if isinstance(to_align, dict):
         alignment_dict = to_align
-    elif to_align.lower() in ['left', 'right', 'center']:
+    elif to_align.lower() in ('left', 'right', 'center'):
         alignment_dict = dict.fromkeys(data_frame.columns, to_align.lower())
     else:
         raise ValueError("to_align must be either 'left', 'right', 'center', or a dict.")
