@@ -26,6 +26,7 @@ from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import combine_dicts
+from biovida.support_tools.printing import pandas_pprint
 
 
 dicom_m = CancerImgArchiveParams().dicom_modality_abbreviations('dict')
@@ -53,7 +54,7 @@ class _CancerImgArchiveOverview(object):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
         _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['aux'])
-        self.dicom_m = cparam.dicom_modality_abbreviations('dict')
+        self.dicom_m = CancerImgArchiveParams().dicom_modality_abbreviations('dict')
 
     def _all_studies_parser(self):
         """
@@ -156,7 +157,13 @@ class _CancerImgArchiveOverview(object):
 
         return summary_df
 
-    def search(self, collection=None, cancer_type=None, location=None, modality=None, download_override=False):
+    def search(self,
+               collection=None,
+               cancer_type=None,
+               location=None,
+               modality=None,
+               download_override=False,
+               pretty_print=False):
         """
 
         Method to Search for studies on The Cancer Imaging Archive.
@@ -171,6 +178,8 @@ class _CancerImgArchiveOverview(object):
         :type modality: ``str``, ``iterable`` or ``None``
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
                                   Defaults to ``False``.
+        :param pretty_print: if ``True``, pretty print the search results. Defaults to ``False``.
+        :type pretty_print: ``bool``
         :return: a dataframe containing the search results.
         :rtype: ``Pandas DataFrame``
 
@@ -178,7 +187,7 @@ class _CancerImgArchiveOverview(object):
 
         >>> _CancerImgArchiveOverview().studies(cancer_type=['Squamous'], location=['head'])
         ...
-           Collection               CancerType               Modalities  Subjects     Location    Metadata  ...
+           Collection               CancerType               Modalities   Subjects    Location    Metadata  ...
         0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
 
         """
@@ -200,6 +209,9 @@ class _CancerImgArchiveOverview(object):
 
         if summary_df.shape[0] == 0:
             raise AttributeError("No Results Found. Try Broadening the Search Criteria.")
+
+        if pretty_print:
+            pandas_pprint(summary_df.reset_index(drop=True), full_cols=True, col_align='left', lift_column_width_limit=True)
         else:
             return summary_df.reset_index(drop=True)
 
@@ -218,6 +230,7 @@ class _CancerImgArchiveRecords(object):
 
     def __init__(self, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
         self._root_url = root_url
+        self.records_df = None
 
     def _extract_study(self, study):
         """
@@ -229,7 +242,7 @@ class _CancerImgArchiveRecords(object):
         :return:
         """
         url = '{0}/query/getPatientStudy?Collection={1}&format=csv&api_key={2}'.format(
-            self._root_url, study, API_KEY)
+            self._root_url, cln(study).replace(' ', '+'), API_KEY)
         return pd.DataFrame.from_csv(url).reset_index()
 
     def _date_index_map(self, list_of_dates):
@@ -283,7 +296,7 @@ class _CancerImgArchiveRecords(object):
 
         return patient_dict
 
-    def _patient_img_summary(self, patient, patient_dict):
+    def _patient_img_summary(self, patient, study, patient_dict):
         """
 
         Harvests the Cancer Image Archive's Text Record of all baseline images for a given patient
@@ -293,8 +306,8 @@ class _CancerImgArchiveRecords(object):
         :return:
         """
         # Select an individual Patient
-        url = '{0}/query/getSeries?Collection=ISPY1&PatientID={1}&format=csv&api_key={2}'.format(
-            self._root_url, patient, API_KEY)
+        url = '{0}/query/getSeries?Collection={1}&PatientID={2}&format=csv&api_key={3}'.format(
+            self._root_url, cln(study).replace(' ', '+'), patient, API_KEY)
         patient_df = pd.DataFrame.from_csv(url).reset_index()
 
         def upper_first(s):
@@ -350,7 +363,7 @@ class _CancerImgArchiveRecords(object):
         patient_study_df['SeriesDate'] = pd.to_datetime(patient_study_df['SeriesDate'], infer_datetime_format=True)
 
         # Sort and Return
-        return patient_study_df.sort_values(by=['PatientID', 'Session'])
+        return patient_study_df.sort_values(by=['PatientID', 'Session']).reset_index(drop=True)
 
     def pull(self, study, patient_limit=3):
         """
@@ -384,7 +397,7 @@ class _CancerImgArchiveRecords(object):
         # Evolve a dataframe ('frame') for the baseline images of all patients
         frames = list()
         for patient in tqdm(patients_to_obtain):
-            frames.append(self._patient_img_summary(patient, patient_dict=study_dict[patient]))
+            frames.append(self._patient_img_summary(patient, study=study, patient_dict=study_dict[patient]))
 
         # Concatenate baselines frame for each patient
         patient_study_df = pd.concat(frames, ignore_index=True)
@@ -393,7 +406,9 @@ class _CancerImgArchiveRecords(object):
         patient_study_df['StudyName'] = study
 
         # Clean the dataframe and return
-        return self._clean_patient_study_df(patient_study_df)
+        self.records_df = self._clean_patient_study_df(patient_study_df)
+
+        return self.records_df
 
 
 # ---------------------------------------------------------------------------------------------
@@ -408,14 +423,16 @@ class _CancerImgArchiveImages(object):
     :type root_url: ``str``
     """
 
-    def __init__(self, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+    def __init__(self, cache_path, root_url='https://services.cancerimagingarchive.net/services/v3/TCIA'):
+        _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
+                                                          to_create=['dicoms', 'raw'])
         self._root_url = root_url
 
-    def _download_zip(self, series_uid, save_location):
+    def _download_zip(self, series_uid, temporary_folder):
         """
 
         :param series_uid:
-        :param save_location:
+        :param temporary_folder:
         :return: list of paths to the new files.
         """
         # See: http://stackoverflow.com/a/14260592/4898004
@@ -425,13 +442,13 @@ class _CancerImgArchiveImages(object):
             self._root_url, series_uid, API_KEY)
         r = requests.get(url)
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        z.extractall(save_location)
+        z.extractall(temporary_folder)
         def file_path_full(f):
             base_name = cln(os.path.basename(f.filename))
-            return os.path.join(save_location, base_name) if len(base_name) else None
+            return os.path.join(temporary_folder, base_name) if len(base_name) else None
         return list(filter(None, [file_path_full(f) for f in z.filelist]))
 
-    def _image_processing(self, f, pull_position, conversion, save_location, new_file_name, img_format):
+    def _image_processing(self, f, pull_position, conversion, new_file_name, img_format):
         """
 
         This method handles the act of saving images.
@@ -441,7 +458,6 @@ class _CancerImgArchiveImages(object):
         :param pull_position: the position of the file in the list of files pulled from the database.
         :type pull_position: ``int``
         :param conversion:
-        :param save_location:
         :param new_file_name:
         :type new_file_name: ``str``
         :param img_format:
@@ -454,6 +470,7 @@ class _CancerImgArchiveImages(object):
         # Extract a pixel array from the dicom file.
         pixel_arr = f.pixel_array
 
+        save_location = self._created_img_dirs['raw']
         def save_path(instance):
             """Define the path to save the image to."""
             head = "{0}_{1}".format(instance, pull_position)
@@ -477,15 +494,13 @@ class _CancerImgArchiveImages(object):
 
         return all_save_paths
 
-    def _save_dicom(self, path_to_dicom_file, save_location, pull_position, save_name=None, color=False, img_format='png'):
+    def _save_dicom_as_img(self, path_to_dicom_file, pull_position, save_name=None, color=False, img_format='png'):
         """
 
         Save a DICOM image as a more common file format.
 
         :param path_to_dicom_file: path to a dicom image
         :type path_to_dicom_file: ``str``
-        :param save_location: directory to save the converted image to
-        :type save_location: ``str``
         :param pull_position:
         :type pull_position: ``int``
         :param save_name: name of the new file (do *NOT* include a file extension).
@@ -511,26 +526,26 @@ class _CancerImgArchiveImages(object):
             new_file_name = os.path.basename(os.path.splitext(path_to_dicom_file)[0])
 
         # Convert the image into a PIL object and Save
-        return self._image_processing(f, pull_position, conversion, save_location, new_file_name, img_format)
+        return self._image_processing(f, pull_position, conversion, new_file_name, img_format)
 
-    def _move_dicom_files(self, dicom_files, series_abbreviation, dicoms_save_location):
+    def _move_dicom_files(self, dicom_files, series_abbreviation):
         """
 
-        Move the dicom source files to ``dicoms_save_location``.
+        Move the dicom source files to ``self._created_img_dirs['dicoms']``.
         Employ to prevent the raw dicom files from being destroyed.
 
         :param dicom_files:
         :param series_abbreviation:
-        :param dicoms_save_location:
         :return:
         """
         new_dircom_paths = list()
         for f in dicom_files:
+            # Define a name for the new file by extracting the dicom file name and combining with `series_abbreviation`.
             f_parsed = list(os.path.splitext(os.path.basename(f)))
             new_dicom_file_name = "{0}__{1}{2}".format(f_parsed[0], series_abbreviation, f_parsed[1])
 
             # Define the location of the new files
-            new_location = os.path.join(dicoms_save_location, new_dicom_file_name)
+            new_location = os.path.join(self._created_img_dirs['dicoms'], new_dicom_file_name)
             new_dircom_paths.append(new_location)
 
             # Move the dicom file from __temp__ --> to --> new location
@@ -538,19 +553,17 @@ class _CancerImgArchiveImages(object):
 
         return tuple(new_dircom_paths)
 
-    def _cache_check(self, check_cache_first, series_abbreviation, save_location, dicoms_save_location, n_images_min):
+    def _cache_check(self, check_cache_first, series_abbreviation, n_images_min, save_dicoms):
         """
 
         Check that caches likely contain that data which would be obtained by downloading it from the database.
 
         :param series_abbreviation:
-        :param save_location:
-        :param dicoms_save_location:
         :return: tuple of the form:
 
                 ``(cache likely complete,
-                   series_abbreviation matches in save_location,
-                   series_abbreviation matches in save_location)``
+                   series_abbreviation matches in self._created_img_dirs['raw'],
+                   series_abbreviation matches in self._created_img_dirs['dicoms'])``
 
         :type: ``tuple``
         :param n_images_min:
@@ -560,46 +573,53 @@ class _CancerImgArchiveImages(object):
         if check_cache_first is False:
             return False, None, None
 
-        # Check that `save_location` has files which contain the string `series_abbreviation`.
-        save_location_summary = [f for f in os.listdir(save_location) if series_abbreviation in f]
+        # Check that `self._created_img_dirs['raw']` has files which contain the string `series_abbreviation`.
+        save_location_summary = [f for f in os.listdir(self._created_img_dirs['raw']) if series_abbreviation in f]
 
-        # Check that `dicoms_save_location` has files which contain the string `series_abbreviation`.
+        # Check that `self._created_img_dirs['dicoms'])` has files which contain the string `series_abbreviation`.
         dicoms_save_location_summary_complete = False
-        if dicoms_save_location is not None:
-            dicoms_save_location_summary = [f for f in os.listdir(dicoms_save_location) if series_abbreviation in f]
+        if save_dicoms:
+            dicoms_save_location_summary = [f for f in os.listdir(self._created_img_dirs['dicoms']) if series_abbreviation in f]
             dicoms_save_location_summary_complete = len(dicoms_save_location_summary) >= n_images_min
         else:
             dicoms_save_location_summary = np.NaN
             dicoms_save_location_summary_complete = True
 
-        # Compose completeness boolean from the status of `save_location` and `dicoms_save_location`
+        # Compose completeness boolean from the status of
+        # `self._created_img_dirs['raw']` and `self._created_img_dirs['dicoms']`
         complete = len(save_location_summary) >= n_images_min and dicoms_save_location_summary_complete
 
         return complete, save_location_summary, dicoms_save_location_summary
 
-    def _pull_images_engine(self, img_records, save_location, dicoms_save_location, img_format, check_cache_first):
+    def _create_temp_dir(self, temp_folder_name='__temp__'):
+        """
+
+        Create a temporary directory.
+
+        :param temp_folder_name:
+        :return:
+        """
+        temp_folder = os.path.join(self._created_img_dirs['dicoms'], temp_folder_name)
+        if os.path.isdir(temp_folder):
+            shutil.rmtree(temp_folder, ignore_errors=True)
+        os.makedirs(temp_folder)
+        return temp_folder
+
+    def _pull_images_engine(self, img_records, save_dicoms, img_format, check_cache_first):
         """
 
         :param img_records:
-        :param save_location:
-        :param dicoms_save_location:
+        :param save_dicoms:
         :param img_format:
         :param check_cache_first:
         :return:
         """
+        # ToDo: consider extracting patient weight from the dicom file.
         # ToDo: add real-time record keeping for files as they are downloaded.
         converted_files, raw_dicom_files = list(), list()
 
         # Note: tqdm appears to be unstable with generators (hence `list()`).
         pairings = list(zip(*[img_records[c] for c in ('SeriesInstanceUID', 'PatientID', 'ImageCount')]))
-
-        def create_temp():
-            """Construct a temporary folder to save the raw dicom files to."""
-            temp_folder = os.path.join(save_location, "__temp__")
-            if os.path.isdir(temp_folder):
-                shutil.rmtree(temp_folder, ignore_errors=True)
-            os.makedirs(temp_folder)
-            return temp_folder
 
         for series_uid, patient_id, image_count in tqdm(pairings):
             # Compose central part of the file name from 'PatientID' and the last ten digits of 'SeriesInstanceUID'
@@ -607,23 +627,23 @@ class _CancerImgArchiveImages(object):
 
             # Analyze the cache to determine whether or not downloading the images is warented
             cache_complete, sl_summary, dsl_summary = self._cache_check(check_cache_first, series_abbreviation,
-                                                                       save_location, dicoms_save_location, image_count)
+                                                                        image_count, save_dicoms)
 
             if not cache_complete:
                 # Create temp. foloder
-                temp_folder = create_temp()
+                temporary_folder = self._create_temp_dir()
 
                 # Download the images into a temp. folder
-                dicom_files = self._download_zip(series_uid, save_location=temp_folder)
+                dicom_files = self._download_zip(series_uid, temporary_folder=temporary_folder)
 
                 # Convert dicom files to `img_format`
-                cfs = [self._save_dicom(f, save_location, e, save_name=series_abbreviation, img_format=img_format)
+                cfs = [self._save_dicom_as_img(f, pull_position=e, save_name=series_abbreviation, img_format=img_format)
                        for e, f in enumerate(dicom_files, start=1)]
                 converted_files.append(cfs)
 
                 # Save raw dicom files
-                if isinstance(dicoms_save_location, str):
-                    raw_dicom_files.append(self._move_dicom_files(dicom_files, series_abbreviation, dicoms_save_location))
+                if save_dicoms:
+                    raw_dicom_files.append(self._move_dicom_files(dicom_files, series_abbreviation))
                 else:
                     raw_dicom_files.append(np.NaN)
 
@@ -638,20 +658,18 @@ class _CancerImgArchiveImages(object):
 
     def pull(self,
              records,
-             save_location,
              session_limit=1,
              img_format='png',
-             dicoms_save_location=None,
+             save_dicoms=True,
              check_cache_first=True):
         """
 
         :param records:
-        :param save_location:
         :param session_limit: restruct image harvesting to the first ``n`` sessions, where ``n`` is the value passed
                               to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
         :type session_limit: ``int``
         :param img_format:
-        :param dicoms_save_location:
+        :param save_dicoms:
         :param check_cache_first:
         :return:
         """
@@ -666,7 +684,7 @@ class _CancerImgArchiveImages(object):
         #   header("Downloading Batches of Images... ")
 
         # Harvest images
-        converted_files, raw_dicom_files = self._pull_images_engine(img_records, save_location, dicoms_save_location,
+        converted_files, raw_dicom_files = self._pull_images_engine(img_records, save_dicoms,
                                                                     img_format, check_cache_first)
 
         # Add paths to the images
@@ -679,7 +697,6 @@ class _CancerImgArchiveImages(object):
         img_records['ImageCountConvertedCache'] = img_records['ConvertedFilesPaths'].map(len, na_action='ignore')
 
         return img_records
-
 
 
 
