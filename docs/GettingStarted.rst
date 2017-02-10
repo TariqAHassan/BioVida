@@ -2,8 +2,8 @@ Getting Started
 ---------------
 
 This library is primarily intended to automate the collection, post-processing and integration of biomedical data stored
-in public online databases. It is hoped that this effort will catalyze new insights and understanding by
-transforming multiple, distinct data repositories into unified datasets easily amenable to data analysis.
+in public online databases. It is hoped that this effort will catalyze new insights and understanding by transforming
+multiple, distinct data repositories into unified datasets which are highly amenable to data analysis.
 
 BioVida aims to curate a broad range of biomedical information. In areas such as diagnostics and genomics, this
 involves drawing on the work of others, such as the impressive work by the Disease Ontology and DisGeNET teams.
@@ -34,12 +34,11 @@ BioVida requires: `pandas <http://pandas.pydata.org>`__,
 `requests <http://docs.python-requests.org/en/master/>`__,
 `tqdm <https://github.com/tqdm/tqdm>`__,
 `pillow <https://github.com/python-pillow/Pillow>`__,
-`pydicom <https://github.com/darcymason/pydicom`__,
+`pydicom <https://github.com/darcymason/pydicom>`__,
 `h5py <http://www.h5py.org>`__,
 `scipy <https://www.scipy.org>`__,
 `scikit-image <http://scikit-image.org>`__ and
 `keras <https://keras.io>`__
-
 
 All of these dependencies should be installed automatically when installing BioVida.
 
@@ -53,22 +52,43 @@ If neither is present at install time, BioVida will automatically install Tensor
 Image Data
 ----------
 
-Import and Instantiate the Open-i Interface
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Cancer Imaging Archive
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
+    # 1. Import the interface for the Cancer Imaging Archive
+    from biovida.images.cancer_image_interface import CancerImageInterface
+
+    # 2. Create an Instance of the Tool
+    cii = CancerImageInterface(YOUR_API_KEY_HERE)
+
+    # 3. Perform a search
+    cii.search(location='extremities')
+
+    # 4. Pull the data
+    cdf = cii.pull()
+
+Open-i BioMedical Image Search Engine
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    # 1. Import the Interface for the NIH's Open-i API.
     from biovida.images.openi_interface import OpenInterface
 
+    # 2. Create an Instance of the Tool
     opi = OpenInterface()
 
-Perform a Search
-^^^^^^^^^^^^^^^^
-
-.. code:: python
-
-    # Perform a general search for MRIs and CTs
+    # 3. Perform a general search for MRIs and CTs
     opi.search(query=None, image_type=['mri', 'ct'])  # Results Found: 134,113.
+
+    # 4. Pull the data
+    search_df = opi.pull()
+
+The DataFrame created above, ``df``, contains data from all fields
+provided by the Open-i API. :superscript:`†` Images referenced in the DataFrame will
+automatically be harvested (unless specified otherwise).
 
 The values accepted by the ``image_type`` argument above can easily be
 reviewed:
@@ -87,93 +107,58 @@ Additionally, searches can easily be reviewed:
     opi.current_search_total
     # 134113
 
-Pull the data
-^^^^^^^^^^^^^
-
-.. code:: python
-
-    search_df = opi.pull()
-
-The DataFrame created above, ``df``, contains data from all fields
-provided by the Open-i API. :superscript:`†` Images referenced in the DataFrame will
-automatically be harvested (unless specified otherwise).
-
 :superscript:`†` *Note:* by default, data harvesting is truncated after the first 60
 results.
 
-
 Automated Image Data Cleaning
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Cleaning the images which have been downloaded is extremely simple.
 
-
-Import the ImageProcessing Class
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 .. code:: python
 
+    # 1. Import Image Processing Tools
     from biovida.images.image_processing import ImageProcessing
 
-
-Instantiate the Tool using the OpenInterface Instance
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code:: python
-
+    # 2. Instantiate the Tool using the OpenInterface Instance
     ip = ImageProcessing(opi)
 
+    # 3. Clean the Image Data
+    idf = ip.auto()
 
-Clean the Image Data
-^^^^^^^^^^^^^^^^^^^^
-
-.. code:: python
-
-    cdf = ip.auto()
-
-
-Save the Cleaned Images
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code:: python
-
+    # 4. Save the Cleaned Images
     ip.save("/save/directory/")
-
-
-That's it.
-
 
 While the ``ImageProcessing()`` classes allows you to
 to control the image processing more precisely if you
 wish (see the documentation `here <https://tariqahassan.github.io/BioVida/API.html#image-processing>`__), this
 fully automated approach should suffice in most cases.
 
-
 **Notice**: This library is still in *pre-alpha*. That is, formal unit testing has not yet been implemented.
 **Until it is, this software should be considered to be experimental**.
-
 
 --------------
 
 Genomic Data
 ------------
 
-Import the Interface for DisGeNET.org
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Data Harvesting
+^^^^^^^^^^^^^^^
 
 .. code:: python
 
+    # 1. Create an instance of the tool
     from biovida.genomics.disgenet_interface import DisgenetInterface
 
-Create an Instance of the Tool
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code:: python
-
+    # 2. Create an Instance of the Tool
     dna = DisgenetInterface()
 
-Explore Available Databases
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # 3. Pull the data
+    df = dna.pull('curated')
+
+
+Exploring Available Databases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
@@ -187,13 +172,6 @@ Explore Available Databases
     # - Full Name:    Curated Gene-Disease Associations
     # - Description:  The file contains gene-disease associations from UNIPROT, CTD (human subset),
     #                 ClinVar, Orphanet, and the GWAS Catalog.
-
-Pull the data
-^^^^^^^^^^^^^
-
-.. code:: python
-
-    df = dna.pull('curated')
 
 This database will be cached to allow to fast access in the future.
 
@@ -219,31 +197,23 @@ Information about the database:
     dna.current_database_description
     # 'The file contains gene-disease associations from...'
 
-
 --------------
 
 Diagnostic Data
 ---------------
 
-Import the Interface for DiseaseOntology.org
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Data Harvesting
+^^^^^^^^^^^^^^^
 
 .. code:: python
 
+    # 1. Import the Interface for DiseaseOntology.org
     from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 
-Create an Instance of the Tool
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code:: python
-
+    # 2. Create an Instance of the Tool
     doi = DiseaseOntInterface()
 
-Pull the data
-^^^^^^^^^^^^^
-
-.. code:: python
-
+    # 3. Pull the Database
     ddf = doi.pull()
 
 One can gain access to the database, by following
@@ -261,14 +231,16 @@ the database was created by *DiseaseOntology.org:*
     doi.db_date
     # datetime.datetime(2017, 1, 13, 0, 0)
 
+--------------
 
 Resources
 ---------
 
 Images
 
--  The `Open-i <https://openi.nlm.nih.gov>`__ BioMedical Image Search
-   Engine (NIH)
+-  The `Cancer Imaging Archive <http://www.cancerimagingarchive.net>`__
+
+-  The `Open-i <https://openi.nlm.nih.gov>`__ BioMedical Image Search Engine (NIH)
 
 Genomics
 
