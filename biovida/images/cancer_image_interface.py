@@ -13,19 +13,20 @@ import requests
 import numpy as np
 import pandas as pd
 
-from tqdm import tqdm
 from PIL import Image
+from tqdm import tqdm
+from time import sleep
 from warnings import warn
 from itertools import chain
-from time import sleep
 
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
+from biovida.support_tools.support_tools import items_null
 from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import combine_dicts
-from biovida.support_tools.support_tools import items_null
-from biovida.support_tools.printing import pandas_pprint
+from biovida.support_tools.support_tools import list_to_bulletpoints
 
+from biovida.support_tools.printing import pandas_pprint
 from biovida.support_tools._cache_management import package_cache_creator
 from biovida.images._resources.cancer_image_parameters import CancerImgArchiveParams
 
@@ -206,10 +207,10 @@ class _CancerImgArchiveRecords(object):
             self._url_sep = '-'
             study_df = self._study_extract(study)
             if study_df.shape[0] == 0:
-                raise ValueError("Cannot extract collection/study data.\n"
-                                 "The seperator being used to replace spaces in the URL is may incorrect. An attempt\n"
-                                 "was made with the following seperators: '+' and '-'. Alternatively, this problem\n"
-                                 "could be caused by a problem with the Cancer Imaging Archive API.")
+                raise IndexError("The '{0}' collection/study data has no length.\n"
+                                 "The separator being used to replace spaces in the URL is may incorrect. An attempt\n"
+                                 "was made with the following separators: '+' and '-'. Alternatively, this problem\n"
+                                 "could be caused by a problem with the Cancer Imaging Archive API.\n".format(study))
         return study_df
 
     def _date_index_map(self, list_of_dates):
@@ -458,7 +459,7 @@ class _CancerImgArchiveImages(object):
         # Extract a pixel array from the dicom file.
         try:
             pixel_arr = f.pixel_array
-        except UnboundLocalError:  # ToDO: change to TypeError pending https://github.com/darcymason/pydicom/pull/309
+        except (UnboundLocalError, TypeError):
             return [], False
 
         save_location = self._created_img_dirs['raw']
@@ -572,7 +573,8 @@ class _CancerImgArchiveImages(object):
         # Check that `self._created_img_dirs['dicoms'])` has files which contain the string `series_abbrev`.
         dicoms_save_location_summary_complete = False
         if save_dicoms:
-            dicoms_save_location_summary = [f for f in os.listdir(self._created_img_dirs['dicoms']) if series_abbrev in f]
+            dicoms_save_location_summary = tuple([f for f in os.listdir(self._created_img_dirs['dicoms']) if
+                                                  series_abbrev in f])
             dicoms_save_location_summary_complete = len(dicoms_save_location_summary) >= n_images_min
         else:
             dicoms_save_location_summary = np.NaN
@@ -598,6 +600,20 @@ class _CancerImgArchiveImages(object):
         os.makedirs(temp_folder)
         return temp_folder
 
+    def _pull_converted_files_flatten(self, converted_files):
+        """
+
+        Flatten the inner most dimension of `converted_files` (as evolved inside ``_pull_images_engine()``).
+
+        :param converted_files:
+        :return:
+        """
+        to_return = list()
+        for cf in converted_files:
+            flat = tuple(chain(*cf))
+            to_return.append(flat if len(flat) else np.NaN)
+        return to_return
+
     def _pull_images_engine(self, img_records, save_dicoms, img_format, check_cache_first):
         """
 
@@ -620,9 +636,7 @@ class _CancerImgArchiveImages(object):
             # Analyze the cache to determine whether or not downloading the images is warranted
             cache_complete, sl_summary, dsl_summary = self._cache_check(check_cache_first, series_abbrev,
                                                                         image_count, save_dicoms)
-
             if not cache_complete:
-                # Create temp. foloder
                 temporary_folder = self._create_temp_dir()
 
                 # Download the images into a temp. folder
@@ -632,7 +646,7 @@ class _CancerImgArchiveImages(object):
                 cfs = [self._save_dicom_as_img(f, pull_position=e, save_name=series_abbrev, img_format=img_format)
                        for e, f in enumerate(dicom_files, start=1)]
                 converted_files.append([i[0] for i in cfs])
-                conversion_success += [i[1] for i in cfs]
+                conversion_success.append(all([i[1] for i in cfs]))
 
                 # Save raw dicom files
                 raw_dicom_files.append(self._move_dicoms(dicom_files, series_abbrev) if save_dicoms else np.NaN)
@@ -641,19 +655,11 @@ class _CancerImgArchiveImages(object):
                 shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
                 converted_files.append([sl_summary])
-                raw_dicom_files.append(tuple(dsl_summary))
+                raw_dicom_files.append(dsl_summary)
                 conversion_success.append(True)
 
-        def cf_flatten():
-            """Flatten the inner most dimension of `converted_files`."""
-            to_return = list()
-            for cf in converted_files:
-                flat = tuple(chain(*cf))
-                to_return.append(flat if len(flat) else np.NaN)
-            return to_return
-
         # Return the position of all files
-        return cf_flatten(), raw_dicom_files, conversion_success
+        return self._pull_converted_files_flatten(converted_files), raw_dicom_files, conversion_success
 
     def pull_img(self,
                     records,
@@ -736,7 +742,7 @@ class CancerImageInterface(object):
 
         # DataFrames
         self.current_search = None
-        self.pull_records = None
+        self.pull_db = None
 
     def _collection_filter(self, summary_df, collection, cancer_type, location):
         """
@@ -832,18 +838,25 @@ class CancerImageInterface(object):
         :return: a list of dataframes
         :rtype: ``list``
         """
+        pull_success = list()
         # Loop through and download all of the studies
         record_frames = list()
         for collection in self.current_search['Collection']:
             if self._verbose:
-                print("\nDownloading records the '{0}' Collection...".format(collection))
-            record_frames.append(self._Records.records_pull(collection, patient_limit=patient_limit))
-        return record_frames
+                print("\nDownloading records for the '{0}' Collection...".format(collection))
+            try:
+                record_frames.append(self._Records.records_pull(collection, patient_limit=patient_limit))
+                pull_success.append((True, collection))
+            except IndexError as e:
+                warn("\nIndexError Encountered: {0}".format(e))
+                pull_success.append((False, collection))
+        return record_frames, pull_success
 
-    def _pull_images(self, record_frames, session_limit, img_format, save_dicoms, check_cache_first):
+    def _pull_images(self, record_frames, collection_names, session_limit, img_format, save_dicoms, check_cache_first):
         """
 
         :param record_frames:
+        :param collection_names:
         :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
                               to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
         :type session_limit: ``int``
@@ -854,7 +867,9 @@ class CancerImageInterface(object):
         :rtype: ``list``
         """
         img_frames = list()
-        for records in record_frames:
+        for records, collection in zip(record_frames, collection_names):
+            if self._verbose:
+                print("\nObtaining images for the '{0}' Collection...".format(collection))
             current_img_frame = self._Images.pull_img(records, session_limit, img_format, save_dicoms, check_cache_first)
             img_frames.append(current_img_frame)
         return img_frames
@@ -891,30 +906,40 @@ class CancerImageInterface(object):
                  .. warning::
 
                         Manually deleting images from the cache is likely to interfere with this parameter.
-                        For this reason doing so is not recommended. For instance, if a single frame of an
-                        image is missing, the entire image will be downloaded again.
+                        For this reason doing so is not recommended. For instance, if a single frame of a 3D
+                        image is missing from the cache, the entire image will be downloaded again.
 
         :type check_cache_first: ``bool``
         :return: a DataFrame with the record information.
         :rtype: ``Pandas DataFrame``
         """
+        # ToDo: add ability to only harvest certian kinds of images (e.g., only CTs).
         if self.current_search is None:
             raise AttributeError("`current_search` is empty. A search must be performed before `pull()` is called.")
 
         # Download Records for all of the studies
-        record_frames = self._pull_records(patient_limit)
+        record_frames, pull_success = self._pull_records(patient_limit)
+
+        # Check for failures
+        download_faulures = [collection for (success, collection) in pull_success if success is False]
+        download_successes = [collection for (success, collection) in pull_success if success is True]
+
+        if len(download_faulures) == len(pull_success):
+            raise IndexError("Data could not be harvested for any of the requested collections.")
+        elif len(download_faulures):
+            warn("\nThe following collections failed to download:\n{0}".format(list_to_bulletpoints(download_faulures)))
 
         # Download the images for all of the studies
         if pull_images:
-            final_frames = self._pull_images(record_frames, session_limit, img_format, save_dicoms, check_cache_first)
+            final_frames = self._pull_images(record_frames, download_successes, session_limit, img_format,
+                                             save_dicoms, check_cache_first)
         else:
             final_frames = record_frames
 
         # Concatenate and save
-        self.pull_records = pd.concat(final_frames, ignore_index=True)
+        self.pull_db = pd.concat(final_frames, ignore_index=True)
 
-        return self.pull_records
-
+        return self.pull_db
 
 
 
