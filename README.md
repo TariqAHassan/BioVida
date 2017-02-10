@@ -35,7 +35,7 @@ BioVida requires: [pandas], [numpy], [requests], [tqdm], [pillow], [pydicom], [h
 
 In just a few lines of code, you can download and clean images from various biomedical image databases.
 
-###Cancer Imaging Archive
+####Cancer Imaging Archive
 ```python
 # 1. Import the interface for the Cancer Imaging Archive
 from biovida.images.cancer_image_interface import CancerImageInterface
@@ -47,7 +47,7 @@ cii = CancerImageInterface(YOUR_API_KEY_HERE)
 cii.search(location='extremities')
 
 # 4. Pull the data
-adf = cii.pull()
+cdf = cii.pull()
 ```
 
 ####Open-i BioMedical Image Search Engine
