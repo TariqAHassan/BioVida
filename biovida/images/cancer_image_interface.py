@@ -624,7 +624,7 @@ class _CancerImgArchiveImages(object):
         :return:
         """
         # ToDo: consider extracting patient weight from the dicom file.
-        # ToDo: add real-time record keeping for files as they are downloaded.
+        # ToDo: add real-time record keeping for files as they are downloaded (include which study each img. is from)
         converted_files, conversion_success, raw_dicom_files = list(), list(), list()
 
         # Note: tqdm appears to be unstable with generators (hence `list()`).
@@ -742,7 +742,7 @@ class CancerImageInterface(object):
 
         # DataFrames
         self.current_search = None
-        self.pull_db = None
+        self.current_db = None
 
     def _collection_filter(self, summary_df, collection, cancer_type, location):
         """
@@ -893,8 +893,9 @@ class CancerImageInterface(object):
         :type patient_limit: ``int`` or ``None``
         :param pull_images: if ``True`` download images. Defaults to ``True``.
         :type pull_images: ``bool``
-        :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
-                              to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
+        :param session_limit: restrict image harvesting to the first ``n`` imaging sessions (days) for a given patient,
+                              where ``n`` is the value passed to this parameter. If ``None``, no limit will be imposed.
+                              Defaults to 1.
         :type session_limit: ``int``
         :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
         :type img_format: ``str``
@@ -937,9 +938,9 @@ class CancerImageInterface(object):
             final_frames = record_frames
 
         # Concatenate and save
-        self.pull_db = pd.concat(final_frames, ignore_index=True)
+        self.current_db = pd.concat(final_frames, ignore_index=True)
 
-        return self.pull_db
+        return self.current_db
 
 
 
