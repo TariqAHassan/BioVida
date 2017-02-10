@@ -50,7 +50,7 @@ cii.search(location='extremities')
 adf = cii.pull()
 ```
 
-####Downloading Images
+####Open-i BioMedical Image Search Engine
 ```python
 
 # 1. Import the Interface for the NIH's Open-i API.
@@ -66,7 +66,7 @@ opi.search(query=None, image_type=['mri', 'ct'])  # Results Found: 134,113.
 search_df = opi.pull()
 ```
 
-####Cleaning Images
+####Automated Image Data Cleaning
 ```python
 # 1. Import Image Processing Tools
 from biovida.images.image_processing import ImageProcessing
