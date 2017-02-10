@@ -33,8 +33,22 @@ BioVida requires: [pandas], [numpy], [requests], [tqdm], [pillow], [pydicom], [h
 
 ###Image Data
 
-In just a few lines of code, you can download and clean images from
-the NIH's [Open-i] Biomedical Search Database.
+In just a few lines of code, you can download and clean images from various biomedical image databases.
+
+###Cancer Imaging Archive
+```python
+# 1. Import the interface for the Cancer Imaging Archive
+from biovida.images.cancer_image_interface import CancerImageInterface
+
+# 2. Create an Instance of the Tool
+cii = CancerImageInterface(YOUR_API_KEY_HERE)
+
+# 3. Perform a search
+cii.search(location='extremities')
+
+# 4. Pull the data
+adf = cii.pull()
+```
 
 ####Downloading Images
 ```python
@@ -139,7 +153,7 @@ Images
 
    - The [Open-i] BioMedical Image Search Engine (NIH)
    
-   - [The Cancer Imaging Archive]
+   - The [Cancer Imaging Archive]
 
 Genomics
 
@@ -174,4 +188,4 @@ Diagnostics
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
 [DiseaseOntology]: http://disease-ontology.org
-[The Cancer Imaging Archive]: http://www.cancerimagingarchive.net
+[Cancer Imaging Archive]: http://www.cancerimagingarchive.net
