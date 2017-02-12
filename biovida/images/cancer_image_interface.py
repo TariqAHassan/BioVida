@@ -466,6 +466,8 @@ class _CancerImgArchiveImages(object):
         # Define a list to populate with a record of all images saved
         all_save_paths = list()
 
+        # Note: f.PatientsWeight will extract weight from the dicom.
+
         # Extract a pixel array from the dicom file.
         try:
             pixel_arr = f.pixel_array
@@ -813,6 +815,31 @@ class CancerImageInterface(object):
             else:
                 return summary_df.reset_index(drop=True)
 
+    def _search_dict_gen(self, collection, cancer_type, location, modality):
+        """
+
+        Generate a dictionary which contains the search information provided by the user.
+
+        :param collection: See: ``search()``
+        :type collection: ``str``, ``iterable`` or ``None``
+        :param cancer_type: See: ``search()``
+        :type cancer_type: ``str``, ``iterable`` or ``None``
+        :param location: See: ``search()``
+        :type location: ``str``, ``iterable`` or ``None``
+        :param modality: See: ``search()``
+        :type modality: ``str``, ``iterable`` or ``None``
+        """
+        sdict = {'collection': collection, 'cancer_type': cancer_type, 'location': location, 'modality': modality}
+        def lower_sdict(v):
+            if isinstance(v, str):
+                return v.lower()
+            elif isinstance(v, (list, tuple)):
+                return tuple(map(lambda x: x.lower(), v))
+            else:
+                return v
+
+        self._search_dict = {k: lower_sdict(v) for k, v in sdict.items()}
+
     def search(self,
                collection=None,
                cancer_type=None,
@@ -848,7 +875,8 @@ class CancerImageInterface(object):
         0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
 
         """
-        self._sdict = {'collection': collection, 'cancer_type': cancer_type, 'location': location, 'modality': modality}
+        # Create the search dict.
+        self._search_dict_gen(collection, cancer_type, location, modality)
 
         # Load the Summary Table
         summary_df = self._Overview._all_studies_cache_mngt(download_override)
@@ -1028,7 +1056,7 @@ class CancerImageInterface(object):
         self.current_db = pd.concat(final_frames, ignore_index=True)
 
         # Add the Search query which created the current results
-        self.current_db['query'] = [self._sdict] * self.current_db.shape[0]
+        self.current_db['Query'] = [self._search_dict] * self.current_db.shape[0]
 
         return self.current_db
 
