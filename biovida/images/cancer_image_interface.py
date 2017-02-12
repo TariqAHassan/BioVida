@@ -782,7 +782,8 @@ class CancerImageInterface(object):
         :type cancer_type: ``str``, ``iterable`` or ``None``
         :param location: a string or list/tuple of specifying body locations. Defaults to ``None``.
         :type location: ``str``, ``iterable`` or ``None``
-        :param modality:
+        :param modality: the type of imaging technology. See: ``CancerImageInterface().dicom_modality_abbrevs`` for
+                         valid values. Defaults to ``None``.
         :type modality: ``str``, ``iterable`` or ``None``
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
                                   Defaults to ``False``.
@@ -895,7 +896,7 @@ class CancerImageInterface(object):
         :type pull_images: ``bool``
         :param session_limit: restrict image harvesting to the first ``n`` imaging sessions (days) for a given patient,
                               where ``n`` is the value passed to this parameter. If ``None``, no limit will be imposed.
-                              Defaults to 1.
+                              Defaults to `1`.
         :type session_limit: ``int``
         :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
         :type img_format: ``str``
@@ -941,8 +942,6 @@ class CancerImageInterface(object):
         self.current_db = pd.concat(final_frames, ignore_index=True)
 
         return self.current_db
-
-
 
 
 
