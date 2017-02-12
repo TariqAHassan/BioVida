@@ -8,7 +8,7 @@ multiple, distinct data repositories into unified datasets which are highly amen
 BioVida aims to curate a broad range of biomedical information. In areas such as diagnostics and genomics, this
 involves drawing on the work of others, such as the impressive work by the Disease Ontology and DisGeNET teams.
 In the case of image data however, BioVida itself performs the 'heavy lifting' of preparing raw data from online
-sources. This automation is made possible by combining traditional software development approaches with recent advances
+sources. This is made possible by combining traditional software development approaches with recent advances
 in machine learning, namely convolutional neural networks.
 
 The guide below provides a brief introduction to getting started with BioVida.
@@ -178,7 +178,7 @@ This database will be cached to allow to fast access in the future.
 As with the ``OpenInterface()`` class above, it is easy to gain access
 to the most recent ``pull`` and related information.
 
-The database its self:
+The database itself:
 
 .. code:: python
 
