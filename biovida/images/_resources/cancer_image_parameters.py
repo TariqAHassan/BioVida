@@ -199,10 +199,24 @@ class CancerImgArchiveParams(object):
     
         return nested_dict
     
+    def _dicom_long_rename(self):
+        """
+        
+        Replacement 'long' modality names.
+        
+        :return: a dictionary of the form: ``{current name: updated name}``.
+        :rtype: ``dict``
+        """
+        rename_dict = {
+            'Positron emission tomography (PET)': 'Positron Emission Tomography (PET)',
+            'Magnetic Resonance': 'Magnetic Resonance Imaging (MRI)'
+        }
+        return rename_dict
+    
     def dicom_modality_abbreviations(self,
                                      rtype='dataframe',
                                      download_override=False,
-                                     modaility_loc='https://wiki.cancerimagingarchive.net/display/Public/'
+                                     modality_loc='https://wiki.cancerimagingarchive.net/display/Public/'
                                                    'DICOM+Modality+Abbreviations'):
         """
         
@@ -216,8 +230,8 @@ class CancerImgArchiveParams(object):
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
                                   Defaults to ``False``.
         :type download_override: ``bool``
-        :param modaility_loc: the location of the DICOM Moldaility Table
-        :type modaility_loc: ``str``
+        :param modality_loc: the location of the DICOM Moldaility Table
+        :type modality_loc: ``str``
         :return: DICOM Modality Table
         :rtype: ``Pandas DataFrame``
         """
@@ -230,9 +244,10 @@ class CancerImgArchiveParams(object):
         if not os.path.isfile(save_path) or download_override:
             if self._verbose:
                 header("Downloading DICOM Modaility Table... ", flank=False)
-            html = requests.get(modaility_loc).text
+            html = requests.get(modality_loc).text
             modality_df = pd.read_html(str(html), header=0)[0]
             modality_df.columns = modality_df.columns.str.lower()
+            modality_df['long'] = modality_df['long'].replace(self._dicom_long_rename())
             modality_df.to_pickle(save_path)
         else:
             modality_df = pd.read_pickle(save_path)
@@ -250,7 +265,7 @@ class CancerImgArchiveParams(object):
     
         :param rtype: 'dataframe' for a Pandas DataFrame or 'dict' for a nested dictionary of the form:
     
-                ``{'query_endpoint': {'resource', ..., 'query_parameters': ..., 'format': ..., 'description': ...}, ...}``
+            ``{'query_endpoint': {'resource', ..., 'query_parameters': ..., 'format': ..., 'description': ...}, ...}``
     
         :param rtype: ``str``
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
