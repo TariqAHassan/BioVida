@@ -136,7 +136,34 @@ def _directory_creator(cache_path=None, verbose=True):
     return root_path
 
 
-def package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
+def _add_to_create_nest(nest, record_dict, verbose):
+    """
+
+    Add `nest` directories
+
+    :param nest:
+    :param record_dict:
+    :return:
+    :rtype: ``dict``
+    """
+    created = list()
+    if isinstance(nest, (list, tuple)):
+        for (to_create_dir, new_nested_dir) in nest:
+            # Name the directory
+            new_dir_name = os.path.join(record_dict[to_create_dir], new_nested_dir)
+            # Create the diectory
+            if not os.path.exists(new_dir_name):
+                os.makedirs(new_dir_name)
+                created.append(new_dir_name)
+            record_dict[new_nested_dir] = new_dir_name
+
+    if verbose and len(created):
+        print("The following nested directories were also created:\n\n{0}\n".format(list_to_bulletpoints(created)))
+
+    return record_dict
+
+
+def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbose=True):
     """
 
     Create a cache for a given ``sub_dir``. If no biovida path exists in ``cache_path``,
@@ -150,6 +177,8 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     :param cache_path: local path to the desired location of the cache.
                        If ``None``, will default to the the home directory. Defaults to ``None``.
     :type cache_path: ``str`` or ``None``
+    :param nest: a list of the form [(to_create item, new nested directory name)]
+    :type nest: ``list of iterables`` or ``None``
     :param verbose: If True, print updates. Defaults to True.
     :type verbose: ``bool``
     :return: tuple of the form ``(local path to `sub_dir`, `record_dict`)``,
@@ -157,7 +186,7 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     :rtype: ``tuple``
     """
     # Check `sub_dir` is an allowed type
-    allowed_sub_dirs = ['search', 'images', 'genomics', 'diagnostics']
+    allowed_sub_dirs = ('search', 'images', 'genomics', 'diagnostics')
     if sub_dir not in allowed_sub_dirs:
         raise ValueError("`sub_dir` must be one of:\n{0}".format(list_to_bulletpoints(allowed_sub_dirs)))
 
@@ -188,8 +217,11 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, verbose=True):
     # Render a hash map of `cache_path` - to - local address
     record_dict = {k[0]: os.path.join(sub_dir_full_path, v.split(os.sep)[-1]) for k, v in package_created_dirs.items()}
 
+    # Add nests, if any
+    record_dict_nest = _add_to_create_nest(nest, record_dict, verbose)
+
     # Return full path & the above mapping
-    return sub_dir_full_path, record_dict
+    return sub_dir_full_path, record_dict_nest
 
 
 
