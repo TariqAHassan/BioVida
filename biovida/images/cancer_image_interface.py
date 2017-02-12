@@ -180,7 +180,6 @@ class _CancerImgArchiveRecords(object):
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
         self._Overview = cancer_img_archive_overview
         self.API_KEY = api_key
-
         self._url_sep = '+'
 
     def _study_extract(self, study):
@@ -410,9 +409,13 @@ class _CancerImgArchiveImages(object):
     :param cache_path:
     """
 
-    def __init__(self, api_key, dicom_modality_abbrevs, root_url, cache_path=None):
-        _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
-                                                          to_create=['tcia_dicoms', 'tcia'])
+    def __init__(self, api_key, dicom_modality_abbrevs, root_url, verbose, cache_path=None):
+        _, self._created_img_dirs = package_cache_creator(sub_dir='images',
+                                                          cache_path=cache_path,
+                                                          to_create=['tcia'],
+                                                          nest=[('tcia', 'raw'), ('tcia', 'dicoms')],
+                                                          verbose=verbose)
+
         self.ROOT_URL = root_url
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
         self.API_KEY = api_key
@@ -479,7 +482,7 @@ class _CancerImgArchiveImages(object):
         except (UnboundLocalError, TypeError):
             return [], False
 
-        save_location = self._created_img_dirs['tcia']
+        save_location = self._created_img_dirs['raw']
         def save_path(instance):
             """Define the path to save the image to."""
             head = "{0}_{1}".format(instance, pull_position)
@@ -557,12 +560,12 @@ class _CancerImgArchiveImages(object):
         self._set_and_update_list(index, 'ConvertedFilesPaths', all_save_paths)
 
         # Add record of whether or not the dicom file could be converted to a standard image type
-        self._set_and_update_list(index, 'ConversionSuccess', success)
+        self.save_dataframe.set_value(index, 'ConversionSuccess', success)
 
     def _move_dicoms(self, save_dicoms, dicom_files, series_abbrev, index):
         """
 
-        Move the dicom source files to ``self._created_img_dirs['tcia_dicoms']``.
+        Move the dicom source files to ``self._created_img_dirs['dicoms']``.
         Employ to prevent the raw dicom files from being destroyed.
 
         :param save_dicoms:
@@ -572,7 +575,6 @@ class _CancerImgArchiveImages(object):
         :param index:
         """
         if save_dicoms is False:
-            print("here1")
             self.save_dataframe.set_value(index, 'RawDicomFilesPaths', np.NaN)
             return None
 
@@ -583,7 +585,7 @@ class _CancerImgArchiveImages(object):
             new_dicom_file_name = "{0}__{1}{2}".format(f_parsed[0], series_abbrev, f_parsed[1])
 
             # Define the location of the new files
-            new_location = os.path.join(self._created_img_dirs['tcia_dicoms'], new_dicom_file_name)
+            new_location = os.path.join(self._created_img_dirs['dicoms'], new_dicom_file_name)
             new_dircom_paths.append(new_location)
 
             # Move the dicom file from __temp__ --> to --> new location
@@ -601,8 +603,8 @@ class _CancerImgArchiveImages(object):
         :return: tuple of the form:
 
                 ``(cache likely complete,
-                   series_abbrev matches in self._created_img_dirs['tcia'],
-                   series_abbrev matches in self._created_img_dirs['tcia_dicoms'])``
+                   series_abbrev matches in self._created_img_dirs['raw'],
+                   series_abbrev matches in self._created_img_dirs['dicoms'])``
 
         :type: ``tuple``
         :param n_images_min:
@@ -612,17 +614,17 @@ class _CancerImgArchiveImages(object):
         if check_cache_first is False:
             return False, None, None
 
-        # Check that `self._created_img_dirs['tcia']` has files which contain the string `series_abbrev`.
-        save_location_summary = [f for f in os.listdir(self._created_img_dirs['tcia']) if series_abbrev in f]
+        # Check that `self._created_img_dirs['raw']` has files which contain the string `series_abbrev`.
+        save_location_summary = [f for f in os.listdir(self._created_img_dirs['raw']) if series_abbrev in f]
 
-        # Check that `self._created_img_dirs['tcia_dicoms'])` has files which contain the string `series_abbrev`.
-        dicoms_sl_summary = tuple([f for f in os.listdir(self._created_img_dirs['tcia_dicoms']) if series_abbrev in f])
+        # Check that `self._created_img_dirs['dicoms'])` has files which contain the string `series_abbrev`.
+        dicoms_sl_summary = tuple([f for f in os.listdir(self._created_img_dirs['dicoms']) if series_abbrev in f])
 
         # Base determination of whether or not the cache is complete w.r.t. dicoms on `save_dicoms`.
         dicoms_sl_summary_complete = len(dicoms_sl_summary) >= n_images_min if save_dicoms else True
 
-        # Compose completeness boolean from the status of `self._created_img_dirs['tcia']` and
-        # `self._created_img_dirs['tcia_dicoms']`
+        # Compose completeness boolean from the status of `self._created_img_dirs['raw']` and
+        # `self._created_img_dirs['dicoms']`
         complete = len(save_location_summary) >= n_images_min and dicoms_sl_summary_complete
 
         return complete, save_location_summary, dicoms_sl_summary if len(dicoms_sl_summary) else np.NaN
@@ -637,7 +639,7 @@ class _CancerImgArchiveImages(object):
         :return: the full path to the newly created temporary directory.
         :rtype: ``str``
         """
-        temp_folder = os.path.join(self._created_img_dirs['tcia_dicoms'], temp_folder_name)
+        temp_folder = os.path.join(self._created_img_dirs['dicoms'], temp_folder_name)
         if os.path.isdir(temp_folder):
             shutil.rmtree(temp_folder, ignore_errors=True)
         os.makedirs(temp_folder)
@@ -713,7 +715,7 @@ class _CancerImgArchiveImages(object):
                 self.save_dataframe.set_value(index, 'ConversionSuccess', cache_complete)
 
             # Add whether or not the image was of the modaility (or modailities) requested by the user.
-            self.save_dataframe.set_value(index, 'RequestedModaility', valid_image)
+            self.save_dataframe.set_value(index, 'AllowedModaility', valid_image)
 
     def pull_img(self,
                  records,
@@ -750,7 +752,8 @@ class _CancerImgArchiveImages(object):
         # Add columns which will be populated as the images are pulled.
         self.save_dataframe['RawDicomFilesPaths'] = None
         self.save_dataframe['ConvertedFilesPaths'] = None
-        self.save_dataframe['RequestedModaility'] = None
+        self.save_dataframe['ConversionSuccess'] = None
+        self.save_dataframe['AllowedModaility'] = None
 
         # Add the Search query which created the current results
         self.save_dataframe['Query'] = [search_dict] * self.save_dataframe.shape[0]
@@ -799,9 +802,20 @@ class CancerImageInterface(object):
         # Root URL to for the Cancer Imaging Archive's REST API
         root_url = 'https://services.cancerimagingarchive.net/services/v3/TCIA'
 
-        self._Overview = _CancerImgArchiveOverview(self.dicom_modality_abbrevs, verbose, cache_path)
-        self._Records = _CancerImgArchiveRecords(api_key, self.dicom_modality_abbrevs, self._Overview, root_url)
-        self._Images = _CancerImgArchiveImages(api_key, self.dicom_modality_abbrevs, root_url, cache_path)
+        self._Overview = _CancerImgArchiveOverview(dicom_modality_abbrevs=self.dicom_modality_abbrevs,
+                                                   verbose=verbose,
+                                                   cache_path=cache_path)
+
+        self._Records = _CancerImgArchiveRecords(api_key=api_key,
+                                                 dicom_modality_abbrevs=self.dicom_modality_abbrevs,
+                                                 cancer_img_archive_overview=self._Overview,
+                                                 root_url=root_url)
+
+        self._Images = _CancerImgArchiveImages(api_key=api_key,
+                                               dicom_modality_abbrevs=self.dicom_modality_abbrevs,
+                                               root_url=root_url,
+                                               cache_path=cache_path,
+                                               verbose=verbose)
 
         # DataFrames
         self.current_search = None
@@ -1033,7 +1047,7 @@ class CancerImageInterface(object):
         :param allowed_modalities: limit images downloaded to certain modalities.
                                    See: CancerImageInterface().dicom_modality_abbrevs (use the keys).
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
-                                   Parameter is not case sensitive. Defaults to ``None``.
+                                   This parameter is not case sensitive. Defaults to ``None``.
         :type allowed_modalities: ``list`` or ``tuple``
         :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
         :type img_format: ``str``
@@ -1083,7 +1097,6 @@ class CancerImageInterface(object):
         self.current_db = pd.concat(final_frames, ignore_index=True)
 
         return self.current_db
-
 
 
 
