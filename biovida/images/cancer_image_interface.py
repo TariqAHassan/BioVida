@@ -467,7 +467,6 @@ class _CancerImgArchiveImages(object):
         all_save_paths = list()
 
         # Extract a pixel array from the dicom file.
-        self.f = f
         try:
             pixel_arr = f.pixel_array
         except (UnboundLocalError, TypeError):
@@ -790,6 +789,9 @@ class CancerImageInterface(object):
         self.current_search = None
         self.current_db = None
 
+        # Dictionary of the most recent search
+        self._sdict = None
+
     def _collection_filter(self, summary_df, collection, cancer_type, location):
         """
 
@@ -846,6 +848,8 @@ class CancerImageInterface(object):
         0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
 
         """
+        self._sdict = {'collection': collection, 'cancer_type': cancer_type, 'location': location, 'modality': modality}
+
         # Load the Summary Table
         summary_df = self._Overview._all_studies_cache_mngt(download_override)
 
@@ -1020,8 +1024,11 @@ class CancerImageInterface(object):
         else:
             final_frames = record_frames
 
-        # Concatenate and save
+        # Concatenate
         self.current_db = pd.concat(final_frames, ignore_index=True)
+
+        # Add the Search query which created the current results
+        self.current_db['query'] = [self._sdict] * self.current_db.shape[0]
 
         return self.current_db
 
