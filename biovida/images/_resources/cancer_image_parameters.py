@@ -209,7 +209,8 @@ class CancerImgArchiveParams(object):
         """
         rename_dict = {
             'Positron emission tomography (PET)': 'Positron Emission Tomography (PET)',
-            'Magnetic Resonance': 'Magnetic Resonance Imaging (MRI)'
+            'Magnetic Resonance': 'Magnetic Resonance Imaging (MRI)',
+            'Computed Tomography': 'Computed Tomography (CT)'
         }
         return rename_dict
     
