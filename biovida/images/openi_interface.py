@@ -302,7 +302,7 @@ class _OpeniImages(object):
 
 
         :param sleep_time: suggested: 5.5
-        :param image_save_location: suggested: created_img_dirs['raw'])
+        :param image_save_location: suggested: created_img_dirs['openi'])
         :param verbose:
         """
         self.sleep_time = sleep_time
@@ -484,7 +484,7 @@ class OpenInterface(object):
         self._root_url = 'https://openi.nlm.nih.gov'
 
         # Generate Required Caches
-        pcc = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['raw', 'processed'])
+        pcc = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['openi', 'processed'])
         self.root_path, self._created_img_dirs = pcc
 
         pcc2 = package_cache_creator(sub_dir='search', cache_path=cache_path, to_create=['search_databases_images'])[1]
@@ -500,12 +500,12 @@ class OpenInterface(object):
 
         # Create an instance of the `OpeniImages()` Class
         self._OpeniImages = _OpeniImages(sleep_time=img_sleep_time
-                                         , image_save_location=self._created_img_dirs['raw']
+                                         , image_save_location=self._created_img_dirs['openi']
                                          , verbose=verbose)
 
         # Permanent record of images in the raw image cache
         self.image_record_database = None
-        self._image_record_database_path = os.path.join(self._created_img_dirs['raw'], "image_record_database.p")
+        self._image_record_database_path = os.path.join(self._created_img_dirs['openi'], "image_record_database.p")
 
         if os.path.isfile(self._image_record_database_path):
             # Read in the existing database
