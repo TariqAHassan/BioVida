@@ -421,8 +421,28 @@ class _CancerImgArchiveImages(object):
         self.API_KEY = api_key
 
         # Add Record DataFrame
-        self.save_dataframe = None
-        self.search_dict = None
+        self.real_time_image_df = None
+        self.db_save_path = os.path.join(self._created_img_dirs['tcia'], 'tcia_record_db.p')
+
+        # Try to Load
+        try:
+            self.tcia_record_db = pd.read_pickle(self.db_save_path)
+        except:
+            self.tcia_record_db = None
+        
+    def _save_real_time_image_df(self):
+        """
+
+        Save the ``real_time_image_df`` to disk.
+
+        """
+        # Use `real_time_image_df` as `tcia_record_db` if its None.
+        if self.tcia_record_db is None:
+            self.tcia_record_db = self.real_time_image_df.copy()
+
+        # Perform this Function main purpose of saving the `real_time_image_df` to disk.
+        if not self.real_time_image_df is None:
+            self.real_time_image_df.to_pickle(self.db_save_path)
 
     def _download_zip(self, series_uid, temporary_folder, index):
         """
@@ -459,7 +479,7 @@ class _CancerImgArchiveImages(object):
         - if pydicom cannot render the DICOM as a pixel array, this method will its hault image extraction efforts. 
 
         :param f: a dicom image.
-        :type f:
+        :type f: ``pydicom object``
         :param pull_position: the position of the file in the list of files pulled from the database.
         :type pull_position: ``int``
         :param conversion: the color scale conversion to use, e.g., 'LA' or 'RGB'.
@@ -502,8 +522,7 @@ class _CancerImgArchiveImages(object):
                 Image.fromarray(pixel_arr[layer:layer + 1][0]).convert(conversion).save(path)
                 all_save_paths.append(path)
         else:
-            raise ValueError("Cannot coerce {0} dimensional image arrays. Images must be 2D or 3D.".format(
-                pixel_arr.ndim))
+            raise ValueError("Cannot handle {0} dimensional arrays. Images must be 2D or 3D.".format(pixel_arr.ndim))
 
         return all_save_paths, True
 
@@ -514,9 +533,9 @@ class _CancerImgArchiveImages(object):
         :param new:
         :return:
         """
-        current = self.save_dataframe.get_value(index, column)
+        current = self.real_time_image_df.get_value(index, column)
         old_iterable = current if isinstance(current, (list, tuple)) else []
-        self.save_dataframe.set_value(index, column, tuple(list(old_iterable) + list(new)))
+        self.real_time_image_df.set_value(index, column, tuple(list(old_iterable) + list(new)))
 
     def _save_dicom_as_img(self, path_to_dicom_file, index, pull_position, save_name=None, color=False, img_format='png'):
         """
@@ -560,7 +579,10 @@ class _CancerImgArchiveImages(object):
         self._set_and_update_list(index, 'ConvertedFilesPaths', all_save_paths)
 
         # Add record of whether or not the dicom file could be converted to a standard image type
-        self.save_dataframe.set_value(index, 'ConversionSuccess', success)
+        self.real_time_image_df.set_value(index, 'ConversionSuccess', success)
+
+        # Save the data frame
+        self._save_real_time_image_df()
 
     def _move_dicoms(self, save_dicoms, dicom_files, series_abbrev, index):
         """
@@ -575,7 +597,7 @@ class _CancerImgArchiveImages(object):
         :param index:
         """
         if save_dicoms is False:
-            self.save_dataframe.set_value(index, 'RawDicomFilesPaths', np.NaN)
+            self.real_time_image_df.set_value(index, 'RawDicomFilesPaths', np.NaN)
             return None
 
         new_dircom_paths = list()
@@ -592,7 +614,10 @@ class _CancerImgArchiveImages(object):
             os.rename(f, new_location)
 
         # Update the save dataframe
-        self.save_dataframe.set_value(index, 'RawDicomFilesPaths', tuple(new_dircom_paths))
+        self.real_time_image_df.set_value(index, 'RawDicomFilesPaths', tuple(new_dircom_paths))
+
+        # Save the data frame
+        self._save_real_time_image_df()
 
     def _cache_check(self, check_cache_first, series_abbrev, n_images_min, save_dicoms):
         """
@@ -679,7 +704,7 @@ class _CancerImgArchiveImages(object):
         :return:
         """
         columns = ('SeriesInstanceUID', 'PatientID', 'ImageCount', 'Modality', 'ModalityFull')
-        zipped_cols = list(zip(*[self.save_dataframe[c] for c in columns] + [pd.Series(self.save_dataframe.index)]))
+        zipped_cols = list(zip(*[self.real_time_image_df[c] for c in columns] + [pd.Series(self.real_time_image_df.index)]))
 
         for series_uid, patient_id, image_count, modality, modality_full, index in tqdm(zipped_cols):
             # Check if the image should be harvested (or loaded from the cache).
@@ -712,10 +737,12 @@ class _CancerImgArchiveImages(object):
             else:
                 self._set_and_update_list(index, 'RawDicomFilesPaths', dsl_summary)
                 self._set_and_update_list(index, 'ConvertedFilesPaths', sl_summary)
-                self.save_dataframe.set_value(index, 'ConversionSuccess', cache_complete)
+                self.real_time_image_df.set_value(index, 'ConversionSuccess', cache_complete)
+                # Save the data frame
+                self._save_real_time_image_df()
 
             # Add whether or not the image was of the modaility (or modailities) requested by the user.
-            self.save_dataframe.set_value(index, 'AllowedModaility', valid_image)
+            self.real_time_image_df.set_value(index, 'AllowedModaility', valid_image)
 
     def pull_img(self,
                  records,
@@ -747,28 +774,28 @@ class _CancerImgArchiveImages(object):
                 lambda x: float(x) <= session_limit if pd.notnull(x) else False)].reset_index(drop=True).copy(deep=True)
 
         # Add limited record
-        self.save_dataframe = img_records
+        self.real_time_image_df = img_records
 
         # Add columns which will be populated as the images are pulled.
-        self.save_dataframe['RawDicomFilesPaths'] = None
-        self.save_dataframe['ConvertedFilesPaths'] = None
-        self.save_dataframe['ConversionSuccess'] = None
-        self.save_dataframe['AllowedModaility'] = None
+        self.real_time_image_df['RawDicomFilesPaths'] = None
+        self.real_time_image_df['ConvertedFilesPaths'] = None
+        self.real_time_image_df['ConversionSuccess'] = None
+        self.real_time_image_df['AllowedModaility'] = None
 
         # Add the Search query which created the current results
-        self.save_dataframe['Query'] = [search_dict] * self.save_dataframe.shape[0]
+        self.real_time_image_df['Query'] = [search_dict] * self.real_time_image_df.shape[0]
 
         # Harvest images
         self._pull_images_engine(save_dicoms, allowed_modalities, img_format, check_cache_first)
-        self.save_dataframe = self.save_dataframe.replace({None: np.NaN})
+        self.real_time_image_df = self.real_time_image_df.replace({None: np.NaN})
 
         # Add column which provides the number of images each SeriesInstanceUID yeilded
         # Note: this may be discrepant with the 'ImageCount' column because 3D images are expanded into
         #       their individual frames when saved to the converted images cache.
-        self.save_dataframe['ImageCountConvertedCache'] = self.save_dataframe['ConvertedFilesPaths'].map(
+        self.real_time_image_df['ImageCountConvertedCache'] = self.real_time_image_df['ConvertedFilesPaths'].map(
             lambda x: len(x) if not items_null(x) else 0)
 
-        return self.save_dataframe
+        return self.real_time_image_df
 
 
 # ----------------------------------------------------------------------------------------------------------
