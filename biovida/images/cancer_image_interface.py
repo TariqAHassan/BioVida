@@ -15,10 +15,10 @@ import pandas as pd
 
 from PIL import Image
 from tqdm import tqdm
-from time import time
 from time import sleep
 from warnings import warn
 from itertools import chain
+from datetime import datetime
 
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
@@ -346,13 +346,17 @@ class _CancerImgArchiveRecords(object):
         summary_df = self._Overview._all_studies_cache_mngt(download_override=overview_download_override)
         return summary_df[summary_df['Collection'] == collection]['CancerType'].iloc[0]
 
-    def records_pull(self, study, overview_download_override=False, patient_limit=3):
+    def records_pull(self, study, search_dict, query_time, overview_download_override=False, patient_limit=3):
         """
 
         Extract record of all images for all patients in a given study.
 
         :param study:
         :type study: ``str``
+        :param search_dict:
+        :type search_dict: ``dict``
+        :param query_time: the time the query was launched.
+        :type query_time: ``datetime``
         :param patient_limit: limit on the number of patients to extract.
                              Patient IDs are sorted prior to this limit being imposed.
                              If ``None``, no patient_limit will be imposed. Defaults to `3`.
@@ -387,6 +391,10 @@ class _CancerImgArchiveRecords(object):
         # Add the Name of the illness
         patient_study_df['CancerType'] = self._get_illness_name(patient_study_df['Collection'],
                                                                 overview_download_override)
+
+        # Add the Search query which created the current results and the time the search was launched.
+        patient_study_df['Query'] = [search_dict] * patient_study_df.shape[0]
+        patient_study_df['QueryTime'] = [query_time] * patient_study_df.shape[0]
 
         # Clean the dataframe
         self.records_df = self._clean_patient_study_df(patient_study_df)
@@ -618,13 +626,14 @@ class _CancerImgArchiveImages(object):
             new_location = os.path.join(self._created_img_dirs['dicoms'], new_dicom_file_name)
             new_dircom_paths.append(new_location)
 
-            # Move the dicom file from __temp__ --> to --> new location
+            # Move the dicom file from '__temp__' --> to --> new location
             os.rename(f, new_location)
 
         # Update the save dataframe
         self.real_time_update_db.set_value(index, 'RawDicomFilesPaths', tuple(new_dircom_paths))
 
-        # Save the data frame
+        # Save the data frame.  Note: if python crashes or the session ends before the above loop completes,
+        # information on the partial transfer will be lost.
         self._save_real_time_update_db()
 
     def _cache_check(self, check_cache_first, series_abbrev, n_images_min, save_dicoms):
@@ -756,7 +765,6 @@ class _CancerImgArchiveImages(object):
                  collection_name,
                  records,
                  start_time,
-                 search_dict,
                  session_limit=1,
                  img_format='png',
                  save_dicoms=True,
@@ -768,10 +776,8 @@ class _CancerImgArchiveImages(object):
         
         :param collection_name: name of the collection which ``records`` corresponds to.
         :param records:
-        :param start_time: the time the pull for images was initiated.
-        :type start_time: ``int``
-        :param search_dict:
-        :type search_dict: ``dict``
+        :param start_time: the time the pull for images was initiated (standard format: "%Y_%h_%d__%H_%M_%S_%f").
+        :type start_time: ``str``
         :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
                               to this parameter. If ``None``, no limit will be imposed. Defaults to `1`.
         :type session_limit: ``int``
@@ -797,9 +803,6 @@ class _CancerImgArchiveImages(object):
         for c in ('RawDicomFilesPaths', 'ConvertedFilesPaths', 'ConversionSuccess',
                   'AllowedModaility', 'ImageCountConvertedCache'):
             self.real_time_update_db[c] = None
-
-        # Add the Search query which created the current results
-        self.real_time_update_db['Query'] = [search_dict] * self.real_time_update_db.shape[0]
 
         # Harvest images
         self._pull_images_engine(save_dicoms, allowed_modalities, img_format, check_cache_first)
@@ -863,6 +866,9 @@ class CancerImageInterface(object):
         # DataFrames
         self.current_search = None
         self.current_db = None
+
+        # The format for date information
+        self._time_format = "%Y_%h_%d__%H_%M_%S_%f"
 
         # Path to the tcia_record_db
         self._tcia_record_db_save_path = os.path.join(self._Images._created_img_dirs['databases'], 'tcia_record_db.p')
@@ -1018,12 +1024,55 @@ class CancerImageInterface(object):
             if self._verbose:
                 print("\nDownloading records for the '{0}' Collection...".format(collection))
             try:
-                record_frames.append(self._Records.records_pull(collection, patient_limit=patient_limit))
+                record_frames.append(self._Records.records_pull(study=collection,
+                                                                search_dict=self._search_dict,
+                                                                query_time=self._IMAGES_PULL_TIME,
+                                                                patient_limit=patient_limit))
                 pull_success.append((True, collection))
             except IndexError as e:
                 warn("\nIndexError Encountered: {0}".format(e))
                 pull_success.append((False, collection))
         return record_frames, pull_success
+
+    def _pull_images(self,
+                     record_frames,
+                     collection_names,
+                     session_limit,
+                     img_format,
+                     save_dicoms,
+                     allowed_modalities,
+                     check_cache_first):
+        """
+
+        Pull Images from the TCIA API (based on the 'records' obtained with ``_pull_records()``.
+
+        :param record_frames:
+        :param collection_names:
+        :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
+                              to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
+        :type session_limit: ``int``
+        :param img_format:
+        :param save_dicoms:
+        :param allowed_modalities:
+        :param check_cache_first:
+        :return: a list of dataframes
+        :rtype: ``list``
+        """
+        img_frames = list()
+        for records, collection in zip(record_frames, collection_names):
+            if self._verbose:
+                print("\nObtaining images for the '{0}' Collection...".format(collection))
+            current_img_frame = self._Images.pull_img(collection_name=collection, 
+                                                      records=records,
+                                                      start_time=self._IMAGES_PULL_TIME.strftime(self._time_format),
+                                                      session_limit=session_limit,
+                                                      img_format=img_format,
+                                                      save_dicoms=save_dicoms,
+                                                      allowed_modalities=allowed_modalities,
+                                                      check_cache_first=check_cache_first)
+            img_frames.append(current_img_frame)
+
+        return img_frames
 
     def _tcia_record_db_handler(self):
         """
@@ -1063,47 +1112,6 @@ class CancerImageInterface(object):
 
         # Delete the '__temp__' folder
         shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
-
-    def _pull_images(self,
-                     record_frames,
-                     collection_names,
-                     session_limit,
-                     img_format,
-                     save_dicoms,
-                     allowed_modalities,
-                     check_cache_first):
-        """
-
-        Pull Images from the TCIA API (based on the 'records' obtained with ``_pull_records()``.
-
-        :param record_frames:
-        :param collection_names:
-        :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
-                              to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
-        :type session_limit: ``int``
-        :param img_format:
-        :param save_dicoms:
-        :param allowed_modalities:
-        :param check_cache_first:
-        :return: a list of dataframes
-        :rtype: ``list``
-        """
-        img_frames = list()
-        for records, collection in zip(record_frames, collection_names):
-            if self._verbose:
-                print("\nObtaining images for the '{0}' Collection...".format(collection))
-            current_img_frame = self._Images.pull_img(collection_name=collection, 
-                                                      records=records,
-                                                      start_time=self._IMAGES_PULL_TIME,
-                                                      search_dict=self._search_dict,
-                                                      session_limit=session_limit,
-                                                      img_format=img_format,
-                                                      save_dicoms=save_dicoms,
-                                                      allowed_modalities=allowed_modalities,
-                                                      check_cache_first=check_cache_first)
-            img_frames.append(current_img_frame)
-
-        return img_frames
 
     def pull(self,
              patient_limit=3,
@@ -1162,6 +1170,9 @@ class CancerImageInterface(object):
         :return: a DataFrame with the record information.
         :rtype: ``Pandas DataFrame``
         """
+        # Note the time the pull was stated
+        self._IMAGES_PULL_TIME = datetime.now()
+
         if self.current_search is None:
             raise AttributeError("`current_search` is empty. A search must be performed before `pull()` is called.")
 
@@ -1177,9 +1188,6 @@ class CancerImageInterface(object):
             raise IndexError("Data could not be harvested for any of the requested collections.")
         elif len(download_failures):
             warn("\nThe following collections failed to download:\n{0}".format(list_to_bulletpoints(download_failures)))
-
-        # Note the time the pull was stated
-        self._IMAGES_PULL_TIME = int(time() * 1e6)
 
         # Download the images for all of the studies
         if pull_images:
