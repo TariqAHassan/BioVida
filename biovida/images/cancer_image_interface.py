@@ -914,14 +914,17 @@ class CancerImageInterface(object):
         :return:
         """
         # Filter by `collection`
-        if isinstance(collection, str) and any(i is not None for i in (cancer_type, location)):
+        if isinstance(collection, (str, list, tuple)) and any(i is not None for i in (cancer_type, location)):
             raise ValueError("Both `cancer_types` and `location` must be ``None`` if a `collection` name is passed.")
-        elif isinstance(collection, str):
-            summary_df = summary_df[summary_df['Collection'].str.strip().str.lower() == collection.strip().lower()]
+        elif isinstance(collection, (str, list, tuple)):
+            coll = [collection] if isinstance(collection, str) else collection
+            summary_df = summary_df[summary_df['Collection'].str.lower().isin(map(lambda x: cln(x).lower(), coll))]
             if summary_df.shape[0] == 0:
                 raise AttributeError("No Collection with the name '{0}' could be found.".format(collection))
             else:
                 return summary_df.reset_index(drop=True)
+        elif collection is not None:
+            raise TypeError("'{0}' is an invalid type for `collection`.".format(str(type(collection).__name__)))
 
     def _search_dict_gen(self, collection, cancer_type, location, modality):
         """
@@ -960,8 +963,9 @@ class CancerImageInterface(object):
 
         Method to Search for studies on the Cancer Imaging Archive.
 
-        :param collection: a collection (study) hosted by the Cancer Imaging Archive. Defaults to ``None``.
-        :type collection: ``str`` or ``None``
+        :param collection: a collection (study), or iterable (e.g., list) of collections,
+                           hosted by the Cancer Imaging Archive. Defaults to ``None``.
+        :type collection: ``list``, ``tuple``, ``str`` or ``None``
         :param cancer_type: a string or list/tuple of specifying cancer types. Defaults to ``None``.
         :type cancer_type: ``str``, ``iterable`` or ``None``
         :param location: a string or list/tuple of specifying body locations. Defaults to ``None``.
