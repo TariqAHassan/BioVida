@@ -1308,10 +1308,12 @@ class CancerImageInterface(object):
 
         - 3D images are saved as individual frames.
 
-        _ Images have the following format:
-        ``[instance, pull_position]__[PatientID_[Last 10 Digits of SeriesUID]]__[Image Scale (D=Default)].img_format``,
-        where 'instance' denotes the image's position in the 3D image (if applicable and available) and 'pull_position'
-        denotes the position of the image in the set returned for the given SeriesUID by the Cancer Imaging Archive API.
+        - Images have the following format:
+
+            ``[instance, pull_position]__[PatientID_[Last 10 Digits of SeriesUID]]__[Image Scale (D=Default)].img_format``
+
+            where 'instance' denotes the image's position in the 3D image (if applicable and available) and 'pull_position'
+            denotes the position of the image in the set returned for the given SeriesUID by the Cancer Imaging Archive API.
 
         :param patient_limit: limit on the number of patients to extract.
                              Patient IDs are sorted prior to this limit being imposed.
