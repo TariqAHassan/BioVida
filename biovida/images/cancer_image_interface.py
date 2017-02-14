@@ -446,7 +446,12 @@ class _CancerImgArchiveImages(object):
         # Define the path to the temporary directory
         self.temp_directory_path = os.path.join(self._created_img_dirs['databases'], "__temp__")
 
-        # Create the temporary folder for ``real_time_update_db``.
+    def _create_temp_directory(self):
+        """
+
+        Create the temporary folder for ``real_time_update_db``.
+
+        """
         if not os.path.isdir(self.temp_directory_path):
             os.makedirs(self.temp_directory_path)
 
@@ -810,6 +815,10 @@ class _CancerImgArchiveImages(object):
         # 2. values may be discrepant with the 'ImageCount' column because 3D images are expanded
         #    into their individual frames when saved to the converted images cache.
 
+        # Create the temp folder if it does not already exist.
+        self._create_temp_directory()
+
+        # Define the path to be used when saving ``real_time_update_db``.
         self._real_time_update_db_path_gen(start_time, collection_name)
 
         # Apply limit on number of sessions, if any
@@ -855,6 +864,57 @@ class CancerImageInterface(object):
     :type cache_path: ``str`` or ``None``
     """
 
+    def _load_temp_dbs(self):
+        """
+
+        Load temporary databases created by ``_CancerImgArchiveImages()`` in the 'databases/__temp__' directory.
+
+        """
+        # Apply the merging function
+        temp_img_path = self._Images.temp_directory_path
+        db_paths = [os.path.join(temp_img_path, p) for p in os.listdir(temp_img_path) if p.endswith(".p")]
+
+        # Read the dataframes in the '__temp__' directory into memory
+        frames = [pd.read_pickle(p) for p in db_paths]
+
+        # Concatenate all frames
+        return pd.concat(frames, ignore_index=True)
+
+    def _tcia_record_db_gen(self, tcia_record_db_addition):
+        """
+
+        Generate the `tcia_record_db` database.
+        If it does not exist, use `tcia_record_db`.
+        If if already exists, merge it with `tcia_record_db_addition`.
+
+        :param tcia_record_db_addition: the new search dataframe to added to the existing one.
+        :type tcia_record_db_addition: ``Pandas DataFrame``
+        """
+        def dict_to_tot(d):
+            """Convert a dictionary to a tuple of tuples and sort by the former keys."""
+            return tuple(sorted(d.items(), key=lambda x: x[0]))
+
+        # Compose or update the master 'tcia_record_db' dataframe
+        if self.tcia_record_db is None:
+            self.tcia_record_db = tcia_record_db_addition.copy(deep=True)
+            self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
+        else:
+            # Load in the current database and combine with the `tcia_record_db_addition` database
+            combined_dbs = pd.concat([self.tcia_record_db, tcia_record_db_addition])
+            # Sort by 'QueryDate'
+            combined_dbs = combined_dbs.sort_values('QueryTime')
+            # Convert 'Query' to a tuple of tuples (making them hashable, as required by ``pandas.drop_duplicates()``).
+            combined_dbs['Query'] = combined_dbs['Query'].map(dict_to_tot, na_action='ignore')
+            # Drop Duplicates (keeping the most recent).
+            combined_dbs = combined_dbs.drop_duplicates(subset=[c for c in combined_dbs.columns if c != 'QueryTime'],
+                                                        keep='last')
+            # Convert the 'Query' dicts back to dictionaries
+            combined_dbs['Query'] = combined_dbs['Query'].map(dict, na_action='ignore')
+            # Save to class instance
+            self.tcia_record_db = combined_dbs.sort_values(['QueryTime', 'StudyName']).reset_index(drop=True)
+            # Save to disk
+            self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
+
     def __init__(self,
                  api_key,
                  verbose=True,
@@ -893,14 +953,18 @@ class CancerImageInterface(object):
         # Load `tcia_record_db` if it exists already, else set to None.
         if os.path.isfile(self._tcia_record_db_save_path):
             self.tcia_record_db = pd.read_pickle(self._tcia_record_db_save_path)
+            # Merge any latent elements in the __temp__ folder, if such a folder exists (and if it is populated).
+            if os.path.isdir(self._Images.temp_directory_path):
+                if len([i for i in self._Images.temp_directory_path if i.endswith(".p")]):
+                    self._tcia_record_db_gen(tcia_record_db_addition=self._load_temp_dbs())
+                # Delete the latent '__temp__' folder
+                shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
         else:
             self.tcia_record_db = None
 
         # Dictionary of the most recent search
         self._search_dict = None
         self._IMAGES_PULL_TIME = None
-
-        # ToDo: handle latent '__temp__' folders.
 
     def _collection_filter(self, summary_df, collection, cancer_type, location):
         """
@@ -912,6 +976,7 @@ class CancerImageInterface(object):
         :param cancer_type:
         :param location:
         :return:
+        :rtype: ``None`` or ``Pandas DataFrame``
         """
         # Filter by `collection`
         if isinstance(collection, (str, list, tuple)) and any(i is not None for i in (cancer_type, location)):
@@ -1098,41 +1163,6 @@ class CancerImageInterface(object):
 
         return img_frames
 
-    def _tcia_record_db_gen(self, tcia_record_db_addition):
-        """
-
-        Generate the `tcia_record_db` database.
-        If it does not exist, use `tcia_record_db`.
-        If if already exists, merge it with `tcia_record_db_addition`.
-
-        :param tcia_record_db_addition: the new search dataframe to added to the existing one.
-        :type tcia_record_db_addition: ``Pandas DataFrame``
-        """
-        def dict_to_tot(d):
-            """Convert a dictionary to a tuple of tuples and sort by the former keys."""
-            return tuple(sorted(d.items(), key=lambda x: x[0]))
-
-        # Compose or update the master 'tcia_record_db' dataframe
-        if self.tcia_record_db is None:
-            self.tcia_record_db = tcia_record_db_addition.copy(deep=True)
-            self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
-        else:
-            # Load in the current database and combine with the `tcia_record_db_addition` database
-            combined_dbs = pd.concat([self.tcia_record_db, tcia_record_db_addition])
-            # Sort by 'QueryDate'
-            combined_dbs = combined_dbs.sort_values('QueryTime')
-            # Convert 'Query' to a tuple of tuples (making them hashable, as required by ``pandas.drop_duplicates()``).
-            combined_dbs['Query'] = combined_dbs['Query'].map(dict_to_tot, na_action='ignore')
-            # Drop Duplicates (keeping the most recent).
-            combined_dbs = combined_dbs.drop_duplicates(subset=[c for c in combined_dbs.columns if c != 'QueryTime'],
-                                                        keep='last')
-            # Convert the 'Query' dicts back to dictionaries
-            combined_dbs['Query'] = combined_dbs['Query'].map(dict, na_action='ignore')
-            # Save to class instance
-            self.tcia_record_db = combined_dbs.sort_values(['QueryTime', 'StudyName']).reset_index(drop=True)
-            # Save to disk
-            self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
-
     def _tcia_record_db_handler(self):
         """
 
@@ -1151,19 +1181,8 @@ class CancerImageInterface(object):
            merge and run the pruning algorithm.
 
         """
-        # Apply the merging function
-        temp_img_path = self._Images.temp_directory_path
-        db_paths = [os.path.join(temp_img_path, p) for p in os.listdir(temp_img_path) if p.endswith(".p")]
-
-        # Read the dataframes in the '__temp__' directory into memory
-        frames = [pd.read_pickle(p) for p in db_paths]
-
-        # Concatenate all frames
-        tcia_record_db_addition = pd.concat(frames, ignore_index=True)
-        print(tcia_record_db_addition)
-
         # Generate the `tcia_record_db`.
-        self._tcia_record_db_gen(tcia_record_db_addition)
+        self._tcia_record_db_gen(tcia_record_db_addition=self._load_temp_dbs())
 
         # Delete the '__temp__' folder
         shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
