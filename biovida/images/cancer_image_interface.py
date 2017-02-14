@@ -182,6 +182,11 @@ class _CancerImgArchiveOverview(object):
 class _CancerImgArchiveRecords(object):
     """
 
+    Class to harvest
+
+    :param api_key:
+    :param dicom_modality_abbrevs:
+    :param cancer_img_archive_overview:
     :param root_url: the root URL for the the Cancer Imaging Archive's API.
     :type root_url: ``str``
     """
@@ -217,6 +222,7 @@ class _CancerImgArchiveRecords(object):
         if study_df.shape[0] == 0:
             self._url_sep = '-'
             study_df = self._study_extract(study)
+            self._url_sep = '+'  # reset
             if study_df.shape[0] == 0:
                 raise IndexError("The '{0}' collection/study data has no length.\n"
                                  "The separator being used to replace spaces in the URL is may incorrect. An attempt\n"
@@ -1174,9 +1180,10 @@ class CancerImageInterface(object):
         More broadly, this whole script follows the following procedure for caching:
 
         1. Create a master dataframe. If none exists, created one based on the steps below.
-        2. Create a temporary folder which will be populated with temporary databases which update in real time as images are pulled.
-        3. Upon sucessful exit in ``CancerImageInterface().pull()``, combine all temp. dataframes and merge them with the
-           master and run the pruning algorithm.
+        2. Create a temporary folder which will be populated with temporary databases which update in real time as
+           images are pulled.
+        3. Upon sucessful exit in ``CancerImageInterface().pull()``, combine all temp. dataframes and merge them with
+           the master and run the pruning algorithm (see the second half of ``_tcia_record_db_gen()``).
         4. As a precaution, on init. of the CancerImageInterface class, if a '__temp__' folder exists,
            merge and run the pruning algorithm.
 
