@@ -443,7 +443,7 @@ class _OpeniImages(object):
 # ---------------------------------------------------------------------------------------------
 
 
-class OpenInterface(object):
+class OpeniInterface(object):
     """
 
     Python Interface for the NIH's Open-i API.
@@ -477,7 +477,7 @@ class OpenInterface(object):
                  , verbose=True):
         """
 
-        Initialize the ``OpenInterface()`` Class.
+        Initialize the ``OpeniInterface()`` Class.
 
         """
         self._verbose = verbose
@@ -707,7 +707,7 @@ class OpenInterface(object):
     def _search_clean(self, k, v):
         """
 
-        Define a tool to clean the search terms in `OpenInterface().search()`.
+        Define a tool to clean the search terms in `OpeniInterface().search()`.
 
         :param k:
         :param v:
@@ -757,21 +757,21 @@ class OpenInterface(object):
 
         :param query: a search term. ``None`` will be converted to an empty string.
         :type query: ``str`` or ``None``
-        :param image_type: see ``OpenInterface().options('image_type')`` for valid values.
+        :param image_type: see ``OpeniInterface().options('image_type')`` for valid values.
         :type image_type: ``list``, ``tuple`` or ``None``.
-        :param rankby: see ``OpenInterface().options('rankby')`` for valid values.
+        :param rankby: see ``OpeniInterface().options('rankby')`` for valid values.
         :type rankby: ``list``, ``tuple`` or ``None``.
-        :param article_type: see ``OpenInterface().options('article_type')`` for valid values.
+        :param article_type: see ``OpeniInterface().options('article_type')`` for valid values.
         :type article_type: ``list``, ``tuple`` or ``None``.
-        :param subset: see ``OpenInterface().options('subset')`` for valid values.
+        :param subset: see ``OpeniInterface().options('subset')`` for valid values.
         :type subset: ``list``, ``tuple`` or ``None``.
-        :param collection: see ``OpenInterface().options('collection')`` for valid values.
+        :param collection: see ``OpeniInterface().options('collection')`` for valid values.
         :type collection: ``list``, ``tuple`` or ``None``.
-        :param fields: see ``OpenInterface().options('fields')`` for valid values.
+        :param fields: see ``OpeniInterface().options('fields')`` for valid values.
         :type fields: ``list``, ``tuple`` or ``None``.
-        :param specialties: see ``OpenInterface().options('specialties')`` for valid values.
+        :param specialties: see ``OpeniInterface().options('specialties')`` for valid values.
         :type specialties: ``list``, ``tuple`` or ``None``.
-        :param video: see ``OpenInterface().options('video')`` for valid values. Defaults to ``None``.
+        :param video: see ``OpeniInterface().options('video')`` for valid values. Defaults to ``None``.
         :type video: ``list``, ``tuple`` or ``None``.
         :param exclusions: one or both of: 'graphics', 'multipanel'.
                            Note: excluding 'multipanel' can result in images that ARE multipanel
@@ -821,11 +821,11 @@ class OpenInterface(object):
         """
 
         This method checks for some forms of invalid requests to
-        the ``OpenInterface().cache()`` method.
+        the ``OpeniInterface().cache()`` method.
 
-        :param database_name: see ``OpenInterface().cache()``.
+        :param database_name: see ``OpeniInterface().cache()``.
         :type database_name: ``str`` or ``None``
-        :param action: see ``OpenInterface().cache()``.
+        :param action: see ``OpeniInterface().cache()``.
         :type action: ``str`` or ``None``
         :return: a list of databases found in ``self.search_cache_path``
         :rtype: ``list``
@@ -856,9 +856,9 @@ class OpenInterface(object):
 
         Save, load and destroy support information for a given database.
 
-        :param database_name: see ``OpenInterface().cache()``.
+        :param database_name: see ``OpeniInterface().cache()``.
         :type database_name: ``str`` or ``None``
-        :param action: see ``OpenInterface().cache()``.
+        :param action: see ``OpeniInterface().cache()``.
         :type action: ``str`` or ``None``
         """
         # Define the name of the support object
@@ -1113,7 +1113,7 @@ class OpenInterface(object):
 
         Define or evolve `search_data`.
 
-        :param new_records_pull: see ``OpenInterface().pull()``.
+        :param new_records_pull: see ``OpeniInterface().pull()``.
         :type new_records_pull: ``bool``
         :return: `search_data`
         :rtype: ``Pandas DataFrame``
@@ -1136,9 +1136,9 @@ class OpenInterface(object):
 
         Pull images if `image_quality` is not ``None``, else return `search_data` 'as-is'.
 
-        :param search_data: see ``OpenInterface().pull()``.
+        :param search_data: see ``OpeniInterface().pull()``.
         :param search_data: ``Pandas DataFrame``
-        :param image_quality: see ``OpenInterface().pull()``.
+        :param image_quality: see ``OpeniInterface().pull()``.
         :type image_quality: ``str`` or ``None``
         :return: `search_data` with columns on th effort to pull images
                if `image_quality` is not ``None`` else ``search_data``.
@@ -1157,11 +1157,11 @@ class OpenInterface(object):
     def _pull_search_wrapper(self, image_quality, new_records_pull):
         """
 
-        Wrapper for ``OpenInterface()._pull_search_data()`` and ``OpenInterface()._pull_image_col()``.
+        Wrapper for ``OpeniInterface()._pull_search_data()`` and ``OpeniInterface()._pull_image_col()``.
 
-        :param new_records_pull: see ``OpenInterface().pull()``.
+        :param new_records_pull: see ``OpeniInterface().pull()``.
         :type new_records_pull: ``bool``
-        :param image_quality: see ``OpenInterface().pull()``.
+        :param image_quality: see ``OpeniInterface().pull()``.
         :type image_quality: ``str`` or ``None``
         :return: the search DataFrame
         :rtype: ``Pandas DataFrame``
@@ -1196,7 +1196,7 @@ class OpenInterface(object):
         :rtype: ``Pandas DataFrame``
         """
         if self.current_search_url is None:
-            raise ValueError("A search has not been defined. Please call `OpenInterface().search()`.")
+            raise ValueError("A search has not been defined. Please call `OpeniInterface().search()`.")
 
         # Define allowed image types to pull
         allowed_image_quality_types = ('large', 'grid150', 'thumb', 'thumb_large')

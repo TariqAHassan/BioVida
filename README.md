@@ -54,10 +54,10 @@ cdf = cii.pull()
 ```python
 
 # 1. Import the Interface for the NIH's Open-i API.
-from biovida.images.openi_interface import OpenInterface
+from biovida.images.openi_interface import OpeniInterface
 
 # 2. Create an Instance of the Tool
-opi = OpenInterface()
+opi = OpeniInterface()
  
 # 3. Perform a general search for MRIs and CTs
 opi.search(query=None, image_type=['mri', 'ct'])  # Results Found: 134,113.
@@ -71,7 +71,7 @@ search_df = opi.pull()
 # 1. Import Image Processing Tools
 from biovida.images.image_processing import ImageProcessing
 
-# 2. Instantiate the Tool using the OpenInterface Instance
+# 2. Instantiate the Tool using the OpeniInterface Instance
 ip = ImageProcessing(opi)
  
 # 3. Clean the Image Data
