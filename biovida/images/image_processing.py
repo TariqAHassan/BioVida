@@ -18,7 +18,7 @@ from scipy.misc import imread
 from biovida.support_tools.support_tools import items_null
 
 # Tools form the image subpackage
-from biovida.images.image_tools import load_and_scale_imgs
+from biovida.images._image_tools import load_and_scale_imgs
 
 # Models
 from biovida.images.models.border_detection import border_detection

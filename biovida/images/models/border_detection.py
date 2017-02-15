@@ -11,7 +11,7 @@ from operator import sub
 from functools import reduce
 
 
-from biovida.images.image_tools import load_img_rescale
+from biovida.images._image_tools import load_img_rescale
 
 
 def _rounder(l, by=3):

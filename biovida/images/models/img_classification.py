@@ -14,7 +14,7 @@ import os
 import pickle
 from tqdm import tqdm
 from warnings import warn
-from biovida.images.image_tools import load_and_scale_imgs
+from biovida.images._image_tools import load_and_scale_imgs
 
 from keras import callbacks
 from keras.preprocessing.image import ImageDataGenerator
