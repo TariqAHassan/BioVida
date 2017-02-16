@@ -198,10 +198,11 @@ class _OpeniSearch(object):
 
         :param search_parameter: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields',
                                          'specialties', 'video' or `exclusions`.
-        :param print: if True, pretty print the options, else return as a ``list``.
+        :param print_options: if True, pretty print the options, else return as a ``list``.
         :return: a list of valid values for a given search `search_parameter`.
         :rtype: ``list``
         """
+        # ToDo: add to main class.
         # Terms to blocked from displaying to users if search_parameter != 'exclusions'
         exclusions = ['exclude_graphics', 'exclude_multipanel']
 
@@ -339,9 +340,11 @@ class _OpeniSearch(object):
         self.current_search_url = formatted_search
         self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
 
+
 # ----------------------------------------------------------------------------------------------------------
 # Pull Records from the NIH's Open-i API
 # ----------------------------------------------------------------------------------------------------------
+
 
 class _OpeniRecords(object):
     """
@@ -369,7 +372,7 @@ class _OpeniRecords(object):
         self.verbose = verbose
         self.req_limit = req_limit
 
-        self.results_df = None
+        self.records_df = None
 
     def openi_bounds(self, total):
         """
@@ -558,8 +561,12 @@ class _OpeniRecords(object):
         :param data_frame:
         :return:
         """
-        data_frame.columns = list(
-            map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
+        # Convert column names to snake_case
+        data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
+
+        # Run Feature Extracting Tool and Join with `data_frame`.
+        pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
+        data_frame = data_frame.join(pp, how='left')
 
         # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
         data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
@@ -576,12 +583,12 @@ class _OpeniRecords(object):
 
         return data_frame
 
-    def records_pull(self, search_query, to_harvest, total):
+    def records_pull(self, search_url, to_harvest, total):
         """
 
         'Walk' along the search query and harvest the data.
 
-        :param search_query:
+        :param search_url:
         :param total:
         :return:
         """
@@ -595,21 +602,134 @@ class _OpeniRecords(object):
         to_harvest = self.harvest_vect(to_harvest)
 
         # Harvest the data
-        harvest = self.openi_harvest(bounds_list, search_query, to_harvest, download_no)
+        harvest = self.openi_harvest(bounds_list, search_url, to_harvest, download_no)
 
         # Convert to a DataFrame
-        results_df = pd.DataFrame(harvest).fillna(np.NaN)
+        records_df = pd.DataFrame(harvest).fillna(np.NaN)
 
         # Clean and Add to attrs.
-        self.results_df = self._df_cleaning(results_df)
+        self.records_df = self._df_cleaning(records_df)
 
-        return self.results_df
+        return self.records_df
 
 
-        # ----------------------------------------------------------------------------------------------------------
-        # Image Harvesting
-        # ----------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
+# Image Harvesting
+# ----------------------------------------------------------------------------------------------------------
 
+
+class _OpeniImages(object):
+    """
+
+    :param img_sleep_time: suggested: 5.5
+    :param image_save_location: suggested: created_img_dirs['openi'])
+    :param real_time_update_db_path:
+    :param verbose:
+    """
+
+    def __init__(self, img_sleep_time, image_save_location, database_save_location, verbose):
+        self.img_sleep_time = img_sleep_time
+        self.image_save_location = image_save_location
+        self.verbose = verbose
+
+        # Create the temp folder
+        temp_folder = os.path.join(database_save_location, "__temp__")
+        if not os.path.isdir(temp_folder):
+            os.makedirs(temp_folder)
+        self.real_time_update_db_path = temp_folder
+
+        # Database
+        self.real_time_update_db = None
+
+    def _save_real_time_update_db(self):
+        """
+
+        Save the ``real_time_update_db`` to disk.
+
+        """
+        # Save the `real_time_update_db` to disk.
+        self.real_time_update_db.to_pickle(self.real_time_update_db_path)
+
+    def _image_titler(self, url, image_size):
+        """
+
+        Generate a title for the images.
+
+        :param url:
+        :param image_size:
+        :return:
+        """
+        # Get the actual file name
+        base = os.path.basename(url)
+
+        # Seperate the name from the image type
+        bname, image_format = os.path.splitext(base)
+
+        # Generate and clean strings to populate the name format below. Note: 1 = file number
+        # (incase medpix has images with multiple segments)
+        replacement_terms = map(lambda x: cln(x), (str(1), bname, image_size, image_format.replace(".", "")))
+
+        # Generate the new name
+        image_name = "{0}__{1}__{2}.{3}".format(*replacement_terms)
+
+        # Return the save path.
+        return os.path.join(self.image_save_location, new_image_name)
+
+    def _individual_image_harvest(self, image_url, image_save_path):
+        """
+
+        Harvests a single image
+
+        :param image_url:
+        :param image_save_path:
+        """
+        try:
+            # Get the image
+            page = requests.get(image_url)
+
+            # Save to disk
+            with open(image_save_path, 'wb') as img:
+                img.write(page.content)
+
+            # Update `real_time_update_db`
+            self.real_time_update_db.set_value(index, 'converted_files_path', image_save_path)
+            self.real_time_update_db.set_value(index, 'download_success', True)
+            self._save_real_time_update_db()
+        except:
+            self.real_time_update_db.set_value(index, 'converted_files_path', np.NaN)
+            self.real_time_update_db.set_value(index, 'download_success', False)
+            self._save_real_time_update_db()
+
+    def images_pull(self, records_df, image_size):
+        """
+
+        Pull images based on the records dataframe
+
+        :param records_df:
+        :param image_size: one of 'grid150', 'large', 'thumb' or 'thumb_large'.
+        """
+        self.real_time_update_db = records_df
+
+        # Add needed columns
+        for c in ('converted_files_path', 'download_success'):
+            self.real_time_update_db[c] = None
+
+        if image_size not in ('grid150', 'large', 'thumb', 'thumb_large'):
+            raise ValueError("`image_size` must be one of: 'grid150', 'large', 'thumb' or 'thumb_large'.")
+        image_column = "image_{0}".format(image_size)
+
+        # Extract needed information from the dataframe to loop over.
+        iter = list(zip(self.real_time_update_db.index, self.real_time_update_db[image_column]))
+
+        if self.verbose:
+            header("Downloading Images... ")
+
+        for index, image_url in tqdm(iter):
+            # Generate the save path for the image
+            image_save_path = self._image_titler(url=image_url, image_size=image_size)
+
+            # Save the image
+            self._individual_image_harvest(image_url=image_url, image_save_path=image_save_path)
 
 # ----------------------------------------------------------------------------------------------------------
 # Construct Database
@@ -656,12 +776,48 @@ class OpeniInterface(object):
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
 
+        # Generate Required Caches
+        self.root_path, self._created_img_dirs = package_cache_creator(sub_dir='images',
+                                                                       cache_path=cache_path,
+                                                                       to_create=['openi'],
+                                                                       nest=[('openi', 'raw'), ('openi', 'databases')])
+
         # Classes
         self._Search = _OpeniSearch()
 
+        self._Images = _OpeniImages(img_sleep_time=img_sleep_time,
+                                    image_save_location=self._created_img_dirs['raw'],
+                                    database_save_location=self._created_img_dirs['databases'],
+                                    verbose=verbose)
+
+        self._Records = _OpeniRecords(root_url=self._root_url,
+                                      date_format=date_format,
+                                      download_limit=download_limit,
+                                      sleep_mini=records_sleep_mini,
+                                      sleep_main=records_sleep_main,
+                                      verbose=verbose)
+
+        # Search attributes
         self.current_search_url = None
         self.current_search_total = None
         self._current_search_to_harvest = None
+
+        # Database
+        self.records_db = None
+
+    def options(self, search_parameter, print_options=True):
+        """
+
+        Options for parameters of `openi_search()`.
+
+        :param search_parameter: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields',
+                                         'specialties', 'video' or `exclusions`.
+        :param print: if ``True``, pretty print the options, else return as a ``list``. Defaults to ``True``.
+        :return: a list of valid values for a given search `search_parameter`.
+        :rtype: ``list``
+        """
+        # Note this simply wraps ``_OpeniSearch().options()``.
+        return self._Search.options(search_parameter, print_options)
 
     def search(self
                , query
@@ -724,36 +880,88 @@ class OpeniInterface(object):
         self.current_search_total = self._Search.current_search_total
         self._current_search_to_harvest = self._Search._current_search_to_harvest
 
-    def _post_processing_text(self, data_frame):
+    def pull(self, image_size='large', new_records_pull=True):
         """
 
-        :param data_frame:
-        :return:
+        Pull (i.e., download) the current search.
+
+        :param image_size: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
+                          If ``None``, no attempt will be made to download images.
+        :type image_size: ``str`` or ``None``
+        :param new_records_pull: if True, download the data for the current search.
+                                 if False, use self.current_search_database. This can be useful
+                                 if one wishes to initially set `image_size` to `None`,
+                                 truncate or otherwise modify `self.current_search_database` and then
+                                 download images.
+        :type new_records_pull: ``bool``
+        :return: a DataFrame with the record information.
+                 If `image_size` is not None, images will also be harvested and cached.
+        :rtype: ``Pandas DataFrame``
         """
-        # snake_case from camelCase and lower.
-        data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
+        # Pull Records
+        self.records_db = self._Records.records_pull(search_url=self.current_search_url,
+                                                     to_harvest=self._current_search_to_harvest,
+                                                     total=self.current_search_total)
 
-        # Run Feature Extracting Tool and Join with `data_frame`.
-        pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
-        data_frame = data_frame.join(pp, how='left')
+        # Pull Images
+        if isinstance(image_column, str):
+            # Pull the images
+            self._Images.images_pull(records_df=self.records_db, image_size=image_size)
 
-        # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
-        data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
-            lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore'
-        )
+            # Update `records_db`.
+            self.records_db = self._Images.real_time_update_db
 
-        # Look up the article type
-        data_frame['article_type'] = data_frame['article_type'].map(
-            lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore'
-        )
+        return self.records_db
 
-        # Replace 'Not Available' with NaN
-        data_frame = data_frame.replace({'[nN]ot [aA]vailable.?': np.NaN}, regex=True)
 
-        return data_frame
 
-    def pull(self):
-        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
