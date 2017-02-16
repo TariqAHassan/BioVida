@@ -66,10 +66,6 @@ class _OpeniSearch(object):
     def __init__(self):
         self._root_url = 'https://openi.nlm.nih.gov'
 
-        self.current_search_url = None
-        self.current_search_total = None
-        self._current_search_to_harvest = None
-
     def _openi_search_special_case(self, search_param, blocked, passed):
         """
 
@@ -182,7 +178,7 @@ class _OpeniSearch(object):
             raise ValueError("Could not obtain total number of results from the Open-i API.")
 
         # Block progress if no results found
-        if total < 1:
+        if total < 1: # ToDo: replace with no results found error.
             raise ValueError("No Results Found. Please Try Refining your Search.")
 
         # Print number of results found
@@ -334,11 +330,16 @@ class _OpeniSearch(object):
                                 for k, v in search_arguments.items() if v is not None}
 
         # Format `api_search_transform`
-        formatted_search = self._search_url_formatter(api_search_transform, ordered_params)
+        search_url = self._search_url_formatter(api_search_transform, ordered_params)
 
-        # Save `formatted_search`
-        self.current_search_url = formatted_search
-        self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
+        # Unpack the probe containing information on the total number of results and list of results to harvest
+        current_search_total, current_search_to_harvest = self._search_probe(search_url, print_results)
+
+        # Return
+        return {"query": args_cleaned,
+                "search_url": search_url,
+                "current_search_total": current_search_total,
+                "current_search_to_harvest": current_search_to_harvest}
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -583,7 +584,7 @@ class _OpeniRecords(object):
 
         return data_frame
 
-    def records_pull(self, search_url, to_harvest, total):
+    def records_pull(self, search_url, to_harvest, total, query):
         """
 
         'Walk' along the search query and harvest the data.
@@ -606,6 +607,9 @@ class _OpeniRecords(object):
 
         # Convert to a DataFrame
         records_df = pd.DataFrame(harvest).fillna(np.NaN)
+
+        # Add the query
+        records_df['query'] = [self.current_query] * records_df.shape[0]
 
         # Clean and Add to attrs.
         self.records_df = self._df_cleaning(records_df)
@@ -666,7 +670,7 @@ class _OpeniImages(object):
         bname, image_format = os.path.splitext(base)
 
         # Generate and clean strings to populate the name format below. Note: 1 = file number
-        # (incase medpix has images with multiple segments)
+        # (incase medpix has images with multiple segments -- though, it doesn't appear to currently.)
         replacement_terms = map(lambda x: cln(x), (str(1), bname, image_size, image_format.replace(".", "")))
 
         # Generate the new name
@@ -678,7 +682,7 @@ class _OpeniImages(object):
     def _individual_image_harvest(self, image_url, image_save_path):
         """
 
-        Harvests a single image
+        Harvests a single image.
 
         :param image_url:
         :param image_save_path:
@@ -731,6 +735,7 @@ class _OpeniImages(object):
             # Save the image
             self._individual_image_harvest(image_url=image_url, image_save_path=image_save_path)
 
+
 # ----------------------------------------------------------------------------------------------------------
 # Construct Database
 # ----------------------------------------------------------------------------------------------------------
@@ -782,7 +787,7 @@ class OpeniInterface(object):
                                                                        to_create=['openi'],
                                                                        nest=[('openi', 'raw'), ('openi', 'databases')])
 
-        # Classes
+        # Instantiate Classes
         self._Search = _OpeniSearch()
 
         self._Images = _OpeniImages(img_sleep_time=img_sleep_time,
@@ -798,6 +803,7 @@ class OpeniInterface(object):
                                       verbose=verbose)
 
         # Search attributes
+        self.current_query = None
         self.current_search_url = None
         self.current_search_total = None
         self._current_search_to_harvest = None
@@ -805,12 +811,14 @@ class OpeniInterface(object):
         # Database
         self.records_db = None
 
+        # ToDo: 1. read in record db and 2. handle latent '__temp__' folders.
+
     def options(self, search_parameter, print_options=True):
         """
 
         Options for parameters of `openi_search()`.
 
-        :param search_parameter: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields',
+        :param search_parameter: one of: 'image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
                                          'specialties', 'video' or `exclusions`.
         :param print: if ``True``, pretty print the options, else return as a ``list``. Defaults to ``True``.
         :return: a list of valid values for a given search `search_parameter`.
@@ -863,22 +871,23 @@ class OpeniInterface(object):
         :type print_results: ``bool``
         """
         # Note this simply wraps ``_OpeniSearch().search()``.
-        self._Search.search(query=query,
-                            image_type=image_type,
-                            rankby=rankby,
-                            article_type=article_type,
-                            subset=subset,
-                            collection=collection,
-                            fields=fields,
-                            specialties=specialties,
-                            video=video,
-                            exclusions=exclusions,
-                            print_results=print_results)
+        search = self._Search.search(query=query,
+                                     image_type=image_type,
+                                     rankby=rankby,
+                                     article_type=article_type,
+                                     subset=subset,
+                                     collection=collection,
+                                     fields=fields,
+                                     specialties=specialties,
+                                     video=video,
+                                     exclusions=exclusions,
+                                     print_results=print_results)
 
         # Save the search to the 'outer' class instance
-        self.current_search_url = self._Search.current_search_url
-        self.current_search_total = self._Search.current_search_total
-        self._current_search_to_harvest = self._Search._current_search_to_harvest
+        self.current_query = search['query']
+        self.current_search_url = search['search_url']
+        self.current_search_total = search['current_search_total']
+        self._current_search_to_harvest = search['current_search_to_harvest']
 
     def pull(self, image_size='large', new_records_pull=True):
         """
@@ -888,20 +897,25 @@ class OpeniInterface(object):
         :param image_size: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
                           If ``None``, no attempt will be made to download images.
         :type image_size: ``str`` or ``None``
-        :param new_records_pull: if True, download the data for the current search.
-                                 if False, use self.current_search_database. This can be useful
-                                 if one wishes to initially set `image_size` to `None`,
-                                 truncate or otherwise modify `self.current_search_database` and then
-                                 download images.
+        :param new_records_pull:
+
+        - if ``True``, download the data for the current search.
+
+        - if ``False``, use ``INSTANCE.current_search_databas``e. This can be useful if one wishes to initially set
+         `image_size` to `None`, truncate or otherwise modify ``INSTANCE.current_search_database`` and then download
+          images.
+
         :type new_records_pull: ``bool``
         :return: a DataFrame with the record information.
                  If `image_size` is not None, images will also be harvested and cached.
         :rtype: ``Pandas DataFrame``
         """
         # Pull Records
-        self.records_db = self._Records.records_pull(search_url=self.current_search_url,
-                                                     to_harvest=self._current_search_to_harvest,
-                                                     total=self.current_search_total)
+        if new_records_pull:
+            self.records_db = self._Records.records_pull(search_url=self.current_search_url,
+                                                         to_harvest=self._current_search_to_harvest,
+                                                         total=self.current_search_total,
+                                                         query=self.current_query)
 
         # Pull Images
         if isinstance(image_column, str):
