@@ -54,277 +54,9 @@ tqdm.pandas(desc='status')
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Pull Records from the NIH's Open-i API
-# ----------------------------------------------------------------------------------------------------------
-
-class _OpeniRecords(object):
-    """
-
-    Tools to Pull Records from the Open-i API.
-
-    """
-
-    def __init__(self, root_url, date_format, download_limit, sleep_mini, sleep_main, verbose, req_limit=30):
-        """
-
-        :param root_url:                                            Suggested: 'https://openi.nlm.nih.gov'
-        :param date_format:                                         Suggested: "%d/%m/%Y" (consider leaving as datatime)
-        :param download_limit:                                      Suggested: 60
-        :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
-        :param sleep_main: (interval, sleep time in seconds)        Suggested: (50, 300)
-        :param verbose: print additional details.                   Suggested: True
-        :param req_limit: Defaults to 30.                           Required by Open-i: 30
-        """
-        self.root_url = root_url
-        self.date_format = date_format
-        self.download_limit = download_limit
-        self.sleep_mini = sleep_mini
-        self.sleep_main = sleep_main
-        self.verbose = verbose
-        self.req_limit = req_limit
-
-        self.results_df = None
-
-    def openi_bounds(self, total):
-        """
-
-        :param total: the total number of results for a given search.
-        :type total: int
-        :return:
-        """
-        # Initalize
-        end = 1
-        bounds = list()
-
-        # Block invalid values for 'total'.
-        if total < 1:
-            raise ValueError("'{0}' is an invalid value for total.".format(str(total)))
-
-        # Check `self.download_limit`
-        if self.download_limit is not None and not isinstance(self.download_limit, int):
-            raise ValueError("`download_limit` must be an `int` or `None`.")
-        if isinstance(self.download_limit, int) and self.download_limit < 1:
-            raise ValueError("`download_limit` cannot be less than 1.")
-
-        # Check total
-        if total < self.req_limit:
-            return [(1, total)]
-        elif self.download_limit is not None and total > self.download_limit:
-            download_no = self.download_limit
-        else:
-            download_no = total
-
-        # Compute the number of steps and floor
-        n_steps = int(floor(download_no / self.req_limit))
-
-        # Loop through the steps
-        for i in range(n_steps):
-            bounds.append((end, end + (self.req_limit - 1)))
-            end += self.req_limit
-
-        # Compute the remainder
-        remainder = download_no % self.req_limit
-
-        # Add remaining part, if nonzero
-        if remainder != 0:
-            bounds += [(download_no - remainder + 1, download_no)]
-
-        return bounds, download_no
-
-    def openi_bounds_formatter(self, bounds):
-        """
-
-        Format the computed bounds for the Open-i API.
-
-        :param bounds: as returned by `_OpeniPull().openi_bounds()`
-        :return:
-        :rtype: ``list``
-        """
-        return ["&m={0}&n={1}".format(i[0], i[1]) for i in bounds]
-
-    def date_formater(self, date_dict):
-        """
-
-        :param date_dict:
-        :param date_format:
-        :return:
-        """
-        if not date_dict:
-            return None
-
-        try:
-            info = [int(i) if i.isdigit() else None for i in [date_dict['year'], date_dict['month'], date_dict['day']]]
-        except:
-            return None
-
-        if info[0] is None or (info[1] is None and info[2] is not None):
-            return None
-
-        cleaned_info = [1 if i is None or i < 1 else i for i in info]
-
-        # ToDo: add date format guessing.
-        try:
-            return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(self.date_format)
-        except:
-            return None
-
-    def harvest_vect(self, request_rslt):
-        """
-
-        Defines the terms to harvest from the results returned by the Open-i API.
-        Assumes a maximum of one nest (i.e., request_rslt[key]: {key: value...}).
-
-        :param request_rslt: Request Data from the server
-        :return:
-        """
-        to_harvest = list()
-        for k, v in request_rslt.items():
-            if isinstance(v, str):
-                to_harvest.append(k)
-            elif isinstance(v, dict) and any(dmy in map(lambda x: x.lower(), v.keys()) for dmy in ['day', 'month', 'year']):
-                to_harvest.append(k)
-            elif isinstance(v, dict):
-                for i in v.keys():
-                    to_harvest.append((k, i))
-
-        return to_harvest
-
-    def openi_block_harvest(self, url, bound, to_harvest):
-        """
-
-        :param url:
-        :param bound:
-        :param to_harvest:
-        :return:
-        """
-        # Init
-        item_dict = dict()
-
-        # Extract the starting point
-        start = int(re.findall('&m=(.+?)&', bound)[0])
-
-        # Request data from the Open-i servers
-        req = requests.get(url + bound).json()['list']
-
-        # Loop
-        list_of_dicts = list()
-        for item in req:
-            # Create an item_dict the dict
-            item_dict = dict()
-            # Populate current `item_dict`
-            for j in to_harvest:
-                if isinstance(j, (list, tuple)):
-                    item_dict[iter_join(j)] = null_convert(item.get(j[0], {}).get(j[1], None))
-                elif j == 'journal_date':
-                    item_dict[j] = null_convert(self.date_formater(item.get(j, None)))
-                elif 'img_' in camel_to_snake_case(j):
-                    item_dict[j] = url_combine(self.root_url, null_convert(item.get(j, None)))
-                else:
-                    item_dict[j] = null_convert(item.get(j, None))
-
-            list_of_dicts.append(item_dict)
-
-        return list_of_dicts
-
-    def openi_harvest(self, bounds_list, joined_url, to_harvest, download_no):
-        """
-
-        :param bounds_list:
-        :param joined_url:
-        :param bound:
-        :param download_no:
-        :return:
-        """
-        # Initialize
-        c = 1
-        harvested_data = list()
-
-        # Print Header
-        header("Downloading Records... ")
-
-        # Print updates
-        if self.verbose:
-            print("\nNumber of Records to Download: {0} (maximum block size: {1} rows).".format(
-                '{:,.0f}'.format(download_no), str(self.req_limit)))
-
-        for bound in tqdm(bounds_list):
-            if c % self.sleep_mini[0] == 0:
-                sleep(abs(self.sleep_mini[1] + np.random.normal()))
-            if isinstance(c, (list, tuple)) and c % self.sleep_main[0] == 0:
-                if self.verbose:
-                    print("\nSleeping for %s seconds..." % self.sleep_main[1])
-                sleep(abs(self.sleep_main[1] + np.random.normal()))
-
-            # Harvest
-            harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
-
-            # Update counter
-            c += 1
-
-        # Return
-        return harvested_data
-
-    def _df_cleaning(self, data_frame):
-        """
-
-        :param data_frame:
-        :return:
-        """
-        data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
-
-        # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
-        data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
-            lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore'
-        )
-
-        # Look up the article type
-        data_frame['article_type'] = data_frame['article_type'].map(
-            lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore'
-        )
-
-        # Replace 'Not Available' with NaN
-        data_frame = data_frame.replace({'[nN]ot [aA]vailable.?': np.NaN}, regex=True)
-
-        return data_frame
-
-    def records_pull(self, search_query, to_harvest, total):
-        """
-
-        'Walk' along the search query and harvest the data.
-
-        :param search_query:
-        :param total:
-        :return:
-        """
-        # Get a list of lists with the bounds
-        bounds, download_no = self.openi_bounds(total)
-
-        # Compute a list of search ranges to pass to the Open-i API
-        bounds_list = self.openi_bounds_formatter(bounds)
-
-        # Learn the results returned by the API
-        to_harvest = self.harvest_vect(to_harvest)
-
-        # Harvest the data
-        harvest = self.openi_harvest(bounds_list, search_query, to_harvest, download_no)
-
-        # Convert to a DataFrame
-        results_df = pd.DataFrame(harvest).fillna(np.NaN)
-
-        # Clean and Add to attrs.
-        self.results_df = self._df_cleaning(results_df)
-
-        return self.results_df
-
-
-# ----------------------------------------------------------------------------------------------------------
-# Image Harvesting
-# ----------------------------------------------------------------------------------------------------------
-
-
-# ----------------------------------------------------------------------------------------------------------
 # Searching
 # ----------------------------------------------------------------------------------------------------------
+
 
 class _OpeniSearch(object):
     """
@@ -606,6 +338,277 @@ class _OpeniSearch(object):
         # Save `formatted_search`
         self.current_search_url = formatted_search
         self.current_search_total, self._current_search_to_harvest = self._search_probe(formatted_search, print_results)
+
+# ----------------------------------------------------------------------------------------------------------
+# Pull Records from the NIH's Open-i API
+# ----------------------------------------------------------------------------------------------------------
+
+class _OpeniRecords(object):
+    """
+
+    Tools to Pull Records from the Open-i API.
+
+    """
+
+    def __init__(self, root_url, date_format, download_limit, sleep_mini, sleep_main, verbose, req_limit=30):
+        """
+
+        :param root_url:                                            Suggested: 'https://openi.nlm.nih.gov'
+        :param date_format:                                         Suggested: "%d/%m/%Y" (consider leaving as datatime)
+        :param download_limit:                                      Suggested: 60
+        :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
+        :param sleep_main: (interval, sleep time in seconds)        Suggested: (50, 300)
+        :param verbose: print additional details.                   Suggested: True
+        :param req_limit: Defaults to 30.                           Required by Open-i: 30
+        """
+        self.root_url = root_url
+        self.date_format = date_format
+        self.download_limit = download_limit
+        self.sleep_mini = sleep_mini
+        self.sleep_main = sleep_main
+        self.verbose = verbose
+        self.req_limit = req_limit
+
+        self.results_df = None
+
+    def openi_bounds(self, total):
+        """
+
+        :param total: the total number of results for a given search.
+        :type total: int
+        :return:
+        """
+        # Initalize
+        end = 1
+        bounds = list()
+
+        # Block invalid values for 'total'.
+        if total < 1:
+            raise ValueError("'{0}' is an invalid value for total.".format(str(total)))
+
+        # Check `self.download_limit`
+        if self.download_limit is not None and not isinstance(self.download_limit, int):
+            raise ValueError("`download_limit` must be an `int` or `None`.")
+        if isinstance(self.download_limit, int) and self.download_limit < 1:
+            raise ValueError("`download_limit` cannot be less than 1.")
+
+        # Check total
+        if total < self.req_limit:
+            return [(1, total)]
+        elif self.download_limit is not None and total > self.download_limit:
+            download_no = self.download_limit
+        else:
+            download_no = total
+
+        # Compute the number of steps and floor
+        n_steps = int(floor(download_no / self.req_limit))
+
+        # Loop through the steps
+        for i in range(n_steps):
+            bounds.append((end, end + (self.req_limit - 1)))
+            end += self.req_limit
+
+        # Compute the remainder
+        remainder = download_no % self.req_limit
+
+        # Add remaining part, if nonzero
+        if remainder != 0:
+            bounds += [(download_no - remainder + 1, download_no)]
+
+        return bounds, download_no
+
+    def openi_bounds_formatter(self, bounds):
+        """
+
+        Format the computed bounds for the Open-i API.
+
+        :param bounds: as returned by `_OpeniPull().openi_bounds()`
+        :return:
+        :rtype: ``list``
+        """
+        return ["&m={0}&n={1}".format(i[0], i[1]) for i in bounds]
+
+    def date_formater(self, date_dict):
+        """
+
+        :param date_dict:
+        :param date_format:
+        :return:
+        """
+        if not date_dict:
+            return None
+
+        try:
+            info = [int(i) if i.isdigit() else None for i in
+                    [date_dict['year'], date_dict['month'], date_dict['day']]]
+        except:
+            return None
+
+        if info[0] is None or (info[1] is None and info[2] is not None):
+            return None
+
+        cleaned_info = [1 if i is None or i < 1 else i for i in info]
+
+        # ToDo: add date format guessing.
+        try:
+            return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(self.date_format)
+        except:
+            return None
+
+    def harvest_vect(self, request_rslt):
+        """
+
+        Defines the terms to harvest from the results returned by the Open-i API.
+        Assumes a maximum of one nest (i.e., request_rslt[key]: {key: value...}).
+
+        :param request_rslt: Request Data from the server
+        :return:
+        """
+        to_harvest = list()
+        for k, v in request_rslt.items():
+            if isinstance(v, str):
+                to_harvest.append(k)
+            elif isinstance(v, dict) and any(
+                            dmy in map(lambda x: x.lower(), v.keys()) for dmy in ['day', 'month', 'year']):
+                to_harvest.append(k)
+            elif isinstance(v, dict):
+                for i in v.keys():
+                    to_harvest.append((k, i))
+
+        return to_harvest
+
+    def openi_block_harvest(self, url, bound, to_harvest):
+        """
+
+        :param url:
+        :param bound:
+        :param to_harvest:
+        :return:
+        """
+        # Init
+        item_dict = dict()
+
+        # Extract the starting point
+        start = int(re.findall('&m=(.+?)&', bound)[0])
+
+        # Request data from the Open-i servers
+        req = requests.get(url + bound).json()['list']
+
+        # Loop
+        list_of_dicts = list()
+        for item in req:
+            # Create an item_dict the dict
+            item_dict = dict()
+            # Populate current `item_dict`
+            for j in to_harvest:
+                if isinstance(j, (list, tuple)):
+                    item_dict[iter_join(j)] = null_convert(item.get(j[0], {}).get(j[1], None))
+                elif j == 'journal_date':
+                    item_dict[j] = null_convert(self.date_formater(item.get(j, None)))
+                elif 'img_' in camel_to_snake_case(j):
+                    item_dict[j] = url_combine(self.root_url, null_convert(item.get(j, None)))
+                else:
+                    item_dict[j] = null_convert(item.get(j, None))
+
+            list_of_dicts.append(item_dict)
+
+        return list_of_dicts
+
+    def openi_harvest(self, bounds_list, joined_url, to_harvest, download_no):
+        """
+
+        :param bounds_list:
+        :param joined_url:
+        :param bound:
+        :param download_no:
+        :return:
+        """
+        # Initialize
+        c = 1
+        harvested_data = list()
+
+        # Print Header
+        header("Downloading Records... ")
+
+        # Print updates
+        if self.verbose:
+            print("\nNumber of Records to Download: {0} (maximum block size: {1} rows).".format(
+                '{:,.0f}'.format(download_no), str(self.req_limit)))
+
+        for bound in tqdm(bounds_list):
+            if c % self.sleep_mini[0] == 0:
+                sleep(abs(self.sleep_mini[1] + np.random.normal()))
+            if isinstance(c, (list, tuple)) and c % self.sleep_main[0] == 0:
+                if self.verbose:
+                    print("\nSleeping for %s seconds..." % self.sleep_main[1])
+                sleep(abs(self.sleep_main[1] + np.random.normal()))
+
+            # Harvest
+            harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
+
+            # Update counter
+            c += 1
+
+        # Return
+        return harvested_data
+
+    def _df_cleaning(self, data_frame):
+        """
+
+        :param data_frame:
+        :return:
+        """
+        data_frame.columns = list(
+            map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
+
+        # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
+        data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
+            lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore'
+        )
+
+        # Look up the article type
+        data_frame['article_type'] = data_frame['article_type'].map(
+            lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore'
+        )
+
+        # Replace 'Not Available' with NaN
+        data_frame = data_frame.replace({'[nN]ot [aA]vailable.?': np.NaN}, regex=True)
+
+        return data_frame
+
+    def records_pull(self, search_query, to_harvest, total):
+        """
+
+        'Walk' along the search query and harvest the data.
+
+        :param search_query:
+        :param total:
+        :return:
+        """
+        # Get a list of lists with the bounds
+        bounds, download_no = self.openi_bounds(total)
+
+        # Compute a list of search ranges to pass to the Open-i API
+        bounds_list = self.openi_bounds_formatter(bounds)
+
+        # Learn the results returned by the API
+        to_harvest = self.harvest_vect(to_harvest)
+
+        # Harvest the data
+        harvest = self.openi_harvest(bounds_list, search_query, to_harvest, download_no)
+
+        # Convert to a DataFrame
+        results_df = pd.DataFrame(harvest).fillna(np.NaN)
+
+        # Clean and Add to attrs.
+        self.results_df = self._df_cleaning(results_df)
+
+        return self.results_df
+
+
+        # ----------------------------------------------------------------------------------------------------------
+        # Image Harvesting
+        # ----------------------------------------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------------------------------------
