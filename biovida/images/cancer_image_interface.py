@@ -1314,8 +1314,8 @@ class CancerImageInterface(object):
         .. hlist::
             :columns: 1
 
-            * 'instance': the image's position in the 3D image (if applicable and available)
-            * 'pull_position': the position of the image in the set returned for the given SeriesUID by the Cancer Imaging Archive API.
+            * 'instance' denotes the image's position in the 3D image (if applicable and available)
+            * 'pull_position' denotes the position of the image in the set returned for the given 'SeriesInstanceUID' by the Cancer Imaging Archive.
 
         :param patient_limit: limit on the number of patients to extract.
                              Patient IDs are sorted prior to this limit being imposed.
