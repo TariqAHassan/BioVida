@@ -20,6 +20,9 @@ from warnings import warn
 from itertools import chain
 from datetime import datetime
 
+from biovida.images._image_tools import dict_to_tot
+from biovida.images._image_tools import NoResultsFound
+
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
@@ -982,10 +985,6 @@ class CancerImageInterface(object):
         :param tcia_record_db_addition: the new search dataframe to added to the existing one.
         :type tcia_record_db_addition: ``Pandas DataFrame``
         """
-        def dict_to_tot(d):
-            """Convert a dictionary to a tuple of tuples and sort by the former keys."""
-            return tuple(sorted(d.items(), key=lambda x: x[0]))
-
         # Compose or update the master 'tcia_record_db' dataframe
         if self.tcia_record_db is None:
             self.tcia_record_db = tcia_record_db_addition.copy(deep=True)
@@ -1163,8 +1162,6 @@ class CancerImageInterface(object):
             # Apply Filters
             summary_df = self._Overview._studies_filter(summary_df, cancer_type, location, modality)
             if summary_df.shape[0] == 0:
-                class NoResultsFound(Exception):
-                    pass
                 raise NoResultsFound("Try Broadening the Search Criteria.")
 
         # Cache Search

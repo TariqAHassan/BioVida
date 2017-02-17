@@ -7,6 +7,7 @@
 # Imports
 import re
 import os
+import shutil
 import pickle
 import requests
 import numpy as np
@@ -19,7 +20,11 @@ from warnings import warn
 from datetime import datetime
 from collections import Counter
 
-# Image Support tools
+# General Image Support Tools
+from biovida.images._image_tools import record_db_merge
+from biovida.images._image_tools import load_temp_dbs
+
+# Open i Support tools
 from biovida.images._openi_support_tools import iter_join
 from biovida.images._openi_support_tools import null_convert
 from biovida.images._openi_support_tools import numb_extract
@@ -45,13 +50,10 @@ from biovida.support_tools.support_tools import hashable_cols
 from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
-# To install scipy: brew install gcc; pip3 install Pillow
-
-from biovida.support_tools.printing import pandas_pprint
-
 # Start tqdm
 tqdm.pandas(desc='status')
 
+# Note: to install scipy: brew install gcc; pip3 install Pillow
 
 # ----------------------------------------------------------------------------------------------------------
 # Searching
@@ -354,14 +356,13 @@ class _OpeniRecords(object):
 
     """
 
-    def __init__(self, root_url, date_format, download_limit, sleep_mini, sleep_main, verbose, req_limit=30):
+    def __init__(self, root_url, date_format, download_limit, sleep_mini, verbose, req_limit=30):
         """
 
         :param root_url:                                            Suggested: 'https://openi.nlm.nih.gov'
         :param date_format:                                         Suggested: "%d/%m/%Y" (consider leaving as datatime)
         :param download_limit:                                      Suggested: 60
         :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
-        :param sleep_main: (interval, sleep time in seconds)        Suggested: (50, 300)
         :param verbose: print additional details.                   Suggested: True
         :param req_limit: Defaults to 30.                           Required by Open-i: 30
         """
@@ -369,7 +370,6 @@ class _OpeniRecords(object):
         self.date_format = date_format
         self.download_limit = download_limit
         self.sleep_mini = sleep_mini
-        self.sleep_main = sleep_main
         self.verbose = verbose
         self.req_limit = req_limit
 
@@ -542,10 +542,6 @@ class _OpeniRecords(object):
         for bound in tqdm(bounds_list):
             if c % self.sleep_mini[0] == 0:
                 sleep(abs(self.sleep_mini[1] + np.random.normal()))
-            if isinstance(c, (list, tuple)) and c % self.sleep_main[0] == 0:
-                if self.verbose:
-                    print("\nSleeping for %s seconds..." % self.sleep_main[1])
-                sleep(abs(self.sleep_main[1] + np.random.normal()))
 
             # Harvest
             harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
@@ -556,18 +552,21 @@ class _OpeniRecords(object):
         # Return
         return harvested_data
 
-    def _df_cleaning(self, data_frame):
+    def _df_processing(self, data_frame):
         """
 
+        Clean and Extract features from ``data_frame``.
+
         :param data_frame:
+        :rtype data_frame: ``Pandas DataFrame``
         :return:
         """
         # Convert column names to snake_case
         data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
         # Run Feature Extracting Tool and Join with `data_frame`.
-        pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
-        data_frame = data_frame.join(pp, how='left')
+        # pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
+        # data_frame = data_frame.join(pp, how='left')
 
         # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
         data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
@@ -584,7 +583,7 @@ class _OpeniRecords(object):
 
         return data_frame
 
-    def records_pull(self, search_url, to_harvest, total, query):
+    def records_pull(self, search_url, to_harvest, total, query, query_time):
         """
 
         'Walk' along the search query and harvest the data.
@@ -608,11 +607,15 @@ class _OpeniRecords(object):
         # Convert to a DataFrame
         records_df = pd.DataFrame(harvest).fillna(np.NaN)
 
-        # Add the query
-        records_df['query'] = [self.current_query] * records_df.shape[0]
+        # Clean and Extract Features
+        records_df = self._df_processing(records_df)
 
-        # Clean and Add to attrs.
-        self.records_df = self._df_cleaning(records_df)
+        # Add the query
+        records_df['query'] = [query] * records_df.shape[0]
+        records_df['query_time'] = [query_time] * records_df.shape[0]
+
+        # Add to attrs.
+        self.records_df = records_df
 
         return self.records_df
 
@@ -627,7 +630,6 @@ class _OpeniImages(object):
 
     :param img_sleep_time: suggested: 5.5
     :param image_save_location: suggested: created_img_dirs['openi'])
-    :param real_time_update_db_path:
     :param verbose:
     """
 
@@ -636,14 +638,13 @@ class _OpeniImages(object):
         self.image_save_location = image_save_location
         self.verbose = verbose
 
-        # Create the temp folder
-        temp_folder = os.path.join(database_save_location, "__temp__")
-        if not os.path.isdir(temp_folder):
-            os.makedirs(temp_folder)
-        self.real_time_update_db_path = temp_folder
+        # The time the pull request was issued.
+        self.query_time = None
 
         # Database
         self.real_time_update_db = None
+        self.temp_folder = os.path.join(database_save_location, "__temp__")
+        self.real_time_update_db_path = None
 
     def _save_real_time_update_db(self):
         """
@@ -651,6 +652,12 @@ class _OpeniImages(object):
         Save the ``real_time_update_db`` to disk.
 
         """
+        # Create the temp folder
+        if not os.path.isdir(self.temp_folder):
+            os.makedirs(self.temp_folder)
+
+        self.real_time_update_db_path = os.path.join(self.temp_folder, "{0}__temp_db.p".format(self.query_time))
+
         # Save the `real_time_update_db` to disk.
         self.real_time_update_db.to_pickle(self.real_time_update_db_path)
 
@@ -673,27 +680,29 @@ class _OpeniImages(object):
         # (incase medpix has images with multiple segments -- though, it doesn't appear to currently.)
         replacement_terms = map(lambda x: cln(x), (str(1), bname, image_size, image_format.replace(".", "")))
 
-        # Generate the new name
+        # Generate the name for the image
         image_name = "{0}__{1}__{2}.{3}".format(*replacement_terms)
 
         # Return the save path.
-        return os.path.join(self.image_save_location, new_image_name)
+        return os.path.join(self.image_save_location, image_name)
 
-    def _individual_image_harvest(self, image_url, image_save_path):
+    def _individual_image_harvest(self, index, image_url, image_save_path):
         """
 
         Harvests a single image.
 
+        :param index:
         :param image_url:
         :param image_save_path:
         """
         try:
-            # Get the image
-            page = requests.get(image_url)
-
-            # Save to disk
-            with open(image_save_path, 'wb') as img:
-                img.write(page.content)
+            # Only download if the file does not already exist in the cache.
+            if not os.path.isfile(image_save_path):
+                # Get the image
+                page = requests.get(image_url)
+                # Save to disk
+                with open(image_save_path, 'wb') as img:
+                    img.write(page.content)
 
             # Update `real_time_update_db`
             self.real_time_update_db.set_value(index, 'converted_files_path', image_save_path)
@@ -704,15 +713,17 @@ class _OpeniImages(object):
             self.real_time_update_db.set_value(index, 'download_success', False)
             self._save_real_time_update_db()
 
-    def images_pull(self, records_df, image_size):
+    def images_pull(self, records_df, image_size, query_time):
         """
 
         Pull images based on the records dataframe
 
         :param records_df:
         :param image_size: one of 'grid150', 'large', 'thumb' or 'thumb_large'.
+        :param query_time:
         """
-        self.real_time_update_db = records_df
+        self.query_time = query_time
+        self.real_time_update_db = records_df.copy(deep=True)
 
         # Add needed columns
         for c in ('converted_files_path', 'download_success'):
@@ -720,7 +731,7 @@ class _OpeniImages(object):
 
         if image_size not in ('grid150', 'large', 'thumb', 'thumb_large'):
             raise ValueError("`image_size` must be one of: 'grid150', 'large', 'thumb' or 'thumb_large'.")
-        image_column = "image_{0}".format(image_size)
+        image_column = "img_{0}".format(image_size)
 
         # Extract needed information from the dataframe to loop over.
         iter = list(zip(self.real_time_update_db.index, self.real_time_update_db[image_column]))
@@ -733,12 +744,49 @@ class _OpeniImages(object):
             image_save_path = self._image_titler(url=image_url, image_size=image_size)
 
             # Save the image
-            self._individual_image_harvest(image_url=image_url, image_save_path=image_save_path)
+            self._individual_image_harvest(index=index, image_url=image_url, image_save_path=image_save_path)
+
+        return self.real_time_update_db
 
 
 # ----------------------------------------------------------------------------------------------------------
 # Construct Database
 # ----------------------------------------------------------------------------------------------------------
+
+
+def _img_relation_map(data_frame):
+    """
+
+    Algorithm to find the index of rows which reference
+    the same image in the cache (the image size can vary).
+
+    :param data_frame:
+    :return:
+    """
+    # Copy the data_frame
+    df = data_frame.copy(deep=True)
+
+    # Reset the index
+    df = df.reset_index(drop=True)
+
+    # Get duplicated img_large occurences. Use of 'img_large' is arbitrary, could have used
+    # 'img_thumb', 'img_grid150', etc.
+    duplicated_img_refs = (k for k, v in Counter(df['img_large']).items() if v > 1)
+
+    # Get the indices of duplicates
+    dup_index = {k: df[df['img_large'] == k].index.tolist() for k in duplicated_img_refs}
+
+    def related(img_large, index):
+        """Function to look for references to the same image in the cache."""
+        if img_large in dup_index:
+            return tuple(sorted([i for i in dup_index[img_large] if i != index]))
+        else:
+            return np.NaN
+
+    # Apply `relate()`
+    df['shared_img_ref'] = [related(cfp, index) for cfp, index in zip(df['img_large'], df.index)]
+
+    return df
 
 
 class OpeniInterface(object):
@@ -759,11 +807,42 @@ class OpeniInterface(object):
     :type date_format: ``str``
     :param records_sleep_mini: Tuple of the form: (every x downloads, short peroid of time [seconds]). Defaults to (5, 1.5).
     :type records_sleep_mini: ``tuple``
-    :param records_sleep_main: Tuple of the form: (every x downloads, long peroid of time [seconds]). Defaults to (50, 60).
-    :type records_sleep_main: ``tuple``
     :param verbose: print additional details.
     :type verbose: ``bool``
     """
+
+    def _openi_record_db_handler(self, current_record_db, record_db_addition):
+        """
+
+        1. if openi_record_db.p doesn't exist, simply dump ``record_db_addition``
+        2. if openi_record_db.p does exist, merge with ``record_db_addition``
+
+        :param current_record_db:
+        :type current_record_db:
+        :param record_db_addition:
+        :type record_db_addition:
+        """
+        if current_record_db is None and record_db_addition is None:
+            raise ValueError("`current_record_db` and `record_db_addition` cannot both be None.")
+        elif current_record_db is not None and record_db_addition is None:
+            to_return = current_record_db
+        elif current_record_db is None and record_db_addition is not None:
+            to_return = _img_relation_map(record_db_addition)
+        else:
+            duplicates_subset_columns = [c for c in current_record_db.columns if c != 'query_time']
+            to_return = record_db_merge(current_record_db=current_record_db,
+                                        record_db_addition=record_db_addition,
+                                        query_column_name='query',
+                                        query_time_column_name='query_time',
+                                        duplicates_subset_columns=duplicates_subset_columns,
+                                        sort_on=None,
+                                        relationship_mapping_func=_img_relation_map)
+
+        # Save to disk
+        to_return.to_pickle(self._openi_cache_record_db_save_path)
+
+        # Save to class instance
+        self.cache_record_db = to_return
 
     def __init__(self
                  , cache_path=None
@@ -771,15 +850,10 @@ class OpeniInterface(object):
                  , img_sleep_time=1.5
                  , date_format='%d/%m/%Y'
                  , records_sleep_mini=(5, 1.5)
-                 , records_sleep_main=(50, 60)  # ToDo: drop
                  , verbose=True):
-        """
-
-        Initialize the ``OpeniInterface()`` Class.
-
-        """
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
+        self._time_format = "%Y_%h_%d__%H_%M_%S_%f"
 
         # Generate Required Caches
         self.root_path, self._created_img_dirs = package_cache_creator(sub_dir='images',
@@ -799,19 +873,37 @@ class OpeniInterface(object):
                                       date_format=date_format,
                                       download_limit=download_limit,
                                       sleep_mini=records_sleep_mini,
-                                      sleep_main=records_sleep_main,
                                       verbose=verbose)
 
         # Search attributes
+        self._query_time = None
         self.current_query = None
         self.current_search_url = None
         self.current_search_total = None
         self._current_search_to_harvest = None
 
-        # Database
+        # Path to cache record db
+        self._openi_cache_record_db_save_path = os.path.join(self._created_img_dirs['databases'], 'openi_record_db.p')
+
+        # Databases
         self.records_db = None
 
-        # ToDo: 1. read in record db and 2. handle latent '__temp__' folders.
+        # Load the cache record database, if it exists
+        if os.path.isfile(self._openi_cache_record_db_save_path):
+            self.cache_record_db = pd.read_pickle(self._openi_cache_record_db_save_path)
+        else:
+            self.cache_record_db = None
+
+        # Load in databases in 'databases/__temp__', if they exist
+        if os.path.isdir(self._Images.temp_folder):
+            # Load the latent database(s).
+            record_db_addition = load_temp_dbs(temp_db_path=self._Images.temp_folder)
+            if record_db_addition is not None:
+                # Update `self.current_record_db`.
+                self._openi_record_db_handler(current_record_db=self.cache_record_db,
+                                              record_db_addition=record_db_addition)
+                # Delete the latent 'databases/__temp__' folder.
+                shutil.rmtree(self._openi_cache_record_db_save_path, ignore_errors=True)
 
     def options(self, search_parameter, print_options=True):
         """
@@ -870,6 +962,8 @@ class OpeniInterface(object):
         :param print_results: if ``True``, print the number of search results.
         :type print_results: ``bool``
         """
+        self._query_time = datetime.now()
+
         # Note this simply wraps ``_OpeniSearch().search()``.
         search = self._Search.search(query=query,
                                      image_type=image_type,
@@ -915,55 +1009,23 @@ class OpeniInterface(object):
             self.records_db = self._Records.records_pull(search_url=self.current_search_url,
                                                          to_harvest=self._current_search_to_harvest,
                                                          total=self.current_search_total,
-                                                         query=self.current_query)
+                                                         query=self.current_query,
+                                                         query_time=self._query_time)
 
         # Pull Images
-        if isinstance(image_column, str):
-            # Pull the images
-            self._Images.images_pull(records_df=self.records_db, image_size=image_size)
+        if isinstance(image_size, str):
+            # Pull the images.
+            self.records_db = self._Images.images_pull(records_df=self.records_db,
+                                                       image_size=image_size,
+                                                       query_time=self._query_time.strftime(self._time_format))
 
-            # Update `records_db`.
-            self.records_db = self._Images.real_time_update_db
+            # Add the new records_db datafame with the existing `cache_record_db`.
+            self._openi_record_db_handler(current_record_db=self.cache_record_db, record_db_addition=self.records_db)
+
+            # Delete the 'databases/__temp__' folder
+            shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
 
         return self.records_db
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
