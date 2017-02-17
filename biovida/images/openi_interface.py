@@ -8,7 +8,6 @@
 import re
 import os
 import shutil
-import pickle
 import requests
 import numpy as np
 import pandas as pd
@@ -16,7 +15,6 @@ from tqdm import tqdm
 from math import floor
 from time import sleep
 from copy import deepcopy
-from warnings import warn
 from datetime import datetime
 from collections import Counter
 
@@ -27,7 +25,6 @@ from biovida.images._image_tools import load_temp_dbs
 # Open i Support tools
 from biovida.images._openi_support_tools import iter_join
 from biovida.images._openi_support_tools import null_convert
-from biovida.images._openi_support_tools import numb_extract
 from biovida.images._openi_support_tools import url_combine
 
 # Open-i API Parameters Information
@@ -44,9 +41,6 @@ from biovida.support_tools._cache_management import package_cache_creator
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
-from biovida.support_tools.support_tools import same_dict
-from biovida.support_tools.support_tools import unique_dics
-from biovida.support_tools.support_tools import hashable_cols
 from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
 

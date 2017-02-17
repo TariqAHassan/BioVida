@@ -100,6 +100,7 @@ def numb_extract(string, join_on=""):
     :param join_on:
     :return:
     """
+    # ToDo: depreciate -- cannot find usage.
     return join_on.join(re.findall(r'[0-9]+', string))
 
 
