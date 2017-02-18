@@ -1,7 +1,7 @@
 """
 
-    General Tools for Image Processing
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    General Tools for the Image Subpackage
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
 import os
