@@ -23,8 +23,10 @@ def dict_to_tot(d):
 
     Convert a dictionary to a tuple of tuples and sort by the former keys.
 
-    :param d:
-    :return:
+    :param d: any dictionary.
+    :type d: ``dict``
+    :return: ``d`` as a tuple of tuples, sorted by the former key values.
+    :rtype: ``tuple``
     """
     if not isinstance(d, dict):
         return d
@@ -53,10 +55,16 @@ def load_img_rescale(path_to_image, gray_only=False):
 def image_transposer(converted_image, img_size, axes=(2, 0, 1)):
     """
 
-    :param converted_image:
-    :param img_size:
-    :param axes:
-    :return:
+    Tool to resize and transpose an image (about given axes).
+
+    :param converted_image: the image as a ndarray.
+    :type converted_image: ``ndarray``
+    :param img_size: to size to coerse the images to be, e.g., (150, 150)
+    :type img_size: ``tuple``
+    :param axes: the axes to transpose the image on.
+    :type axes: ``tuple``
+    :return: the resized and transposed image.
+    :rtype: ``ndarray``
     """
     return np.transpose(imresize(converted_image, img_size), axes).astype('float32')
 
@@ -64,12 +72,20 @@ def image_transposer(converted_image, img_size, axes=(2, 0, 1)):
 def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=True, grayscale_first=False):
     """
 
-    :param list_of_images:
-    :param img_size:
-    :param axes:
-    :param status:
+    Load and scale a list of images from a directory
+
+    :param list_of_images: a list of paths to images.
+    :type list_of_images: ``list`` or ``tuple``
+    :param img_size: to size to coerse the images to be, e.g., (150, 150)
+    :type img_size: ``tuple``
+    :param axes: the axes to transpose the image on.
+    :type axes: ``tuple``
+    :param status: if ``True``, use `tqdm` to print progress as the load progresses.
+    :type status: ``bool``
     :param grayscale_first: convert the image to grayscale first.
-    :return:
+    :type grayscale_first: ``bool``
+    :return: the images as ndarrays nested inside of another ndarray.
+    :rtype: ``ndarray``
     """
     # Source: https://blog.rescale.com/neural-networks-using-keras-on-rescale/
     def status_bar(x):
@@ -88,7 +104,6 @@ def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=True, g
                 loaded_img = loaded_img.convert("RGB")
             else:
                 loaded_img = Image.open(img).convert("RGB")
-
             converted_image = np.asarray(loaded_img)
         return image_transposer(converted_image, img_size, axes=axes)
 
@@ -119,9 +134,10 @@ def load_temp_dbs(temp_db_path):
 
     Load temporary databases in the 'databases/__temp__' directory.
 
-    :param temp_db_path: path to the temporary databases.
+    :param temp_db_path: path to the temporary databases (must be pickled and use the '.p' extension).
     :type temp_db_path: ``str``
-    :return:
+    :return: all of the '.p' dataframes in ``temp_db_path`` merged into a single dataframe.
+    :rtype: ``Pandas DataFrame``
     """
     # Apply the merging function
     db_paths = [os.path.join(temp_db_path, p) for p in os.listdir(temp_db_path) if p.endswith(".p")]
@@ -141,34 +157,34 @@ def record_db_merge(current_record_db,
                    query_column_name,
                    query_time_column_name,
                    duplicates_subset_columns,
-                   sort_on,
+                   sort_on=None,
                    relationship_mapping_func=None):
     """
 
     Merge the existing record database with new additions.
 
-    :param current_record_db: 
+    :param current_record_db: the existing record database.
     :type current_record_db: ``Pandas DataFrame``
-    :param record_db_addition: the new search dataframe to added to the existing one.
+    :param record_db_addition: the new records dataframe to be merged with the existing one (``current_record_db``).
     :type record_db_addition: ``Pandas DataFrame``
     :param query_column_name: the column which contains the query responcible for the results. Note: this column
                               *should* contain only dictionaries.
     :type query_column_name: ``str``
-    :param query_time_column_name: 
+    :param query_time_column_name: the name of the column with the time the query was created.
     :type query_time_column_name: ``str``
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
     :type duplicates_subset_columns: ``list`` or ``tuple``
-    :param sort_on: 
-    :type sort_on: ``str`` or ``None``
+    :param sort_on: the column, or list (or tuple) of columns to sort the dataframe by before returning.
+    :type sort_on: ``str``, ``iterable`` or ``None``
     :param relationship_mapping_func: function to map relationships in the dataframe. Defaults to ``None``.
-    :type relationship_mapping_func:
-    :return:
+    :type relationship_mapping_func: ``function``
+    :return: a dataframe which merges ``current_record_db`` and ``record_db_addition``
     :rtype: ``Pandas DataFrame``
     """
     # Load in the current database and combine with the `record_db_addition` database
     combined_dbs = pd.concat([current_record_db, record_db_addition], ignore_index=True)
 
-    # Sort by 'QueryDate'
+    # Sort by ``query_time_column_name``
     combined_dbs = combined_dbs.sort_values(query_time_column_name)
 
     # Convert 'query_column_name' to a tuple of tuples
