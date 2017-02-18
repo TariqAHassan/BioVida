@@ -19,8 +19,9 @@ from datetime import datetime
 from collections import Counter
 
 # General Image Support Tools
-from biovida.images._image_tools import record_db_merge
 from biovida.images._image_tools import load_temp_dbs
+from biovida.images._image_tools import NoResultsFound
+from biovida.images._image_tools import record_db_merge
 
 # Open i Support tools
 from biovida.images._openi_support_tools import iter_join
@@ -174,8 +175,8 @@ class _OpeniSearch(object):
             raise ValueError("Could not obtain total number of results from the Open-i API.")
 
         # Block progress if no results found
-        if total < 1: # ToDo: replace with no results found error.
-            raise ValueError("No Results Found. Please Try Refining your Search.")
+        if total < 1:
+            raise NoResultsFound("Please Try Refining Your Search.")
 
         # Print number of results found
         if print_results:
@@ -188,7 +189,7 @@ class _OpeniSearch(object):
 
         Options for parameters of `openi_search()`.
 
-        :param search_parameter: one of: 'image_type', 'rankby', 'subset', 'collection', 'fields',
+        :param search_parameter: one of: 'image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
                                          'specialties', 'video' or `exclusions`.
         :param print_options: if True, pretty print the options, else return as a ``list``.
         :return: a list of valid values for a given search `search_parameter`.
@@ -358,7 +359,7 @@ class _OpeniRecords(object):
         :param download_limit:                                      Suggested: 60
         :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
         :param verbose: print additional details.                   Suggested: True
-        :param req_limit: Defaults to 30.                           Required by Open-i: 30
+        :param req_limit: Defaults to 30.
         """
         self.root_url = root_url
         self.date_format = date_format
@@ -624,6 +625,7 @@ class _OpeniImages(object):
 
     :param img_sleep_time: suggested: 5.5
     :param image_save_location: suggested: created_img_dirs['openi'])
+    :param database_save_location:
     :param verbose:
     """
 
@@ -755,7 +757,9 @@ def _img_relation_map(data_frame):
     the same image in the cache (the image size can vary).
 
     :param data_frame:
+    :type data_frame: ``Pandas DataFrame``
     :return:
+    :rtype: ``Pandas DataFrame``
     """
     # Copy the data_frame
     df = data_frame.copy(deep=True)
@@ -778,7 +782,7 @@ def _img_relation_map(data_frame):
             return np.NaN
 
     # Apply `relate()`
-    df['shared_img_ref'] = [related(cfp, index) for cfp, index in zip(df['img_large'], df.index)]
+    df['shared_img_ref'] = [related(img, index) for img, index in zip(df['img_large'], df.index)]
 
     return df
 
@@ -804,6 +808,20 @@ class OpeniInterface(object):
     :param verbose: print additional details.
     :type verbose: ``bool``
     """
+
+    def _latent_temp_dir(self):
+        """
+
+        :return:
+        """
+        # Load the latent database(s).
+        record_db_addition = load_temp_dbs(temp_db_path=self._Images.temp_folder)
+        if record_db_addition is not None:
+            # Update `self.current_record_db`.
+            self._openi_record_db_handler(current_record_db=self.cache_record_db,
+                                          record_db_addition=record_db_addition)
+            # Delete the latent 'databases/__temp__' folder.
+            shutil.rmtree(self._openi_cache_record_db_save_path, ignore_errors=True)
 
     def _openi_record_db_handler(self, current_record_db, record_db_addition):
         """
@@ -890,14 +908,7 @@ class OpeniInterface(object):
 
         # Load in databases in 'databases/__temp__', if they exist
         if os.path.isdir(self._Images.temp_folder):
-            # Load the latent database(s).
-            record_db_addition = load_temp_dbs(temp_db_path=self._Images.temp_folder)
-            if record_db_addition is not None:
-                # Update `self.current_record_db`.
-                self._openi_record_db_handler(current_record_db=self.cache_record_db,
-                                              record_db_addition=record_db_addition)
-                # Delete the latent 'databases/__temp__' folder.
-                shutil.rmtree(self._openi_cache_record_db_save_path, ignore_errors=True)
+            self._latent_temp_dir()
 
     def options(self, search_parameter, print_options=True):
         """
@@ -985,13 +996,12 @@ class OpeniInterface(object):
         :param image_size: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
                           If ``None``, no attempt will be made to download images.
         :type image_size: ``str`` or ``None``
-        :param new_records_pull:
+        :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.
 
-        - if ``True``, download the data for the current search.
+            .. note::
 
-        - if ``False``, use ``INSTANCE.current_search_databas``e. This can be useful if one wishes to initially set
-         `image_size` to `None`, truncate or otherwise modify ``INSTANCE.current_search_database`` and then download
-          images.
+               Setting ``new_records_pull=False`` can be useful if one wishes to initially set ``image_size=None``,
+               truncate or otherwise modify ``INSTANCE.records_db`` and then download images.
 
         :type new_records_pull: ``bool``
         :return: a DataFrame with the record information.
@@ -1016,7 +1026,7 @@ class OpeniInterface(object):
             # Add the new records_db datafame with the existing `cache_record_db`.
             self._openi_record_db_handler(current_record_db=self.cache_record_db, record_db_addition=self.records_db)
 
-            # Delete the 'databases/__temp__' folder
+            # Delete the 'databases/__temp__' folder.
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
 
         return self.records_db
