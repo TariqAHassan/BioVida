@@ -410,18 +410,29 @@ def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_thre
 
     :Example:
 
-    >>>
-    Lower Border:
-    _____________________________
-    The quick brown fox jumped
-    over jumps over the lazy dog
-    -----------------------------
-    Pass 1:
-    _____________________________
-    The quick brown fox jumped
-    -----------------------------
-    Pass 2:
-    _____________________________
+    Take the following lower border in an image:
+
+    .. code-block:: python
+
+        _____________________________
+        The quick brown fox jumped
+        over jumps over the lazy dog
+        -----------------------------
+
+    One pass of this procedure should produce:
+
+    .. code-block:: python
+
+        _____________________________
+        The quick brown fox jumped
+        -----------------------------
+
+    Following this up with a second pass should yeild:
+
+    .. code-block:: python
+
+        _____________________________
+
     """
     # Run a first pass
     first_pass_rslt = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
