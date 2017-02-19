@@ -1134,10 +1134,12 @@ class CancerImageInterface(object):
 
         :Example:
 
-        >>> CancerImageInterface().search(cancer_type='carcinoma', location=['head', 'neck'])
+        >>> CancerImageInterface(YOUR_API_KEY_HERE).search(cancer_type='carcinoma', location=['head'])
         ...
-           collection               cancer_type               Modalities   Subjects    Location    Metadata  ...
-        0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
+           collection                   cancer_type                           modalities                 subjects    location
+        0  TCGA-HNSC            Head and Neck Squamous Cell Carcinoma  CT, MR, PT                          164    [Head, Neck]
+        1  QIN-HeadNeck         Head and Neck Carcinomas               PT, CT, SR, SEG, RWV                156    [Head, Neck]
+        2  Head-Neck Cetuximab  Head and Neck Carcinomas               CT, PT, RTSTRUCT, RTPLAN, RTDOSE    111    [Head, Neck]
 
         """
         # Note the time the search request was made
