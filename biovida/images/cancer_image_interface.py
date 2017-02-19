@@ -21,7 +21,9 @@ from itertools import chain
 from datetime import datetime
 
 from biovida.images._image_tools import dict_to_tot
+from biovida.images._image_tools import load_temp_dbs
 from biovida.images._image_tools import NoResultsFound
+from biovida.images._image_tools import record_db_merge
 
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
@@ -444,7 +446,7 @@ class _CancerImgArchiveRecords(object):
 
         # Add the Name of the illness
         patient_study_df['CancerType'] = self._get_condition_name(patient_study_df['Collection'],
-                                                                overview_download_override)
+                                                                  overview_download_override)
 
         # Add the Search query which created the current results and the time the search was launched.
         patient_study_df['Query'] = [search_dict] * patient_study_df.shape[0]
@@ -959,22 +961,6 @@ class CancerImageInterface(object):
     :type cache_path: ``str`` or ``None``
     """
 
-    def _load_temp_dbs(self):
-        """
-
-        Load temporary databases created by ``_CancerImgArchiveImages()`` in the 'databases/__temp__' directory.
-
-        """
-        # Apply the merging function
-        temp_img_path = self._Images.temp_directory_path
-        db_paths = [os.path.join(temp_img_path, p) for p in os.listdir(temp_img_path) if p.endswith(".p")]
-
-        # Read the dataframes in the '__temp__' directory into memory
-        frames = [pd.read_pickle(p) for p in db_paths]
-
-        # Concatenate all frames
-        return pd.concat(frames, ignore_index=True)
-
     def _tcia_record_db_gen(self, tcia_record_db_addition):
         """
 
@@ -990,19 +976,15 @@ class CancerImageInterface(object):
             self.tcia_record_db = tcia_record_db_addition.copy(deep=True)
             self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
         else:
-            # Load in the current database and combine with the `tcia_record_db_addition` database
-            combined_dbs = pd.concat([self.tcia_record_db, tcia_record_db_addition])
-            # Sort by 'QueryDate'
-            combined_dbs = combined_dbs.sort_values('QueryTime')
-            # Convert 'Query' to a tuple of tuples (making them hashable, as required by ``pandas.drop_duplicates()``).
-            combined_dbs['Query'] = combined_dbs['Query'].map(dict_to_tot, na_action='ignore')
-            # Drop Duplicates (keeping the most recent).
-            combined_dbs = combined_dbs.drop_duplicates(subset=[c for c in combined_dbs.columns if c != 'QueryTime'],
-                                                        keep='last')
-            # Convert the 'Query' dicts back to dictionaries
-            combined_dbs['Query'] = combined_dbs['Query'].map(dict, na_action='ignore')
-            # Save to class instance
-            self.tcia_record_db = combined_dbs.sort_values(['QueryTime', 'StudyName']).reset_index(drop=True)
+            duplicates_subset_columns = [c for c in self.tcia_record_db.columns if c != 'QueryTime']
+            self.tcia_record_db = record_db_merge(current_record_db=self.tcia_record_db,
+                                                  record_db_addition=tcia_record_db_addition,
+                                                  query_column_name='Query',
+                                                  query_time_column_name='QueryTime',
+                                                  duplicates_subset_columns=duplicates_subset_columns,
+                                                  sort_on=['QueryTime', 'StudyName'],
+                                                  relationship_mapping_func=None)
+
             # Save to disk
             self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
 
@@ -1047,7 +1029,7 @@ class CancerImageInterface(object):
             # Merge any latent elements in the __temp__ folder, if such a folder exists (and if it is populated).
             if os.path.isdir(self._Images.temp_directory_path):
                 if len([i for i in self._Images.temp_directory_path if i.endswith(".p")]):
-                    self._tcia_record_db_gen(tcia_record_db_addition=self._load_temp_dbs())
+                    self._tcia_record_db_gen(tcia_record_db_addition=load_temp_dbs(self._Images.temp_directory_path))
                 # Delete the latent '__temp__' folder
                 shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
         else:
@@ -1055,7 +1037,7 @@ class CancerImageInterface(object):
 
         # Dictionary of the most recent search
         self._search_dict = None
-        self._IMAGES_PULL_TIME = None
+        self._query_time = None
 
     def _collection_filter(self, summary_df, collection, cancer_type, location):
         """
@@ -1149,6 +1131,9 @@ class CancerImageInterface(object):
         0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
 
         """
+        # Note the time the search request was made
+        self._query_time = datetime.now()
+        
         # Create the search dict.
         self._search_dict_gen(collection, cancer_type, location, modality)
 
@@ -1208,7 +1193,7 @@ class CancerImageInterface(object):
             try:
                 record_frames.append(self._Records.records_pull(study=collection,
                                                                 search_dict=self._search_dict,
-                                                                query_time=self._IMAGES_PULL_TIME,
+                                                                query_time=self._query_time,
                                                                 patient_limit=patient_limit))
                 pull_success.append((True, collection))
             except IndexError as e:
@@ -1253,7 +1238,7 @@ class CancerImageInterface(object):
                 print("\nObtaining images for the '{0}' Collection...".format(collection))
             current_img_frame = self._Images.pull_img(collection_name=collection, 
                                                       records=records,
-                                                      start_time=self._IMAGES_PULL_TIME.strftime(self._time_format),
+                                                      start_time=self._query_time.strftime(self._time_format),
                                                       session_limit=session_limit,
                                                       img_format=img_format,
                                                       save_dicoms=save_dicoms,
@@ -1283,7 +1268,7 @@ class CancerImageInterface(object):
 
         """
         # Generate the `tcia_record_db`.
-        self._tcia_record_db_gen(tcia_record_db_addition=self._load_temp_dbs())
+        self._tcia_record_db_gen(tcia_record_db_addition=load_temp_dbs(self._Images.temp_directory_path))
 
         # Delete the '__temp__' folder
         shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
@@ -1352,9 +1337,6 @@ class CancerImageInterface(object):
         :return: a DataFrame with the record information.
         :rtype: ``Pandas DataFrame``
         """
-        # Note the time the pull was stated
-        self._IMAGES_PULL_TIME = datetime.now()
-
         if self.current_search is None:
             raise AttributeError("`current_search` is empty. A search must be performed before `pull()` is called.")
 
