@@ -49,7 +49,7 @@ allowing either `TensorFlow <https://www.tensorflow.org>`__ or
 `Theano <http://deeplearning.net/software/theano/>`__ to be used as a computational backend.
 If neither is present at install time, BioVida will automatically install TensorFlow for you.
 
-2. To use ``scipy`` on macOS (formally OSX) you will need ``gcc`` and ``pillow``, which
+2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc`` and ``pillow``, which
 can be obtained with ``$ brew install gcc`` and ``$ pip install pillow``, respectively.
 If you do not have ``homebrew`` installed (needed for ``brew``), you can download it `here <https://brew.sh>`__.
 
