@@ -1322,11 +1322,10 @@ class CancerImageInterface(object):
 
                 .. warning::
 
-                        Several studies in the Cancer Imaging Archive database contain studies with multiple imaging
-                        sessions. Latter sessions may be of patients following various forms of intervention,
-                        such as surgery, intended to *eliminate* cancerous tissue. For this reason, it cannot be assumed
-                        that images  obtained from non-baseline sessions (i.e., session number > 1) do, in fact, contain
-                        signs of disease.
+                        Several studies in the Cancer Imaging Archive database have multiple imaging sessions.
+                        Latter sessions may be of patients following interventions, such as surgery, intended to
+                        *eliminate* cancerous tissue. For this reason it cannot be assumed that images obtained from
+                        non-baseline sessions (i.e., session number > 1) contain signs of disease.
 
         :type session_limit: ``int``
         :param collections_limit: limit the number of collections to download. If ``None``, no limit will be applied.
