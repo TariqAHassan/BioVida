@@ -12,6 +12,7 @@ import requests
 from PIL import Image
 
 # General Support Tools
+from biovida.support_tools.support_tools import combine_dicts
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
 
@@ -24,6 +25,8 @@ def _medpix_logo_download(save_path,
 
     :param image_web_address: the location of the image which contains the MedPix Logo
     :type image_web_address: ``str``
+    :return: a dictionary of the form {'medpix_logo': PATH TO THE LOGO}.
+    :rtype: ``dict``
     """
     full_save_path = os.path.join(save_path, "medpix_logo.png")
 
@@ -33,8 +36,10 @@ def _medpix_logo_download(save_path,
         # Crop and Save
         img_cropped = img.crop((406, 6, 502, 27))
         img_cropped.save(full_save_path)
-        print("\nThe MedPix Logo, required for image processing, has been saved to:\n'{0}'.".format(full_save_path))
+        print("\nThe MedPix Logo, required for processing Open-i, has been downloaded to:\n\n {0}\n".format(
+            list_to_bulletpoints([full_save_path])))
 
+    return {'medpix_logo': full_save_path}
 
 def _sub_directory_creator(root_path, to_create):
     """
@@ -92,7 +97,8 @@ def _directory_creator(cache_path=None, verbose=True):
     :type cache_path: ``str`` or ``None``
     :param verbose: Notify user of directory that have been created. Defaults to True.
     :type verbose: ``bool``
-    :return:
+    :return: the root path (i.e., path the cache itself).
+    :rtype: ``str``
     """
     # Init. Root Path
     root_path = None
@@ -139,7 +145,7 @@ def _directory_creator(cache_path=None, verbose=True):
 def _add_to_create_nest(nest, record_dict, verbose):
     """
 
-    Add `nest` directories
+    Add `nest` directories, i.e., create directories within directories delineated in `to_create` (below)..
 
     :param nest:
     :param record_dict:
@@ -163,7 +169,7 @@ def _add_to_create_nest(nest, record_dict, verbose):
     return record_dict
 
 
-def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbose=True):
+def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbose=True, download_mexpix_logo=False):
     """
 
     Create a cache for a given ``sub_dir``. If no biovida path exists in ``cache_path``,
@@ -181,8 +187,11 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
     :type nest: ``list of iterables`` or ``None``
     :param verbose: If True, print updates. Defaults to True.
     :type verbose: ``bool``
+    :param download_mexpix_logo: if ``True``, download the medpix logo.
+    :type download_mexpix_logo: ``bool``
     :return: tuple of the form ``(local path to `sub_dir`, `record_dict`)``,
-             where ``record_dict`` is of the form ``{to_create[0]: 'PATH_1', to_create[1]: 'PATH_2', ...}``
+             where ``record_dict`` is of the form ``{to_create[0]: 'PATH_1', to_create[1]: 'PATH_2', ...}``.
+             Note: ``record_dict`` if ``download_mexpix_logo`` is ``True``, a 'medpix_logo' key will also be present.
     :rtype: ``tuple``
     """
     # Check `sub_dir` is an allowed type
@@ -192,17 +201,13 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
 
     # Check `to_create` is a ``list`` or ``tuple`` with nonzero length
     if not isinstance(to_create, (list, tuple)) or not len(to_create):
-        raise AttributeError("`to_create` must be an iterable with a nonzero length.")
+        raise AttributeError("`to_create` must be a `list` or `tuple` with a nonzero length.")
 
     # Create main
     root_path = _directory_creator(cache_path, verbose)
 
     # The full path to the subdirectory
     sub_dir_full_path = os.path.join(root_path, sub_dir.replace("/", "").strip() + "_cache")
-
-    # Download the medpix logo to the sub_dir, if sub_dir is 'images'.
-    if sub_dir == 'images':
-        _medpix_logo_download(sub_dir_full_path)
 
     # Ask for sub directories to be created
     package_created_dirs = _sub_directory_creator(sub_dir_full_path, to_create)
@@ -216,6 +221,14 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
 
     # Render a hash map of `cache_path` - to - local address
     record_dict = {k[0]: os.path.join(sub_dir_full_path, v.split(os.sep)[-1]) for k, v in package_created_dirs.items()}
+
+    # Download the medpix logo to `sub_dir`, if `sub_dir` is 'images'.
+    if sub_dir == 'images' and download_mexpix_logo:
+        if 'aux' not in record_dict.keys():
+            raise ValueError("`to_create` must contain 'aux' if `download_mexpix_logo` is `True`.")
+        medpix_logo_location = _medpix_logo_download(record_dict['aux'])
+        # Add the path to the logo to `record_dict`
+        record_dict = combine_dicts(record_dict, medpix_logo_location)
 
     # Add nests, if any
     record_dict_nest = _add_to_create_nest(nest, record_dict, verbose)
