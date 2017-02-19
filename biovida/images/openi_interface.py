@@ -870,9 +870,10 @@ class OpeniInterface(object):
         # Generate Required Caches
         self.root_path, self._created_img_dirs = package_cache_creator(sub_dir='images',
                                                                        cache_path=cache_path,
-                                                                       to_create=['openi', 'aux'],
-                                                                       nest=[('openi', 'raw'), ('openi', 'databases')],
-                                                                       download_mexpix_logo=True)
+                                                                       to_create=['openi'],
+                                                                       nest=[('openi', 'aux'), ('openi', 'raw'),
+                                                                             ('openi', 'databases')],
+                                                                       requires_medpix_logo=True)
 
         # Instantiate Classes
         self._Search = _OpeniSearch()

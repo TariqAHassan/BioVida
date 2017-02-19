@@ -169,7 +169,7 @@ def _add_to_create_nest(nest, record_dict, verbose):
     return record_dict
 
 
-def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbose=True, download_mexpix_logo=False):
+def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbose=True, requires_medpix_logo=False):
     """
 
     Create a cache for a given ``sub_dir``. If no biovida path exists in ``cache_path``,
@@ -183,15 +183,15 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
     :param cache_path: local path to the desired location of the cache.
                        If ``None``, will default to the the home directory. Defaults to ``None``.
     :type cache_path: ``str`` or ``None``
-    :param nest: a list of the form [(to_create item, new nested directory name)]
+    :param nest: a list of the form [(to_create item, new nested directory name), ...]
     :type nest: ``list of iterables`` or ``None``
     :param verbose: If True, print updates. Defaults to True.
     :type verbose: ``bool``
-    :param download_mexpix_logo: if ``True``, download the medpix logo.
-    :type download_mexpix_logo: ``bool``
+    :param requires_medpix_logo: if ``True``, download the medpix logo.
+    :type requires_medpix_logo: ``bool``
     :return: tuple of the form ``(local path to `sub_dir`, `record_dict`)``,
              where ``record_dict`` is of the form ``{to_create[0]: 'PATH_1', to_create[1]: 'PATH_2', ...}``.
-             Note: ``record_dict`` if ``download_mexpix_logo`` is ``True``, a 'medpix_logo' key will also be present.
+             Note: ``record_dict`` if ``requires_medpix_logo`` is ``True``, a 'medpix_logo' key will also be present.
     :rtype: ``tuple``
     """
     # Check `sub_dir` is an allowed type
@@ -222,16 +222,16 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
     # Render a hash map of `cache_path` - to - local address
     record_dict = {k[0]: os.path.join(sub_dir_full_path, v.split(os.sep)[-1]) for k, v in package_created_dirs.items()}
 
-    # Download the medpix logo to `sub_dir`, if `sub_dir` is 'images'.
-    if sub_dir == 'images' and download_mexpix_logo:
-        if 'aux' not in record_dict.keys():
-            raise ValueError("`to_create` must contain 'aux' if `download_mexpix_logo` is `True`.")
-        medpix_logo_location = _medpix_logo_download(record_dict['aux'])
-        # Add the path to the logo to `record_dict`
-        record_dict = combine_dicts(record_dict, medpix_logo_location)
-
-    # Add nests, if any
+    # Add nested directories, if any
     record_dict_nest = _add_to_create_nest(nest, record_dict, verbose)
+    
+    # Download the medpix logo to `sub_dir`, if `sub_dir` is 'images'.
+    if sub_dir == 'images' and requires_medpix_logo:
+        if 'aux' not in record_dict_nest.keys():
+            raise ValueError("`nest` (or `to_create`) must contain 'aux' if `requires_medpix_logo` is `True`.")
+        medpix_logo_location = _medpix_logo_download(record_dict_nest['aux'])
+        # Add the path to the logo to `record_dict_nest`
+        record_dict_nest = combine_dicts(record_dict_nest, medpix_logo_location)
 
     # Return full path & the above mapping
     return sub_dir_full_path, record_dict_nest
