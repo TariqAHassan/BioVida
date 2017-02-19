@@ -643,12 +643,30 @@ class _CancerImgArchiveImages(object):
         :return: the length of the replacement, if ``return_replacement_len`` is ``True``
         :rtype: ``int`` or ``None``
         """
+        # Extract the current value.
         current = self.real_time_update_db.get_value(index, column)
-        old_iterable = current if isinstance(current, (list, tuple)) else []
-        replacement = tuple(list(old_iterable) + list(new))
-        self.real_time_update_db.set_value(index, column, tuple(list(old_iterable) + list(new)))
+
+        def cleaner(to_clean):
+            """Tool which will ensure the output is a `list`."""
+            return list(to_clean) if isinstance(to_clean, (list, tuple)) else []
+
+        # Clean `current`
+        cleaned_current = cleaner(current)
+
+        # Clean `new`
+        cleaned_new = cleaner(new)
+
+        # Generate a replacement candidate
+        replacement_candidate = tuple(list(cleaned_current) + cleaned_new)
+
+        # Generate the replacement
+        replacement = replacement_candidate if len(replacement_candidate) else np.NaN
+
+        # Set the value
+        self.real_time_update_db.set_value(index, column, replacement)
+
         # Return the length if requested.
-        return len(replacement) if return_replacement_len else None
+        return len(replacement) if return_replacement_len and isinstance(replacement, (list, tuple)) else None
 
     def _save_dicom_as_img(self,
                            path_to_dicom_file,
@@ -815,10 +833,18 @@ class _CancerImgArchiveImages(object):
         :rtype: ``bool``
         """
         # Assume True if `allowed_modalities` is left to its default (`None`).
-        if not isinstance(allowed_modalities, (list, tuple)):
+        if allowed_modalities is None:
             return True
+
+        if not isinstance(allowed_modalities, (list, tuple, str)):
+            raise ValueError("`allowed_modalities` must be one of `list`, `tuple`, `str`.")
+
+        # Convert `allowed_modalities` to an iterable
+        if isinstance(allowed_modalities, str):
+            allowed_modalities = [allowed_modalities]
+
         # Check if any item in `allowed_modalities` is a sublist in `modality` or `modality_full`.
-        elif any([cln(l).lower() in cln(i).lower() for l in allowed_modalities for i in (modality, modality_full)]):
+        if any([cln(l).lower() in cln(i).lower() for l in allowed_modalities for i in (modality, modality_full)]):
             return True
         else:
             return False
