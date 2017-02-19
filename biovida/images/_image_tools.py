@@ -158,6 +158,7 @@ def record_db_merge(current_record_db,
                    query_time_column_name,
                    duplicates_subset_columns,
                    sort_on=None,
+                   columns_with_iterables_to_sort=None,
                    relationship_mapping_func=None):
     """
 
@@ -176,6 +177,9 @@ def record_db_merge(current_record_db,
     :type duplicates_subset_columns: ``list`` or ``tuple``
     :param sort_on: the column, or list (or tuple) of columns to sort the dataframe by before returning.
     :type sort_on: ``str``, ``iterable`` or ``None``
+    :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
+                                  prior to dropping. Defaults to ``None``.
+    :type columns_with_iterables_to_sort: ``list`` or ``tuple``
     :param relationship_mapping_func: function to map relationships in the dataframe. Defaults to ``None``.
     :type relationship_mapping_func: ``function``
     :return: a dataframe which merges ``current_record_db`` and ``record_db_addition``
@@ -193,6 +197,11 @@ def record_db_merge(current_record_db,
 
     # Remove the 'shared_img_ref' column from consideration
     duplicates_subset_columns_cleaned = [c for c in duplicates_subset_columns if c != 'shared_img_ref']
+
+    # Sort columns with iterables
+    if isinstance(columns_with_iterables_to_sort, (list, tuple)):
+        for c in columns_with_iterables_to_sort:
+            combined_dbs[c] = combined_dbs[c].map(lambda x: tuple(sorted(x)), na_action='ignore')
 
     # Drop Duplicates (keeping the most recent).
     combined_dbs = combined_dbs.drop_duplicates(subset=duplicates_subset_columns_cleaned, keep='last')
