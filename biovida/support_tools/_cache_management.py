@@ -36,7 +36,7 @@ def _medpix_logo_download(save_path,
         # Crop and Save
         img_cropped = img.crop((406, 6, 502, 27))
         img_cropped.save(full_save_path)
-        print("\nThe MedPix Logo, required for processing Open-i, has been downloaded to:\n\n {0}\n".format(
+        print("\nThe MedPix Logo, required for processing Open-i images, has been downloaded to:\n\n {0}\n".format(
             list_to_bulletpoints([full_save_path])))
 
     return {'medpix_logo': full_save_path}
