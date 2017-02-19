@@ -619,7 +619,7 @@ class _CancerImgArchiveImages(object):
 
         return all_save_paths, True
 
-    def _set_and_update_list(self, index, column, new, return_replacement_len=False):
+    def _update_and_set_list(self, index, column, new, return_replacement_len=False):
         """
 
         Set = add to ``self.real_time_update_db``.
@@ -686,7 +686,7 @@ class _CancerImgArchiveImages(object):
         all_save_paths, success = self._dicom_to_standard_image(f, pull_position, conversion, new_file_name, img_format)
 
         # Update Record
-        cfp_len = self._set_and_update_list(index, 'ConvertedFilesPaths', all_save_paths, return_replacement_len=True)
+        cfp_len = self._update_and_set_list(index, 'ConvertedFilesPaths', all_save_paths, return_replacement_len=True)
         self.real_time_update_db.set_value(index, 'ImageCountConvertedCache', cfp_len)
 
         # Add record of whether or not the dicom file could be converted to a standard image type
@@ -863,8 +863,8 @@ class _CancerImgArchiveImages(object):
                 # Delete the temporary folder.
                 shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
-                self._set_and_update_list(index, 'RawDicomFilesPaths', dsl_summary)
-                self._set_and_update_list(index, 'ConvertedFilesPaths', sl_summary)
+                self._update_and_set_list(index, 'RawDicomFilesPaths', dsl_summary)
+                self._update_and_set_list(index, 'ConvertedFilesPaths', sl_summary)
                 self.real_time_update_db.set_value(index, 'ConversionSuccess', cache_complete)
                 self.real_time_update_db.set_value(index, 'ImageCountConvertedCache', len(sl_summary))
                 # Save the data frame
