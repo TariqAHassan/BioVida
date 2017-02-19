@@ -607,7 +607,7 @@ class _CancerImgArchiveImages(object):
         def save_path(instance):
             """Define the path to save the image to."""
             head = "{0}_{1}".format(instance, pull_position)
-            file_name = "{0}__{1}__D.{2}".format(head, os.path.basename(new_file_name), img_format.replace(".", ""))
+            file_name = "{0}__{1}__default.{2}".format(head, os.path.basename(new_file_name), img_format.replace(".", ""))
             return os.path.join(save_location, file_name)
 
         if pixel_arr.ndim == 2:
