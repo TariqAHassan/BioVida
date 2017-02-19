@@ -1317,6 +1317,15 @@ class CancerImageInterface(object):
         :param session_limit: restrict image harvesting to the first ``n`` imaging sessions (days) for a given patient,
                               where ``n`` is the value passed to this parameter. If ``None``, no limit will be imposed.
                               Defaults to `1`.
+
+                .. warning::
+
+                        Several studies in the Cancer Imaging Archive database contain studies with multiple imaging
+                        sessions. Latter sessions may be of patients following various forms of intervention,
+                        such as surgery, intended to *eliminate* cancerous tissue. For this reason, it cannot be assumed
+                        that images  obtained from non-baseline sessions (i.e., session number > 1) do, in fact, contain
+                        signs of disease.
+
         :type session_limit: ``int``
         :param collections_limit: limit the number of collections to download. If ``None``, no limit will be applied.
                                   Defaults to ``None``.
@@ -1380,6 +1389,7 @@ class CancerImageInterface(object):
             self._tcia_record_db_handler()
 
         return self.current_db
+
 
 
 
