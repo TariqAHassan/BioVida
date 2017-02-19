@@ -48,6 +48,20 @@ openi_image_type_params = {
 }
 
 
+openi_image_type_modality_full = {
+    # Written to cohere with yield of `cancer_imaging_prameters.py`'s
+    # `CancerImgArchiveParams().dicom_modality_abbreviations()` method.
+    'c': 'Computed Tomography (CT)',
+    'g': 'Graphic',
+    'm': 'Magnetic Resonance Imaging (MRI)',
+    'mc': 'Microscopy',
+    'p': 'Positron Emission Tomography (PET)',
+    'ph': 'Photograph',
+    'u': 'Ultrasound',
+    'x': 'X-Ray',
+}
+
+
 openi_rankby_params = {
     'r': 'newest',
     'o': 'oldest',
@@ -177,10 +191,6 @@ def openi_search_information():
 
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
     return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
-
-
-
-
 
 
 

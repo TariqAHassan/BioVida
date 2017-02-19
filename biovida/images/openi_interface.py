@@ -32,6 +32,7 @@ from biovida.images._openi_support_tools import url_combine
 from biovida.images._resources.openi_parameters import openi_image_type_params
 from biovida.images._resources.openi_parameters import openi_search_information
 from biovida.images._resources.openi_parameters import openi_article_type_params
+from biovida.images._resources.openi_parameters import openi_image_type_modality_full
 
 # Tools for Text Feature Extraction
 from biovida.images.text_processing import feature_extract
@@ -560,6 +561,11 @@ class _OpeniRecords(object):
         # Run Feature Extracting Tool and Join with `data_frame`.
         # pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
         # data_frame = data_frame.join(pp, how='left')
+
+        # Add the full name for modalities (before the 'image_modality_major' values are altered below).
+        data_frame['modality_full'] = data_frame['image_modality_major'].map(
+            lambda x: openi_image_type_modality_full.get(cln(x).lower(), x), na_action='ignore'
+        )
 
         # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
         data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
