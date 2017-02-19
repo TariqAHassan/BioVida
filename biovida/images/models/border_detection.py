@@ -385,7 +385,7 @@ def lower_bar_detection(image_array, lower_bar_search_space, signal_strength_thr
     return int(m)
 
 
-def double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold):
+def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_threshold, lower_bar_second_pass):
     """
 
     Executes a two passes looking for a lower bar.
@@ -403,35 +403,51 @@ def double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_
                                       This is measured as a absolute value of the difference between
                                       a location and the median signal strength of the average image.
     :type signal_strength_threshold: ``int``
+    :param lower_bar_second_pass: if ``True`` perform a second pass on the lower bar.
+    :type lower_bar_second_pass: ``bool``
     :return: the location of the start of the lower bar (i.e., edge).
     :rtype: ``int``
+
+    :Example:
+
+    >>>
+    Lower Border:
+    _____________________________
+    The quick brown fox jumped
+    over jumps over the lazy dog
+    -----------------------------
+    Pass 1:
+    _____________________________
+    The quick brown fox jumped
+    -----------------------------
+    Pass 2:
+    _____________________________
     """
-    # Example:
-    #
-    # Lower Border:
-    # _____________________________
-    # The quick brown fox jumped
-    # over jumps over the lazy dog
-    # -----------------------------
-    # Pass 1:
-    # _____________________________
-    # The quick brown fox jumped
-    # -----------------------------
-    # Pass 2:
-    # _____________________________
-    #
-    first_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
-    second_pass = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=first_pass)
+    # Run a first pass
+    first_pass_rslt = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
+    
+    # Run a second pass
+    if lower_bar_second_pass:
+        second_pass_rslt = lower_bar_detection(image_array,
+                                               lower_bar_search_space,
+                                               signal_strength_threshold,
+                                               cfloor=first_pass_rslt)
+    else:
+        second_pass_rslt = None
 
-    return first_pass if second_pass is None else second_pass
+    if second_pass_rslt is None:
+        return first_pass_rslt
+    else:
+        return second_pass_rslt
 
 
-def border_detection(image
-                     , signal_strength_threshold=0.25
-                     , min_border_separation=0.15
-                     , lower_bar_search_space=0.9
-                     , report_signal_strength=False
-                     , rescale_input_ndarray=True):
+def border_detection(image,
+                     signal_strength_threshold=0.25,
+                     min_border_separation=0.15,
+                     lower_bar_search_space=0.9,
+                     report_signal_strength=False,
+                     rescale_input_ndarray=True,
+                     lower_bar_second_pass=True):
     """
 
     Detects the borders and lower bar in an image.
@@ -441,7 +457,7 @@ def border_detection(image
           with standard deviation approximately equal to 0 are replaced with zero vectors. (a).
        2. Values are averaged along this same axis.
           This produces a signal (which can be visualized as a line graph). (b).
-       3. The median value for this signal is quantified. The median is used here,
+       3. The median value for this signal is computed. The median is used here,
           as opposed to the average, because it is more robust against outliers.
        4. The ``n`` points for which are the furthest, in absolute value, from the median are selected.
        5. The signal strength of the ``n`` points is quantified using percent error, where the median value
@@ -452,9 +468,9 @@ def border_detection(image
           it is rejected.
        7. The evidence for a lower bar concerns only its signal strength, though only an area of image below a given
           height is considered when trying to locate it. A double pass, the default, will try a second time to find
-          another lower bar (for reasons explained in the docstring for the ``double_pass_lower_bar_detection()``
-          function). Regardless of whether or not the second pass could find a second edge, all of the edges detect
-          are averaged and returned as an integer. If no plausible borders could be found, ``None`` is returned.
+          another lower bar (for reasons explained in the docstring for the ``lower_bar_analysis()`` function).
+          Regardless of whether or not the second pass could find a second edge, all of the edges detect are averaged
+          and returned as an integer. If no plausible borders could be found, ``None`` is returned.
 
     (a) This reduces the muffling effect that areas with solid color can have on step 2.
     (b) Large inflections after areas with little change suggest a transition from a solid background to an image.
@@ -484,6 +500,8 @@ def border_detection(image
                                    Defaults to ``False``.
     :type report_signal_strength: ``bool``
     :param rescale_input_ndarray: if True, rescale a ``2D ndarray`` passed to ``image``.
+    :param lower_bar_second_pass:  if ``True`` perform a second pass on the lower bar. Defaults to ``True``.
+    :type lower_bar_second_pass: ``bool``
     :type rescale_input_ndarray: ``bool``
     :return: a dictionary of the form:
              ``{'vborder': (left, right) or None, 'hborder': (upper, lower) or None, 'hbar': int or None}``
@@ -529,7 +547,7 @@ def border_detection(image
                                    min_border_separation)
 
     # Look for lower bar
-    d['hbar'] = double_pass_lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
+    d['hbar'] = lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_threshold, lower_bar_second_pass)
 
     # Return the analysis
     if report_signal_strength:  # ToDo: not working for 'hbar'.
@@ -576,51 +594,6 @@ def _lines_plotter(path_to_image):
         # print("No Results to Display.")
         print(analysis)
         return False
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
