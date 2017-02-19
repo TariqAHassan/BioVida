@@ -48,7 +48,6 @@ from biovida.support_tools.support_tools import list_to_bulletpoints
 # Start tqdm
 tqdm.pandas(desc='status')
 
-# Note: to install scipy: brew install gcc; pip3 install Pillow
 
 # ----------------------------------------------------------------------------------------------------------
 # Searching
@@ -818,16 +817,16 @@ class OpeniInterface(object):
         record_db_addition = load_temp_dbs(temp_db_path=self._Images.temp_folder)
         if record_db_addition is not None:
             # Update `self.current_record_db`.
-            self._openi_record_db_handler(current_record_db=self.cache_record_db,
+            self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
                                           record_db_addition=record_db_addition)
             # Delete the latent 'databases/__temp__' folder.
             shutil.rmtree(self._openi_cache_record_db_save_path, ignore_errors=True)
 
-    def _openi_record_db_handler(self, current_record_db, record_db_addition):
+    def _openi_cache_record_db_handler(self, current_record_db, record_db_addition):
         """
 
-        1. if openi_record_db.p doesn't exist, simply dump ``record_db_addition``
-        2. if openi_record_db.p does exist, merge with ``record_db_addition``
+        1. if openi_cache_record_db.p doesn't exist, simply dump ``record_db_addition``
+        2. if openi_cache_record_db.p does exist, merge with ``record_db_addition``
 
         :param current_record_db:
         :type current_record_db:
@@ -895,7 +894,7 @@ class OpeniInterface(object):
         self._current_search_to_harvest = None
 
         # Path to cache record db
-        self._openi_cache_record_db_save_path = os.path.join(self._created_img_dirs['databases'], 'openi_record_db.p')
+        self._openi_cache_record_db_save_path = os.path.join(self._created_img_dirs['databases'], 'openi_cache_record_db.p')
 
         # Databases
         self.records_db = None
@@ -1024,20 +1023,12 @@ class OpeniInterface(object):
                                                        query_time=self._query_time.strftime(self._time_format))
 
             # Add the new records_db datafame with the existing `cache_record_db`.
-            self._openi_record_db_handler(current_record_db=self.cache_record_db, record_db_addition=self.records_db)
+            self._openi_cache_record_db_handler(current_record_db=self.cache_record_db, record_db_addition=self.records_db)
 
             # Delete the 'databases/__temp__' folder.
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
 
         return self.records_db
-
-
-
-
-
-
-
-
 
 
 

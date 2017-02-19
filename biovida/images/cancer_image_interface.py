@@ -554,7 +554,6 @@ class _CancerImgArchiveImages(object):
         :rtype: ``list``
         """
         # See: http://stackoverflow.com/a/14260592/4898004
-        # Define URL to extract the images from
         url = '{0}/query/getImage?SeriesInstanceUID={1}&format=csv&api_key={2}'.format(
             self.ROOT_URL, series_uid, self.API_KEY)
         r = requests.get(url)
@@ -969,32 +968,34 @@ class CancerImageInterface(object):
     :type cache_path: ``str`` or ``None``
     """
 
-    def _tcia_record_db_gen(self, tcia_record_db_addition):
+    def _tcia_cache_record_db_gen(self, tcia_cache_record_db_addition):
         """
 
-        Generate the `tcia_record_db` database.
-        If it does not exist, use `tcia_record_db`.
-        If if already exists, merge it with `tcia_record_db_addition`.
+        Generate the `tcia_cache_record_db` database.
+        If it does not exist, use `tcia_cache_record_db`.
+        If if already exists, merge it with `tcia_cache_record_db_addition`.
 
-        :param tcia_record_db_addition: the new search dataframe to added to the existing one.
-        :type tcia_record_db_addition: ``Pandas DataFrame``
+        :param tcia_cache_record_db_addition: the new search dataframe to added to the existing one.
+        :type tcia_cache_record_db_addition: ``Pandas DataFrame``
         """
-        # Compose or update the master 'tcia_record_db' dataframe
-        if self.tcia_record_db is None:
-            self.tcia_record_db = tcia_record_db_addition.copy(deep=True)
-            self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
+        # Compose or update the master 'tcia_cache_record_db' dataframe
+        if self.tcia_cache_record_db is None:
+            self.tcia_cache_record_db = tcia_cache_record_db_addition.copy(deep=True)
+            self.tcia_cache_record_db.to_pickle(self._tcia_cache_record_db_save_path)
         else:
-            duplicates_subset_columns = [c for c in self.tcia_record_db.columns if c != 'query_time']
-            self.tcia_record_db = record_db_merge(current_record_db=self.tcia_record_db,
-                                                  record_db_addition=tcia_record_db_addition,
+            duplicates_subset_columns = [c for c in self.tcia_cache_record_db.columns if c != 'query_time']
+            columns_with_iterables_to_sort = ('converted_files_paths', 'raw_dicom_files_paths')
+            self.tcia_cache_record_db = record_db_merge(current_record_db=self.tcia_cache_record_db,
+                                                  record_db_addition=tcia_cache_record_db_addition,
                                                   query_column_name='query',
                                                   query_time_column_name='query_time',
                                                   duplicates_subset_columns=duplicates_subset_columns,
                                                   sort_on=['query_time', 'study_name'],
+                                                  columns_with_iterables_to_sort=columns_with_iterables_to_sort,
                                                   relationship_mapping_func=None)
 
             # Save to disk
-            self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
+            self.tcia_cache_record_db.to_pickle(self._tcia_cache_record_db_save_path)
 
     def __init__(self,
                  api_key,
@@ -1023,26 +1024,26 @@ class CancerImageInterface(object):
 
         # DataFrames
         self.current_search = None
-        self.current_db = None
+        self.record_db = None
 
         # The format for date information
         self._time_format = "%Y_%h_%d__%H_%M_%S_%f"
 
-        # Path to the tcia_record_db
-        self._tcia_record_db_save_path = os.path.join(self._Images._created_img_dirs['databases'], 'tcia_record_db.p')
+        # Path to the tcia_cache_record_db
+        self._tcia_cache_record_db_save_path = os.path.join(self._Images._created_img_dirs['databases'], 'tcia_cache_record_db.p')
 
-        # Load `tcia_record_db` if it exists already, else set to None.
-        if os.path.isfile(self._tcia_record_db_save_path):
-            self.tcia_record_db = pd.read_pickle(self._tcia_record_db_save_path)
+        # Load `tcia_cache_record_db` if it exists already, else set to None.
+        if os.path.isfile(self._tcia_cache_record_db_save_path):
+            self.tcia_cache_record_db = pd.read_pickle(self._tcia_cache_record_db_save_path)
             # Merge any latent elements in the __temp__ folder, if such a folder exists (and if it is populated).
             if os.path.isdir(self._Images.temp_directory_path):
                 latent_temps = load_temp_dbs(self._Images.temp_directory_path)
                 if latent_temps is not None:
-                    self._tcia_record_db_gen(tcia_record_db_addition=latent_temps)
+                    self._tcia_cache_record_db_gen(tcia_cache_record_db_addition=latent_temps)
                 # Delete the latent '__temp__' folder
                 shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
         else:
-            self.tcia_record_db = None
+            self.tcia_cache_record_db = None
 
         # Dictionary of the most recent search
         self._search_dict = None
@@ -1094,6 +1095,7 @@ class CancerImageInterface(object):
         """
         # Note: lowered here because this is the behavior upstream.
         sdict = {'collection': collection, 'cancer_type': cancer_type, 'location': location, 'modality': modality}
+
         def lower_sdict(v):
             if isinstance(v, str):
                 return v.lower()
@@ -1200,7 +1202,7 @@ class CancerImageInterface(object):
         record_frames = list()
         for collection in all_collections:
             if self._verbose:
-                print("\nDownloading records for the '{0}' collection...".format(collection))
+                print("\nDownloading Records for the '{0}' Collection...".format(collection))
             try:
                 record_frames.append(self._Records.records_pull(study=collection,
                                                                 search_dict=self._search_dict,
@@ -1246,7 +1248,7 @@ class CancerImageInterface(object):
         img_frames = list()
         for records, collection in zip(record_frames, collection_names):
             if self._verbose:
-                print("\nObtaining images for the '{0}' collection...".format(collection))
+                print("\nObtaining Images for the '{0}' Collection...".format(collection))
             current_img_frame = self._Images.pull_img(collection_name=collection,
                                                       records=records,
                                                       start_time=self._query_time.strftime(self._time_format),
@@ -1259,13 +1261,13 @@ class CancerImageInterface(object):
 
         return img_frames
 
-    def _tcia_record_db_handler(self):
+    def _tcia_cache_record_db_handler(self):
         """
 
         Behavior:
 
-        If ``tcia_record_db`` does not exists on disk, create it using ``tcia_record_db_addition`` (evolved inside this
-        function). If it already exists, merge it with ``tcia_record_db_addition``.
+        If ``tcia_cache_record_db`` does not exists on disk, create it using ``tcia_cache_record_db_addition`` (evolved inside this
+        function). If it already exists, merge it with ``tcia_cache_record_db_addition``.
 
         More broadly, this whole script follows the following procedure for caching:
 
@@ -1273,13 +1275,13 @@ class CancerImageInterface(object):
         2. Create a temporary folder which will be populated with temporary databases which update in real time as
            images are pulled.
         3. Upon sucessful exit in ``CancerImageInterface().pull()``, combine all temp. dataframes and merge them with
-           the master and run the pruning algorithm (see the second half of ``_tcia_record_db_gen()``).
+           the master and run the pruning algorithm (see the second half of ``_tcia_cache_record_db_gen()``).
         4. As a precaution, on init. of the CancerImageInterface class, if a '__temp__' folder exists,
            merge and run the pruning algorithm.
 
         """
-        # Generate the `tcia_record_db`.
-        self._tcia_record_db_gen(tcia_record_db_addition=load_temp_dbs(self._Images.temp_directory_path))
+        # Generate the `tcia_cache_record_db`.
+        self._tcia_cache_record_db_gen(tcia_cache_record_db_addition=load_temp_dbs(self._Images.temp_directory_path))
 
         # Delete the '__temp__' folder
         shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
@@ -1383,16 +1385,13 @@ class CancerImageInterface(object):
             final_frames = record_frames
 
         # Concatenate
-        self.current_db = pd.concat(final_frames, ignore_index=True)
+        self.record_db = pd.concat(final_frames, ignore_index=True)
 
         # Update the image record if and only if a request was also made for images.
         if isinstance(img_format, str):
-            self._tcia_record_db_handler()
+            self._tcia_cache_record_db_handler()
 
-        return self.current_db
-
-
-
+        return self.record_db
 
 
 
