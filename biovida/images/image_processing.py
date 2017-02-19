@@ -103,6 +103,8 @@ class ImageProcessing(object):
                           contains a record of all analyses run as new columns.
     """
     def __init__(self, search_class, model_location=None, database_to_extract='search', verbose=True):
+        self._verbose = verbose
+
         if "OpenInterface" not in str(type(search_class)):
             raise ValueError("`search_class` must be a OpenInterface instance.")
 
@@ -110,12 +112,10 @@ class ImageProcessing(object):
         self.image_dataframe = _extract_search_class_db(database_to_extract, search_class)
 
         # Extract path to the MedPix Logo
-        self._medpix_path = os.path.join(search_class.root_path, "medpix_logo.png")
+        self._medpix_path = search_class._created_img_dirs['medpix_logo']
 
         # Spin up tqdm
         tqdm.pandas("status")
-
-        self._verbose = verbose
 
         # Load the CNN
         self._ircnn = ImageRecognitionCNN()
@@ -312,7 +312,7 @@ class ImageProcessing(object):
                       status=True):
         """
 
-        Search for the MexPix Logo. If located, with match quality above match_quality_threshold,
+        Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
         populate the corresponding row of the 'medpix_logo_lower_left' column in the 'image_dataframe'
         with its a. full bonding box (if ``return_full`` is `True`) or lower left corner otherwise.
 

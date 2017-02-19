@@ -64,7 +64,9 @@ class _CancerImgArchiveOverview(object):
                  tcia_homepage='http://www.cancerimagingarchive.net'):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
-        _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path, to_create=['aux'])
+        _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
+                                                          to_create=['tcia'], nest=[('tcia', 'databases')])
+
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
 
     def _all_studies_parser(self):
@@ -121,7 +123,7 @@ class _CancerImgArchiveOverview(object):
         :rtype: ``Pandas DataFrame``
         """
         # Define the path to save the data
-        save_path = os.path.join(self._created_img_dirs['aux'], 'all_tcia_studies.p')
+        save_path = os.path.join(self._created_img_dirs['databases'], 'all_tcia_studies.p')
 
         if not os.path.isfile(save_path) or download_override:
             if self._verbose:
@@ -1030,7 +1032,8 @@ class CancerImageInterface(object):
         self._time_format = "%Y_%h_%d__%H_%M_%S_%f"
 
         # Path to the tcia_cache_record_db
-        self._tcia_cache_record_db_save_path = os.path.join(self._Images._created_img_dirs['databases'], 'tcia_cache_record_db.p')
+        self._tcia_cache_record_db_save_path = os.path.join(self._Images._created_img_dirs['databases'],
+                                                            'tcia_cache_record_db.p')
 
         # Load `tcia_cache_record_db` if it exists already, else set to None.
         if os.path.isfile(self._tcia_cache_record_db_save_path):

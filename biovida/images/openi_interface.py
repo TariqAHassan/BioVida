@@ -194,7 +194,6 @@ class _OpeniSearch(object):
         :return: a list of valid values for a given search `search_parameter`.
         :rtype: ``list``
         """
-        # ToDo: add to main class.
         # Terms to blocked from displaying to users if search_parameter != 'exclusions'
         exclusions = ['exclude_graphics', 'exclude_multipanel']
 
@@ -633,7 +632,7 @@ class _OpeniImages(object):
         self.image_save_location = image_save_location
         self.verbose = verbose
 
-        # The time the pull request was issued.
+        # The time the most recent query was made.
         self.query_time = None
 
         # Database
@@ -811,14 +810,14 @@ class OpeniInterface(object):
     def _latent_temp_dir(self):
         """
 
-        :return:
+
         """
         # Load the latent database(s).
         record_db_addition = load_temp_dbs(temp_db_path=self._Images.temp_folder)
         if record_db_addition is not None:
             # Update `self.current_record_db`.
-            self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
-                                          record_db_addition=record_db_addition)
+            self._openi_cache_record_db_handler(current_record_db=self.openi_cache_record_db,
+                                                record_db_addition=record_db_addition)
             # Delete the latent 'databases/__temp__' folder.
             shutil.rmtree(self._openi_cache_record_db_save_path, ignore_errors=True)
 
@@ -853,7 +852,7 @@ class OpeniInterface(object):
         to_return.to_pickle(self._openi_cache_record_db_save_path)
 
         # Save to class instance
-        self.cache_record_db = to_return
+        self.openi_cache_record_db = to_return
 
     def __init__(self
                  , cache_path=None
@@ -869,8 +868,9 @@ class OpeniInterface(object):
         # Generate Required Caches
         self.root_path, self._created_img_dirs = package_cache_creator(sub_dir='images',
                                                                        cache_path=cache_path,
-                                                                       to_create=['openi'],
-                                                                       nest=[('openi', 'raw'), ('openi', 'databases')])
+                                                                       to_create=['openi', 'aux'],
+                                                                       nest=[('openi', 'raw'), ('openi', 'databases')],
+                                                                       download_mexpix_logo=True)
 
         # Instantiate Classes
         self._Search = _OpeniSearch()
@@ -901,9 +901,9 @@ class OpeniInterface(object):
 
         # Load the cache record database, if it exists
         if os.path.isfile(self._openi_cache_record_db_save_path):
-            self.cache_record_db = pd.read_pickle(self._openi_cache_record_db_save_path)
+            self.openi_cache_record_db = pd.read_pickle(self._openi_cache_record_db_save_path)
         else:
-            self.cache_record_db = None
+            self.openi_cache_record_db = None
 
         # Load in databases in 'databases/__temp__', if they exist
         if os.path.isdir(self._Images.temp_folder):
@@ -1022,8 +1022,9 @@ class OpeniInterface(object):
                                                        image_size=image_size,
                                                        query_time=self._query_time.strftime(self._time_format))
 
-            # Add the new records_db datafame with the existing `cache_record_db`.
-            self._openi_cache_record_db_handler(current_record_db=self.cache_record_db, record_db_addition=self.records_db)
+            # Add the new records_db datafame with the existing `openi_cache_record_db`.
+            self._openi_cache_record_db_handler(current_record_db=self.openi_cache_record_db,
+                                                record_db_addition=self.records_db)
 
             # Delete the 'databases/__temp__' folder.
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
