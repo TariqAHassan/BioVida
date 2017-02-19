@@ -810,6 +810,8 @@ class OpeniInterface(object):
     def _latent_temp_dir(self):
         """
 
+        Load a '__temp__' folder of image record databases which were not merged (and subsequently destroyed)
+        before python exited (the ``pull()`` method, specifically).
 
         """
         # Load the latent database(s).
@@ -1030,9 +1032,6 @@ class OpeniInterface(object):
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
 
         return self.records_db
-
-
-
 
 
 
