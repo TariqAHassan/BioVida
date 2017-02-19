@@ -490,9 +490,9 @@ class _CancerImgArchiveImages(object):
                                                           nest=[('tcia', 'raw'), ('tcia', 'dicoms'), ('tcia', 'databases')],
                                                           verbose=verbose)
 
-        self.ROOT_URL = root_url
-        self.dicom_modality_abbrevs = dicom_modality_abbrevs
         self.API_KEY = api_key
+        self.dicom_modality_abbrevs = dicom_modality_abbrevs
+        self.ROOT_URL = root_url
 
         # Add Record DataFrame; this database updates in real time as the images are downloaded.
         self.real_time_update_db = None
