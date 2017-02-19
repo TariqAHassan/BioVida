@@ -650,14 +650,8 @@ class _CancerImgArchiveImages(object):
             """Tool which will ensure the output is a `list`."""
             return list(to_clean) if isinstance(to_clean, (list, tuple)) else []
 
-        # Clean `current`
-        cleaned_current = cleaner(current)
-
-        # Clean `new`
-        cleaned_new = cleaner(new)
-
-        # Generate a replacement candidate
-        replacement_candidate = tuple(list(cleaned_current) + cleaned_new)
+        # Clean `current` and `new`, combine and generate a replacement candidate
+        replacement_candidate = tuple(cleaner(current) + cleaner(new))
 
         # Generate the replacement
         replacement = replacement_candidate if len(replacement_candidate) else np.NaN
