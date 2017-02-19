@@ -30,6 +30,7 @@ from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
 from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import combine_dicts
+from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
 from biovida.support_tools.printing import pandas_pprint
@@ -77,28 +78,31 @@ class _CancerImgArchiveOverview(object):
         # Extract the main summary table from the home page
         summary_df = pd.read_html(str(requests.get(self._tcia_homepage).text), header=0)[0]
 
+        # Convert column names from camelCase to snake_cake
+        summary_df.columns = list(map(camel_to_snake_case, summary_df.columns))
+
         # Drop Studies which are 'Coming Soon'.
-        summary_df = summary_df[summary_df['Status'].str.strip().str.lower() != 'coming soon']
+        summary_df = summary_df[summary_df['status'].str.strip().str.lower() != 'coming soon']
 
         # Drop Studies which are on phantoms
-        summary_df = summary_df[~summary_df['Location'].str.lower().str.contains('phantom')]
+        summary_df = summary_df[~summary_df['location'].str.lower().str.contains('phantom')]
 
         # Drop Studies which are on mice or phantoms
-        summary_df = summary_df[~summary_df['Collection'].str.lower().str.contains('mouse|phantom')]
+        summary_df = summary_df[~summary_df['collection'].str.lower().str.contains('mouse|phantom')]
 
         # Only Keep Studies which are public
-        summary_df = summary_df[summary_df['Access'].str.strip().str.lower() == 'public'].reset_index(drop=True)
+        summary_df = summary_df[summary_df['access'].str.strip().str.lower() == 'public'].reset_index(drop=True)
 
         # Add Full Name for Modalities
-        summary_df['ModalitiesFull'] = summary_df['Modalities'].map(
+        summary_df['modalities_full'] = summary_df['modalities'].map(
             lambda x: [self.dicom_modality_abbrevs.get(cln(i), i) for i in cln(x).split(", ")])
 
         # Parse the Location Column (and account for special case: 'Head-Neck').
-        summary_df['Location'] = summary_df['Location'].map(
+        summary_df['location'] = summary_df['location'].map(
             lambda x: cln(x.replace(" and ", ", ").replace("Head-Neck", "Head, Neck")).split(", "))
 
         # Convert 'Update' to Datetime
-        summary_df['Updated'] = pd.to_datetime(summary_df['Updated'], infer_datetime_format=True)
+        summary_df['updated'] = pd.to_datetime(summary_df['updated'], infer_datetime_format=True)
 
         # Clean Column names
         summary_df.columns = list(map(lambda x: cln(x, extent=2), summary_df.columns))
@@ -151,18 +155,18 @@ class _CancerImgArchiveOverview(object):
                 cancer_type = "|".join(map(lambda x: cln(x).lower(), cancer_type))
             else:
                 cancer_type = cln(cancer_type).lower()
-            summary_df = summary_df[summary_df['CancerType'].str.lower().str.contains(cancer_type)]
+            summary_df = summary_df[summary_df['cancer_type'].str.lower().str.contains(cancer_type)]
 
         # Filter by `location`
         if isinstance(location, (str, list, tuple)):
             location = [location] if isinstance(location, str) else location
-            summary_df = summary_df[summary_df['Location'].map(
+            summary_df = summary_df[summary_df['location'].map(
                 lambda x: any([cln(l).lower() in i.lower() for i in x for l in location]))]
 
         def modaility_filter(x, modaility):
             """Apply filter to look for rows which match `modaility`."""
-            sdf_modalities = cln(x['Modalities']).lower()
-            sdf_modalities_full = [cln(i).lower() for i in x['ModalitiesFull']]
+            sdf_modalities = cln(x['modalities']).lower()
+            sdf_modalities_full = [cln(i).lower() for i in x['modalities_full']]
 
             if any(m in sdf_modalities for m in modality):
                 return True
@@ -220,7 +224,12 @@ class _CancerImgArchiveRecords(object):
         """
         url = '{0}/query/getPatientStudy?Collection={1}&format=csv&api_key={2}'.format(
             self.ROOT_URL, cln(study).replace(' ', self._url_sep), self.API_KEY)
-        return pd.DataFrame.from_csv(url).reset_index()
+        data_frame = pd.DataFrame.from_csv(url).reset_index()
+        
+        # Convert column names from camelCase to snake_cake
+        data_frame.columns = list(map(camel_to_snake_case, data_frame.columns))
+        
+        return data_frame
 
     def _robust_study_extract(self, study):
         """
@@ -268,29 +277,29 @@ class _CancerImgArchiveRecords(object):
         :type study: ``str``
         :return: nested dictionary of the form:
 
-                ``{PatientID: {StudyInstanceUID: {'sex': ..., 'age': ..., 'session': ..., 'StudyDate': ...}}}``
+                ``{patient_id: {study_instance_uid: {'sex': ..., 'age': ..., 'session': ..., 'study_date': ...}}}``
 
         :rtype: ``dict``
         """
         # Download a summary of all patients in a study
         study_df = self._robust_study_extract(study)
 
-        # Convert StudyDate to datetime
-        study_df['StudyDate'] = pd.to_datetime(study_df['StudyDate'], infer_datetime_format=True)
+        # Convert study_date to datetime
+        study_df['study_date'] = pd.to_datetime(study_df['study_date'], infer_datetime_format=True)
 
         # Divide Study into stages (e.g., Baseline (session 1); Baseline + 1 Month (session 2), etc.
-        stages = study_df.groupby('PatientID').apply(lambda x: self._date_index_map(x['StudyDate'].tolist())).to_dict()
+        stages = study_df.groupby('patient_id').apply(lambda x: self._date_index_map(x['study_date'].tolist())).to_dict()
 
         # Apply stages
-        study_df['Session'] = study_df.apply(lambda x: stages[x['PatientID']][x['StudyDate']], axis=1)
+        study_df['session'] = study_df.apply(lambda x: stages[x['patient_id']][x['study_date']], axis=1)
 
         # Define columns to extract from `study_df`
-        valuable_cols = ('PatientID', 'StudyInstanceUID', 'Session', 'PatientSex', 'PatientAge', 'StudyDate')
+        valuable_cols = ('patient_id', 'study_instance_uid', 'session', 'patient_sex', 'patient_age', 'study_date')
 
         # Convert to a nested dictionary
         patient_dict = dict()
         for pid, si_uid, session, sex, age, date in zip(*[study_df[c] for c in valuable_cols]):
-            inner_nest = {'sex': sex, 'age': age, 'session': session, 'StudyDate': date}
+            inner_nest = {'sex': sex, 'age': age, 'session': session, 'study_date': date}
             if pid not in patient_dict:
                 patient_dict[pid] = {si_uid: inner_nest}
             else:
@@ -304,7 +313,7 @@ class _CancerImgArchiveRecords(object):
         Harvests the Cancer Image Archive's Text Record of all baseline images for a given patient
         in a given study.
 
-        :param patient: the patientID (will be used to form the request to the TCIA server).
+        :param patient: the patient_id (will be used to form the request to the TCIA server).
         :type patient: ``str``
         :param study: a Cancer Imaging Archive collection (study).
         :type study: ``str``
@@ -312,7 +321,7 @@ class _CancerImgArchiveRecords(object):
         :type patient_dict: ``dict``
         :return: the yeild of the TCIA ``getSeries`` param for a given patient in a given collection (study).
                  Their sex, age, the session number (e.g., baseline = 1, baseline + 1 month = 2, etc.) and the 
-                 'StudyDate' (i.e., the date the study was conducted).
+                 'study_date' (i.e., the date the study was conducted).
         :rtype: ``Pandas DataFrame``
         """
         # Select an individual Patient
@@ -320,17 +329,16 @@ class _CancerImgArchiveRecords(object):
             self.ROOT_URL, cln(study).replace(' ', self._url_sep), patient, self.API_KEY)
         patient_df = pd.DataFrame.from_csv(url).reset_index()
 
-        def upper_first(s):
-            """Convert the first letter of a string, ``s``,  to uppercase."""
-            return "{0}{1}".format(s[0].upper(), s[1:])
+        # Convert column names from camelCase to snake_cake
+        patient_df.columns = list(map(camel_to_snake_case, patient_df.columns))
 
-        # Add Sex, Age, Session, and StudyDate
-        patient_info = patient_df['StudyInstanceUID'].map(
-            lambda x: {upper_first(k): patient_dict[x][k] for k in ('sex', 'age', 'session', 'StudyDate')})
+        # Add sex, age, session, and study_date
+        patient_info = patient_df['study_instance_uid'].map(
+            lambda x: {k: patient_dict[x][k] for k in ('sex', 'age', 'session', 'study_date')})
         patient_df = patient_df.join(pd.DataFrame(patient_info.tolist()))
 
-        # Add PatientID
-        patient_df['PatientID'] = patient
+        # Add patient_id
+        patient_df['patient_id'] = patient
 
         return patient_df
 
@@ -341,13 +349,13 @@ class _CancerImgArchiveRecords(object):
 
             - convert 'F' --> 'Female' and 'M' --> 'Male'
 
-            - Converts the 'Age' column to numeric (years)
+            - Converts the 'age' column to numeric (years)
 
-            - Remove line breaks in the 'ProtocolName' and 'SeriesDescription' columns
+            - Remove line breaks in the 'protocol_name' and 'series_description' columns
 
-            - Add Full name for modality (ModalityFull)
+            - Add Full name for modality (modality_full)
 
-            - Convert the 'SeriesDate' column to datetime
+            - Convert the 'series_date' column to datetime
 
         :param patient_study_df: the ``patient_study_df`` dataframe evolved inside ``_pull_records()``.
         :type patient_study_df: ``Pandas DataFrame``
@@ -355,26 +363,26 @@ class _CancerImgArchiveRecords(object):
         :rtype: ``Pandas DataFrame``
         """
         # convert 'F' --> 'female' and 'M' --> 'male'.
-        patient_study_df['Sex'] = patient_study_df['Sex'].map(
+        patient_study_df['sex'] = patient_study_df['sex'].map(
             lambda x: {'F': 'female', 'M': 'male'}.get(cln(str(x)).upper(), x), na_action='ignore')
 
-        # Convert entries in the 'Age' Column to floats.
-        patient_study_df['Age'] = patient_study_df['Age'].map(
+        # Convert entries in the 'age' Column to floats.
+        patient_study_df['age'] = patient_study_df['age'].map(
             lambda x: only_numeric(x) / 12.0 if 'M' in str(x).upper() else only_numeric(x), na_action='ignore')
 
         # Remove unneeded line break marker
-        for c in ('ProtocolName', 'SeriesDescription'):
+        for c in ('protocol_name', 'series_description'):
             patient_study_df[c] = patient_study_df[c].map(lambda x: cln(x.replace("\/", " ")), na_action='ignore')
 
         # Add the full name for modality.
-        patient_study_df['ModalityFull'] = patient_study_df['Modality'].map(
+        patient_study_df['modality_full'] = patient_study_df['modality'].map(
             lambda x: self.dicom_modality_abbrevs.get(x, np.NaN), na_action='ignore')
 
-        # Convert SeriesDate to datetime
-        patient_study_df['SeriesDate'] = pd.to_datetime(patient_study_df['SeriesDate'], infer_datetime_format=True)
+        # Convert series_date to datetime
+        patient_study_df['series_date'] = pd.to_datetime(patient_study_df['series_date'], infer_datetime_format=True)
 
         # Sort and Return
-        return patient_study_df.sort_values(by=['PatientID', 'Session']).reset_index(drop=True)
+        return patient_study_df.sort_values(by=['patient_id', 'session']).reset_index(drop=True)
 
     def _get_condition_name(self, collection_series, overview_download_override):
         """
@@ -396,7 +404,7 @@ class _CancerImgArchiveRecords(object):
         else:
             raise AttributeError("`{0}` studies found in `records`. Expected one.".format(str(len(unique_studies))))
         summary_df = self._Overview._all_studies_cache_mngt(download_override=overview_download_override)
-        return summary_df[summary_df['Collection'] == collection]['CancerType'].iloc[0]
+        return summary_df[summary_df['collection'] == collection]['cancer_type'].iloc[0]
 
     def records_pull(self, study, search_dict, query_time, overview_download_override=False, patient_limit=3):
         """
@@ -442,15 +450,15 @@ class _CancerImgArchiveRecords(object):
         patient_study_df = pd.concat(frames, ignore_index=True)
 
         # Add Study name
-        patient_study_df['StudyName'] = study
+        patient_study_df['study_name'] = study
 
         # Add the Name of the illness
-        patient_study_df['CancerType'] = self._get_condition_name(patient_study_df['Collection'],
-                                                                  overview_download_override)
+        patient_study_df['cancer_type'] = self._get_condition_name(patient_study_df['collection'],
+                                                                   overview_download_override)
 
         # Add the Search query which created the current results and the time the search was launched.
-        patient_study_df['Query'] = [search_dict] * patient_study_df.shape[0]
-        patient_study_df['QueryTime'] = [query_time] * patient_study_df.shape[0]
+        patient_study_df['query'] = [search_dict] * patient_study_df.shape[0]
+        patient_study_df['query_time'] = [query_time] * patient_study_df.shape[0]
 
         # Clean the dataframe
         self.records_df = self._clean_patient_study_df(patient_study_df)
@@ -536,9 +544,9 @@ class _CancerImgArchiveImages(object):
     def _download_zip(self, series_uid, temporary_folder, index):
         """
 
-        Downloads the zipped from from the Cancer Imaging Archive for a given 'SeriesInstanceUID' (`series_uid`).
+        Downloads the zipped from from the Cancer Imaging Archive for a given 'SeriesInstanceUID' (``series_uid``).
 
-        :param series_uid: the 'SeriesInstanceUID' needed to use TCIA's ``getImage`` parameter
+        :param series_uid: the 'series_instance_uid' needed to use TCIA's ``getImage`` parameter
         :type series_uid: ``str``
         :param temporary_folder: path to the temporary folder where the images will be (temporary) cached.
         :type temporary_folder: ``str``
@@ -564,12 +572,12 @@ class _CancerImgArchiveImages(object):
 
         This method handles the act of saving dicom images as in a more common file format (e.g., .png).
         An image (``f``) can be either 2 or 3 Dimensional.
-        
+
         Notes:
-        
+
         - 3D images will be saved as individual frames
-        
-        - if pydicom cannot render the DICOM as a pixel array, this method will its hault image extraction efforts. 
+
+        - if pydicom cannot render the DICOM as a pixel array, this method will its hault image extraction efforts.
 
         :param f: a (py)dicom image.
         :type f: ``pydicom object``
@@ -686,11 +694,11 @@ class _CancerImgArchiveImages(object):
         all_save_paths, success = self._dicom_to_standard_image(f, pull_position, conversion, new_file_name, img_format)
 
         # Update Record
-        cfp_len = self._update_and_set_list(index, 'ConvertedFilesPaths', all_save_paths, return_replacement_len=True)
-        self.real_time_update_db.set_value(index, 'ImageCountConvertedCache', cfp_len)
+        cfp_len = self._update_and_set_list(index, 'converted_files_paths', all_save_paths, return_replacement_len=True)
+        self.real_time_update_db.set_value(index, 'image_count_converted_cache', cfp_len)
 
         # Add record of whether or not the dicom file could be converted to a standard image type
-        self.real_time_update_db.set_value(index, 'ConversionSuccess', success)
+        self.real_time_update_db.set_value(index, 'conversion_success', success)
 
         # Save the data frame
         self._save_real_time_update_db()
@@ -711,7 +719,7 @@ class _CancerImgArchiveImages(object):
         :type index: ``int``
         """
         if save_dicoms is False:
-            self.real_time_update_db.set_value(index, 'RawDicomFilesPaths', np.NaN)
+            self.real_time_update_db.set_value(index, 'raw_dicom_files_paths', np.NaN)
             return None
 
         new_dircom_paths = list()
@@ -728,7 +736,7 @@ class _CancerImgArchiveImages(object):
             os.rename(f, new_location)
 
         # Update the save dataframe
-        self.real_time_update_db.set_value(index, 'RawDicomFilesPaths', tuple(new_dircom_paths))
+        self.real_time_update_db.set_value(index, 'raw_dicom_files_paths', tuple(new_dircom_paths))
 
         # Save the data frame.  Note: if python crashes or the session ends before the above loop completes,
         # information on the partial transfer will be lost.
@@ -798,9 +806,9 @@ class _CancerImgArchiveImages(object):
 
         :param allowed_modalities: see: ``pull_img()``
         :type allowed_modalities: ``list``, ``tuple`` or ``None``.
-        :param modality: a single element from the ``Modality`` column in ``self.real_time_update_db``.
+        :param modality: a single element from the ``modality`` column in ``self.real_time_update_db``.
         :type modality: ``str``
-        :param modality_full: a single element from the ``ModalityFull`` column in ``self.real_time_update_db``.
+        :param modality_full: a single element from the ``modality_full`` column in ``self.real_time_update_db``.
         :type modality_full: ``str``
         :return: whether or not the image satisfies the modaility the user is looking for.
         :rtype: ``bool``
@@ -828,7 +836,7 @@ class _CancerImgArchiveImages(object):
         :param check_cache_first: see: ``pull_img()``
         :param check_cache_first: ``bool``
         """
-        columns = ('SeriesInstanceUID', 'PatientID', 'ImageCount', 'Modality', 'ModalityFull')
+        columns = ('series_instance_uid', 'patient_id', 'image_count', 'modality', 'modality_full')
         zipped_cols = list(zip(*[self.real_time_update_db[c] for c in columns] + [pd.Series(self.real_time_update_db.index)]))
 
         for series_uid, patient_id, image_count, modality, modality_full, index in tqdm(zipped_cols):
@@ -836,9 +844,9 @@ class _CancerImgArchiveImages(object):
             valid_image = self._valid_modaility(allowed_modalities, modality, modality_full)
 
             # Add whether or not the image was of the modaility (or modailities) requested by the user.
-            self.real_time_update_db.set_value(index, 'AllowedModaility', valid_image)
+            self.real_time_update_db.set_value(index, 'allowed_modaility', valid_image)
 
-            # Compose central part of the file name from 'PatientID' and the last ten digits of 'SeriesInstanceUID'
+            # Compose central part of the file name from 'patient_id' and the last ten digits of 'series_instance_uid'
             series_abbrev = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
 
             # Analyze the cache to determine whether or not downloading the images is needed
@@ -863,10 +871,10 @@ class _CancerImgArchiveImages(object):
                 # Delete the temporary folder.
                 shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
-                self._update_and_set_list(index, 'RawDicomFilesPaths', dsl_summary)
-                self._update_and_set_list(index, 'ConvertedFilesPaths', sl_summary)
-                self.real_time_update_db.set_value(index, 'ConversionSuccess', cache_complete)
-                self.real_time_update_db.set_value(index, 'ImageCountConvertedCache', len(sl_summary))
+                self._update_and_set_list(index, 'raw_dicom_files_paths', dsl_summary)
+                self._update_and_set_list(index, 'converted_files_paths', sl_summary)
+                self.real_time_update_db.set_value(index, 'conversion_success', cache_complete)
+                self.real_time_update_db.set_value(index, 'image_count_converted_cache', len(sl_summary))
                 # Save the data frame
                 self._save_real_time_update_db()
 
@@ -882,7 +890,7 @@ class _CancerImgArchiveImages(object):
         """
 
         Pull Images from the Cancer Imaging Archive.
-        
+
         :param collection_name: name of the collection which ``records`` corresponds to.
         :type collection_name: ``str``
         :param records: the yeild from ``_CancerImgArchiveRecords().records_pull()``.
@@ -907,9 +915,9 @@ class _CancerImgArchiveImages(object):
         :return: a dataframe with information about the images cached by this method.
         :rtype: ``Pandas DataFrame``
         """
-        # Notes on ImageCountConvertedCache:
+        # Notes on 'image_count_converted_cache':
         # 1. a column which provides the number of images each SeriesInstanceUID yeilded
-        # 2. values may be discrepant with the 'ImageCount' column because 3D images are expanded
+        # 2. values may be discrepant with the 'image_count' column because 3D images are expanded
         #    into their individual frames when saved to the converted images cache.
 
         # Create the temp folder if it does not already exist.
@@ -922,15 +930,15 @@ class _CancerImgArchiveImages(object):
         if isinstance(session_limit, int):
             if session_limit < 1:
                 raise ValueError("`session_limit` must be an intiger greater than or equal to 1.")
-            img_records = records[records['Session'].map(
+            img_records = records[records['session'].map(
                 lambda x: float(x) <= session_limit if pd.notnull(x) else False)].reset_index(drop=True).copy(deep=True)
 
         # Add limited record
         self.real_time_update_db = img_records
 
         # Add columns which will be populated as the images are pulled.
-        for c in ('RawDicomFilesPaths', 'ConvertedFilesPaths', 'ConversionSuccess',
-                  'AllowedModaility', 'ImageCountConvertedCache'):
+        for c in ('raw_dicom_files_paths', 'converted_files_paths', 'conversion_success',
+                  'allowed_modaility', 'image_count_converted_cache'):
             self.real_time_update_db[c] = None
 
         # Harvest images
@@ -976,13 +984,13 @@ class CancerImageInterface(object):
             self.tcia_record_db = tcia_record_db_addition.copy(deep=True)
             self.tcia_record_db.to_pickle(self._tcia_record_db_save_path)
         else:
-            duplicates_subset_columns = [c for c in self.tcia_record_db.columns if c != 'QueryTime']
+            duplicates_subset_columns = [c for c in self.tcia_record_db.columns if c != 'query_time']
             self.tcia_record_db = record_db_merge(current_record_db=self.tcia_record_db,
                                                   record_db_addition=tcia_record_db_addition,
-                                                  query_column_name='Query',
-                                                  query_time_column_name='QueryTime',
+                                                  query_column_name='query',
+                                                  query_time_column_name='query_time',
                                                   duplicates_subset_columns=duplicates_subset_columns,
-                                                  sort_on=['QueryTime', 'StudyName'],
+                                                  sort_on=['query_time', 'study_name'],
                                                   relationship_mapping_func=None)
 
             # Save to disk
@@ -1028,8 +1036,9 @@ class CancerImageInterface(object):
             self.tcia_record_db = pd.read_pickle(self._tcia_record_db_save_path)
             # Merge any latent elements in the __temp__ folder, if such a folder exists (and if it is populated).
             if os.path.isdir(self._Images.temp_directory_path):
-                if len([i for i in self._Images.temp_directory_path if i.endswith(".p")]):
-                    self._tcia_record_db_gen(tcia_record_db_addition=load_temp_dbs(self._Images.temp_directory_path))
+                latent_temps = load_temp_dbs(self._Images.temp_directory_path)
+                if latent_temps is not None:
+                    self._tcia_record_db_gen(tcia_record_db_addition=latent_temps)
                 # Delete the latent '__temp__' folder
                 shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
         else:
@@ -1061,9 +1070,9 @@ class CancerImageInterface(object):
             raise ValueError("Both `cancer_types` and `location` must be ``None`` if a `collection` name is passed.")
         elif isinstance(collection, (str, list, tuple)):
             coll = [collection] if isinstance(collection, str) else collection
-            summary_df = summary_df[summary_df['Collection'].str.lower().isin(map(lambda x: cln(x).lower(), coll))]
+            summary_df = summary_df[summary_df['collection'].str.lower().isin(map(lambda x: cln(x).lower(), coll))]
             if summary_df.shape[0] == 0:
-                raise AttributeError("No Collection with the name '{0}' could be found.".format(collection))
+                raise AttributeError("No collection with the name '{0}' could be found.".format(collection))
             else:
                 return summary_df.reset_index(drop=True)
         elif collection is not None:
@@ -1127,13 +1136,13 @@ class CancerImageInterface(object):
 
         >>> CancerImageInterface().search(cancer_type='carcinoma', location=['head', 'neck'])
         ...
-           Collection               CancerType               Modalities   Subjects    Location    Metadata  ...
+           collection               cancer_type               Modalities   Subjects    Location    Metadata  ...
         0  TCGA-HNSC  Head and Neck Squamous Cell Carcinoma  CT, MR, PT     164     [Head, Neck]    Yes     ...
 
         """
         # Note the time the search request was made
         self._query_time = datetime.now()
-        
+
         # Create the search dict.
         self._search_dict_gen(collection, cancer_type, location, modality)
 
@@ -1181,15 +1190,15 @@ class CancerImageInterface(object):
         """
         pull_success = list()
         if isinstance(collections_limit, int):
-            all_collections = self.current_search['Collection'][:collections_limit]
+            all_collections = self.current_search['collection'][:collections_limit]
         else:
-            all_collections = self.current_search['Collection']
+            all_collections = self.current_search['collection']
 
         # Loop through and download all of the studies
         record_frames = list()
         for collection in all_collections:
             if self._verbose:
-                print("\nDownloading records for the '{0}' Collection...".format(collection))
+                print("\nDownloading records for the '{0}' collection...".format(collection))
             try:
                 record_frames.append(self._Records.records_pull(study=collection,
                                                                 search_dict=self._search_dict,
@@ -1235,8 +1244,8 @@ class CancerImageInterface(object):
         img_frames = list()
         for records, collection in zip(record_frames, collection_names):
             if self._verbose:
-                print("\nObtaining images for the '{0}' Collection...".format(collection))
-            current_img_frame = self._Images.pull_img(collection_name=collection, 
+                print("\nObtaining images for the '{0}' collection...".format(collection))
+            current_img_frame = self._Images.pull_img(collection_name=collection,
                                                       records=records,
                                                       start_time=self._query_time.strftime(self._time_format),
                                                       session_limit=session_limit,
@@ -1275,7 +1284,6 @@ class CancerImageInterface(object):
 
     def pull(self,
              patient_limit=3,
-             pull_images=True,
              session_limit=1,
              collections_limit=None,
              allowed_modalities=None,
@@ -1292,7 +1300,7 @@ class CancerImageInterface(object):
 
         - Images have the following format:
 
-            ``[instance, pull_position]__[PatientID_[Last 10 Digits of SeriesUID]]__[Image Scale (D=Default)].img_format``
+            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesUID]]__[Image Scale (D=Default)].img_format``
 
         where:
 
@@ -1306,8 +1314,6 @@ class CancerImageInterface(object):
                              Patient IDs are sorted prior to this limit being imposed.
                              If ``None``, no patient_limit will be imposed. Defaults to `3`.
         :type patient_limit: ``int`` or ``None``
-        :param pull_images: if ``True`` download images. Defaults to ``True``.
-        :type pull_images: ``bool``
         :param session_limit: restrict image harvesting to the first ``n`` imaging sessions (days) for a given patient,
                               where ``n`` is the value passed to this parameter. If ``None``, no limit will be imposed.
                               Defaults to `1`.
@@ -1320,7 +1326,8 @@ class CancerImageInterface(object):
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
                                    This parameter is not case sensitive. Defaults to ``None``.
         :type allowed_modalities: ``list`` or ``tuple``
-        :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
+        :param img_format: format for the image, e.g., 'png', 'jpg', etc. If ``None``, images will not be downloaded.
+                           Defaults to 'png'.
         :type img_format: ``str``
         :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.
         :type save_dicoms: ``bool``
@@ -1354,7 +1361,7 @@ class CancerImageInterface(object):
             warn("\nThe following collections failed to download:\n{0}".format(list_to_bulletpoints(download_failures)))
 
         # Download the images for all of the studies
-        if pull_images:
+        if isinstance(img_format, str):
             final_frames = self._pull_images(record_frames=record_frames,
                                              collection_names=download_successes,
                                              session_limit=session_limit,
@@ -1368,8 +1375,9 @@ class CancerImageInterface(object):
         # Concatenate
         self.current_db = pd.concat(final_frames, ignore_index=True)
 
-        # Update the record
-        self._tcia_record_db_handler()
+        # Update the image record if and only if a request was also made for images.
+        if isinstance(img_format, str):
+            self._tcia_record_db_handler()
 
         return self.current_db
 
