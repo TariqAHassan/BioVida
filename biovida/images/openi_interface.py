@@ -559,8 +559,8 @@ class _OpeniRecords(object):
         data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
         # Run Feature Extracting Tool and Join with `data_frame`.
-        # pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
-        # data_frame = data_frame.join(pp, how='left')
+        pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
+        data_frame = data_frame.join(pp, how='left')
 
         # Add the full name for modalities (before the 'image_modality_major' values are altered below).
         data_frame['modality_full'] = data_frame['image_modality_major'].map(
