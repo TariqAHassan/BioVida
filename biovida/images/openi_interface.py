@@ -860,7 +860,6 @@ class OpeniInterface(object):
                                         query_column_name='query',
                                         query_time_column_name='query_time',
                                         duplicates_subset_columns=duplicates_subset_columns,
-                                        sort_on=None,
                                         post_concat_mapping=('uid_instance', 'uid', resetting_label),
                                         relationship_mapping_func=_img_relation_map)
 

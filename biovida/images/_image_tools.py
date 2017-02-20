@@ -198,7 +198,6 @@ def record_db_merge(current_record_db,
                     query_column_name,
                     query_time_column_name,
                     duplicates_subset_columns,
-                    sort_on=None,
                     post_concat_mapping=None,
                     columns_with_iterables_to_sort=None,
                     relationship_mapping_func=None):
@@ -217,8 +216,6 @@ def record_db_merge(current_record_db,
     :type query_time_column_name: ``str``
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
     :type duplicates_subset_columns: ``list`` or ``tuple``
-    :param sort_on: the column, or list (or tuple) of columns to sort the dataframe by before returning.
-    :type sort_on: ``str``, ``iterable`` or ``None``
     :param post_concat_mapping: a list (or tuple) of the form (new column name, column to apply the func to, func).
     :type post_concat_mapping: ``list`` or ``tuple``
     :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
@@ -231,6 +228,9 @@ def record_db_merge(current_record_db,
     """
     # Load in the current database and combine with the `record_db_addition` database
     combined_dbs = pd.concat([current_record_db, record_db_addition], ignore_index=True)
+
+    # Mark each row to conserve order following ``pandas.drop_duplicates()``.
+    combined_dbs['temp_order'] = range(combined_dbs.shape[0])
     
     # Apply post merge mapping
     if isinstance(post_concat_mapping, (list, tuple)) and len(post_concat_mapping) == 3:
@@ -258,17 +258,15 @@ def record_db_merge(current_record_db,
     # Convert the 'query_column_name' dicts back to dictionaries
     combined_dbs[query_column_name] = combined_dbs[query_column_name].map(dict, na_action='ignore')
 
-    # Save to class instance
-    if sort_on is not None:
-        current_record_db = combined_dbs.sort_values(sort_on)
-    else:
-        current_record_db = combined_dbs
+    # Sort
+    combined_dbs = combined_dbs.sort_values('temp_order')
+    del combined_dbs['temp_order']
 
     # Map relationships in the dataframe.
     if relationship_mapping_func is not None:
-        current_record_db = relationship_mapping_func(current_record_db)
+        combined_dbs = relationship_mapping_func(combined_dbs)
 
-    return current_record_db.reset_index(drop=True)
+    return combined_dbs.reset_index(drop=True)
 
 
 

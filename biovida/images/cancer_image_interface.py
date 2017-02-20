@@ -1008,13 +1008,12 @@ class CancerImageInterface(object):
             duplicates_subset_columns = [c for c in self.tcia_cache_record_db.columns if c != 'query_time']
             columns_with_iterables_to_sort = ('converted_files_paths', 'raw_dicom_files_paths')
             self.tcia_cache_record_db = record_db_merge(current_record_db=self.tcia_cache_record_db,
-                                                  record_db_addition=tcia_cache_record_db_addition,
-                                                  query_column_name='query',
-                                                  query_time_column_name='query_time',
-                                                  duplicates_subset_columns=duplicates_subset_columns,
-                                                  sort_on=['query_time', 'study_name'],
-                                                  columns_with_iterables_to_sort=columns_with_iterables_to_sort,
-                                                  relationship_mapping_func=None)
+                                                        record_db_addition=tcia_cache_record_db_addition,
+                                                        query_column_name='query',
+                                                        query_time_column_name='query_time',
+                                                        duplicates_subset_columns=duplicates_subset_columns,
+                                                        columns_with_iterables_to_sort=columns_with_iterables_to_sort,
+                                                        relationship_mapping_func=None)
 
             # Save to disk
             self.tcia_cache_record_db.to_pickle(self._tcia_cache_record_db_save_path)
