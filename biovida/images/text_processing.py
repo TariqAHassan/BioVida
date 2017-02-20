@@ -211,6 +211,41 @@ def _patient_age_guess(history, abstract, image_caption, image_mention):
     else:
         return None
 
+def _imaging_technology_guess_info():
+    """
+
+    :return:
+    """
+    terms_dict = {
+        # format: {abbreviated name, ([alternative names], formal name)}
+        # Note: formal names are intended to be collinear with `biovida.images._resources.openi_parameters`'s
+        # `openi_image_type_modality_full` dictionary.
+        "ct": (['ct ', 'ct:', 'ct-', ' ct', ' ct ', '(ct)',
+                'computed tomography', '(ct)'], 'Computed Tomography (CT)'),
+        "mri": (['mr ', ' mr ', 'mri ', 'mri:', 'mri-', ' mri', ' mri ', '(mri)',
+                 'magnetic resonance imaging'], 'Magnetic Resonance Imaging (MRI)'),
+        "pet": ([' pet', 'pet ', 'pet:', 'pet-', ' pet', ' pet ', '(pet)',
+                 'positron emission tomography'], 'Positron Emission Tomography (PET)'),
+        "photograph": ([], 'Photograph'),
+        "ultrasound": ([], 'Ultrasound'),
+        "x-ray": (['xray'], 'X-Ray')
+    }
+
+    modality_subtypes = {
+        'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'],
+               ['non-contrast', 'non contrast', 'w/o contrast'],
+               ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']],
+        'mri': [[' gadolinium ', ' gad '], ['post-gadolinium', 'post-gad', 'post gad '], ['t1'], ['t2'], ['flair'],
+                ['localizer'], ['diffusion weighted', ' dwi '], ['diffusion tensor', ' dti ']],
+        'x-ray': [['chest'], ['abdomen', 'abdominal']]
+    }
+
+    contraditions = [['t1', 't2'], ['non-contrast', 'contrast-enhanced'],
+                     ['gadolinium', 'post-gadolinium'], ['chest', 'abdomen'],
+                     ['head', 'spinal'], ['chest', 'head']]
+
+    return terms_dict, modality_subtypes, contraditions
+
 
 def _imaging_technology_guess(abstract, image_caption, image_mention):
     """
@@ -226,23 +261,36 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
     :return: imaging modality.
     :rtype: ``str`` or ``None``
     """
-    # format: {abbreviated name, ([alternative names], formal name)}
-    # Note: formal names are intended to be colinear with `biovida.images._resources.openi_parameters`'s
-    # `openi_image_type_modality_full` dictionary.
-    terms_dict = {" ct ": (['ct ', ' ct', 'computed tomography', '(ct)'], 'Computed Tomography (CT)'),
-                  "mri": (['magnetic resonance imaging'], 'Magnetic Resonance Imaging (MRI)'),
-                  " pet ": ([' pet', 'pet ', 'positron emission tomography', '(pet)'], 'Positron Emission Tomography (PET)'),
-                  "photograph": ([], 'Photograph'),
-                  "ultrasound": ([], 'Ultrasound'),
-                  "x-ray": (['xray'], 'X-Ray')}
+    terms_dict, modality_subtypes, contraditions = _imaging_technology_guess_info()
+
+    def drop_contraditions(matches):
+        """Check for and eliminate invalid contraditions."""
+        # Eliminate Contraditions
+        for c in contraditions:
+            if all(i in matches for i in c):
+                matches = [m for m in matches if m not in c]
+        return matches
+
+    def complete_modality(source_, modality_short, modality_long):
+        """Combine `terms_dict` and `modality_subtypes`."""
+        if modality_short in modality_subtypes:
+            matches = [cln(m[0]) for m in modality_subtypes[modality_short] if any(i in source_ for i in m)]
+            matches_without_contraditions = drop_contraditions(matches)
+            if len(matches_without_contraditions):
+                return "{0}: {1}".format(modality_long, "; ".join(sorted(matches_without_contraditions)))
+            else:
+                return modality_long
+        else:
+            return modality_long
 
     # Loop though and look for matches
     matches = set()
     for source in (image_caption, image_mention, abstract):
         if isinstance(source, str):
-            for k, v in terms_dict.items():
-                if k in source.lower() or any(i in source.lower() for i in v[0]):
-                    matches.add(v[1])
+            source = cln(source).lower()
+            for modality_shorthand, (modality_aliases, modality_formal) in terms_dict.items():
+                if any(i in source for i in modality_aliases):
+                    matches.add(complete_modality(source, modality_shorthand, modality_formal))
             if len(matches):
                 break
 
