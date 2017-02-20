@@ -226,19 +226,23 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
     :return: imaging modality.
     :rtype: ``str`` or ``None``
     """
-    # {abbreviated name, [alternative names]}
-    terms_dict = {"ct": ['computed topography'],
-                  "mri": ['magnetic resonance imaging'],
-                  "x-ray": ['xray'],
-                  "ultrasound": []}
+    # format: {abbreviated name, ([alternative names], formal name)}
+    # Note: formal names are intended to be colinear with `biovida.images._resources.openi_parameters`'s
+    # `openi_image_type_modality_full` dictionary.
+    terms_dict = {"ct": (['computed topography'], 'Computed Topography (CT)'),
+                  "mri": (['magnetic resonance imaging'], 'Magnetic Resonance Imaging (MRI)'),
+                  " pet ": (['positron emission tomography', '(pet)'], 'Positron Emission Tomography (PET)'),
+                  "photograph": ([], 'Photograph'),
+                  "ultrasound": ([], 'Ultrasound'),
+                  "x-ray": (['xray'], 'X-ray')}
 
     # Loop though and look for matches
     matches = set()
     for source in (abstract, image_caption, image_mention):
         if isinstance(source, str):
             for k, v in terms_dict.items():
-                if k in source.lower() or any(i in source.lower() for i in v):
-                    matches.add(k)
+                if k in source.lower() or any(i in source.lower() for i in v[0]):
+                    matches.add(v[1])
 
     return list(matches)[0] if len(matches) == 1 else None
 
