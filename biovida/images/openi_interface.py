@@ -350,24 +350,23 @@ class _OpeniRecords(object):
 
     """
 
-    def __init__(self, root_url, date_format, download_limit, sleep_mini, verbose, req_limit=30):
+    def __init__(self, root_url, date_format, sleep_mini, verbose, req_limit=30):
         """
 
         :param root_url:                                            Suggested: 'https://openi.nlm.nih.gov'
         :param date_format:                                         Suggested: "%d/%m/%Y" (consider leaving as datatime)
-        :param download_limit:                                      Suggested: 60
         :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
         :param verbose: print additional details.                   Suggested: True
         :param req_limit: Defaults to 30.
         """
         self.root_url = root_url
         self.date_format = date_format
-        self.download_limit = download_limit
         self.sleep_mini = sleep_mini
         self.verbose = verbose
         self.req_limit = req_limit
 
         self.records_df = None
+        self.download_limit = 60  # set to reasonable default.
 
     def openi_bounds(self, total):
         """
@@ -582,15 +581,22 @@ class _OpeniRecords(object):
 
         return data_frame
 
-    def records_pull(self, search_url, to_harvest, total, query, query_time):
+    def records_pull(self, search_url, to_harvest, total, query, query_time, download_limit=None):
         """
 
         'Walk' along the search query and harvest the data.
 
         :param search_url:
+        :param to_harvest:
         :param total:
+        :param query:
+        :param query_time:
+        :param download_limit:
         :return:
         """
+        if isinstance(download_limit, int):
+            self.download_limit = download_limit
+
         # Get a list of lists with the bounds
         bounds, download_no = self.openi_bounds(total)
 
@@ -799,9 +805,6 @@ class OpeniInterface(object):
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
                        one will created. Default to ``None``, which will generate a cache in the home folder.
     :type cache_path: ``str`` or ``None``
-    :param download_limit: max. number of results to download.
-                           If ``None``, no limit will be imposed (not recommended). Defaults to 60.
-    :type download_limit: ``int``
     :param img_sleep_time: time to sleep (in seconds) between requests for images. Noise is added on each call
                            by adding a value from a normal distrubition (with mean = 0, sd = 1). Defaults to 5 seconds.
     :type img_sleep_time: ``int`` or ``float``
@@ -864,7 +867,6 @@ class OpeniInterface(object):
 
     def __init__(self
                  , cache_path=None
-                 , download_limit=60
                  , img_sleep_time=1.5
                  , date_format='%d/%m/%Y'
                  , records_sleep_mini=(5, 1.5)
@@ -891,7 +893,6 @@ class OpeniInterface(object):
 
         self._Records = _OpeniRecords(root_url=self._root_url,
                                       date_format=date_format,
-                                      download_limit=download_limit,
                                       sleep_mini=records_sleep_mini,
                                       verbose=verbose)
 
@@ -996,7 +997,7 @@ class OpeniInterface(object):
         self.current_search_total = search['current_search_total']
         self._current_search_to_harvest = search['current_search_to_harvest']
 
-    def pull(self, image_size='large', new_records_pull=True):
+    def pull(self, image_size='large', new_records_pull=True, download_limit=60):
         """
 
         Pull (i.e., download) the current search.
@@ -1012,6 +1013,9 @@ class OpeniInterface(object):
                truncate or otherwise modify ``INSTANCE.records_db`` and then download images.
 
         :type new_records_pull: ``bool``
+        :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
+                              (not recommended). Defaults to 60.
+        :type download_limit: ``int``
         :return: a DataFrame with the record information.
                  If `image_size` is not None, images will also be harvested and cached.
         :rtype: ``Pandas DataFrame``
@@ -1022,7 +1026,8 @@ class OpeniInterface(object):
                                                          to_harvest=self._current_search_to_harvest,
                                                          total=self.current_search_total,
                                                          query=self.current_query,
-                                                         query_time=self._query_time)
+                                                         query_time=self._query_time,
+                                                         download_limit=download_limit)
 
         # Pull Images
         if isinstance(image_size, str):
