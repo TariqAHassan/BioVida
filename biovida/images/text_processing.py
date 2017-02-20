@@ -172,7 +172,7 @@ def _age_marker_match(image_summary_info):
     :return: patient age.
     :rtype: ``str`` or ``None``
     """
-    age_markers = (" y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year",
+    age_markers = (" y", "yo ", " yo ", "y.o.", "y/o", "year", "-year", " - year", " -year",
                    "month old", " month old", "-month old", "months old", " months old", "-months old")
 
     # Clean the input text
