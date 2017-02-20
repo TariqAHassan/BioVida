@@ -229,7 +229,7 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
     # format: {abbreviated name, ([alternative names], formal name)}
     # Note: formal names are intended to be colinear with `biovida.images._resources.openi_parameters`'s
     # `openi_image_type_modality_full` dictionary.
-    terms_dict = {" ct ": (['ct ', ' ct', 'computed topography', '(ct)'], 'Computed Topography (CT)'),
+    terms_dict = {" ct ": (['ct ', ' ct', 'computed tomography', '(ct)'], 'Computed Tomography (CT)'),
                   "mri": (['magnetic resonance imaging'], 'Magnetic Resonance Imaging (MRI)'),
                   " pet ": ([' pet', 'pet ', 'positron emission tomography', '(pet)'], 'Positron Emission Tomography (PET)'),
                   "photograph": ([], 'Photograph'),
@@ -331,12 +331,14 @@ def _ethnicity_guess_engine(image_summary_info):
                              ('hispanic',),
                              ('asian',),
                              ('native american',),
-                             ('first nations',)]
+                             ('first nations',),
+                             ('aboriginal',)]
 
     for i in long_form_ethnicities:
         for j in i:
-            if j in image_summary_info_cln:
-                e_matches.add(i[0])
+            if j in image_summary_info_cln.lower():
+                if not ('caucasian' in e_matches and j == 'asian'):  # 'asian' is a substring in 'caucasian'.
+                    e_matches.add(i[0])
 
     # Define short form of references to ethnicity
     short_form_ethnicities = [(' AM ', 'asian', 'male'), (' AF ', 'asian', 'female'),
@@ -417,18 +419,9 @@ def feature_extract(x):
         d = _mexpix_info_extract(x['abstract'])
 
     # ToDo: Refactor with a for loop to reduce redundancy. Test this:
-    # pairs = [('age', _patient_age_guess), ('sex', '_patient_sex_guess'), ('illness_duration', _illness_duration_guess)]
-    # for (k, func) in pairs:
-    #     d[k] = func(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
-
-    # Guess Age
-    d['age'] = _patient_age_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
-
-    # Guess Sex
-    d['sex'] = _patient_sex_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
-
-    # Guess illness duration
-    d['illness_duration'] = _illness_duration_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
+    pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration', _illness_duration_guess)]
+    for (k, func) in pairs:
+        d[k] = func(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
 
     # Guess the imaging technology used
     d['caption_imaging_tech'] = _imaging_technology_guess(x['abstract'], x['image_caption'], x['image_mention'])
