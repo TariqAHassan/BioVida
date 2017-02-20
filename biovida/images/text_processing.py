@@ -234,7 +234,7 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
                   " pet ": ([' pet', 'pet ', 'positron emission tomography', '(pet)'], 'Positron Emission Tomography (PET)'),
                   "photograph": ([], 'Photograph'),
                   "ultrasound": ([], 'Ultrasound'),
-                  "x-ray": (['xray'], 'X-ray')}
+                  "x-ray": (['xray'], 'X-Ray')}
 
     # Loop though and look for matches
     matches = set()
