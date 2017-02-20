@@ -229,7 +229,7 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
     # format: {abbreviated name, ([alternative names], formal name)}
     # Note: formal names are intended to be colinear with `biovida.images._resources.openi_parameters`'s
     # `openi_image_type_modality_full` dictionary.
-    terms_dict = {" ct ": (['ct ', ' ct', 'computed topography'], 'Computed Topography (CT)'),
+    terms_dict = {" ct ": (['ct ', ' ct', 'computed topography', '(ct)'], 'Computed Topography (CT)'),
                   "mri": (['magnetic resonance imaging'], 'Magnetic Resonance Imaging (MRI)'),
                   " pet ": ([' pet', 'pet ', 'positron emission tomography', '(pet)'], 'Positron Emission Tomography (PET)'),
                   "photograph": ([], 'Photograph'),
@@ -238,11 +238,13 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
 
     # Loop though and look for matches
     matches = set()
-    for source in (abstract, image_caption, image_mention):
+    for source in (image_caption, image_mention, abstract):
         if isinstance(source, str):
             for k, v in terms_dict.items():
                 if k in source.lower() or any(i in source.lower() for i in v[0]):
                     matches.add(v[1])
+            if len(matches):
+                break
 
     return list(matches)[0] if len(matches) == 1 else None
 
