@@ -162,7 +162,7 @@ class DisgenetInterface(object):
         else:
             return info
 
-    def pull(self, database, download_override=False, snake_case_col_names=False):
+    def pull(self, database, download_override=False, snake_case_col_names=True):
         """
 
         Pull (i.e., download) a DisGeNET Database.
