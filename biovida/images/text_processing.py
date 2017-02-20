@@ -176,7 +176,7 @@ def _age_marker_match(image_summary_info):
                    "month old", " month old", "-month old", "months old", " months old", "-months old")
 
     # Clean the input text
-    cleaned_input = _patient_age_guess_abstract_clean(image_summary_info)
+    cleaned_input = _patient_age_guess_abstract_clean(image_summary_info).lower()
 
     # Check abstract
     if len(cleaned_input):
