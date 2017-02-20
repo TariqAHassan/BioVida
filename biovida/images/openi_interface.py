@@ -22,6 +22,7 @@ from collections import Counter
 from biovida.images._image_tools import load_temp_dbs
 from biovida.images._image_tools import NoResultsFound
 from biovida.images._image_tools import record_db_merge
+from biovida.images._image_tools import resetting_label
 
 # Open i Support tools
 from biovida.images._openi_support_tools import iter_join
@@ -576,6 +577,9 @@ class _OpeniRecords(object):
             lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore'
         )
 
+        # Label the number of instance of repeating 'uid's.
+        data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
+
         # Replace 'Not Available' with NaN
         data_frame = data_frame.replace({'[nN]ot [aA]vailable.?': np.NaN}, regex=True)
 
@@ -857,6 +861,7 @@ class OpeniInterface(object):
                                         query_time_column_name='query_time',
                                         duplicates_subset_columns=duplicates_subset_columns,
                                         sort_on=None,
+                                        post_concat_mapping=('uid_instance', 'uid', resetting_label),
                                         relationship_mapping_func=_img_relation_map)
 
         # Save to disk

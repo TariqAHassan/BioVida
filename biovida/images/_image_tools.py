@@ -13,9 +13,50 @@ from tqdm import tqdm
 from scipy.misc import imread, imresize
 from skimage.color.colorconv import rgb2gray
 
+from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import items_null
+
 
 class NoResultsFound(Exception):
     pass
+
+
+def resetting_label(to_label):
+    """
+
+    Label repeats in a list.
+
+    :param to_label: a list with repeating elements.
+    :type to_label: ``tuple`` or ``list``
+    :return: a list of string of the form shown in the example below.
+    :rtype: ``list``
+
+
+    :Example:
+
+    >>> l = ['a', 'a', 'a', 'b', 'b', 'z']
+     print(_reseting_label(to_label=l))
+     ...
+     ['a_1', 'a_2', 'a_3', 'b_1', 'b_2', 'z_1']
+    """
+    def formatted_label(existing_name, label):
+        """Joins the items in `to_label` with the label number generated below."""
+        head = cln(str(existing_name)) if not items_null(existing_name) and existing_name is not None else ""
+        return "{0}_{1}".format(head, str(label))
+
+    label = 1
+    prior = to_label[0]
+    all_labels = [formatted_label(prior, label)]
+    for i in to_label[1:]:
+        if i == prior:
+            label += 1
+            all_labels.append(formatted_label(prior, label))
+        elif i != prior:
+            label = 1
+            prior = i
+            all_labels.append(formatted_label(prior, label))
+
+    return all_labels
 
 
 def dict_to_tot(d):
@@ -153,13 +194,14 @@ def load_temp_dbs(temp_db_path):
 
 
 def record_db_merge(current_record_db,
-                   record_db_addition,
-                   query_column_name,
-                   query_time_column_name,
-                   duplicates_subset_columns,
-                   sort_on=None,
-                   columns_with_iterables_to_sort=None,
-                   relationship_mapping_func=None):
+                    record_db_addition,
+                    query_column_name,
+                    query_time_column_name,
+                    duplicates_subset_columns,
+                    sort_on=None,
+                    post_concat_mapping=None,
+                    columns_with_iterables_to_sort=None,
+                    relationship_mapping_func=None):
     """
 
     Merge the existing record database with new additions.
@@ -177,6 +219,8 @@ def record_db_merge(current_record_db,
     :type duplicates_subset_columns: ``list`` or ``tuple``
     :param sort_on: the column, or list (or tuple) of columns to sort the dataframe by before returning.
     :type sort_on: ``str``, ``iterable`` or ``None``
+    :param post_concat_mapping: a list (or tuple) of the form (new column name, column to apply the func to, func).
+    :type post_concat_mapping: ``list`` or ``tuple``
     :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
                                   prior to dropping. Defaults to ``None``.
     :type columns_with_iterables_to_sort: ``list`` or ``tuple``
@@ -187,6 +231,11 @@ def record_db_merge(current_record_db,
     """
     # Load in the current database and combine with the `record_db_addition` database
     combined_dbs = pd.concat([current_record_db, record_db_addition], ignore_index=True)
+    
+    # Apply post merge mapping
+    if isinstance(post_concat_mapping, (list, tuple)) and len(post_concat_mapping) == 3:
+        column_name, column_to_extract, func = post_concat_mapping
+        combined_dbs[column_name] = func(combined_dbs[column_to_extract].tolist())
 
     # Sort by ``query_time_column_name``
     combined_dbs = combined_dbs.sort_values(query_time_column_name)

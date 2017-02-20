@@ -4,10 +4,6 @@
     ~~~~~~~~~~~~~~~
 
 """
-# ToDo:
-#     1. group images by patient. Possible to do this properly?
-
-
 # Imports
 import re
 from itertools import chain
