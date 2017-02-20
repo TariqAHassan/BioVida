@@ -229,9 +229,9 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
     # format: {abbreviated name, ([alternative names], formal name)}
     # Note: formal names are intended to be colinear with `biovida.images._resources.openi_parameters`'s
     # `openi_image_type_modality_full` dictionary.
-    terms_dict = {"ct": (['computed topography'], 'Computed Topography (CT)'),
+    terms_dict = {" ct ": (['ct ', ' ct', 'computed topography'], 'Computed Topography (CT)'),
                   "mri": (['magnetic resonance imaging'], 'Magnetic Resonance Imaging (MRI)'),
-                  " pet ": (['positron emission tomography', '(pet)'], 'Positron Emission Tomography (PET)'),
+                  " pet ": ([' pet', 'pet ', 'positron emission tomography', '(pet)'], 'Positron Emission Tomography (PET)'),
                   "photograph": ([], 'Photograph'),
                   "ultrasound": ([], 'Ultrasound'),
                   "x-ray": (['xray'], 'X-ray')}
