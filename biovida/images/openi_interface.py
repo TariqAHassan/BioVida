@@ -583,6 +583,12 @@ class _OpeniRecords(object):
         # Replace 'Not Available' with NaN
         data_frame = data_frame.replace({'[nN]ot [aA]vailable.?': np.NaN}, regex=True)
 
+        # Replace the 'Replace this - ' placeholder with NaN
+        data_frame['image_caption'] = data_frame['image_caption'].map(
+            lambda x: np.NaN if isinstance(x, str) and cln(x).lower().startswith('replace this - ') else x,
+            na_action='ignore'
+        )
+
         return data_frame
 
     def records_pull(self, search_url, to_harvest, total, query, query_time, download_limit=None):
