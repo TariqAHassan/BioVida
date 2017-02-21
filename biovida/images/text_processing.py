@@ -35,7 +35,8 @@ def _mexpix_info_extract(abstract):
 
     for k in features_dict:
         try:
-            features_dict[k] = item_extract(re.findall('<p><b>' + k + ': </b>(.*?)</p><p>', cln_abstract))
+            extract = item_extract(re.findall('<p><b>' + k + ': </b>(.*?)</p><p>', cln_abstract))
+            features_dict[k] = extract.lower() if k == 'Diagnosis' else extract
         except:
             pass
 
@@ -238,7 +239,7 @@ def _imaging_technology_guess_info():
                ['non-contrast', 'non contrast', 'noncontrast', 'w/o contrast'],
                ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']],
         'mri': [[' gadolinium ', ' gad '], ['post-gadolinium', 'post-gad', 'post gad '], ['t1'], ['t2'], ['flair'],
-                ['localizer'], ['diffusion weighted', ' dwi '], ['diffusion tensor', ' dti ']],
+                ['localizer'], [' dwi ', 'diffusion weighted'], [' dti ', 'diffusion tensor']],
         'x-ray': [['chest'], ['abdomen', 'abdominal']]
     }
 
@@ -471,15 +472,18 @@ def extract_enumerations(input_str):
     :return: enumerations present in `input_str`.
     :rtype: ``list``
     """
-    # Clean the input and add a marker to the end
-    cleaned_input = cln(input_str, extent=2).replace("-", "").lower() + ")"
+    # Clean the input
+    cleaned_input = cln(input_str, extent=2).replace("-", "").lower()
 
     # Define a list to populate
     enumerations = list()
 
     # Markers which denote the possible presence of an enumeration.
     markers_left = ("(", "[")
-    markers_right = (")", "]")
+    markers_right = ('.', ")", "]")
+
+    # Add a marker to the end of `cleaned_input`
+    cleaned_input = cleaned_input + ")" if cleaned_input[-1] not in markers_right else cleaned_input
 
     # Candidate enumeration
     candidate = ''
@@ -568,7 +572,32 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
     return tuple(features) if len(features) else None
 
 
-def feature_extract(x):
+def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseases):
+    """
+
+    Search `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
+
+    :param title:
+    :param abstract:
+    :param image_caption:
+    :param image_mention:
+    :param list_of_diseases: see ``feature_extract``.
+    :type list_of_diseases: ``list``
+    :return:
+    :rtype: ``str`` or ``None``
+    """
+    possible_diseases = list()
+    for source in (title, image_caption, image_mention, abstract):
+        souce = cln(source).lower()
+        for d in list_of_diseases:
+            if d in source:
+                possible_diseases.append(d)
+        if len(possible_diseases):  # break to prevent a later source contradicting a former one.
+            break
+    return possible_diseases[0] if len(possible_diseases) == 1 else None
+
+
+def feature_extract(x, list_of_diseases):
     """
 
     Tool to extract text features from patient summaries.
@@ -590,14 +619,20 @@ def feature_extract(x):
               ``df.apply(feature_extract, axis=1)``. The dataframe must contain
               'abstract' and 'journal_title' columns.
     :type x: ``Pandas Series``
+    :param list_of_diseases: a list of diseases (preferably via
+    ``DiseaseOntInterface(cache_path=cache_path).pull()['name'].tolist()``)
+    :type list_of_diseases: ``list``
     :return: dictionary with the following keys: 'diagnosis', 'history', 'findings', 'sex' and 'age'.
     :rtype: ``dict``
     """
+    # Initialize
     d = dict.fromkeys(['Diagnosis', 'History', 'Findings'], None)
 
-    # ToDo: expand Diagnosis information harvesting to other sources.
     if 'medpix' in x['journal_title'].lower():
         d = _mexpix_info_extract(x['abstract'])
+    else:
+        d['Diagnosis'] = _disease_guess(x['title'], x['abstract'], x['image_caption'],
+                                        x['image_mention'], list_of_diseases)
 
     pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration', _illness_duration_guess)]
     for (k, func) in pairs:
