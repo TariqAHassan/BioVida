@@ -19,6 +19,11 @@ from biovida.images._openi_support_tools import multiple_decimal_remove
 from biovida.support_tools.support_tools import cln
 
 
+# ----------------------------------------------------------------------------------------------------------
+# MedPix
+# ----------------------------------------------------------------------------------------------------------
+
+
 def _mexpix_info_extract(abstract):
     """
 
@@ -41,6 +46,11 @@ def _mexpix_info_extract(abstract):
             pass
 
     return features_dict
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Patient's Sex
+# ----------------------------------------------------------------------------------------------------------
 
 
 def _patient_sex_extract(image_summary_info):
@@ -93,6 +103,11 @@ def _patient_sex_guess(history, abstract, image_caption, image_mention):
                 return extract
     else:
         return None
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Patient's Age
+# ----------------------------------------------------------------------------------------------------------
 
 
 def _age_refine(age_list, upper_age_bound=130):
@@ -214,148 +229,9 @@ def _patient_age_guess(history, abstract, image_caption, image_mention):
         return None
 
 
-def _imaging_technology_guess_info():
-    """
-
-    :return:
-    """
-    terms_dict = {
-        # format: {abbreviated name, ([alternative names], formal name)}
-        # Note: formal names are intended to be collinear with `biovida.images._resources.openi_parameters`'s
-        # `openi_image_type_modality_full` dictionary.
-        "ct": (['ct ', 'ct:', 'ct-', ' ct', ' ct ', '(ct)',
-                'computed tomography', '(ct)'], 'Computed Tomography (CT)'),
-        "mri": (['mr ', ' mr ', 'mri ', 'mri:', 'mri-', ' mri', ' mri ', '(mri)',
-                 'magnetic resonance imaging'], 'Magnetic Resonance Imaging (MRI)'),
-        "pet": ([' pet', 'pet ', 'pet:', 'pet-', ' pet', ' pet ', '(pet)',
-                 'positron emission tomography'], 'Positron Emission Tomography (PET)'),
-        "photograph": ([], 'Photograph'),
-        "ultrasound": ([], 'Ultrasound'),
-        "x-ray": (['xray'], 'X-Ray')
-    }
-
-    modality_subtypes = {
-        'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'], ['segmentation']
-               ['non-contrast', 'non contrast', 'noncontrast', 'w/o contrast'],
-               ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']],
-        'mri': [[' gadolinium ', ' gad '], ['post-gadolinium', 'post-gad', 'post gad '], ['t1'], ['t2'], ['flair'],
-                ['localizer'], [' dwi ', 'diffusion weighted'], [' dti ', 'diffusion tensor']],
-        'x-ray': [['chest'], ['abdomen', 'abdominal']]
-    }
-
-    contraditions = [['t1', 't2'], ['non-contrast', 'contrast-enhanced'],
-                     ['gadolinium', 'post-gadolinium'], ['chest', 'abdomen'], ['head', 'abdomen'],
-                     ['spinal', 'abdomen'], ['head', 'spinal'], ['chest', 'head']]
-
-    return terms_dict, modality_subtypes, contraditions
-
-
-def _imaging_technology_guess(abstract, image_caption, image_mention):
-    """
-
-    Guess the imaging technology (modality) used to take the picture.
-
-    :param abstract: a text abstract.
-    :type abstract: ``str``
-    :param image_caption: an element from the 'image_caption' column.
-    :type image_caption: ``str``
-    :param image_mention: an element from the 'image_mention' column.
-    :type image_mention: ``str``
-    :return: imaging modality.
-    :rtype: ``str`` or ``None``
-    """
-    terms_dict, modality_subtypes, contraditions = _imaging_technology_guess_info()
-
-    def drop_contraditions(matches):
-        """Check for and eliminate invalid contraditions."""
-        for c in contraditions:
-            if all(i in matches for i in c):
-                matches = [m for m in matches if m not in c]
-        return matches
-
-    def complete_modality(source_, modality_short, modality_long):
-        """Combine `terms_dict` and `modality_subtypes`."""
-        if modality_short in modality_subtypes:
-            matches = [cln(m[0]) for m in modality_subtypes[modality_short] if any(i in source_ for i in m)]
-            matches_without_contraditions = drop_contraditions(matches)
-            if len(matches_without_contraditions):
-                return "{0}: {1}".format(modality_long, "; ".join(sorted(matches_without_contraditions)))
-            else:
-                return modality_long
-        else:
-            return modality_long
-
-    # Loop though and look for matches
-    matches = set()
-    for source in (image_caption, image_mention, abstract):
-        if isinstance(source, str):
-            source = cln(source).lower()
-            for modality_shorthand, (modality_aliases, modality_formal) in terms_dict.items():
-                if any(i in source for i in modality_aliases):
-                    matches.add(complete_modality(source, modality_shorthand, modality_formal))
-            if len(matches):
-                break
-
-    return list(matches)[0] if len(matches) == 1 else None
-
-
-def _illness_duration_guess_engine(image_summary_info):
-    """
-
-    Engine to search through the possible ways illness duration information could be represented.
-
-    :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
-                                or 'image_mention'.
-    :type image_summary_info: ``str``
-    :return: the best guess for the length of the illness.
-    :rtype: ``float`` or ``None``.
-    """
-    cleaned_source = cln(image_summary_info.replace("-", " "), extent=1)
-
-    match_terms = [('month history of', 'm'), ('year history of', 'y')]
-    hist_matches = [(re.findall(r"\d*\.?\d+ (?=" + t + ")", cleaned_source), u) for (t, u) in match_terms]
-
-    def time_adj(mt):
-        if len(mt[0]) == 1:
-            cleaned_date = re.sub("[^0-9.]", "", cln(mt[0][0], extent=2)).strip()
-            if cleaned_date.count(".") > 1:
-                return None
-            if mt[1] == 'y':
-                return float(cleaned_date)
-            elif mt[1] == 'm':
-                return float(cleaned_date) / 12.0
-        else:
-            return None
-
-    # Filter invalid extracts
-    durations = list(filter(None, map(time_adj, hist_matches)))
-
-    return durations[0] if len(durations) == 1 else None
-
-
-def _illness_duration_guess(history, abstract, image_caption, image_mention):
-    """
-
-    Guess the duration of an illness.
-
-    :param history: history extract from the abstract of a MedPix image.
-    :type history: ``str``
-    :param abstract: a text abstract.
-    :type abstract: ``str``
-    :param image_caption: an element from the 'image_caption' column.
-    :type image_caption: ``str``
-    :param image_mention: an element from the 'image_mention' column.
-    :type image_mention: ``str``
-    :return:
-    :rtype: ``float`` or ``None``
-    """
-    for source in (history, abstract, image_caption, image_mention):
-        if isinstance(source, str):
-            duration_guess = _illness_duration_guess_engine(source)
-            if isinstance(duration_guess, float):
-                return duration_guess
-    else:
-        return None
+# ----------------------------------------------------------------------------------------------------------
+# Patient's Ethnicity
+# ----------------------------------------------------------------------------------------------------------
 
 
 def _ethnicity_guess_engine(image_summary_info):
@@ -441,6 +317,195 @@ def _ethnicity_guess(history, abstract, image_caption, image_mention):
         return None, None
 
 
+# ----------------------------------------------------------------------------------------------------------
+# Patient's Disease
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseases):
+    """
+
+    Search `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
+
+    :param title:
+    :param abstract:
+    :param image_caption:
+    :param image_mention:
+    :param list_of_diseases: see ``feature_extract``.
+    :type list_of_diseases: ``list``
+    :return:
+    :rtype: ``str`` or ``None``
+    """
+    possible_diseases = list()
+    for source in (title, image_caption, image_mention, abstract):
+        souce = cln(source).lower()
+        for d in list_of_diseases:
+            if d in source:
+                possible_diseases.append(d)
+        if len(possible_diseases):  # break to prevent a later source contradicting a former one.
+            break
+    return possible_diseases[0] if len(possible_diseases) == 1 else None
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Illness Duration
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _illness_duration_guess_engine(image_summary_info):
+    """
+
+    Engine to search through the possible ways illness duration information could be represented.
+
+    :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
+                                or 'image_mention'.
+    :type image_summary_info: ``str``
+    :return: the best guess for the length of the illness.
+    :rtype: ``float`` or ``None``.
+    """
+    cleaned_source = cln(image_summary_info.replace("-", " "), extent=1)
+
+    match_terms = [('month history of', 'm'), ('year history of', 'y')]
+    hist_matches = [(re.findall(r"\d*\.?\d+ (?=" + t + ")", cleaned_source), u) for (t, u) in match_terms]
+
+    def time_adj(mt):
+        if len(mt[0]) == 1:
+            cleaned_date = re.sub("[^0-9.]", "", cln(mt[0][0], extent=2)).strip()
+            if cleaned_date.count(".") > 1:
+                return None
+            if mt[1] == 'y':
+                return float(cleaned_date)
+            elif mt[1] == 'm':
+                return float(cleaned_date) / 12.0
+        else:
+            return None
+
+    # Filter invalid extracts
+    durations = list(filter(None, map(time_adj, hist_matches)))
+
+    return durations[0] if len(durations) == 1 else None
+
+
+def _illness_duration_guess(history, abstract, image_caption, image_mention):
+    """
+
+    Guess the duration of an illness.
+
+    :param history: history extract from the abstract of a MedPix image.
+    :type history: ``str``
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :param image_mention: an element from the 'image_mention' column.
+    :type image_mention: ``str``
+    :return:
+    :rtype: ``float`` or ``None``
+    """
+    for source in (history, abstract, image_caption, image_mention):
+        if isinstance(source, str):
+            duration_guess = _illness_duration_guess_engine(source)
+            if isinstance(duration_guess, float):
+                return duration_guess
+    else:
+        return None
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Imaging Technology (Modality)
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _imaging_technology_guess_info():
+    """
+
+    :return:
+    """
+    terms_dict = {
+        # format: {abbreviated name, ([alternative names], formal name)}
+        # Note: formal names are intended to be collinear with `biovida.images._resources.openi_parameters`'s
+        # `openi_image_type_modality_full` dictionary.
+        "ct": (['ct ', 'ct:', 'ct-', ' ct', ' ct ', '(ct)',
+                'computed tomography', '(ct)'], 'Computed Tomography (CT)'),
+        "mri": (['mr ', ' mr ', 'mri ', 'mri:', 'mri-', ' mri', ' mri ', '(mri)',
+                 'magnetic resonance imaging'], 'Magnetic Resonance Imaging (MRI)'),
+        "pet": ([' pet', 'pet ', 'pet:', 'pet-', ' pet', ' pet ', '(pet)',
+                 'positron emission tomography'], 'Positron Emission Tomography (PET)'),
+        "photograph": ([], 'Photograph'),
+        "ultrasound": ([], 'Ultrasound'),
+        "x-ray": (['xray'], 'X-Ray')
+    }
+
+    modality_subtypes = {
+        'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'], ['segmentation']
+               ['non-contrast', 'non contrast', 'noncontrast', 'w/o contrast'],
+               ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']],
+        'mri': [[' gadolinium ', ' gad '], ['post-gadolinium', 'post-gad', 'post gad '], ['t1'], ['t2'], ['flair'],
+                ['localizer'], [' dwi ', 'diffusion weighted'], [' dti ', 'diffusion tensor']],
+        'x-ray': [['chest'], ['abdomen', 'abdominal']]
+    }
+
+    contraditions = [['t1', 't2'], ['non-contrast', 'contrast-enhanced'],
+                     ['gadolinium', 'post-gadolinium'], ['chest', 'abdomen'], ['head', 'abdomen'],
+                     ['spinal', 'abdomen'], ['head', 'spinal'], ['chest', 'head']]
+
+    return terms_dict, modality_subtypes, contraditions
+
+
+def _imaging_technology_guess(abstract, image_caption, image_mention):
+    """
+
+    Guess the imaging technology (modality) used to take the picture.
+
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :param image_mention: an element from the 'image_mention' column.
+    :type image_mention: ``str``
+    :return: imaging modality.
+    :rtype: ``str`` or ``None``
+    """
+    terms_dict, modality_subtypes, contraditions = _imaging_technology_guess_info()
+
+    def drop_contraditions(matches):
+        """Check for and eliminate invalid contraditions."""
+        for c in contraditions:
+            if all(i in matches for i in c):
+                matches = [m for m in matches if m not in c]
+        return matches
+
+    def complete_modality(source_, modality_short, modality_long):
+        """Combine `terms_dict` and `modality_subtypes`."""
+        if modality_short in modality_subtypes:
+            matches = [cln(m[0]) for m in modality_subtypes[modality_short] if any(i in source_ for i in m)]
+            matches_without_contraditions = drop_contraditions(matches)
+            if len(matches_without_contraditions):
+                return "{0}: {1}".format(modality_long, "; ".join(sorted(matches_without_contraditions)))
+            else:
+                return modality_long
+        else:
+            return modality_long
+
+    # Loop though and look for matches
+    matches = set()
+    for source in (image_caption, image_mention, abstract):
+        if isinstance(source, str):
+            source = cln(source).lower()
+            for modality_shorthand, (modality_aliases, modality_formal) in terms_dict.items():
+                if any(i in source for i in modality_aliases):
+                    matches.add(complete_modality(source, modality_shorthand, modality_formal))
+            if len(matches):
+                break
+
+    return list(matches)[0] if len(matches) == 1 else None
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Image Plane
+# ----------------------------------------------------------------------------------------------------------
+
+
 def _image_plane_guess(image_caption):
     """
 
@@ -452,18 +517,23 @@ def _image_plane_guess(image_caption):
     :rtype: ``str`` or ``None``
     """
     image_caption_clean = cln(image_caption).lower()
-    planes = [p for p in ('axial', 'coronal', 'sagital') if p in image_caption_clean]
+    planes = [p for p in ('axial', 'coronal', 'sagittal') if p in image_caption_clean]
     return planes[0] if len(planes) == 1 else None
 
 
-def extract_enumerations(input_str):
+# ----------------------------------------------------------------------------------------------------------
+# Grids (inferred by the presence of enumerations in the text)
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _extract_enumerations(input_str):
     """
 
     Extracts enumerations from strings.
 
     :Example:
 
-    >>> extract_enumerations('(1a) here we see... 2. whereas here we see...')
+    >>> _extract_enumerations('(1a) here we see... 2. whereas here we see...')
     ...
     ['1a', '2']
 
@@ -503,7 +573,7 @@ def extract_enumerations(input_str):
     return enumerations
 
 
-def enumerations_test(l):
+def _enumerations_test(l):
     """
 
     Test if ``l`` is an enumeration.
@@ -542,6 +612,11 @@ def enumerations_test(l):
         return False
 
 
+# ----------------------------------------------------------------------------------------------------------
+# Image Problems (Detected by Analysing their Associated Text)
+# ----------------------------------------------------------------------------------------------------------
+
+
 def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
     """
 
@@ -565,36 +640,16 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
         features.append('arrows')
 
     # Look for grids based on the presence of enumerations in the image caption
-    enums = extract_enumerations(image_caption)
-    if enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
+    enums = _extract_enumerations(image_caption)
+    if _enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
         features.append('grids')
     
     return tuple(features) if len(features) else None
 
 
-def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseases):
-    """
-
-    Search `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
-
-    :param title:
-    :param abstract:
-    :param image_caption:
-    :param image_mention:
-    :param list_of_diseases: see ``feature_extract``.
-    :type list_of_diseases: ``list``
-    :return:
-    :rtype: ``str`` or ``None``
-    """
-    possible_diseases = list()
-    for source in (title, image_caption, image_mention, abstract):
-        souce = cln(source).lower()
-        for d in list_of_diseases:
-            if d in source:
-                possible_diseases.append(d)
-        if len(possible_diseases):  # break to prevent a later source contradicting a former one.
-            break
-    return possible_diseases[0] if len(possible_diseases) == 1 else None
+# ----------------------------------------------------------------------------------------------------------
+# Outward Facing Tool
+# ----------------------------------------------------------------------------------------------------------
 
 
 def feature_extract(x, list_of_diseases):
@@ -608,21 +663,21 @@ def feature_extract(x, list_of_diseases):
         - finding
 
     For images from all sources:
-        - sex
         - age
-        - the imaging modality mentioned in the image caption
-        - the plane of the image
-        - image problems (arrows and grids) inferred from the image caption
+        - sex
+        - duration of illness ('illness_duration')
+        - the imaging modality mentioned in the image caption ('caption_imaging_modality')
+        - the plane of the image ('image_plane')
+        - image problems (arrows and grids) inferred from the image caption ('image_problems_from_text')
         - ethnicity
 
     :param x: series passed though Pandas' `DataFrame().apply()` method, e.g.,
               ``df.apply(feature_extract, axis=1)``. The dataframe must contain
               'abstract' and 'journal_title' columns.
     :type x: ``Pandas Series``
-    :param list_of_diseases: a list of diseases (preferably via
-    ``DiseaseOntInterface(cache_path=cache_path).pull()['name'].tolist()``)
+    :param list_of_diseases: a list of diseases (e.g., via ``DiseaseOntInterface(cache_path=cache_path).pull()['name'].tolist()``)
     :type list_of_diseases: ``list``
-    :return: dictionary with the following keys: 'diagnosis', 'history', 'findings', 'sex' and 'age'.
+    :return: dictionary with the following keys listed in the description.
     :rtype: ``dict``
     """
     # Initialize
@@ -644,7 +699,7 @@ def feature_extract(x, list_of_diseases):
     # Guess image plane
     d['image_plane'] = _image_plane_guess(x['image_caption'])
 
-    # Use the image capation to detect problems in the image
+    # Use the image caption to detect problems in the image
     d['image_problems_from_text'] = _problematic_image_features(x['image_caption'])
 
     # Guess Ethnicity
@@ -657,12 +712,6 @@ def feature_extract(x, list_of_diseases):
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
-
-
-
-
-
-
 
 
 
