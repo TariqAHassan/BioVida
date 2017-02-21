@@ -6,6 +6,7 @@
 """
 # Imports
 import re
+import string
 from itertools import chain
 
 # Image Support Tools
@@ -471,14 +472,14 @@ def extract_enumerations(input_str):
     :rtype: ``list``
     """
     # Clean the input and add a marker to the end
-    cleaned_input = cln(input_str, extent=2).replace("-", "") + "."
+    cleaned_input = cln(input_str, extent=2).replace("-", "") + ")"
 
     # Define a list to populate
     enumerations = list()
 
     # Markers which denote the possible presence of an enumeration.
     markers_left = ("(", "[")
-    markers_right = ('.', ")", "]")
+    markers_right = (")", "]")
 
     # Candidate enumeration
     candidate = ''
@@ -490,12 +491,51 @@ def extract_enumerations(input_str):
         elif i not in markers_right:
             candidate += i
         elif i in markers_right:
-            if len(candidate) and len(candidate) <= 3 and all(i.isalnum() for i in candidate):
+            if len(candidate) and len(candidate) <= 2 and all(i.isalnum() for i in candidate):
                 if sum(1 for c in candidate if c.isdigit()) <= 2 and sum(1 for c in candidate if c.isalpha()) <= 3:
                     enumerations.append(candidate)
             candidate = ''
 
     return enumerations
+
+
+def enumerations_test(l):
+    """
+
+    Test if ``l`` is an enumeration.
+
+    :param l: a list of possible enumerations, e.g., ``['1', '2', '3']`` (assumed to be sorted).
+    :type l: ``list``
+    :return:
+    """
+    def alnum_check(char):
+        """
+        Check if `char` is plausibly part of an enumeration when
+        it may be part of a 'mixed' sequence, e.g., `['1', '2', '2a']`."""
+        if len(char) == 1 and char.isdigit() or char.isalpha():
+            return True
+        elif len(char) == 2 and sum(1 for i in char if i.isdigit()) == 1 and sum(1 for i in char if i.isalpha()) == 1:
+            return True
+        else:
+            return False
+
+    # Check for all 'i's, e.g., ['i', 'ii', 'iii', 'iv'] etc.
+    if all(item in ('i', 'ii', 'iii') for item in l[:3]):
+        return True
+    # Check for letter enumeration
+    elif list(l) == list(string.ascii_lowercase)[:len(l)]:
+        return True
+    # If the above check yielded a False, `l` must be junk, e.g., `['a', 'ml', 'jp']`.
+    elif all(i.isalpha() for i in l):
+        return False
+    # Check for numeric enumeration
+    elif list(l) == list(map(str, range(1, len(l) + 1))):
+        return True
+    # Check for a combination
+    elif all(alnum_check(i) for i in l):
+        return True
+    else:
+        return False
 
 
 def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
@@ -517,11 +557,12 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
     features = []
     
     # Look for arrows
-    if 'arrow' in image_caption:
+    if any(i in image_caption for i in (' arrow ', ' arrow', ' arrows ', ' arrows')):
         features.append('arrows')
 
-    # Look for grids based on the presence of enumerations in the image caption,
-    if len(extract_enumerations(image_caption)) >= enumerations_grid_threshold:
+    # Look for grids based on the presence of enumerations in the image caption
+    enums = extract_enumerations(image_caption)
+    if enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
         features.append('grids')
     
     return tuple(features) if len(features) else None
@@ -569,7 +610,7 @@ def feature_extract(x):
     d['image_plane'] = _image_plane_guess(x['image_caption'])
 
     # Use the image capation to detect problems in the image
-    d['img_problems_from_text'] = _problematic_image_features(x['image_caption'])
+    d['image_problems_from_text'] = _problematic_image_features(x['image_caption'])
 
     # Guess Ethnicity
     ethnicity, eth_sex = _ethnicity_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
