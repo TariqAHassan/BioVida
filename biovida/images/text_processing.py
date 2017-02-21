@@ -211,6 +211,7 @@ def _patient_age_guess(history, abstract, image_caption, image_mention):
     else:
         return None
 
+
 def _imaging_technology_guess_info():
     """
 
@@ -233,7 +234,7 @@ def _imaging_technology_guess_info():
 
     modality_subtypes = {
         'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'],
-               ['non-contrast', 'non contrast', 'w/o contrast'],
+               ['non-contrast', 'non contrast', 'noncontrast', 'w/o contrast'],
                ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']],
         'mri': [[' gadolinium ', ' gad '], ['post-gadolinium', 'post-gad', 'post gad '], ['t1'], ['t2'], ['flair'],
                 ['localizer'], ['diffusion weighted', ' dwi '], ['diffusion tensor', ' dti ']],
@@ -265,7 +266,6 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
 
     def drop_contraditions(matches):
         """Check for and eliminate invalid contraditions."""
-        # Eliminate Contraditions
         for c in contraditions:
             if all(i in matches for i in c):
                 matches = [m for m in matches if m not in c]
@@ -439,6 +439,94 @@ def _ethnicity_guess(history, abstract, image_caption, image_mention):
         return None, None
 
 
+def _image_plane_guess(image_caption):
+    """
+
+    Guess whether the plane of the image is 'axial', 'coronal' or 'sagital'.
+
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :return: see description.
+    :rtype: ``str`` or ``None``
+    """
+    image_caption_clean = cln(image_caption).lower()
+    planes = [p for p in ('axial', 'coronal', 'sagital') if p in image_caption_clean]
+    return planes[0] if len(planes) == 1 else None
+
+
+def extract_enumerations(input_str):
+    """
+
+    Extracts enumerations from strings.
+
+    :Example:
+
+    >>> extract_enumerations('(1a) here we see... 2. whereas here we see...')
+    ...
+    ['1a', '2']
+
+    :param input_str: any string.
+    :type input_str: ``str``
+    :return: enumerations present in `input_str`.
+    :rtype: ``list``
+    """
+    # Clean the input and add a marker to the end
+    cleaned_input = cln(input_str, extent=2).replace("-", "") + "."
+
+    # Define a list to populate
+    enumerations = list()
+
+    # Markers which denote the possible presence of an enumeration.
+    markers_left = ("(", "[")
+    markers_right = ('.', ")", "]")
+
+    # Candidate enumeration
+    candidate = ''
+
+    # Walk through the cleaned string
+    for i in cleaned_input:
+        if i in markers_left:
+            candidate = ''
+        elif i not in markers_right:
+            candidate += i
+        elif i in markers_right:
+            if len(candidate) and len(candidate) <= 3 and all(i.isalnum() for i in candidate):
+                if sum(1 for c in candidate if c.isdigit()) <= 2 and sum(1 for c in candidate if c.isalpha()) <= 3:
+                    enumerations.append(candidate)
+            candidate = ''
+
+    return enumerations
+
+
+def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
+    """
+
+    Currently determines whether or not the image contains
+    arrows or grids (multiple images arranged as as a grid of images).
+
+    :param image_caption:
+    :type image_caption: ``str``
+    :param enumerations_grid_threshold: the number of enumerations required to 'believe' the image is actually a
+                                        'grid' of images, e.g., '1a. here we. 1b, rather' would suffice if this
+                                        parameter is equal to `2`.
+    :type enumerations_grid_threshold: ``int``
+    :return: information on
+    :rtype: ``tuple``
+    """
+    # Initialize
+    features = []
+    
+    # Look for arrows
+    if 'arrow' in image_caption:
+        features.append('arrows')
+
+    # Look for grids based on the presence of enumerations in the image caption,
+    if len(extract_enumerations(image_caption)) >= enumerations_grid_threshold:
+        features.append('grids')
+    
+    return tuple(features) if len(features) else None
+
+
 def feature_extract(x):
     """
 
@@ -452,6 +540,10 @@ def feature_extract(x):
     For images from all sources:
         - sex
         - age
+        - the imaging modality mentioned in the image caption
+        - the plane of the image
+        - image problems (arrows and grids) inferred from the image caption
+        - ethnicity
 
     :param x: series passed though Pandas' `DataFrame().apply()` method, e.g.,
               ``df.apply(feature_extract, axis=1)``. The dataframe must contain
@@ -466,13 +558,18 @@ def feature_extract(x):
     if 'medpix' in x['journal_title'].lower():
         d = _mexpix_info_extract(x['abstract'])
 
-    # ToDo: Refactor with a for loop to reduce redundancy. Test this:
     pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration', _illness_duration_guess)]
     for (k, func) in pairs:
         d[k] = func(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
 
     # Guess the imaging technology used
-    d['caption_imaging_tech'] = _imaging_technology_guess(x['abstract'], x['image_caption'], x['image_mention'])
+    d['caption_imaging_modality'] = _imaging_technology_guess(x['abstract'], x['image_caption'], x['image_mention'])
+
+    # Guess image plane
+    d['image_plane'] = _image_plane_guess(x['image_caption'])
+
+    # Use the image capation to detect problems in the image
+    d['img_problems_from_text'] = _problematic_image_features(x['image_caption'])
 
     # Guess Ethnicity
     ethnicity, eth_sex = _ethnicity_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
