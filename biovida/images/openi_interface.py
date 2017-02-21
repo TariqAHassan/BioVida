@@ -18,6 +18,9 @@ from copy import deepcopy
 from datetime import datetime
 from collections import Counter
 
+# Other BioVida APIs
+from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+
 # General Image Support Tools
 from biovida.images._image_tools import load_temp_dbs
 from biovida.images._image_tools import NoResultsFound
@@ -351,9 +354,10 @@ class _OpeniRecords(object):
 
     """
 
-    def __init__(self, root_url, date_format, sleep_mini, verbose, req_limit=30):
+    def __init__(self, root_url, date_format, sleep_mini, verbose, cache_path=None, req_limit=30):
         """
 
+        :param cache_path:
         :param root_url:                                            Suggested: 'https://openi.nlm.nih.gov'
         :param date_format:                                         Suggested: "%d/%m/%Y" (consider leaving as datatime)
         :param sleep_mini: (interval, sleep time in seconds)        Suggested: (2, 5)
@@ -368,6 +372,9 @@ class _OpeniRecords(object):
 
         self.records_df = None
         self.download_limit = 60  # set to reasonable default.
+
+        # Obtain a list of disease names
+        self.list_of_diseases = DiseaseOntInterface(cache_path=cache_path).pull()['name'].tolist()
 
     def openi_bounds(self, total):
         """
@@ -530,7 +537,7 @@ class _OpeniRecords(object):
 
         # Print updates
         if self.verbose:
-            print("\nNumber of Records to Download: {0} (maximum block size: {1} rows).".format(
+            print("\nNumber of Records to Download: {0} (maximum chunk size: {1} rows).".format(
                 '{:,.0f}'.format(download_no), str(self.req_limit)))
 
         for bound in tqdm(bounds_list):
@@ -559,7 +566,8 @@ class _OpeniRecords(object):
         data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
         # Run Feature Extracting Tool and Join with `data_frame`.
-        pp = pd.DataFrame(data_frame.apply(feature_extract, axis=1).tolist()).fillna(np.NaN)
+        pp = pd.DataFrame(data_frame.apply(
+            lambda x: feature_extract(x, list_of_diseases=self.list_of_diseases), axis=1).tolist()).fillna(np.NaN)
         data_frame = data_frame.join(pp, how='left')
 
         # Add the full name for modalities (before the 'image_modality_major' values are altered below).
@@ -843,7 +851,7 @@ class OpeniInterface(object):
         record_db_addition = load_temp_dbs(temp_db_path=self._Images.temp_folder)
         if record_db_addition is not None:
             # Update `self.current_record_db`.
-            self._openi_cache_record_db_handler(current_record_db=self.openi_cache_record_db,
+            self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
                                                 record_db_addition=record_db_addition)
             # Delete the latent 'databases/__temp__' folder.
             shutil.rmtree(self._openi_cache_record_db_save_path, ignore_errors=True)
@@ -851,20 +859,25 @@ class OpeniInterface(object):
     def _openi_cache_record_db_handler(self, current_record_db, record_db_addition):
         """
 
-        1. if openi_cache_record_db.p doesn't exist, simply dump ``record_db_addition``
-        2. if openi_cache_record_db.p does exist, merge with ``record_db_addition``
+        1. if cache_record_db.p doesn't exist, simply dump ``record_db_addition``
+        2. if cache_record_db.p does exist, merge with ``record_db_addition``
 
         :param current_record_db:
         :type current_record_db:
         :param record_db_addition:
         :type record_db_addition:
         """
+        def success_analysis_func(x):
+            return x['download_success'] == True
+
         if current_record_db is None and record_db_addition is None:
             raise ValueError("`current_record_db` and `record_db_addition` cannot both be None.")
         elif current_record_db is not None and record_db_addition is None:
             to_return = current_record_db
+            to_return = to_return[to_return.apply(success_analysis_func, axis=1)].reset_index(drop=True)
         elif current_record_db is None and record_db_addition is not None:
             to_return = _img_relation_map(record_db_addition)
+            to_return = to_return[to_return.apply(success_analysis_func, axis=1)].reset_index(drop=True)
         else:
             duplicates_subset_columns = [c for c in current_record_db.columns if c != 'query_time']
             to_return = record_db_merge(current_record_db=current_record_db,
@@ -872,6 +885,7 @@ class OpeniInterface(object):
                                         query_column_name='query',
                                         query_time_column_name='query_time',
                                         duplicates_subset_columns=duplicates_subset_columns,
+                                        success_analysis_func=success_analysis_func,
                                         post_concat_mapping=('uid_instance', 'uid', resetting_label),
                                         relationship_mapping_func=_img_relation_map)
 
@@ -879,7 +893,7 @@ class OpeniInterface(object):
         to_return.to_pickle(self._openi_cache_record_db_save_path)
 
         # Save to class instance
-        self.openi_cache_record_db = to_return
+        self.cache_record_db = to_return
 
     def __init__(self
                  , cache_path=None
@@ -927,9 +941,9 @@ class OpeniInterface(object):
 
         # Load the cache record database, if it exists
         if os.path.isfile(self._openi_cache_record_db_save_path):
-            self.openi_cache_record_db = pd.read_pickle(self._openi_cache_record_db_save_path)
+            self.cache_record_db = pd.read_pickle(self._openi_cache_record_db_save_path)
         else:
-            self.openi_cache_record_db = None
+            self.cache_record_db = None
 
         # Load in databases in 'databases/__temp__', if they exist
         if os.path.isdir(self._Images.temp_folder):
@@ -1052,8 +1066,8 @@ class OpeniInterface(object):
                                                        image_size=image_size,
                                                        query_time=self._query_time.strftime(self._time_format))
 
-            # Add the new records_db datafame with the existing `openi_cache_record_db`.
-            self._openi_cache_record_db_handler(current_record_db=self.openi_cache_record_db,
+            # Add the new records_db datafame with the existing `cache_record_db`.
+            self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
                                                 record_db_addition=self.records_db)
 
             # Delete the 'databases/__temp__' folder.
