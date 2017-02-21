@@ -13,6 +13,8 @@ import pandas as pd
 from warnings import warn
 from itertools import chain
 from datetime import datetime
+
+# Biovida support tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
@@ -313,18 +315,18 @@ class DiseaseOntInterface(object):
         :rtype: ``Pandas DataFrame``
         """
         save_path = os.path.join(self._created_disease_ont_dirs['disease_ontology'], "disease_ontology_db")
-        db_path = "{0}.csv".format(save_path)
+        db_path = "{0}.p".format(save_path)
         support_path = "{0}_support.p".format(save_path)
 
         if not os.path.isfile(db_path) or download_override:
             if self._verbose:
                 header("Downloading Disease Ontology Database... ")
             self._harvest(disease_ontology_db_url)
-            self.disease_db.to_csv(db_path, index=False)
+            self.disease_db.to_pickle(db_path)
             pickle.dump(self.db_date, open(support_path, "wb"))
         elif 'dataframe' not in str(type(self.disease_db)).lower():
             self.db_date = pickle.load(open(support_path, "rb"))
-            self.disease_db = pd.read_csv(db_path)
+            self.disease_db = pd.read_pickle(db_path)
 
         return self.disease_db
 

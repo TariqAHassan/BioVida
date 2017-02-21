@@ -162,7 +162,24 @@ class DisgenetInterface(object):
         else:
             return info
 
-    def pull(self, database, download_override=False, snake_case_col_names=True):
+    def _df_clean(self, data_frame):
+        """
+
+        :param data_frame:
+        :type data_frame: ``Pandas DataFrame``
+        :return:
+        :rtype: ``Pandas DataFrame``
+        """
+        # Lower to make easier to match in the future
+        data_frame['diseaseName'] = data_frame['diseaseName'].map(
+            lambda x: x.lower() if isinstance(x, str) else x, na_action='ignore')
+
+        # Rename Columns
+        data_frame.columns = list(map(camel_to_snake_case, data_frame.columns))
+
+        return data_frame
+
+    def pull(self, database, download_override=False):
         """
 
         Pull (i.e., download) a DisGeNET Database.
@@ -176,9 +193,6 @@ class DisgenetInterface(object):
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
                                   Defaults to ``False``.
         :type download_override: ``bool``
-        :param snake_case_col_names: if True, convert column names to 'snake case' (e.g., 'this_is_snake_case').
-                                     Defaults to False (which will leave the column names in `camelCase`).
-        :type snake_case_col_names: ``bool``
         :return: a DisGeNET database
         :rtype: ``Pandas DataFrame``
         """
@@ -188,7 +202,7 @@ class DisgenetInterface(object):
         db_url = _disgenet_delimited_databases[database]['url']
 
         # Save Name
-        save_name = "{0}.csv".format(db_url.split("/")[-1].split(".")[0])
+        save_name = "{0}.p".format(db_url.split("/")[-1].split(".")[0])
 
         # Save address
         save_address = os.path.join(self._created_gene_dirs['disgenet'], save_name)
@@ -197,15 +211,12 @@ class DisgenetInterface(object):
         if download_override or not os.path.isfile(save_address):
             if self._verbose:
                 header("Downloading DisGeNET Database... ", flank=False)
-            # Harvest and Save
+            # Harvest
             df = pd.read_csv(db_url, sep='\t', header=_disgenet_delimited_databases[database]['header'], compression='gzip')
-            df.to_csv(save_address, index=False)
+            # Clean and Save
+            self._df_clean(df).to_pickle(save_address)
         else:
-            df = pd.read_csv(save_address)
-
-        #  Rename Columns, if requested
-        if snake_case_col_names:
-            df.columns = list(map(camel_to_snake_case, df.columns))
+            df = pd.read_pickle(save_address)
 
         # Cache the database
         self.current_database = df
