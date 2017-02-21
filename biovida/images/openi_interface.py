@@ -707,9 +707,12 @@ class _OpeniImages(object):
 
         Harvests a single image.
 
-        :param index:
-        :param image_url:
-        :param image_save_path:
+        :param index: the row (index) that it currently being on through.
+        :param index: ``int``
+        :param image_url: URL to the image.
+        :type image_url: ``str``
+        :param image_save_path: the location to save the image.
+        :type image_save_path: ``str``
         """
         try:
             # Only download if the file does not already exist in the cache.
@@ -735,8 +738,11 @@ class _OpeniImages(object):
         Pull images based on the records dataframe
 
         :param records_df:
+        :type records_df: ``Pandas DataFrame``
         :param image_size: one of 'grid150', 'large', 'thumb' or 'thumb_large'.
         :param query_time:
+        :return: `records_df` with the addition of `converted_files_path` and `download_success` columns.
+        :rtype: ``Pandas DataFrame``
         """
         self.query_time = query_time
         self.real_time_update_db = records_df.copy(deep=True)
