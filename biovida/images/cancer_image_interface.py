@@ -397,7 +397,7 @@ class _CancerImgArchiveRecords(object):
         :param overview_download_override: see ``_CancerImgArchiveOverview()_all_studies_cache_mngt()``'s
                                            ``download_override`` param.
         :type overview_download_override: ``bool``
-        :return: the name of 
+        :return: the name of disease studied in a given collection (lower case).
         :rtype: ``str``
         """
         unique_studies = collection_series.unique()
@@ -406,7 +406,8 @@ class _CancerImgArchiveRecords(object):
         else:
             raise AttributeError("`{0}` studies found in `records`. Expected one.".format(str(len(unique_studies))))
         summary_df = self._Overview._all_studies_cache_mngt(download_override=overview_download_override)
-        return summary_df[summary_df['collection'] == collection]['cancer_type'].iloc[0]
+        condition_name = summary_df[summary_df['collection'] == collection]['cancer_type'].iloc[0]
+        return condition_name.lower() if isinstance(condition_name, str) else condition_name
 
     def records_pull(self, study, search_dict, query_time, overview_download_override=False, patient_limit=3):
         """
