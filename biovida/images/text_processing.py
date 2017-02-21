@@ -472,7 +472,7 @@ def extract_enumerations(input_str):
     :rtype: ``list``
     """
     # Clean the input and add a marker to the end
-    cleaned_input = cln(input_str, extent=2).replace("-", "") + ")"
+    cleaned_input = cln(input_str, extent=2).replace("-", "").lower() + ")"
 
     # Define a list to populate
     enumerations = list()
@@ -504,7 +504,7 @@ def enumerations_test(l):
 
     Test if ``l`` is an enumeration.
 
-    :param l: a list of possible enumerations, e.g., ``['1', '2', '3']`` (assumed to be sorted).
+    :param l: a list of possible enumerations, e.g., ``['1', '2', '3']`` (assumed to be sorted and all lower case).
     :type l: ``list``
     :return:
     """
