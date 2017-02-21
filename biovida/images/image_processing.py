@@ -675,7 +675,7 @@ class ImageProcessing(object):
         def img_validity(x):
             if not items_null(x['grayscale']) and x['grayscale'] == False and require_grayscale:
                 return False
-            # Block if the 'image_caption' column suggests the presence problem.
+            # Block if the 'image_caption' column suggests the presence of a problem.
             elif isinstance(x['image_problems_from_text'], (list, tuple)) and len(x['image_problems_from_text']):
                 return False
             else:  # ToDo: add variable img_problem_threshold (e.g., arrows and grids).

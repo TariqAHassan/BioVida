@@ -198,6 +198,7 @@ def record_db_merge(current_record_db,
                     query_column_name,
                     query_time_column_name,
                     duplicates_subset_columns,
+                    rows_to_conserve_func=None,
                     post_concat_mapping=None,
                     columns_with_iterables_to_sort=None,
                     relationship_mapping_func=None):
@@ -216,6 +217,9 @@ def record_db_merge(current_record_db,
     :type query_time_column_name: ``str``
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
     :type duplicates_subset_columns: ``list`` or ``tuple``
+    :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
+                                  in fact, present in the cahce. If not, remove it from the cache.
+    :type rows_to_conserve_func: ``function``
     :param post_concat_mapping: a list (or tuple) of the form (new column name, column to apply the func to, func).
     :type post_concat_mapping: ``list`` or ``tuple``
     :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
@@ -231,6 +235,10 @@ def record_db_merge(current_record_db,
 
     # Mark each row to conserve order following ``pandas.drop_duplicates()``.
     combined_dbs['temp_order'] = range(combined_dbs.shape[0])
+
+    # Analyze which rows to drop
+    if rows_to_conserve_func is not None:
+        combined_dbs = combined_dbs[combined_dbs.apply(rows_to_conserve_func, axis=1)]
     
     # Apply post merge mapping
     if isinstance(post_concat_mapping, (list, tuple)) and len(post_concat_mapping) == 3:
