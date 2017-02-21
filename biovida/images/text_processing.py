@@ -235,7 +235,7 @@ def _imaging_technology_guess_info():
     }
 
     modality_subtypes = {
-        'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'],
+        'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'], ['segmentation']
                ['non-contrast', 'non contrast', 'noncontrast', 'w/o contrast'],
                ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']],
         'mri': [[' gadolinium ', ' gad '], ['post-gadolinium', 'post-gad', 'post gad '], ['t1'], ['t2'], ['flair'],
@@ -244,8 +244,8 @@ def _imaging_technology_guess_info():
     }
 
     contraditions = [['t1', 't2'], ['non-contrast', 'contrast-enhanced'],
-                     ['gadolinium', 'post-gadolinium'], ['chest', 'abdomen'],
-                     ['head', 'spinal'], ['chest', 'head']]
+                     ['gadolinium', 'post-gadolinium'], ['chest', 'abdomen'], ['head', 'abdomen'],
+                     ['spinal', 'abdomen'], ['head', 'spinal'], ['chest', 'head']]
 
     return terms_dict, modality_subtypes, contraditions
 
