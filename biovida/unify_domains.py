@@ -396,6 +396,14 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
     if fuzzy_threshold is True:
         raise ValueError("`fuzzy_threshold` cannot be `True`. Please specify a specific intiger on [0, 100].")
 
+    missing_column_error_message = "`data_frame` must contain a '{0}' column." \
+                                   "Call ``_DiseaseOntologyIntegration().disease_ont_integration()``"
+
+    if 'diagnosis' not in data_frame.columns:
+        raise AttributeError(missing_column_error_message.format('diagnosis'))
+    elif 'synonym' not in data_frame.columns:
+        raise AttributeError(missing_column_error_message.format('synonym'))
+
     # Map gene-disease information onto the dataframe
     if is_int(fuzzy_threshold):
         # Use progress bar (fuzzy matching is expensive)
@@ -463,7 +471,6 @@ class _HsdnIntegration(object):
         :param data_frame:
         :return:
         """
-        # ToDo: raise error if 'synonym' not in data_frame.columns
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_symptom_dict,
                                      fuzzy_threshold=fuzzy_threshold,
@@ -515,7 +522,6 @@ class _DisgenetIntegration(object):
         :param fuzzy_threshold:
         :return:
         """
-        # ToDo: raise error if 'synonym' not in data_frame.columns
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_gene_dict,
                                      fuzzy_threshold=fuzzy_threshold,
