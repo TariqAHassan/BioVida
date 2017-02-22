@@ -531,16 +531,16 @@ def _extract_enumerations(input_str):
 
     Extracts enumerations from strings.
 
+    :param input_str: any string.
+    :type input_str: ``str``
+    :return: enumerations present in `input_str`.
+    :rtype: ``list``
+
     :Example:
 
     >>> _extract_enumerations('(1a) here we see... 2. whereas here we see...')
     ...
     ['1a', '2']
-
-    :param input_str: any string.
-    :type input_str: ``str``
-    :return: enumerations present in `input_str`.
-    :rtype: ``list``
     """
     # Clean the input
     cleaned_input = cln(input_str, extent=2).replace("-", "").lower()
@@ -658,13 +658,13 @@ def feature_extract(x, list_of_diseases):
     Tool to extract text features from patient summaries.
 
     If a MedPix® Image:
-        - diagnosis
         - history
         - finding
 
     For images from all sources:
         - age
         - sex
+        - diagnosis
         - duration of illness ('illness_duration')
         - the imaging modality mentioned in the image caption ('caption_imaging_modality')
         - the plane of the image ('image_plane')
