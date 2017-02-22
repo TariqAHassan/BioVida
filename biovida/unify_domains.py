@@ -121,7 +121,7 @@ class _ImagesInterfaceIntegration(object):
         """
         return {'OpeniInterface': self._open_i_prep, 'CancerImageInterface': self._cancer_img_prep}
 
-    def refine_and_combine(self, interfaces):
+    def integration(self, interfaces):
         """
 
         Note: classes are assumed to have a class attr called ``cache_record_db``.
@@ -239,15 +239,19 @@ class _DiseaseOntologyIntegration(object):
         """
         # Mapping from synonym to related diseases
         ont_dis_names = self.ont_synonym_dict[synonym]
+
         # Simply use the first disease name related to the synonym.
         # Note: this *assumes* that which 'name' is chosen from the list is irrelevant.
         # If the disease ontology database is not consistant, this assumption is invalid.
-        disease_info = deepcopy(self.ont_name_dict[ont_dis_name[0]])
-        # Remove the synonym from the 'synonym' key and add 'ont_dis_names', in its place.
+        disease_info = deepcopy(self.ont_name_dict[ont_dis_names[0]])
+        # Remove the synonym from the 'synonym' key and add 'ont_dis_names'
         if isinstance(disease_info['synonym'], tuple):
-            disease_info['synonym'] = tuple(set([i for i in disease_info['synonym'] if i != synonym] + [ont_dis_names]))
+            synonym_new = [i for i in disease_info['synonym'] if i != synonym] + ont_dis_names
         else:
-            disease_info['synonym'] = tuple(set([ont_dis_names]))
+            synonym_new = [ont_dis_names]
+
+        # Add to `disease_info` (and remove any possible duplicates)
+        disease_info['synonym'] = tuple(set(synonym_new))
 
         return disease_info
 
@@ -301,10 +305,11 @@ class _DiseaseOntologyIntegration(object):
         else:
             return self.empty_nest_dict
 
-    def disease_ont_integration(self, combined_df, fuzzy_threshold=False):
+    def integration(self, combined_df, fuzzy_threshold=False):
         """
 
         :param combined_df:
+        :type combined_df: ``Pandas DataFrame``
         :param fuzzy_threshold:
         :return:
         """
@@ -465,16 +470,17 @@ class _HsdnIntegration(object):
         # Create a disease-symptoms mapping
         self.disease_symptom_dict = self._disease_symptom_dict_gen(hsdn_db)
 
-    def hsdn_integration(self, data_frame, fuzzy_threshold):
+    def integration(self, data_frame, fuzzy_threshold=False):
         """
 
         :param data_frame:
+        :param fuzzy_threshold:
         :return:
         """
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_symptom_dict,
                                      fuzzy_threshold=fuzzy_threshold,
-                                     new_column_name='known_associated_symptom')
+                                     new_column_name='known_associated_symptoms')
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -515,7 +521,7 @@ class _DisgenetIntegration(object):
         # Extract the relevant information in `disgenet_df` to a dictionary.
         self.disease_gene_dict = self._disease_gene_dict_gen(disgenet_df)
 
-    def disgenet_integration(self, data_frame, fuzzy_threshold=False):
+    def integration(self, data_frame, fuzzy_threshold=False):
         """
 
         :param data_frame:
@@ -533,6 +539,31 @@ class _DisgenetIntegration(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
+def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
+    """
+
+    Tool to Unify Image Interfaces (currently ``OpeniInterface`` and ``CancerImageInterface``)
+    with Diagnostic and Genomic Data
+
+    :param interfaces:
+    :param cache_path:
+    :param verbose:
+    :param fuzzy_threshold:
+    :return:
+    """
+    # Combine Instances
+    combined_df = _ImagesInterfaceIntegration().integration(interfaces=interfaces)
+
+    # Disease Ontology
+    combined_df = _DiseaseOntologyIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+
+    # Human Symptoms Disease Network
+    combined_df = _HsdnIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+
+    # Disgenet
+    combined_df = _DisgenetIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+
+    return combined_df
 
 
 
