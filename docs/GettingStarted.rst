@@ -7,8 +7,8 @@ multiple, distinct data repositories into unified datasets which are highly amen
 
 BioVida aims to curate a broad range of biomedical information. In areas such as diagnostics and genomics, this
 involves drawing on the work of others, such as the impressive work by the Disease Ontology and DisGeNET teams.
-In the case of image data however, BioVida itself performs the 'heavy lifting' of preparing raw data from online
-sources. This is made possible by combining traditional software development approaches with recent advances
+In the case of image data however, BioVida itself performs the 'heavy lifting' involved in collecting and processing
+raw data from sources. This is made possible by combining traditional programmatic solutions with recent advances
 in machine learning, namely convolutional neural networks.
 
 The guide below provides a brief introduction to getting started with BioVida.
@@ -49,9 +49,9 @@ allowing either `TensorFlow <https://www.tensorflow.org>`__ or
 `Theano <http://deeplearning.net/software/theano/>`__ to be used as a computational backend.
 If neither is present at install time, BioVida will automatically install TensorFlow for you.
 
-2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc`` and ``pillow``, which
-can be obtained with ``$ brew install gcc`` and ``$ pip install pillow``, respectively.
-If you do not have ``homebrew`` installed (needed for ``brew``), you can download it `here <https://brew.sh>`__.
+2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc``, which can be obtained with ``$ brew install gcc``.
+If you do not have ``homebrew`` installed (needed for ``brew``), it can be installed by following the instructions
+found here `here <https://brew.sh>`__.
 
 --------------
 
