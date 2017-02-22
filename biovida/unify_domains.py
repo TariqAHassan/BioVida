@@ -7,7 +7,6 @@
 # Imports
 import numpy as np
 import pandas as pd
-
 from tqdm import tqdm
 from copy import deepcopy
 from pprint import pprint
@@ -16,6 +15,7 @@ from collections import defaultdict
 
 # Import Interfaces
 from biovida.images.openi_interface import OpeniInterface
+from biovida.diagnostics.hsdn_interface import HsdnInterface
 from biovida.genomics.disgenet_interface import DisgenetInterface
 from biovida.images.cancer_image_interface import CancerImageInterface
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
@@ -39,6 +39,8 @@ tqdm.pandas(desc='status')
 
 class _ImagesInterfaceIntegration(object):
     """
+
+    Tools to Unify BioVida Image Interfaces
 
     """
 
@@ -114,7 +116,7 @@ class _ImagesInterfaceIntegration(object):
         Generate a dictionary which maps image interface classes to
         the methods designed to handle them.
 
-        :return:
+        :return: a dictionary mapping class names to functions.
         :rtype: ``dict``
         """
         return {'OpeniInterface': self._open_i_prep, 'CancerImageInterface': self._cancer_img_prep}
@@ -138,7 +140,7 @@ class _ImagesInterfaceIntegration(object):
             func = prep_class_dict[type(class_instance).__name__]
             database = getattr(class_instance, 'cache_record_db')
             if 'DataFrame' not in str(type(database)):
-                raise ValueError("The {0} instance's '{1}' database cannot be None.".format(
+                raise ValueError("The {0} instance's '{1}' database cannot be `None`.".format(
                     type(class_instance).__name__, 'cache_record_db'))
             frames.append(func(database))
 
@@ -153,8 +155,13 @@ class _ImagesInterfaceIntegration(object):
 class _DiseaseOntologyIntegration(object):
     """
 
-    :param ontology_df: yeild of ``DiseaseOntInterface().pull()``.
-    :type ontology_df: ``Pandas DataFrame``
+    Integration of Disease Ontology information.
+
+    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
+    Default to ``None`` (which will generate a cache in the home folder).
+    :type cache_path: ``str`` or ``None``
+    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.
+    :type verbose: ``bool``
     """
 
     def _dis_ont_dict_gen(self, ontology_df):
@@ -174,7 +181,7 @@ class _DiseaseOntologyIntegration(object):
           Form ``{'synonym': ['name', 'name', ...], ...}``
 
         :param ontology_df: yeild of ``DiseaseOntInterface().pull()``
-        :type ontology_df:
+        :type ontology_df: ``Pandas DataFrame``
         :return: see method description.
         :rtype: ``tuple``
         """
@@ -204,7 +211,10 @@ class _DiseaseOntologyIntegration(object):
 
         return ont_name_dict, ont_name_dict_nest_keys, ont_synonym_dict
 
-    def __init__(self, ontology_df):
+    def __init__(self, cache_path=None, verbose=True):
+        # Load the databse
+        ontology_df = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()
+
         # Obtain dictionaries
         self.ont_name_dict, self.ont_name_dict_nest_keys, self.ont_synonym_dict = self._dis_ont_dict_gen(ontology_df)
 
@@ -215,22 +225,30 @@ class _DiseaseOntologyIntegration(object):
         self.ont_name_dict_keys = tuple(self.ont_name_dict.keys())
         self.ont_synonym_dict_keys = tuple(self.ont_synonym_dict.keys())
 
-    def _synonym_match(self, disease):
+    def _synonym_match(self, synonym):
         """
 
-        :param disease:
+        Maps a disease synonym to an actual disease name.
+        The 'synonym' key of the dictionary which is returned will have `synonym` removed
+        and will have a disease names which are mapped to `synonym` installed in its place.
+
+        :param synonym: a disease synonym.
+        :param synonym: ``str``
         :return:
+        :rtype: ``dict``
         """
-        # Simply use the first name related to the synonym.
+        # Mapping from synonym to related diseases
+        ont_dis_names = self.ont_synonym_dict[synonym]
+        # Simply use the first disease name related to the synonym.
         # Note: this *assumes* that which 'name' is chosen from the list is irrelevant.
         # If the disease ontology database is not consistant, this assumption is invalid.
-        ont_dis_name = self.ont_synonym_dict[disease][0]
-        disease_info = deepcopy(self.ont_name_dict[ont_dis_name])
-        # Remove the synonym from the 'synonym' key and add 'ont_dis_name' in its place.
+        disease_info = deepcopy(self.ont_name_dict[ont_dis_name[0]])
+        # Remove the synonym from the 'synonym' key and add 'ont_dis_names', in its place.
         if isinstance(disease_info['synonym'], tuple):
-            disease_info['synonym'] = tuple([i for i in disease_info['synonym'] if i != disease] + [ont_dis_name])
+            disease_info['synonym'] = tuple(set([i for i in disease_info['synonym'] if i != synonym] + [ont_dis_names]))
         else:
-            disease_info['synonym'] = tuple([ont_dis_name])
+            disease_info['synonym'] = tuple(set([ont_dis_names]))
+
         return disease_info
 
     def _find_disease_info_raw(self, disease):
@@ -238,22 +256,25 @@ class _DiseaseOntologyIntegration(object):
 
         Try to match the input (`disease`) to information in the Disease Ontology Database.
 
-        :param disease:
+        :param disease: a disease name.
+        :param disease: ``str``
         :return:
+        :rtype: ``dict`` or ``None``
         """
         if items_null(disease) or disease is None:
             return None
         elif disease in self.ont_name_dict:
             return self.ont_name_dict[disease]
         elif disease in self.ont_synonym_dict:
-            return self._synonym_match(disease)
+            return self._synonym_match(synonym=disease)
         else:
             return None
 
     def _find_disease_info(self, disease, fuzzy_threshold):
         """
 
-        :param disease:
+        :param disease: a disease name.
+        :param disease: ``str``
         :param fuzzy_threshold: an intiger on [0, 100].
         :type fuzzy_threshold: ``int``, `bool`, ``None``
         :return:
@@ -288,7 +309,7 @@ class _DiseaseOntologyIntegration(object):
         :return:
         """
         if fuzzy_threshold is True:
-            raise ValueError("`fuzzy_threshold` cannot be `True`. Please specify a specific intiger on [0, 100].")
+            raise ValueError("`fuzzy_threshold` cannot be `True`. Please provide a specific intiger on (0, 100].")
 
         # Extract diagnosis information using the Disease Ontology database
         if is_int(fuzzy_threshold):
@@ -296,7 +317,7 @@ class _DiseaseOntologyIntegration(object):
             disease_ontology_data = combined_df['diagnosis'].progress_map(
                 lambda x: self._find_disease_info(x, fuzzy_threshold))
         else:
-            # When `fuzzy_threshold` if off, this method is sufficently fast that a progress map is not needed
+            # When `fuzzy_threshold` if off, this method is sufficently fast that a progress bar is not needed
             disease_ontology_data = combined_df['diagnosis'].map(lambda x: self._find_disease_info(x, fuzzy_threshold))
 
         # Convert `disease_ontology_data` to a dataframe
@@ -310,6 +331,146 @@ class _DiseaseOntologyIntegration(object):
 
 
 # ----------------------------------------------------------------------------------------------------------
+# Tools to Add Data by Matching Against Disease and Disease Synonyms.
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _disease_synonym_match_battery(disease, synonyms, resource_dict, fuzzy_threshold):
+    """
+
+    Try to match ``disease`` and ``synonyms`` in ``resource_dict``
+
+    :param disease:
+    :param synonyms:
+    :param resource_dict:
+    :param fuzzy_threshold: must be an intiger for fuzzy matching to be enabled.
+    :return:
+    """
+    # Extract the keys
+    lookup_dict_keys = tuple(resource_dict.keys())
+
+    # Try disease 'as is'
+    if disease in resource_dict:
+        return resource_dict[disease]
+
+    # Search through synonyms
+    if isinstance(synonyms, tuple):
+        for s in synonyms:
+            if s in resource_dict:
+                return resource_dict[s]
+
+    # Eject if fuzzy matching is disabled
+    if not is_int(fuzzy_threshold):
+        return np.NaN
+
+    # Try Fuzzy matching on `disease`
+    disease_fuzzy_match, threshold = process.extractOne(disease, lookup_dict_keys)
+    if threshold >= fuzzy_threshold:
+        return resource_dict[disease_fuzzy_match]
+
+    # Try Fuzzy matching on `synonyms`
+    if not isinstance(synonyms, tuple):
+        return np.NaN
+    else:
+        for s in synonyms:
+            synonym_fuzzy_match, threshold = process.extractOne(s, lookup_dict_keys)
+            if threshold >= fuzzy_threshold:
+                return resource_dict[synonym_fuzzy_match]
+        else:
+            return np.NaN  # capitulate
+
+
+def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column_name):
+    """
+    
+    :param data_frame: 
+    :type data_frame: ``Pandas DataFrame``
+    :param resource_dict:
+    :type resource_dict: ``type``
+    :param fuzzy_threshold:
+    :type fuzzy_threshold: ``int``, ``False`` or ``None``
+    :param new_column_name: 
+    :type new_column_name: ``str``
+    :return: 
+    """
+    if fuzzy_threshold is True:
+        raise ValueError("`fuzzy_threshold` cannot be `True`. Please specify a specific intiger on [0, 100].")
+
+    # Map gene-disease information onto the dataframe
+    if is_int(fuzzy_threshold):
+        # Use progress bar (fuzzy matching is expensive)
+        rslt = data_frame.progress_apply(
+            lambda x: _disease_synonym_match_battery(disease=x['diagnosis'],
+                                                     synonyms=x['synonym'],
+                                                     resource_dict=resource_dict,
+                                                     fuzzy_threshold=fuzzy_threshold), axis=1)
+    else:
+        # No need for a progress bar.
+        rslt = data_frame.apply(
+            lambda x: _disease_synonym_match_battery(disease=x['diagnosis'],
+                                                     synonyms=x['synonym'],
+                                                     resource_dict=resource_dict,
+                                                     fuzzy_threshold=fuzzy_threshold), axis=1)
+
+    # Add the `rslt` series to `data_frame`
+    data_frame[new_column_name] = rslt
+
+    return data_frame
+
+
+# ----------------------------------------------------------------------------------------------------------
+# HSDN Interface (Symptomatology)
+# ----------------------------------------------------------------------------------------------------------
+
+
+class _HsdnIntegration(object):
+    """
+
+    Integration of Human Symptoms Disease Network information.
+
+    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
+    Default to ``None`` (which will generate a cache in the home folder).
+    :type cache_path: ``str`` or ``None``
+    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.
+    :type verbose: ``bool``
+    """
+
+    def _disease_symptom_dict_gen(self, hsdn_db):
+        """
+
+        Tool to create a dictionary mapping disease to symptoms.
+
+        :param hsdn_db:
+        :type hsdn_db: ``Pandas DataFrame``
+        :return: a dictionary of the form ``{disease name: [symptom, symptom, symptom, ...], ...}``
+        :rtype: ``dict``
+        """
+        d = defaultdict(list)
+        for disease, symptom in zip(hsdn_db['common_disease_name'], hsdn_db['common_symptom_term']):
+            d[disease.lower()] += [symptom.lower()]
+        return {k: tuple(v) for k, v in d.items()}
+
+    def __init__(self, cache_path=None, verbose=True):
+        # Load the HSDN database
+        hsdn_db = HsdnInterface(cache_path=cache_path, verbose=verbose).pull()
+
+        # Create a disease-symptoms mapping
+        self.disease_symptom_dict = self._disease_symptom_dict_gen(hsdn_db)
+
+    def hsdn_integration(self, data_frame, fuzzy_threshold):
+        """
+
+        :param data_frame:
+        :return:
+        """
+        # ToDo: raise error if 'synonym' not in data_frame.columns
+        return _resource_integration(data_frame=data_frame,
+                                     resource_dict=self.disease_symptom_dict,
+                                     fuzzy_threshold=fuzzy_threshold,
+                                     new_column_name='known_associated_symptom')
+
+
+# ----------------------------------------------------------------------------------------------------------
 # Disgenet Integration
 # ----------------------------------------------------------------------------------------------------------
 
@@ -317,8 +478,13 @@ class _DiseaseOntologyIntegration(object):
 class _DisgenetIntegration(object):
     """
 
-    :param disgenet_df: yeild of ``DisgenetInterface().pull('all')``.
-    :type disgenet_df: ``Pandas DataFrame``
+    Integration of DisGeNET information.
+
+    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
+    Default to ``None`` (which will generate a cache in the home folder).
+    :type cache_path: ``str`` or ``None``
+    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.
+    :type verbose: ``bool``
     """
 
     def _disease_gene_dict_gen(self, disgenet_df):
@@ -335,78 +501,30 @@ class _DisgenetIntegration(object):
             d[disease_name].append((gene_name, score))
         return {k: tuple(sorted(v, key=lambda x: x[0])) for k, v in d.items()}
 
-    def __init__(self, disgenet_df):
+    def __init__(self, cache_path=None, verbose=True):
+        # Load the database
+        disgenet_df = DisgenetInterface(cache_path=cache_path, verbose=verbose).pull('all')
+
+        # Extract the relevant information in `disgenet_df` to a dictionary.
         self.disease_gene_dict = self._disease_gene_dict_gen(disgenet_df)
-        self.disease_gene_dict_keys = tuple(self.disease_gene_dict.keys())
 
-    def _find_disease_gene_info(self, disease, synonyms, fuzzy_threshold):
+    def disgenet_integration(self, data_frame, fuzzy_threshold=False):
         """
 
-        :param disease:
-        :param synonyms:
-        :return:
-        """
-        # Try disease 'as is'
-        if disease in self.disease_gene_dict:
-            return self.disease_gene_dict[disease]
-
-        # Search through synonyms
-        if isinstance(synonyms, tuple):
-            for s in synonyms:
-                if s in self.disease_gene_dict:
-                    return self.disease_gene_dict[s]
-
-        # Eject if fuzzy matching is disabled
-        if not is_int(fuzzy_threshold):
-            return np.NaN
-
-        # Try Fuzzy matching on `disease`
-        disease_fuzzy_match, threshold = process.extractOne(disease, self.disease_gene_dict_keys)
-        if threshold >= fuzzy_threshold:
-            return self.disease_gene_dict[disease_fuzzy_match]
-
-        # Try Fuzzy matching on `synonyms`
-        if not isinstance(synonyms, tuple):
-            return np.NaN
-        else:
-            for s in synonyms:
-                synonym_fuzzy_match, threshold = process.extractOne(s, self.disease_gene_dict_keys)
-                if threshold >= fuzzy_threshold:
-                    return self.disease_gene_dict[synonym_fuzzy_match]
-            else:
-                return np.NaN
-
-    def disgenet_integration(self, combined_df, fuzzy_threshold=False):
-        """
-
-        :param combined_df:
+        :param data_frame:
         :param fuzzy_threshold:
         :return:
         """
-        # ToDo: raise error if 'synonym' not in combined_df.
-        if fuzzy_threshold is True:
-            raise ValueError("`fuzzy_threshold` cannot be `True`. Please specify a specific intiger on [0, 100].")
-
-        # Map gene-disease information onto the dataframe
-        if is_int(fuzzy_threshold):
-            # Use progress bar.
-            rslt = combined_df.progress_apply(
-                lambda x: self._find_disease_gene_info(x['diagnosis'], x['synonym'], fuzzy_threshold), axis=1)
-        else:
-            # No need for a progress bar.
-            rslt = combined_df.apply(
-                lambda x: self._find_disease_gene_info(x['diagnosis'], x['synonym'], fuzzy_threshold), axis=1)
-
-        # Add the `rslt` series to `combined_df`
-        combined_df['associated_genes'] = rslt
-
-        return combined_df
+        # ToDo: raise error if 'synonym' not in data_frame.columns
+        return _resource_integration(data_frame=data_frame,
+                                     resource_dict=self.disease_gene_dict,
+                                     fuzzy_threshold=fuzzy_threshold,
+                                     new_column_name='known_associated_genes')
 
 
 # ----------------------------------------------------------------------------------------------------------
 # Unify
 # ----------------------------------------------------------------------------------------------------------
-
 
 
 
