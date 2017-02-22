@@ -311,7 +311,7 @@ class DiseaseOntInterface(object):
         :param disease_ontology_db_url: URL to the disease ontology database in '.obo' format.
                                         Defaults to 'http://purl.obolibrary.org/obo/doid.obo'.
         :type disease_ontology_db_url: ``str``
-        :return: the Disease Ontology database as as a DataFrame.
+        :return: the Disease Ontology database as a DataFrame.
         :rtype: ``Pandas DataFrame``
         """
         save_path = os.path.join(self._created_disease_ont_dirs['disease_ontology'], "disease_ontology_db")
