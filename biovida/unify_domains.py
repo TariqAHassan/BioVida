@@ -4,42 +4,29 @@
     ~~~~~~~~~~~~~~~~~~
 
 """
+# Imports
 import numpy as np
 import pandas as pd
+
 from tqdm import tqdm
 from copy import deepcopy
 from pprint import pprint
+from fuzzywuzzy import process  # ToDo: make optional
 from collections import defaultdict
 
-from fuzzywuzzy import process  # ToDo: make optional
-
+# Import Interfaces
 from biovida.images.openi_interface import OpeniInterface
 from biovida.genomics.disgenet_interface import DisgenetInterface
 from biovida.images.cancer_image_interface import CancerImageInterface
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 
+# Support Tools
+from biovida.support_tools.support_tools import is_int
 from biovida.support_tools.support_tools import items_null
 
-# Temp
-from biovida.images.image_processing import ImageProcessing
+# Temporary
 from biovida.support_tools.printing import pandas_pprint
-from biovida.support_tools.support_tools import is_int
-
-
-# from biovida.images._resources.cancer_image_parameters import CancerImgArchiveParams
-# CancerImgArchiveParams().dicom_modality_abbreviations()
-
-# Open-i
-opi = OpeniInterface()
-# opi.search(query=None, image_type=['mri', 'ct'])
-# search_df = opi.pull(download_limit=2000)
-
-# TCIA
-cii = CancerImageInterface(API_KEY)
-# cii.search(location='extremities', modality='mri')
-# cdf = cii.pull(patient_limit=1, allowed_modalities='mri')
-# pandas_pprint(cii.cache_record_db, full_cols=True)
-
+from biovida.images.image_processing import ImageProcessing
 
 # Start tqdm
 tqdm.pandas(desc='status')
@@ -50,102 +37,112 @@ tqdm.pandas(desc='status')
 # ----------------------------------------------------------------------------------------------------------
 
 
-def open_i_prep(cache_record_db):
+class _ImagesInterfaceIntegration(object):
     """
 
-    :param cache_record_db:
-    :return:
-    """
-    # Deep copy the input to prevent mutating the original in memory.
-    cache_record_db_cln = cache_record_db.copy(deep=True)
-
-    # Column which provides a guess, based on the text, on which imaging modality created the image.
-    cache_record_db_cln['modality_best_guess'] = cache_record_db_cln.apply(
-        lambda x: x['caption_imaging_modality'] if not items_null(x['caption_imaging_modality']) else x['modality_full'],
-        axis=1
-    )
-
-    # Convert the 'converted_files_path' column from a series of string to a series of tuples.
-    cache_record_db_cln['converted_files_path'] = cache_record_db_cln['converted_files_path'].map(
-        lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore'
-    )
-
-    # Define columns to keep
-    openi_columns = ['image_id', 'image_caption', 'modality_best_guess', 'age', 'sex',
-                     'diagnosis', 'query', 'query_time', 'download_success', 'converted_files_path']
-
-    # Column name changes
-    openi_col_rename = {'converted_files_path': 'files_path', 'download_success': 'harvest_success'}
-
-    # Define subsection based on `openi_columns`
-    openi_subsection = cache_record_db_cln[openi_columns]
-
-    # Add a column to allow the user to identify the API which provided the data
-    openi_subsection['source'] = ['openi'] * openi_subsection.shape[0]
-
-    # Apply rename and return
-    return openi_subsection.rename(columns=openi_col_rename)
-
-
-def cancer_img_prep(cache_record_db):
     """
 
-    :param cache_record_db:
-    :return:
-    """
-    # Define columns to keep
-    cancer_img_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age', 'sex',
-                          'cancer_type', 'query', 'query_time', 'conversion_success', 'converted_files_paths']
+    def _open_i_prep(self, cache_record_db):
+        """
 
-    # Column name changes (based on `open_i_prep`).
-    cancer_img_col_rename = {'series_instance_uid': 'image_id',
-                             'series_description': 'image_caption',
-                             'modality_full': 'modality_best_guess',
-                             'cancer_type': 'diagnosis',
-                             'conversion_success': 'harvest_success',
-                             'converted_files_paths': 'files_path'}
+        :param cache_record_db:
+        :return:
+        """
+        # Deep copy the input to prevent mutating the original in memory.
+        cache_record_db_cln = cache_record_db.copy(deep=True)
 
-    # Deep copy the input to prevent mutating the original in memory.
-    cache_record_db_cln = cache_record_db.copy(deep=True)
+        # Column which provides a guess, based on the text, on which imaging modality created the image.
+        cache_record_db_cln['modality_best_guess'] = cache_record_db_cln.apply(
+            lambda x: x['caption_imaging_modality'] if not items_null(x['caption_imaging_modality']) else x['modality_full'],
+            axis=1
+        )
 
-    # Define subsection based on `cancer_img_columns`
-    cancer_img_subsection = cache_record_db_cln[cancer_img_columns]
+        # Convert the 'converted_files_path' column from a series of string to a series of tuples.
+        cache_record_db_cln['converted_files_path'] = cache_record_db_cln['converted_files_path'].map(
+            lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore'
+        )
 
-    # Add a column to allow the user to identify the API which provided the data
-    cancer_img_subsection['source'] = ['tcia'] * cancer_img_subsection.shape[0]
+        # Define columns to keep
+        openi_columns = ['image_id', 'image_caption', 'modality_best_guess', 'age', 'sex',
+                         'diagnosis', 'query', 'query_time', 'download_success', 'converted_files_path']
 
-    # Apply rename and return
-    return cancer_img_subsection.rename(columns=cancer_img_col_rename)
+        # Column name changes
+        openi_col_rename = {'converted_files_path': 'files_path', 'download_success': 'harvest_success'}
 
+        # Define subsection based on `openi_columns`
+        openi_subsection = cache_record_db_cln[openi_columns]
 
-def refine_and_combine(interfaces):
-    """
+        # Add a column to allow the user to identify the API which provided the data
+        openi_subsection['source'] = ['openi'] * openi_subsection.shape[0]
 
-    Note: classes are assumed to have a class attr called ``cache_record_db``.
+        # Apply rename and return
+        return openi_subsection.rename(columns=openi_col_rename)
 
-    :param interfaces:
-    :rtype interfaces: ``tuple``, ``list``, ``OpeniInterface`` class or ``CancerImageInterface`` class.
-    :return:
-    """
-    _prep_class_dict = {
-        'OpeniInterface': open_i_prep,
-        'CancerImageInterface': cancer_img_prep
-    }
+    def _cancer_img_prep(self, cache_record_db):
+        """
 
-    # Handle instances being passed 'raw'
-    interfaces = [interfaces] if not isinstance(interfaces, (list, tuple)) else interfaces
+        :param cache_record_db:
+        :return:
+        """
+        # Define columns to keep
+        cancer_img_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age', 'sex',
+                              'cancer_type', 'query', 'query_time', 'conversion_success', 'converted_files_paths']
 
-    frames = list()
-    for class_instance in interfaces:
-        func = _prep_class_dict[type(class_instance).__name__]
-        database = getattr(class_instance, 'cache_record_db')
-        if 'DataFrame' not in str(type(database)):
-            raise ValueError("The {0} instance's '{1}' database cannot be None.".format(
-                type(class_instance).__name__, 'cache_record_db')
-            )
-        frames.append(func(database))
+        # Column name changes (based on `_open_i_prep`).
+        cancer_img_col_rename = {'series_instance_uid': 'image_id',
+                                 'series_description': 'image_caption',
+                                 'modality_full': 'modality_best_guess',
+                                 'cancer_type': 'diagnosis',
+                                 'conversion_success': 'harvest_success',
+                                 'converted_files_paths': 'files_path'}
 
-    return pd.concat(frames, ignore_index=True)
+        # Deep copy the input to prevent mutating the original in memory.
+        cache_record_db_cln = cache_record_db.copy(deep=True)
+
+        # Define subsection based on `cancer_img_columns`
+        cancer_img_subsection = cache_record_db_cln[cancer_img_columns]
+
+        # Add a column to allow the user to identify the API which provided the data
+        cancer_img_subsection['source'] = ['tcia'] * cancer_img_subsection.shape[0]
+
+        # Apply rename and return
+        return cancer_img_subsection.rename(columns=cancer_img_col_rename)
+
+    def prep_class_dict_gen(self):
+        """
+
+        Generate a dictionary which maps image interface classes to
+        the methods designed to handle them.
+
+        :return:
+        :rtype: ``dict``
+        """
+        return {'OpeniInterface': self._open_i_prep, 'CancerImageInterface': self._cancer_img_prep}
+
+    def refine_and_combine(self, interfaces):
+        """
+
+        Note: classes are assumed to have a class attr called ``cache_record_db``.
+
+        :param interfaces:
+        :rtype interfaces: ``tuple``, ``list``, ``OpeniInterface`` class or ``CancerImageInterface`` class.
+        :return:
+        """
+        prep_class_dict = self.prep_class_dict_gen()
+
+        # Handle instances being passed 'raw'
+        interfaces = [interfaces] if not isinstance(interfaces, (list, tuple)) else interfaces
+
+        frames = list()
+        for class_instance in interfaces:
+            func = prep_class_dict[type(class_instance).__name__]
+            database = getattr(class_instance, 'cache_record_db')
+            if 'DataFrame' not in str(type(database)):
+                raise ValueError("The {0} instance's '{1}' database cannot be None.".format(
+                    type(class_instance).__name__, 'cache_record_db'))
+            frames.append(func(database))
+
+        return pd.concat(frames, ignore_index=True)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -411,16 +408,10 @@ class _DisgenetIntegration(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-# # Combine Instances
-# combined_df = refine_and_combine(interfaces=[opi, cii])
-#
-# # Disease Ontology
-# doi_int = _DiseaseOntologyIntegration(ontology_df=DiseaseOntInterface().pull())
-# combined_df = doi_int.disease_ont_integration(combined_df)
 
-# Disgenet
-# disgenet_df = DisgenetInterface().pull('all')
-# combined_df = _DisgenetIntegration(disgenet_df).disgenet_integration(combined_df)
+
+
+
 
 
 
