@@ -10,7 +10,6 @@ import pandas as pd
 from tqdm import tqdm
 from copy import deepcopy
 from pprint import pprint
-from fuzzywuzzy import process  # ToDo: make optional
 from collections import defaultdict
 
 # Import Interfaces
@@ -539,6 +538,24 @@ class _DisgenetIntegration(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
+def _try_fuzzywuzzy_import():
+    """
+
+    Try to import the ``fuzzywuzzy`` library.
+
+    :return:
+    """
+    try:
+        from fuzzywuzzy import process
+        global process
+    except ImportError:
+        error_msg = "`fuzzy_threshold` requires the `fuzzywuzzy` library,\n" \
+                    "which can be installed with `$ pip install fuzzywuzzy`.\n" \
+                    "For best performance, it is also recommended that python-Levenshtein is installed.\n" \
+                    "(`pip install python-levenshtein`)."
+        raise error_msg
+
+
 def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     """
 
@@ -551,6 +568,9 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     :param fuzzy_threshold:
     :return:
     """
+    if is_int(fuzzy_threshold):
+        _try_fuzzywuzzy_import()
+
     # Combine Instances
     combined_df = _ImagesInterfaceIntegration().integration(interfaces=interfaces)
 
