@@ -25,6 +25,20 @@ def dict_reverse(d):
     return {v: k for k, v in d.items()}
 
 
+def is_int(i):
+    """
+
+    Checks if the input (``i``) is an intiger in a way which is robust against booleans.
+
+    :param i: any input
+    :type i: any
+    :return: whether or not the input is an intiger.
+    :rtype: ``bool``
+    """
+    # Note: ``isinstance(fuzzy_threshold, bool)`` blocks `False` being evaluated as 0 (an intiger).
+    return isinstance(i, int) and not isinstance(i, bool)
+
+
 def n_sub_dirs(dir):
     """
 
