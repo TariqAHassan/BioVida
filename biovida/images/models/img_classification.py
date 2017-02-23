@@ -129,7 +129,7 @@ class ImageRecognitionCNN(object):
 
         Generate Data Streams using ``keras.preprocessing.ImageDataGenerator()``.
 
-        :raises: ValueError if there are asymmetries between the 'train' and 'validation'
+        :raises: ``ValueError`` if there are asymmetries between the 'train' and 'validation'
                  subdirectories in ``self._data_path``.
         """
         # Create Data Streams
@@ -168,7 +168,7 @@ class ImageRecognitionCNN(object):
             self.img_shape[1] = 224
         self.img_shape = tuple(self.img_shape)
 
-    def _alex_net(self, nb_classes):
+    def _alex_net(self, nb_classes, output_layer_activation):
         """
 
         Sources:
@@ -195,6 +195,8 @@ class ImageRecognitionCNN(object):
 
         :param nb_classes: number of neuron in the output layer (which equals the number of classes).
         :type nb_classes: ``int``
+        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
+        :type output_layer_activation: ``str``
         """
         try:
             from convnetskeras.customlayers import crosschannelnormalization, splittensor
@@ -239,14 +241,14 @@ class ImageRecognitionCNN(object):
         dense_2 = Dense(4096, activation='relu', name='dense_2')(dense_2)
         dense_3 = Dropout(0.5)(dense_2)
         dense_3 = Dense(nb_classes, name='dense_3')(dense_3)
-        prediction = Activation("sigmoid", name="sigmoid")(dense_3)
+        prediction = Activation(output_layer_activation, name=output_layer_activation)(dense_3)
 
         self.model = Model(input=inputs, output=prediction)
 
-    def _vgg_19(self, nb_classes):
+    def _vgg_19(self, nb_classes, output_layer_activation):
         """
 
-        Keras Implimentation of the VGG_19 Model
+        Keras Implementation of the VGG_19 Model
 
         SOURCES:
         -------
@@ -255,10 +257,13 @@ class ImageRecognitionCNN(object):
            Very Deep Convolutional Networks for Large-Scale Image Recognition
            K. Simonyan, A. Zisserman
            arXiv:1409.1556
-        2. Keras Implimentation: https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py
+
+        2. Keras Implementation: https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py
 
         :param nb_classes: number of neuron in the output layer (which equals the number of classes).
         :type nb_classes: ``int``
+        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
+        :type output_layer_activation: ``str``
         """
         self.model = Sequential()
 
@@ -309,13 +314,17 @@ class ImageRecognitionCNN(object):
         self.model.add(Dropout(0.5))
         self.model.add(Dense(4096, activation='relu'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(nb_classes, activation='softmax'))
+        self.model.add(Dense(nb_classes, activation=output_layer_activation))
 
-    def _default_model(self, nb_classes):
+    def _default_model(self, nb_classes, output_layer_activation):
         """
+
+        The most simple model in this class.
 
         :param nb_classes: number of neuron in the output layer (which equals the number of classes).
         :type nb_classes: ``int``
+        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
+        :type output_layer_activation: ``str``
         """
         self.model = Sequential()
         self.model.add(Convolution2D(32, 3, 3
@@ -330,23 +339,25 @@ class ImageRecognitionCNN(object):
         self.model.add(Dense(64, activation='relu'))
         self.model.add(Dropout(0.5))
         self.model.add(Dense(nb_classes))
-        self.model.add(Activation('sigmoid'))
+        self.model.add(Activation(output_layer_activation))
 
-    def convnet(self, model_to_use='default', loss='binary_crossentropy', optimizer='default', metrics=('accuracy',)):
+    def convnet(self,
+                model_to_use='default',
+                loss='binary_crossentropy',
+                optimizer='default',
+                metrics=('accuracy',),
+                output_layer_activation='sigmoid'):
         """
 
         Define and Compile the Image Recognition Convolutional Neural Network.
 
-        :param model_to_use: one of: 'default', 'vgg19', 'alex_net'.
+        :param model_to_use: one of: 'default', 'vgg19', 'alex_net'. Defaults to 'default'.
 
-        - 'alex_net': the 2012 'AlexNet' model. Activation on output layer: 'sigmoid'.
+            - 'default': a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling); one hidden layer and 0.5 drop out.
 
-        - 'default': a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling);
-                     one hidden layer and 0.5 drop out. Activation on output layer: 'sigmoid'.
+            - 'alex_net': the 2012 'AlexNet' model.
 
-        - 'vgg19': the VGG 19 model. Activation on output layer: 'sigmoid'.
-
-        Defaults to 'default'.
+            - 'vgg19': the VGG 19 model.
 
         :type model_to_use: ``str``
         :param loss: Loss function. Defaults to 'categorical_crossentropy'.
@@ -359,6 +370,8 @@ class ImageRecognitionCNN(object):
                         Note: if round braces are used, it MUST contain a comma (to make it a tuple).
                         See: ``keras.models.Sequential()``.
         :type metrics: ``tuple``
+        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
+        :type output_layer_activation: ``str``
         """
         if model_to_use == 'vgg19':
             self._impose_vgg_img_reqs()
@@ -371,11 +384,11 @@ class ImageRecognitionCNN(object):
 
         # Define the Model
         if model_to_use == 'default':
-            self._default_model(nb_classes)
-        elif model_to_use == 'vgg19':
-            self._vgg_19(nb_classes)
+            self._default_model(nb_classes, output_layer_activation=output_layer_activation)
         elif model_to_use == 'alex_net':
-            self._alex_net(nb_classes)
+            self._alex_net(nb_classes, output_layer_activation=output_layer_activation)
+        elif model_to_use == 'vgg19':
+            self._vgg_19(nb_classes, output_layer_activation=output_layer_activation)
         else:
             raise ValueError("'{0}' is an invalid value for `model_to_use`.".format(model_to_use))
 
@@ -399,7 +412,7 @@ class ImageRecognitionCNN(object):
         :type first_format: ``str``
         :param second_format: name of an ``ImageRecognitionCNN`` method.
         :type second_format: ``str``
-        :raises: AttributeError composed from `first_format` and `second_format`.
+        :raises: ``AttributeError`` composed from `first_format` and `second_format`.
         """
         if self.model is None:
             raise AttributeError("The model cannot be {0} until `ImageRecognitionCNN().{1}()` "
@@ -416,7 +429,7 @@ class ImageRecognitionCNN(object):
         :type min_delta: ``float``
         :param patience: see ``keras.callbacks.EarlyStopping()``.
         :type patience: ``int``
-        :raises: AttributeError if ``ImageRecognitionCNN().convnet()`` is yet to be called.
+        :raises: ``AttributeError`` if ``ImageRecognitionCNN().convnet()`` is yet to be called.
         """
         self._model_existence_check("fit and validated", "convnet")
 
@@ -468,7 +481,7 @@ class ImageRecognitionCNN(object):
         :type path: ``str``
         :param overwrite: overwrite the existing copy of the data
         :type overwrite: ``bool``
-        :raises: AttributeError if ``ImageRecognitionCNN().fit_gen()`` is yet to be called.
+        :raises: ``AttributeError`` if ``ImageRecognitionCNN().fit()`` is yet to be called.
         """
         self._model_existence_check("saved", "fit",  " Alternatively, you can call .load().")
         save_path = self._data_path if (path is None and self._data_path is not None) else path
@@ -512,7 +525,7 @@ class ImageRecognitionCNN(object):
         :param default_model_load: load the default model if ``ImageRecognitionCNN().convnet()`` has not been called.
                                    Defaults to ``False``.
         :type default_model_load: ``bool``
-        :raises: AttributeError if a model is currently instantiated.
+        :raises: ``AttributeError`` if a model is currently instantiated.
         """
         if self.model is not None and override_existing is not True:
             raise AttributeError("A model is currently instantiated.\n"
