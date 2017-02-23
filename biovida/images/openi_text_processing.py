@@ -437,7 +437,7 @@ def _imaging_technology_guess_info():
     }
 
     modality_subtypes = {
-        'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'], ['segmentation']
+        'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'], ['segmentation'],
                ['non-contrast', 'non contrast', 'noncontrast', 'w/o contrast'],
                ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']],
         'mri': [[' gadolinium ', ' gad '], ['post-gadolinium', 'post-gad', 'post gad '], ['t1'], ['t2'], ['flair'],
