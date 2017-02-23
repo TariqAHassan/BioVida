@@ -343,7 +343,7 @@ def _weigh_evidence(candidates, axis_size, signal_strength_threshold, min_border
     return conclusion
 
 
-def lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=None):
+def _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=None):
     """
 
     Executes a single pass looking for a lower bar.
@@ -360,7 +360,8 @@ def lower_bar_detection(image_array, lower_bar_search_space, signal_strength_thr
     :type signal_strength_threshold: ``int``
     :param cfloor: check floor. If None, the floor is the last image in the photo.
     :type cfloor: ``int`` or ``None
-    :return:
+    :return: the height (y position) of the top of the lower bar (given one pass of this algorithm).
+    :rtype: ``int``
     """
     # Compute the location to crop the image
     cut_off = int(image_array.shape[0] * lower_bar_search_space)
@@ -435,14 +436,14 @@ def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_thre
 
     """
     # Run a first pass
-    first_pass_rslt = lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
+    first_pass_rslt = _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
     
     # Run a second pass
     if lower_bar_second_pass:
-        second_pass_rslt = lower_bar_detection(image_array,
-                                               lower_bar_search_space,
-                                               signal_strength_threshold,
-                                               cfloor=first_pass_rslt)
+        second_pass_rslt = _lower_bar_detection(image_array,
+                                                lower_bar_search_space,
+                                                signal_strength_threshold,
+                                                cfloor=first_pass_rslt)
     else:
         second_pass_rslt = None
 
