@@ -82,6 +82,14 @@ biovida.diagnostics.disease_ont_interface
     :undoc-members:
     :show-inheritance:
 
+biovida.diagnostics.disease_symptoms_interface
+----------------------------------------------
+
+.. automodule:: biovida.diagnostics.disease_symptoms_interface
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 biovida.unify_domains
 ---------------------
 
