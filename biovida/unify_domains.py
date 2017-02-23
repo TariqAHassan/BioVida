@@ -12,9 +12,10 @@ from copy import deepcopy
 from collections import defaultdict
 
 # Import Interfaces
-from biovida.diagnostics.hsdn_interface import HsdnInterface
 from biovida.genomics.disgenet_interface import DisgenetInterface
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+from biovida.diagnostics.disease_symptoms_interface import DiseaseSymptomsInterface
+
 
 # Support Tools
 from biovida.support_tools.support_tools import is_int
@@ -464,14 +465,14 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
 
 
 # ----------------------------------------------------------------------------------------------------------
-# HSDN Interface (Symptomatology)
+# Disease Symptoms Interface (Symptomatology)
 # ----------------------------------------------------------------------------------------------------------
 
 
-class _HsdnIntegration(object):
+class _DiseaseSymptomsIntegration(object):
     """
 
-    Integration of Human Symptoms Disease Network information.
+    Integration of Disease Symptoms information.
 
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
     Default to ``None`` (which will generate a cache in the home folder).
@@ -480,44 +481,43 @@ class _HsdnIntegration(object):
     :type verbose: ``bool``
     """
 
-    def _disease_symptom_dict_gen(self, hsdn_db):
+    def _disease_symptom_dict_gen(self, dis_symp_db):
         """
 
         Tool to create a dictionary mapping disease to symptoms.
 
-        :param hsdn_db: yield of ``HsdnInterface().pull()``
-        :type hsdn_db: ``Pandas DataFrame``
+        :param dis_symp_db: yield of ``DiseaseSymptomsInterface().pull()``
+        :type dis_symp_db: ``Pandas DataFrame``
         :return: a dictionary of the form ``{disease name: [symptom, symptom, symptom, ...], ...}``
         :rtype: ``dict``
         """
-        d = defaultdict(list)
-        for disease, symptom in zip(hsdn_db['common_disease_name'], hsdn_db['common_symptom_term']):
-            d[disease.lower()] += [symptom.lower()]
+        d = defaultdict(set)
+        for disease, symptom in zip(dis_symp_db['common_disease_name'], dis_symp_db['common_symptom_term']):
+            d[disease.lower()].add(symptom.lower())
         return {k: tuple(sorted(v)) for k, v in d.items()}
 
     def __init__(self, cache_path=None, verbose=True):
         self.verbose = verbose
-        # Load the HSDN database
-        hsdn_db = HsdnInterface(cache_path=cache_path, verbose=verbose).pull()
+        # Load the Disease Symptoms database
+        dis_symp_db = DiseaseSymptomsInterface(cache_path=cache_path, verbose=verbose).pull()
 
         # Create a disease-symptoms mapping
-        self.disease_symptom_dict = self._disease_symptom_dict_gen(hsdn_db)
+        self.disease_symptom_dict = self._disease_symptom_dict_gen(dis_symp_db)
 
     def integration(self, data_frame, fuzzy_threshold=False):
         """
 
-        Adds a 'known_associated_symptoms' column to ``data_frame`` based on the
-        Human Symptoms Disease Network.
+        Adds a 'known_associated_symptoms' column to ``data_frame`` based on the Disease Symptoms database.
 
         :param data_frame: a dataframe which has been passed through ``_DiseaseOntologyIntegration().integration()``
         :type data_frame: ``Pandas DataFrame``
         :param fuzzy_threshold: an integer on ``(0, 100]``.
-        :type fuzzy_threshold: ``int``, `bool`, ``None``
+        :type fuzzy_threshold: ``int``, ``bool``, ``None``
         :return: ``data_frame`` with a 'known_associated_symptoms' column.
         :rtype: ``Pandas DataFrame``
         """
         if self.verbose:
-            header("Integrating Human Symptoms Disease Network Data... ")
+            header("Integrating Disease Symptoms Data... ")
 
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_symptom_dict,
@@ -629,7 +629,7 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
                         Fuzzy searching with large databases, such as those this function integrates, is very
                         computationally expensive.
     
-    :type fuzzy_threshold: ``int``, `bool`, ``None``
+    :type fuzzy_threshold: ``int``, ``bool``, ``None``
     :return: a dataframe which unifies image interfaces with  genomic and diagnostics data.
     :rtype: ``Pandas DataFrame``
 
@@ -652,8 +652,8 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     # Disease Ontology
     combined_df = _DiseaseOntologyIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
 
-    # Human Symptoms Disease Network
-    combined_df = _HsdnIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+    # Disease Symptoms
+    combined_df = _DiseaseSymptomsIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
 
     # Disgenet
     combined_df = _DisgenetIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
