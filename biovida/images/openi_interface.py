@@ -257,18 +257,18 @@ class _OpeniSearch(object):
         """
         return search_dict[x][0] if x != 'query' else 'query'
 
-    def search(self
-               , query
-               , image_type=None
-               , rankby=None
-               , article_type=None
-               , subset=None
-               , collection=None
-               , fields=None
-               , specialties=None
-               , video=None
-               , exclusions=None
-               , print_results=True):
+    def search(self,
+               query,
+               image_type=None,
+               rankby=None,
+               article_type=None,
+               subset=None,
+               collection=None,
+               fields=None,
+               specialties=None,
+               video=None,
+               exclusions=None,
+               print_results=True):
         """
 
         Tool to generate a search term (URL) for the NIH's Open-i API.
@@ -895,12 +895,12 @@ class OpeniInterface(object):
         # Save to class instance
         self.cache_record_db = to_return
 
-    def __init__(self
-                 , cache_path=None
-                 , img_sleep_time=1.5
-                 , date_format='%d/%m/%Y'
-                 , records_sleep_mini=(5, 1.5)
-                 , verbose=True):
+    def __init__(self,
+                 cache_path=None,
+                 img_sleep_time=1.5,
+                 date_format='%d/%m/%Y',
+                 records_sleep_mini=(5, 1.5),
+                 verbose=True):
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
         self._time_format = "%Y_%h_%d__%H_%M_%S_%f"
@@ -963,18 +963,18 @@ class OpeniInterface(object):
         # Note this simply wraps ``_OpeniSearch().options()``.
         return self._Search.options(search_parameter, print_options)
 
-    def search(self
-               , query
-               , image_type=None
-               , rankby=None
-               , article_type=None
-               , subset=None
-               , collection=None
-               , fields=None
-               , specialties=None
-               , video=None
-               , exclusions=['graphics']
-               , print_results=True):
+    def search(self,
+               query,
+               image_type=None,
+               rankby=None,
+               article_type=None,
+               subset=None,
+               collection=None,
+               fields=None,
+               specialties=None,
+               video=None,
+               exclusions=['graphics'],
+               print_results=True):
         """
 
         Tool to generate a search term (URL) for the NIH's Open-i API.
