@@ -18,6 +18,7 @@ from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 
 # Support Tools
 from biovida.support_tools.support_tools import is_int
+from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
 
 # Temporary
@@ -233,6 +234,7 @@ class _DiseaseOntologyIntegration(object):
         return ont_name_dict, ont_name_dict_nest_keys, {k: sorted(v) for k, v in ont_disease_synonym_dict.items()}
 
     def __init__(self, cache_path=None, verbose=True):
+        self.verbose = verbose
         # Load the databse
         ontology_df = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()
 
@@ -347,6 +349,9 @@ class _DiseaseOntologyIntegration(object):
         """
         if fuzzy_threshold is True:
             raise ValueError("`fuzzy_threshold` cannot be `True`. Please provide a specific integer on ``(0, 100]``.")
+
+        if self.verbose:
+            header("Integrating Disease Ontology Data... ")
 
         # Extract disease information using the Disease Ontology database
         disease_ontology_data = data_frame['disease'].progress_map(
@@ -491,6 +496,7 @@ class _HsdnIntegration(object):
         return {k: tuple(sorted(v)) for k, v in d.items()}
 
     def __init__(self, cache_path=None, verbose=True):
+        self.verbose = verbose
         # Load the HSDN database
         hsdn_db = HsdnInterface(cache_path=cache_path, verbose=verbose).pull()
 
@@ -510,6 +516,9 @@ class _HsdnIntegration(object):
         :return: ``data_frame`` with a 'known_associated_symptoms' column.
         :rtype: ``Pandas DataFrame``
         """
+        if self.verbose:
+            header("Integrating Human Symptoms Disease Network Data... ")
+
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_symptom_dict,
                                      fuzzy_threshold=fuzzy_threshold,
@@ -550,6 +559,7 @@ class _DisgenetIntegration(object):
         return {k: tuple(sorted(v, key=lambda x: x[0])) for k, v in d.items()}
 
     def __init__(self, cache_path=None, verbose=True):
+        self.verbose = verbose
         # Load the database
         disgenet_df = DisgenetInterface(cache_path=cache_path, verbose=verbose).pull('all')
 
@@ -568,6 +578,9 @@ class _DisgenetIntegration(object):
         :return: ``data_frame`` with a 'known_associated_genes' column.
         :rtype: ``Pandas DataFrame``
         """
+        if self.verbose:
+            header("Integrating DisGeNET Data... ")
+
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_gene_dict,
                                      fuzzy_threshold=fuzzy_threshold,
@@ -646,6 +659,8 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     combined_df = _DisgenetIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
 
     return combined_df
+
+
 
 
 
