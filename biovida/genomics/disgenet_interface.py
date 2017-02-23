@@ -19,7 +19,7 @@ from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
 # BioVida Printing Tools
-from biovida.support_tools.printing import dict_pretty_printer
+from biovida.support_tools.printing import dict_pprint
 
 
 # ---------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ class DisgenetInterface(object):
                 print("Available Databases:\n")
                 print(list_to_bulletpoints(info))
             else:
-                dict_pretty_printer(info)
+                dict_pprint(info)
         else:
             return info
 

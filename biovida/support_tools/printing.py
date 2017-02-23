@@ -113,7 +113,7 @@ def _value_correction(s, len_longest_key, max_value_length, print_mold):
     return _value_padding(formatted_string, len_longest_key, print_mold)
 
 
-def dict_pretty_printer(d, max_value_length=70):
+def dict_pprint(d, max_value_length=70):
     """
 
     Pretty prints a dictionary with vertically aligned values.
@@ -128,7 +128,6 @@ def dict_pretty_printer(d, max_value_length=70):
                             between braces.
     :type max_value_length: ``int``
     """
-    # ToDo: rename to dict_pprint
     print_mold = " - {0} "
 
     # Compute the length of the longest key
@@ -317,9 +316,6 @@ def pandas_pprint(data,
         _pandas_series_print(data)
     else:
         raise TypeError("Invalid type for `data`.")
-
-
-
 
 
 
