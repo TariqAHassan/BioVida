@@ -1053,7 +1053,11 @@ class OpeniInterface(object):
         :return: a DataFrame with the record information.
                  If ``image_size`` is not None, images will also be harvested and cached.
         :rtype: ``Pandas DataFrame``
+        :raises ``ValueError``: if ``search()`` has not been called.
         """
+        if self.current_query is None:
+            raise ValueError("`search()` must be called before `pull()`.")
+
         # Pull Records
         if new_records_pull:
             self.records_db = self._Records.records_pull(search_url=self.current_search_url,
