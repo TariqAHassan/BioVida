@@ -68,7 +68,9 @@ class _ImagesInterfaceIntegration(object):
                          'diagnosis', 'query', 'query_time', 'download_success', 'converted_files_path']
 
         # Column name changes
-        openi_col_rename = {'converted_files_path': 'files_path', 'download_success': 'harvest_success'}
+        openi_col_rename = {'diagnosis': 'disease',
+                            'converted_files_path': 'files_path',
+                            'download_success': 'harvest_success'}
 
         # Define subsection based on `openi_columns`
         openi_subsection = cache_record_db_cln[openi_columns]
@@ -93,7 +95,7 @@ class _ImagesInterfaceIntegration(object):
         cancer_img_col_rename = {'series_instance_uid': 'image_id',
                                  'series_description': 'image_caption',
                                  'modality_full': 'modality_best_guess',
-                                 'cancer_type': 'diagnosis',
+                                 'cancer_type': 'disease',
                                  'conversion_success': 'harvest_success',
                                  'converted_files_paths': 'files_path'}
 
@@ -170,14 +172,14 @@ class _DiseaseOntologyIntegration(object):
 
         - a nested dictionary with ``ontology_df``'s 'name' column as the outer key (``ont_name_dict``).
           Form: ``{'name': {'disease_family' ('is_a'): tuple or None,
-                            'synonym': tuple or None,
+                            'disease_synonym': tuple or None,
                             'diagnosis_definition' ('def'): str or None},
                   ...}``
 
         - the keys of the nested dictionaries in ``ont_name_dict``
 
-        - a dictionary with 'synonym' as keys and related names in a list:
-          Form ``{'synonym': ['name', 'name', ...], ...}``
+        - a dictionary with 'disease_synonym' as keys and related names in a list:
+          Form ``{'disease_synonym': ['name', 'name', ...], ...}``
 
         :param ontology_df: yeild of ``DiseaseOntInterface().pull()``
         :type ontology_df: ``Pandas DataFrame``
@@ -185,72 +187,72 @@ class _DiseaseOntologyIntegration(object):
         :rtype: ``tuple``
         """
         # Init
-        ont_name_dict, ont_synonym_dict = dict(), dict()
-        ont_name_dict_nest_keys = ('disease_family', 'synonym', 'diagnosis_definition')
+        ont_name_dict, ont_disease_synonym_dict = dict(), dict()
+        ont_name_dict_nest_keys = ('disease_family', 'disease_synonym', 'disease_definition')
 
         def str_split(s, split_on='; '):
             return tuple(s.split('; ')) if isinstance(s, str) else s
 
-        for name, is_a, synonym, defn in zip(*[ontology_df[c] for c in ('name', 'is_a', 'synonym', 'def')]):
-            synonym_split = str_split(synonym)
+        for name, is_a, disease_synonym, defn in zip(*[ontology_df[c] for c in ('name', 'is_a', 'synonym', 'def')]):
+            disease_synonym_split = str_split(disease_synonym)
             if not items_null(name):
                 # Update `ont_name_dict`
                 ont_name_dict[name] = {'disease_family': str_split(is_a),
-                                       'synonym': synonym_split,
-                                       'diagnosis_definition': defn}
+                                       'disease_synonym': disease_synonym_split,
+                                       'disease_definition': defn}
 
-                # Update `ont_synonym_dict`
-                if isinstance(synonym_split, tuple):
-                    for s in synonym_split:
-                        if s not in ont_synonym_dict:
-                            ont_synonym_dict[s] = [name]
-                        # Check a duplicate is not added under a given synonym
-                        elif name not in ont_synonym_dict[s]:
-                            ont_synonym_dict[s] += [name]
+                # Update `ont_disease_synonym_dict`
+                if isinstance(disease_synonym_split, tuple):
+                    for s in disease_synonym_split:
+                        if s not in ont_disease_synonym_dict:
+                            ont_disease_synonym_dict[s] = [name]
+                        # Check a duplicate is not added under a given disease_synonym
+                        elif name not in ont_disease_synonym_dict[s]:
+                            ont_disease_synonym_dict[s] += [name]
 
-        return ont_name_dict, ont_name_dict_nest_keys, ont_synonym_dict
+        return ont_name_dict, ont_name_dict_nest_keys, {k: sorted(v) for k, v in ont_disease_synonym_dict.items()}
 
     def __init__(self, cache_path=None, verbose=True):
         # Load the databse
         ontology_df = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()
 
         # Obtain dictionaries
-        self.ont_name_dict, self.ont_name_dict_nest_keys, self.ont_synonym_dict = self._dis_ont_dict_gen(ontology_df)
+        self.ont_name_dict, self.ont_name_dict_nest_keys, self.ont_disease_synonym_dict = self._dis_ont_dict_gen(ontology_df)
 
         # Conver `ont_name_dict_nest_keys` to an empty dict.
         self.empty_nest_dict = dict.fromkeys(self.ont_name_dict_nest_keys, np.NaN)
 
         # Extract keys from the two dictionaries passed
         self.ont_name_dict_keys = tuple(self.ont_name_dict.keys())
-        self.ont_synonym_dict_keys = tuple(self.ont_synonym_dict.keys())
+        self.ont_disease_synonym_dict_keys = tuple(self.ont_disease_synonym_dict.keys())
 
-    def _synonym_match(self, synonym):
+    def _disease_synonym_match(self, disease_synonym):
         """
 
-        Maps a disease synonym to an actual disease name.
-        The 'synonym' key of the dictionary which is returned will have `synonym` removed
-        and will have a disease names which are mapped to `synonym` installed in its place.
+        Maps a disease disease_synonym to an actual disease name.
+        The 'disease_synonym' key of the dictionary which is returned will have `disease_synonym` removed
+        and will have a disease names which are mapped to `disease_synonym` installed in its place.
 
-        :param synonym: a disease synonym.
-        :param synonym: ``str``
+        :param disease_synonym: a disease disease_synonym.
+        :param disease_synonym: ``str``
         :return:
         :rtype: ``dict``
         """
-        # Mapping from synonym to related diseases
-        ont_dis_names = self.ont_synonym_dict[synonym]
+        # Mapping from disease_synonym to related diseases
+        ont_dis_names = self.ont_disease_synonym_dict[disease_synonym]
 
-        # Simply use the first disease name related to the synonym.
+        # Simply use the first disease name related to the disease_synonym.
         # Note: this *assumes* that which 'name' is chosen from the list is irrelevant.
         # If the disease ontology database is not consistant, this assumption is invalid.
         disease_info = deepcopy(self.ont_name_dict[ont_dis_names[0]])
-        # Remove the synonym from the 'synonym' key and add 'ont_dis_names'
-        if isinstance(disease_info['synonym'], tuple):
-            synonym_new = [i for i in disease_info['synonym'] if i != synonym] + ont_dis_names
+        # Remove the disease_synonym from the 'disease_synonym' key and add 'ont_dis_names'
+        if isinstance(disease_info['disease_synonym'], tuple):
+            disease_synonym_new = [i for i in disease_info['disease_synonym'] if i != disease_synonym] + ont_dis_names
         else:
-            synonym_new = [ont_dis_names]
+            disease_synonym_new = [ont_dis_names]
 
         # Add to `disease_info` (and remove any possible duplicates)
-        disease_info['synonym'] = tuple(set(synonym_new))
+        disease_info['disease_synonym'] = tuple(sorted(set(disease_synonym_new)))
 
         return disease_info
 
@@ -268,8 +270,8 @@ class _DiseaseOntologyIntegration(object):
             return None
         elif disease in self.ont_name_dict:
             return self.ont_name_dict[disease]
-        elif disease in self.ont_synonym_dict:
-            return self._synonym_match(synonym=disease)
+        elif disease in self.ont_disease_synonym_dict:
+            return self._disease_synonym_match(disease_synonym=disease)
         else:
             return None
 
@@ -297,10 +299,10 @@ class _DiseaseOntologyIntegration(object):
         if threshold >= fuzzy_threshold:
             return self.ont_name_dict[name_fuzzy_match]
 
-        # Try using `ont_synonym_dict`
-        synonym_fuzzy_match, threshold = process.extractOne(disease, self.ont_synonym_dict_keys)
+        # Try using `ont_disease_synonym_dict`
+        disease_synonym_fuzzy_match, threshold = process.extractOne(disease, self.ont_disease_synonym_dict_keys)
         if threshold >= fuzzy_threshold:
-            return self._synonym_match(synonym_fuzzy_match)
+            return self._disease_synonym_match(disease_synonym_fuzzy_match)
         else:
             return self.empty_nest_dict
 
@@ -315,14 +317,14 @@ class _DiseaseOntologyIntegration(object):
         if fuzzy_threshold is True:
             raise ValueError("`fuzzy_threshold` cannot be `True`. Please provide a specific intiger on (0, 100].")
 
-        # Extract diagnosis information using the Disease Ontology database
+        # Extract disease information using the Disease Ontology database
         if is_int(fuzzy_threshold):
             # Use progress map to show progress
-            disease_ontology_data = combined_df['diagnosis'].progress_map(
+            disease_ontology_data = combined_df['disease'].progress_map(
                 lambda x: self._find_disease_info(x, fuzzy_threshold))
         else:
             # When `fuzzy_threshold` if off, this method is sufficently fast that a progress bar is not needed
-            disease_ontology_data = combined_df['diagnosis'].map(lambda x: self._find_disease_info(x, fuzzy_threshold))
+            disease_ontology_data = combined_df['disease'].map(lambda x: self._find_disease_info(x, fuzzy_threshold))
 
         # Convert `disease_ontology_data` to a dataframe
         disease_ontology_addition = pd.DataFrame(disease_ontology_data.tolist())
@@ -335,17 +337,17 @@ class _DiseaseOntologyIntegration(object):
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Tools to Add Data by Matching Against Disease and Disease Synonyms.
+# Tools to Add Data by Matching Against Disease and Disease disease_synonyms.
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _disease_synonym_match_battery(disease, synonyms, resource_dict, fuzzy_threshold):
+def _disease_disease_synonym_match_battery(disease, disease_synonyms, resource_dict, fuzzy_threshold):
     """
 
-    Try to match ``disease`` and ``synonyms`` in ``resource_dict``
+    Try to match ``disease`` and ``disease_synonyms`` in ``resource_dict``
 
     :param disease:
-    :param synonyms:
+    :param disease_synonyms:
     :param resource_dict:
     :param fuzzy_threshold: must be an intiger for fuzzy matching to be enabled.
     :return:
@@ -357,9 +359,9 @@ def _disease_synonym_match_battery(disease, synonyms, resource_dict, fuzzy_thres
     if disease in resource_dict:
         return resource_dict[disease]
 
-    # Search through synonyms
-    if isinstance(synonyms, tuple):
-        for s in synonyms:
+    # Search through disease_synonyms
+    if isinstance(disease_synonyms, tuple):
+        for s in disease_synonyms:
             if s in resource_dict:
                 return resource_dict[s]
 
@@ -372,14 +374,14 @@ def _disease_synonym_match_battery(disease, synonyms, resource_dict, fuzzy_thres
     if threshold >= fuzzy_threshold:
         return resource_dict[disease_fuzzy_match]
 
-    # Try Fuzzy matching on `synonyms`
-    if not isinstance(synonyms, tuple):
+    # Try Fuzzy matching on `disease_synonyms`
+    if not isinstance(disease_synonyms, tuple):
         return np.NaN
     else:
-        for s in synonyms:
-            synonym_fuzzy_match, threshold = process.extractOne(s, lookup_dict_keys)
+        for s in disease_synonyms:
+            disease_synonym_fuzzy_match, threshold = process.extractOne(s, lookup_dict_keys)
             if threshold >= fuzzy_threshold:
-                return resource_dict[synonym_fuzzy_match]
+                return resource_dict[disease_synonym_fuzzy_match]
         else:
             return np.NaN  # capitulate
 
@@ -403,24 +405,24 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
     missing_column_error_message = "`data_frame` must contain a '{0}' column." \
                                    "Call ``_DiseaseOntologyIntegration().disease_ont_integration()``"
 
-    if 'diagnosis' not in data_frame.columns:
-        raise AttributeError(missing_column_error_message.format('diagnosis'))
-    elif 'synonym' not in data_frame.columns:
-        raise AttributeError(missing_column_error_message.format('synonym'))
+    if 'disease' not in data_frame.columns:
+        raise AttributeError(missing_column_error_message.format('disease'))
+    elif 'disease_synonym' not in data_frame.columns:
+        raise AttributeError(missing_column_error_message.format('disease_synonym'))
 
     # Map gene-disease information onto the dataframe
     if is_int(fuzzy_threshold):
         # Use progress bar (fuzzy matching is expensive)
         rslt = data_frame.progress_apply(
-            lambda x: _disease_synonym_match_battery(disease=x['diagnosis'],
-                                                     synonyms=x['synonym'],
+            lambda x: _disease_disease_synonym_match_battery(disease=x['disease'],
+                                                     disease_synonyms=x['disease_synonym'],
                                                      resource_dict=resource_dict,
                                                      fuzzy_threshold=fuzzy_threshold), axis=1)
     else:
         # No need for a progress bar.
         rslt = data_frame.apply(
-            lambda x: _disease_synonym_match_battery(disease=x['diagnosis'],
-                                                     synonyms=x['synonym'],
+            lambda x: _disease_disease_synonym_match_battery(disease=x['disease'],
+                                                     disease_synonyms=x['disease_synonym'],
                                                      resource_dict=resource_dict,
                                                      fuzzy_threshold=fuzzy_threshold), axis=1)
 
@@ -460,7 +462,7 @@ class _HsdnIntegration(object):
         d = defaultdict(list)
         for disease, symptom in zip(hsdn_db['common_disease_name'], hsdn_db['common_symptom_term']):
             d[disease.lower()] += [symptom.lower()]
-        return {k: tuple(v) for k, v in d.items()}
+        return {k: tuple(sorted(v)) for k, v in d.items()}
 
     def __init__(self, cache_path=None, verbose=True):
         # Load the HSDN database
