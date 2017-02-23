@@ -867,17 +867,17 @@ class OpeniInterface(object):
         :param record_db_addition:
         :type record_db_addition:
         """
-        def success_analysis_func(x):
+        def rows_to_conserve_func(x):
             return x['download_success'] == True
 
         if current_record_db is None and record_db_addition is None:
             raise ValueError("`current_record_db` and `record_db_addition` cannot both be None.")
         elif current_record_db is not None and record_db_addition is None:
             to_return = current_record_db
-            to_return = to_return[to_return.apply(success_analysis_func, axis=1)].reset_index(drop=True)
+            to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         elif current_record_db is None and record_db_addition is not None:
             to_return = _img_relation_map(record_db_addition)
-            to_return = to_return[to_return.apply(success_analysis_func, axis=1)].reset_index(drop=True)
+            to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         else:
             duplicates_subset_columns = [c for c in current_record_db.columns if c != 'query_time']
             to_return = record_db_merge(current_record_db=current_record_db,
@@ -885,7 +885,7 @@ class OpeniInterface(object):
                                         query_column_name='query',
                                         query_time_column_name='query_time',
                                         duplicates_subset_columns=duplicates_subset_columns,
-                                        success_analysis_func=success_analysis_func,
+                                        rows_to_conserve_func=rows_to_conserve_func,
                                         post_concat_mapping=('uid_instance', 'uid', resetting_label),
                                         relationship_mapping_func=_img_relation_map)
 
