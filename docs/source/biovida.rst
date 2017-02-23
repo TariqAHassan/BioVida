@@ -18,6 +18,14 @@ biovida.images.openi_interface module
     :undoc-members:
     :show-inheritance:
 
+biovida.images.openi_text_processing module
+-------------------------------------------
+
+.. automodule:: biovida.images.openi_text_processing
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 biovida.images.cancer_image_interface module
 --------------------------------------------
 
@@ -30,14 +38,6 @@ biovida.images.image_processing module
 --------------------------------------
 
 .. automodule:: biovida.images.image_processing
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-biovida.images.text_processing module
--------------------------------------
-
-.. automodule:: biovida.images.text_processing
     :members:
     :undoc-members:
     :show-inheritance:

@@ -39,7 +39,7 @@ from biovida.images._resources.openi_parameters import openi_article_type_params
 from biovida.images._resources.openi_parameters import openi_image_type_modality_full
 
 # Tools for Text Feature Extraction
-from biovida.images.text_processing import feature_extract
+from biovida.images.openi_text_processing import feature_extract
 
 # Cache Managment
 from biovida.support_tools._cache_management import package_cache_creator

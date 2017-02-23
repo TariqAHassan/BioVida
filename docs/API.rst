@@ -4,13 +4,13 @@ API
 .. automodule:: biovida.images.openi_interface
 	:members:
 
+.. automodule:: biovida.images.openi_text_processing
+	:members:
+
 .. automodule:: biovida.images.cancer_image_interface
 	:members:
 
 .. automodule:: biovida.images.image_processing
-	:members:
-
-.. automodule:: biovida.images.text_processing
 	:members:
 
 .. automodule:: biovida.images.models.img_classification

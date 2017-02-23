@@ -1,7 +1,7 @@
 """
 
-    Text Processing
-    ~~~~~~~~~~~~~~~
+    Open-i Text Processing
+    ~~~~~~~~~~~~~~~~~~~~~~
 
 """
 # Imports
