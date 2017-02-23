@@ -671,13 +671,13 @@ def feature_extract(x, list_of_diseases):
         - image problems (arrows and grids) inferred from the image caption ('image_problems_from_text')
         - ethnicity
 
-    :param x: series passed though Pandas' `DataFrame().apply()` method, e.g.,
+    :param x: series passed though Pandas' ``DataFrame().apply()`` method, e.g.,
               ``df.apply(feature_extract, axis=1)``. The dataframe must contain
-              'abstract' and 'journal_title' columns.
+              'title', 'abstract', 'image_caption', 'image_mention', and 'journal_title' columns.
     :type x: ``Pandas Series``
     :param list_of_diseases: a list of diseases (e.g., via ``DiseaseOntInterface().pull()['name'].tolist()``)
     :type list_of_diseases: ``list``
-    :return: dictionary with the following keys listed in the description.
+    :return: dictionary with the keys listed in the description.
     :rtype: ``dict``
     """
     # Initialize
