@@ -218,7 +218,7 @@ def record_db_merge(current_record_db,
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
     :type duplicates_subset_columns: ``list`` or ``tuple``
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
-                                  in fact, present in the cahce. If not, remove it from the cache.
+                                  in fact, present in the cahce. If not, remove it from the database to be saved.
     :type rows_to_conserve_func: ``function``
     :param post_concat_mapping: a list (or tuple) of the form (new column name, column to apply the func to, func).
     :type post_concat_mapping: ``list`` or ``tuple``
