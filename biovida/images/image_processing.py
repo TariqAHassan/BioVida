@@ -235,7 +235,7 @@ class ImageProcessing(object):
     def _logo_analysis_out(self, analysis_results, output_params):
         """
 
-        Decides the output for the `logo_analysis` function.
+        Decides the output for the ``logo_analysis`` function.
         If the bonding box is in an improbable location, NaN is returned.
         Otherwise, the bonding box, or some portion of it (i.e., the lower left) will be returned.
 
@@ -314,7 +314,7 @@ class ImageProcessing(object):
 
         Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
         populate the corresponding row of the 'medpix_logo_lower_left' column in the 'image_dataframe'
-        with its a. full bonding box (if ``return_full`` is `True`) or lower left corner otherwise.
+        with its a full bonding box if ``return_full=True``, otherwise only the lower left corner.
 
         :param match_quality_threshold: the minimum match quality required to accept the match.
                                         See: ``skimage.feature.match_template()`` for more information.
@@ -692,21 +692,21 @@ class ImageProcessing(object):
 
         self.image_dataframe['valid_image'] = self.image_dataframe.apply(img_validity, axis=1)
 
-    def auto(self
-             , img_problem_threshold=0.275
-             , valid_floor=0.01
-             , require_grayscale=True
-             , new_analysis=False
-             , status=True):
+    def auto(self,
+             img_problem_threshold=0.275,
+             valid_floor=0.01,
+             require_grayscale=True,
+             new_analysis=False,
+             status=True):
         """
 
         Automatically carry out all aspects of image preprocessing (recommended).
 
-        :param img_problem_threshold: see `auto_decision()`. Defaults to `0.275`.
+        :param img_problem_threshold: see ``auto_decision()``. Defaults to `0.275`.
         :type img_problem_threshold: ``float``
         :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
         :type valid_floor: ``float``
-        :param require_grayscale: see `auto_decision()`. Defaults to ``True``
+        :param require_grayscale: see ``auto_decision()``. Defaults to ``True``
         :type require_grayscale: ``bool``
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
@@ -732,7 +732,7 @@ class ImageProcessing(object):
         :param save_path: the directory to save the images.
         :type save_path: ``str``
         :param crop_images: Crop the images using analyses results from `border_analysis()` and
-                            `logo_analysis()`. Defaults to ``True``.
+                            ``logo_analysis()``. Defaults to ``True``.
         :type crop_images: ``bool``
         :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.
         :type convert_to_rgb: ``bool``

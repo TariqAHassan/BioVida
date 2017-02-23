@@ -978,7 +978,7 @@ class _CancerImgArchiveImages(object):
 class CancerImageInterface(object):
     """
 
-    Python Interface for the Cancer Imaging Archive's API.
+    Python Interface for the `Cancer Imaging Archive <http://www.cancerimagingarchive.net/>`_'s API.
 
     :param api_key: an key to the the Cancer Imaging Archive's API.
                     To request a key, please see:
@@ -1161,6 +1161,7 @@ class CancerImageInterface(object):
         :type modality: ``str``, ``iterable`` or ``None``
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
                                   Defaults to ``False``.
+        :type download_override: ``bool``
         :param pretty_print: if ``True``, pretty print the search results. Defaults to ``True``.
         :type pretty_print: ``bool``
         :return: a dataframe containing the search results.
@@ -1168,7 +1169,7 @@ class CancerImageInterface(object):
 
         :Example:
 
-        >>> CancerImageInterface(YOUR_API_KEY_HERE).search(cancer_type='carcinoma', location=['head'])
+        >>> CancerImageInterface(YOUR_API_KEY_HERE).search(cancer_type='carcinoma', location='head')
         ...
            collection                   cancer_type                          modalities         subjects    location
         0  TCGA-HNSC            Head and Neck Squamous Cell Carcinoma  CT, MR, PT                 164     [Head, Neck]
@@ -1336,7 +1337,7 @@ class CancerImageInterface(object):
 
         - Images have the following format:
 
-            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesUID]]__[Image Scale (D=Default)].img_format``
+            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale ('default')].img_format``
 
         where:
 
@@ -1356,7 +1357,7 @@ class CancerImageInterface(object):
 
                 .. warning::
 
-                        Several studies in the Cancer Imaging Archive database have multiple imaging sessions.
+                        Several studies (collections) in the Cancer Imaging Archive database have multiple imaging sessions.
                         Latter sessions may be of patients following interventions, such as surgery, intended to
                         *eliminate* cancerous tissue. For this reason it cannot be assumed that images obtained from
                         non-baseline sessions (i.e., session number > 1) contain signs of disease.
@@ -1366,7 +1367,7 @@ class CancerImageInterface(object):
                                   Defaults to ``None``.
         :type collections_limit: ``int`` or ``None``
         :param allowed_modalities: limit images downloaded to certain modalities.
-                                   See: CancerImageInterface().dicom_modality_abbrevs (use the keys).
+                                   See: ``CancerImageInterface(YOUR_API_KEY_HERE).dicom_modality_abbrevs`` (use the keys).
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
                                    This parameter is not case sensitive. Defaults to ``None``.
         :type allowed_modalities: ``list`` or ``tuple``

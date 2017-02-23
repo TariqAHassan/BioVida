@@ -88,7 +88,7 @@ def _disgenet_readme(created_gene_dirs):
 class DisgenetInterface(object):
     """
 
-    Python Interface for Harvesting Databases from DisGeNET.
+    Python Interface for Harvesting Databases from `DisGeNET <http://www.disgenet.org/>`_.
 
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                        Default to ``None`` (which will generate a cache in the home folder).

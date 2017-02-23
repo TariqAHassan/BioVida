@@ -290,7 +290,7 @@ def robust_match_template(pattern_img,
     :type base_img_cropping: ``tuple``
     :return: A dictionary of the form: ``{"bounding_box": ..., "match_quality": ..., "base_img_shape": ...}``.
 
-            - bounding_box (``dict``): ``{'bottom_right': (x, y), 'top_right':.., 'top_left':.., 'bottom_left':...)}}``.
+            - bounding_box (``dict``): ``{'bottom_right': (x, y), 'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}``.
 
             - match quality (``float``): quality of the match.
 

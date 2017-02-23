@@ -672,8 +672,14 @@ def feature_extract(x, list_of_diseases):
         - ethnicity
 
     :param x: series passed though Pandas' ``DataFrame().apply()`` method, e.g.,
-              ``df.apply(feature_extract, axis=1)``. The dataframe must contain
-              'title', 'abstract', 'image_caption', 'image_mention', and 'journal_title' columns.
+              ``df.apply(lambda x: feature_extract(x, list_of_diseases), axis=1)``.
+
+              .. note::
+
+                   The dataframe must contain 'title', 'abstract', 'image_caption', 'image_mention'
+                   and 'journal_title' columns.
+
+
     :type x: ``Pandas Series``
     :param list_of_diseases: a list of diseases (e.g., via ``DiseaseOntInterface().pull()['name'].tolist()``)
     :type list_of_diseases: ``list``

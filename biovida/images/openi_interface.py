@@ -824,7 +824,7 @@ def _img_relation_map(data_frame):
 class OpeniInterface(object):
     """
 
-    Python Interface for the NIH's Open-i API.
+    Python Interface for the NIH's `Open-i <https://openi.nlm.nih.gov>`_ API.
 
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
                        one will created. Default to ``None``, which will generate a cache in the home folder.
@@ -952,7 +952,7 @@ class OpeniInterface(object):
     def options(self, search_parameter, print_options=True):
         """
 
-        Options for parameters of `openi_search()`.
+        Options for parameters of ``search()``.
 
         :param search_parameter: one of: 'image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
                                          'specialties', 'video' or `exclusions`.
@@ -998,10 +998,14 @@ class OpeniInterface(object):
         :type specialties: ``list``, ``tuple`` or ``None``.
         :param video: see ``OpeniInterface().options('video')`` for valid values. Defaults to ``None``.
         :type video: ``list``, ``tuple`` or ``None``.
-        :param exclusions: one or both of: 'graphics', 'multipanel'.
-                           Note: excluding 'multipanel' can result in images that ARE multipanel
+        :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ``['graphics']``.
+
+                    .. note::
+
+                           Excluding 'multipanel' can result in images that *are* multipanel
                            being returned from Open-i API. For this reason, including 'multipanel'
-                           is not currently recommended. Defaults to ['graphics'].
+                           is not currently recommended.
+
         :type exclusions: ``list``, ``tuple`` or ``None``
         :param print_results: if ``True``, print the number of search results.
         :type print_results: ``bool``
@@ -1047,7 +1051,7 @@ class OpeniInterface(object):
                               (not recommended). Defaults to 60.
         :type download_limit: ``int``
         :return: a DataFrame with the record information.
-                 If `image_size` is not None, images will also be harvested and cached.
+                 If ``image_size`` is not None, images will also be harvested and cached.
         :rtype: ``Pandas DataFrame``
         """
         # Pull Records

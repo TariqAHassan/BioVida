@@ -24,7 +24,7 @@ from biovida.support_tools._cache_management import package_cache_creator
 class DiseaseOntInterface(object):
     """
 
-    Python Interface for Harvesting the Disease Ontology Database.
+    Python Interface for Harvesting the `Disease Ontology <http://disease-ontology.org/>`_ Database.
 
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                    Default to ``None`` (which will generate a cache in the home folder).
