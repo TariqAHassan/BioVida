@@ -17,7 +17,7 @@ from biovida.support_tools._cache_management import package_cache_creator
 class DiseaseSymptomsInterface(object):
     """
 
-    Tools to download the databases relating symptoms to diseases.
+    Tools to obtain databases relating symptoms to diseases.
 
     References:
 
@@ -50,6 +50,18 @@ class DiseaseSymptomsInterface(object):
         self.hsdn_db = None
         self.rephetio_ml_db = None
         self.combined_db = None
+
+    def _clean_columns(self, columns):
+        """
+
+        Convert ``columns`` into snake_case.
+
+        :param columns: a list of dataframe columns
+        :type columns: ``Pandas Series`` or ``list``
+        :return: columns in snake_case
+        :rtype: ``list``
+        """
+        return list(map(lambda x: cln(x).replace(" ", "_").lower(), list(columns)))
 
     def _comma_reverse(self, term):
         """
@@ -101,7 +113,7 @@ class DiseaseSymptomsInterface(object):
         :type data_frame: ``Pandas DataFrame``
         """
         # Correct the column names
-        data_frame.columns = map(lambda x: cln(x).replace(" ", "_").lower(), data_frame.columns)
+        data_frame.columns = self._clean_columns(data_frame.columns)
 
         # Reverse commas
         data_frame['common_disease_name'] = data_frame['mesh_disease_term'].map(self._comma_reverse)
@@ -147,7 +159,7 @@ class DiseaseSymptomsInterface(object):
         :rtype: ``Pandas DataFrame``
         """
         # Correct the column names
-        data_frame.columns = map(lambda x: cln(x).replace(" ", "_").lower(), data_frame.columns)
+        data_frame.columns = self._clean_columns(data_frame.columns)
 
         # Reverse commas
         data_frame['common_symptom_term'] = data_frame['mesh_name'].map(self._comma_reverse)
@@ -202,7 +214,7 @@ class DiseaseSymptomsInterface(object):
         combined_db = pd.concat([hsdn[concat_on_cols], rephetio[concat_on_cols]], ignore_index=True)
 
         # Return
-        return combined_db.drop_duplicates()
+        return combined_db.drop_duplicates().reset_index(drop=True)
 
     def pull(self, download_override=False):
         """
@@ -223,8 +235,6 @@ class DiseaseSymptomsInterface(object):
             self.combined_db = pd.read_pickle(save_path)
 
         return self.combined_db
-
-
 
 
 
