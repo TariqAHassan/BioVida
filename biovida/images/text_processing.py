@@ -675,7 +675,7 @@ def feature_extract(x, list_of_diseases):
               ``df.apply(feature_extract, axis=1)``. The dataframe must contain
               'abstract' and 'journal_title' columns.
     :type x: ``Pandas Series``
-    :param list_of_diseases: a list of diseases (e.g., via ``DiseaseOntInterface(cache_path=cache_path).pull()['name'].tolist()``)
+    :param list_of_diseases: a list of diseases (e.g., via ``DiseaseOntInterface().pull()['name'].tolist()``)
     :type list_of_diseases: ``list``
     :return: dictionary with the following keys listed in the description.
     :rtype: ``dict``
