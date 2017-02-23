@@ -599,26 +599,36 @@ def _try_fuzzywuzzy_import():
 def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     """
 
-    Tool to Unify Image Interfaces (currently ``OpeniInterface`` and ``CancerImageInterface``)
+    Tool to unify image interfaces (``OpeniInterface`` and ``CancerImageInterface``)
     with Diagnostic and Genomic Data.
 
-    :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a tuple.
-    :rtype interfaces: ``tuple``, ``list``, ``OpeniInterface`` class or ``CancerImageInterface`` class.
+    :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a list.
+    :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``.
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
-    Default to ``None`` (which will generate a cache in the home folder).
+                       Default to ``None`` (which will generate a cache in the home folder).
     :type cache_path: ``str`` or ``None``
     :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.
     :type verbose: ``bool``
     :param fuzzy_threshold: an integer on ``(0, 100]``.
     
-            .. warning::
-            
-                    Fuzzy searching for large databases, such as those this function integrates, is very
-                    computationally expensive.
+                .. warning::
+
+                        Fuzzy searching with large databases, such as those this function integrates, is very
+                        computationally expensive.
     
     :type fuzzy_threshold: ``int``, `bool`, ``None``
     :return: a dataframe which unifies image interfaces with  genomic and diagnostics data.
     :rtype: ``Pandas DataFrame``
+
+    :Example:
+
+    >>> from biovida.images.openi_interface import OpeniInterface
+    >>> from biovida.images.cancer_image_interface import CancerImageInterface
+    ...
+    >>> opi = OpeniInterface()
+    >>> cii = CancerImageInterface(YOUR_API_KEY_HERE)
+    ...
+    >>> udf = unify(interfaces=[opi, cii])
     """
     if is_int(fuzzy_threshold):
         _try_fuzzywuzzy_import()
