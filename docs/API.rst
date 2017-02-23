@@ -28,6 +28,9 @@ API
 .. automodule:: biovida.diagnostics.disease_ont_interface
 	:members:
 
+.. automodule:: biovida.unify_domains
+	:members:
+
 .. automodule:: biovida.support_tools.printing
 	:members:
 
