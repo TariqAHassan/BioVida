@@ -16,7 +16,6 @@ from biovida.genomics.disgenet_interface import DisgenetInterface
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 from biovida.diagnostics.disease_symptoms_interface import DiseaseSymptomsInterface
 
-
 # Support Tools
 from biovida.support_tools.support_tools import is_int
 from biovida.support_tools.support_tools import header
@@ -622,7 +621,7 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     :type cache_path: ``str`` or ``None``
     :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.
     :type verbose: ``bool``
-    :param fuzzy_threshold: an integer on ``(0, 100]``.
+    :param fuzzy_threshold: an integer on ``(0, 100]``. If ``True`` a threshold of `95` will be used. Defaults to ``False``.
     
                 .. warning::
 
@@ -643,6 +642,10 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     ...
     >>> udf = unify(interfaces=[opi, cii])
     """
+    # Catch ``fuzzy_threshold=True`` and set to a reasonably high default.
+    if fuzzy_threshold is True:
+        fuzzy_threshold = 95
+
     if is_int(fuzzy_threshold):
         _try_fuzzywuzzy_import()
 
