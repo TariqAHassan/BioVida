@@ -355,19 +355,17 @@ class _OpeniRecords(object):
 
     """
 
-    def __init__(self, root_url, date_format, records_sleep_time, verbose, cache_path=None, req_limit=30):
+    def __init__(self, root_url, date_format, verbose, cache_path, req_limit=30):
         """
 
-        :param cache_path:
         :param root_url: suggested: 'https://openi.nlm.nih.gov'
         :param date_format: suggested: "%d/%m/%Y" (consider leaving as datetime)
-        :param records_sleep_time: (every x downloads, period of time [seconds])
         :param verbose: print additional details.
-        :param req_limit: Defaults to 30, which is the max allowed by Open-i.
+        :param cache_path:
+        :param req_limit: Defaults to 30 (max allowed by Open-i; see: https://openi.nlm.nih.gov/services.php?it=xg).
         """
         self.root_url = root_url
         self.date_format = date_format
-        self.records_sleep_time = records_sleep_time
         self.verbose = verbose
         self.req_limit = req_limit
 
@@ -376,6 +374,9 @@ class _OpeniRecords(object):
 
         # Obtain a list of disease names
         self.list_of_diseases = DiseaseOntInterface(cache_path=cache_path).pull()['name'].tolist()
+
+        # Sleep Time
+        self.records_sleep_time = None
 
     def openi_bounds(self, total):
         """
@@ -525,12 +526,15 @@ class _OpeniRecords(object):
 
         return list_of_dicts
 
-    def openi_harvest(self, bounds_list, joined_url, to_harvest, download_no):
+    def openi_harvest(self, bounds_list, joined_url, to_harvest, records_sleep_time, download_no):
         """
+
+
 
         :param bounds_list:
         :param joined_url:
-        :param bound:
+        :param to_harvest:
+        :param records_sleep_time:
         :param download_no:
         :return:
         """
@@ -547,8 +551,8 @@ class _OpeniRecords(object):
                 '{:,.0f}'.format(download_no), str(self.req_limit)))
 
         for bound in tqdm(bounds_list):
-            if c % self.records_sleep_time[0] == 0:
-                sleep_with_noise(amount_of_time=self.records_sleep_time[1])
+            if c % records_sleep_time[0] == 0:
+                sleep_with_noise(amount_of_time=records_sleep_time[1])
 
             # Harvest
             harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
@@ -612,7 +616,14 @@ class _OpeniRecords(object):
 
         return data_frame
 
-    def records_pull(self, search_url, to_harvest, total, query, query_time, download_limit=None):
+    def records_pull(self,
+                     search_url,
+                     to_harvest,
+                     total,
+                     query,
+                     query_time,
+                     records_sleep_time,
+                     download_limit=None):
         """
 
         'Walk' along the search query and harvest the data.
@@ -622,6 +633,7 @@ class _OpeniRecords(object):
         :param total:
         :param query:
         :param query_time:
+        :param records_sleep_time: (every x downloads, period of time [seconds])
         :param download_limit:
         :return:
         """
@@ -638,7 +650,11 @@ class _OpeniRecords(object):
         to_harvest = self.harvest_vect(to_harvest)
 
         # Harvest the data
-        harvest = self.openi_harvest(bounds_list, search_url, to_harvest, download_no)
+        harvest = self.openi_harvest(bounds_list=bounds_list,
+                                     joined_url=search_url,
+                                     to_harvest=to_harvest,
+                                     records_sleep_time=records_sleep_time,
+                                     download_no=download_no)
 
         # Convert to a DataFrame
         records_df = pd.DataFrame(harvest).fillna(np.NaN)
@@ -664,14 +680,12 @@ class _OpeniRecords(object):
 class _OpeniImages(object):
     """
 
-    :param images_sleep_time:
     :param image_save_location: suggested: created_img_dirs['openi'])
     :param database_save_location:
     :param verbose:
     """
 
-    def __init__(self, images_sleep_time, image_save_location, database_save_location, verbose):
-        self.images_sleep_time = images_sleep_time
+    def __init__(self, image_save_location, database_save_location, verbose):
         self.image_save_location = image_save_location
         self.verbose = verbose
 
@@ -763,7 +777,7 @@ class _OpeniImages(object):
 
         return image_downloaded
 
-    def images_pull(self, records_df, image_size, query_time):
+    def images_pull(self, records_df, image_size, query_time, images_sleep_time):
         """
 
         Pull images based on the records dataframe.
@@ -773,6 +787,10 @@ class _OpeniImages(object):
         :param image_size: one of 'grid150', 'large', 'thumb' or 'thumb_large'.
         :param query_time: the time the query was made by ``OpeniInterface.search()``.
         :type query_time: ``datetime``
+        :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
+                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution
+                                   (with mean = 0, sd = 0.75).
+        :type images_sleep_time: ``tuple``
         :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
@@ -801,9 +819,9 @@ class _OpeniImages(object):
             # Save the image
             download_count += self._individual_image_harvest(index, image_url=image_url, image_save_path=image_save_path)
 
-            # Sleep when `download_count` 'builds up' to self.images_sleep_time[0].
-            if download_count == self.images_sleep_time[0]:
-                sleep_with_noise(amount_of_time=self.images_sleep_time[1])
+            # Sleep when `download_count` 'builds up' to images_sleep_time[0].
+            if download_count == images_sleep_time[0]:
+                sleep_with_noise(amount_of_time=images_sleep_time[1])
                 download_count = 0  # reset
 
         return self.real_time_update_db
@@ -859,16 +877,6 @@ class OpeniInterface(object):
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
                        one will created. Default to ``None``, which will generate a cache in the home folder.
     :type cache_path: ``str`` or ``None``
-    :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
-                               Note: noise is randomly added to the sleep time by sampling from a normal distribution
-                               (with mean = 0, sd = 0.75).
-    :type images_sleep_time: ``int`` or ``float``
-    :param date_format: Defaults to ``'%d/%m/%Y'``.
-    :type date_format: ``str``
-    :param records_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
-                               Note: noise is randomly added to the sleep time by sampling from a normal distribution
-                               (with mean = 0, sd = 0.75).
-    :type records_sleep_time: ``tuple``
     :param verbose: print additional details.
     :type verbose: ``bool``
     """
@@ -930,13 +938,11 @@ class OpeniInterface(object):
 
     def __init__(self,
                  cache_path=None,
-                 images_sleep_time=(10, 1.5),
-                 date_format='%d/%m/%Y',
-                 records_sleep_time=(10, 1.5),
                  verbose=True):
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
         self._time_format = "%Y_%h_%d__%H_%M_%S_%f"
+        self._date_format = '%d/%m/%Y',
 
         # Generate Required Caches
         self.root_path, self._created_img_dirs = package_cache_creator(sub_dir='images',
@@ -949,15 +955,14 @@ class OpeniInterface(object):
         # Instantiate Classes
         self._Search = _OpeniSearch()
 
-        self._Images = _OpeniImages(images_sleep_time=images_sleep_time,
-                                    image_save_location=self._created_img_dirs['raw'],
+        self._Records = _OpeniRecords(root_url=self._root_url,
+                                      date_format=self._date_format,
+                                      verbose=verbose,
+                                      cache_path=cache_path)
+
+        self._Images = _OpeniImages(image_save_location=self._created_img_dirs['raw'],
                                     database_save_location=self._created_img_dirs['databases'],
                                     verbose=verbose)
-
-        self._Records = _OpeniRecords(root_url=self._root_url,
-                                      date_format=date_format,
-                                      records_sleep_time=records_sleep_time,
-                                      verbose=verbose)
 
         # Search attributes
         self._query_time = None
@@ -1064,14 +1069,17 @@ class OpeniInterface(object):
         self.current_search_total = search['current_search_total']
         self._current_search_to_harvest = search['current_search_to_harvest']
 
-    def pull(self, image_size='large', new_records_pull=True, download_limit=60):
+    def pull(self,
+             new_records_pull=True,
+             image_size='large',
+             records_sleep_time=(10, 1.5),
+             images_sleep_time=(10, 1.5),
+             download_limit=60):
         """
 
         Pull (i.e., download) the current search.
 
-        :param image_size: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
-                          If ``None``, no attempt will be made to download images.
-        :type image_size: ``str`` or ``None``
+
         :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.
 
             .. note::
@@ -1080,6 +1088,17 @@ class OpeniInterface(object):
                truncate or otherwise modify ``INSTANCE.records_db`` and then download images.
 
         :type new_records_pull: ``bool``
+        :param image_size: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
+                          If ``None``, no attempt will be made to download images.
+        :type image_size: ``str`` or ``None``
+        :param records_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
+                               Note: noise is randomly added to the sleep time by sampling from a normal distribution
+                               (with mean = 0, sd = 0.75).
+        :type records_sleep_time: ``tuple``
+        :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
+                                Note: noise is randomly added to the sleep time by sampling from a normal distribution
+                                (with mean = 0, sd = 0.75).
+        :type images_sleep_time: ``tuple``
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 60.
         :type download_limit: ``int``
@@ -1098,6 +1117,7 @@ class OpeniInterface(object):
                                                          total=self.current_search_total,
                                                          query=self.current_query,
                                                          query_time=self._query_time,
+                                                         records_sleep_time=records_sleep_time,
                                                          download_limit=download_limit)
 
         # Pull Images
@@ -1105,7 +1125,8 @@ class OpeniInterface(object):
             # Pull the images.
             self.records_db = self._Images.images_pull(records_df=self.records_db,
                                                        image_size=image_size,
-                                                       query_time=self._query_time.strftime(self._time_format))
+                                                       query_time=self._query_time.strftime(self._time_format),
+                                                       images_sleep_time=images_sleep_time)
 
             # Add the new records_db datafame with the existing `cache_record_db`.
             self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
