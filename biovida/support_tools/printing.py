@@ -14,6 +14,8 @@ from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import pstr
 from biovida.support_tools.support_tools import items_null
 
+# Suppress Pandas' SettingWithCopyWarning
+pd.options.mode.chained_assignment = None
 
 # ---------------------------------------------------------------------------------------------
 # Dictionary Printing Suite
