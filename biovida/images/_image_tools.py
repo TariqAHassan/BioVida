@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from tqdm import tqdm
-# from keras.preprocessing import image
+from time import sleep
 from scipy.misc import imread, imresize
 from skimage.color.colorconv import rgb2gray
 
@@ -19,6 +19,21 @@ from biovida.support_tools.support_tools import items_null
 
 class NoResultsFound(Exception):
     pass
+
+
+def sleep_with_noise(amount_of_time, mean=0.0, noise=0.75):
+    """
+
+    Sleep the current python instance by `amount_of_time`.
+
+    :param amount_of_time: the amount of time to sleep the instance for.
+    :type amount_of_time: ``int`` or ``float``
+    :param mean: see ``numpy.random.normal()``. Defaults to 0.0.
+    :type mean: ``float``
+    :param noise: see ``numpy.random.normal()``. Defaults to 0.75.
+    :type noise: ``float``
+    """
+    sleep(abs(amount_of_time + np.random.normal(loc=mean, scale=noise)))
 
 
 def resetting_label(to_label):
