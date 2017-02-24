@@ -11,6 +11,7 @@ import pandas as pd
 import pkg_resources
 from PIL import Image
 from tqdm import tqdm
+from warnings import warn
 from PIL import ImageStat
 from scipy.misc import imread
 
@@ -69,15 +70,23 @@ def _extract_search_class_db(database_to_extract, search_class):
     :return: extract database
     :rtype: ``Pandas DataFrame``
     """
-    if database_to_extract == 'search':
-        extracted_db = search_class.current_search_database
-    elif database_to_extract == 'record':
-        extracted_db = search_class.image_record_database
-    else:
-        raise ValueError("`database_to_extract` must be one of: 'search', 'record'.")
+    if database_to_extract not in ('search', 'cache'):
+        raise ValueError("`database_to_extract` must be one of: 'search', 'cache'.")
+
+    falling_back = False
+    if database_to_extract == 'search' and type(search_class.records_db).__name__ != 'NoneType':
+        extracted_db = search_class.records_db
+    elif database_to_extract == 'cache' or type(search_class.records_db).__name__ == 'NoneType':
+        if type(search_class.records_db).__name__ == 'NoneType':
+            falling_back = True
+            warn("\n`records_db` was found to be `None`. Falling back to `cache_record_db`.")
+        extracted_db = search_class.cache_record_db
 
     if extracted_db is None:
-        raise AttributeError("The {0} database provided was `None`.".format(database_to_extract))
+        if falling_back is False:
+            raise AttributeError("The '{0}' database provided was `None`. ".format(database_to_extract))
+        else:
+            raise AttributeError("Both the `records_db` and `cache_record_db` were `None`.")
     else:
         to_return = extracted_db.copy(deep=True)
         return to_return
@@ -93,22 +102,22 @@ class ImageProcessing(object):
     :param model_location: the location of the model for Convnet.
                           If `None`, the default model will be used. Defaults to ``None``.
     :type model_location: ``str``
-    :param database_to_extract: 'search' to extract the ``current_search_database`` from ``search_class`` or
-                                 'record' to extract ``image_record_database``. Defaults to 'search'.
+    :param database_to_extract: 'search' to extract the ``records_db`` from ``search_class`` or
+                                 'cache' to extract ``cache_record_db``. Defaults to 'search'.
     :type database_to_extract: ``str``
     :param verbose: if ``True``, print additional details. Defaults to ``False``.
     :type verbose: ``bool``
 
     :var image_dataframe: this is the search dataframe that was passed when instantiating the class and
-                          contains a record of all analyses run as new columns.
+                          contains a cache of all analyses run as new columns.
     """
     def __init__(self, search_class, model_location=None, database_to_extract='search', verbose=True):
         self._verbose = verbose
 
-        if "OpenInterface" not in str(type(search_class)):
-            raise ValueError("`search_class` must be a OpenInterface instance.")
+        if "OpeniInterface" != type(search_class).__name__:
+            raise ValueError("`search_class` must be a `OpeniInterface` instance.")
 
-        # Extract the search/record database
+        # Extract the search/cache database
         self.image_dataframe = _extract_search_class_db(database_to_extract, search_class)
 
         # Extract path to the MedPix Logo
@@ -186,7 +195,7 @@ class ImageProcessing(object):
         :rtype: ``zip`` or ``list of ndarrays``
         """
         if self._ndarrays_images is None or reload_override:
-            self._ndarrays_images = [imread(i, flatten=True) for i in self.image_dataframe['img_cache_path']]
+            self._ndarrays_images = [imread(i, flatten=True) for i in self.image_dataframe['cached_images_path']]
 
         if zip_with_column is not None:
             return zip(*[self._ndarrays_images, self.image_dataframe[zip_with_column]])
@@ -229,7 +238,7 @@ class ImageProcessing(object):
             print("\n\nStarting Grayscale Analysis...")
 
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
-            self.image_dataframe['grayscale'] = self.image_dataframe['img_cache_path'].progress_map(
+            self.image_dataframe['grayscale'] = self.image_dataframe['cached_images_path'].progress_map(
                 self._grayscale_img, na_action='ignore')
 
     def _logo_analysis_out(self, analysis_results, output_params):
@@ -465,13 +474,13 @@ class ImageProcessing(object):
         self.image_dataframe['upper_crop'] = self.image_dataframe.apply(self._h_crop_top_decision, axis=1)
         self.image_dataframe['lower_crop'] = self.image_dataframe.apply(self._h_crop_lower_decision, axis=1)
 
-    def _apply_cropping(self, img_cache_path, lower_crop, upper_crop, vborder, return_as_array=True, convert_to_rgb=True):
+    def _apply_cropping(self, cached_images_path, lower_crop, upper_crop, vborder, return_as_array=True, convert_to_rgb=True):
         """
 
         Applies cropping to a specific image.
 
-        :param img_cache_path: path to the image
-        :type img_cache_path: ``str``
+        :param cached_images_path: path to the image
+        :type cached_images_path: ``str``
         :param lower_crop: row of the column produced by the ``crop_decision()`` method.
         :type lower_crop: ``int`` (can be ``float`` if the column contains NaNs)
         :param upper_crop: row of the column produced by the ``crop_decision()`` method.
@@ -484,7 +493,7 @@ class ImageProcessing(object):
         :rtype: ``PIL`` or ``2D ndarray``
         """
         # Load the image
-        converted_image = Image.open(img_cache_path)
+        converted_image = Image.open(cached_images_path)
 
         # Horizontal Cropping
         if not items_null(lower_crop):
@@ -514,7 +523,7 @@ class ImageProcessing(object):
 
         Uses `_apply_cropping()` to apply cropping to images in a dataframe.
 
-        :param data_frame: a dataframe with 'img_cache_path', 'lower_crop', 'upper_crop' and 'vborder' columns.
+        :param data_frame: a dataframe with 'cached_images_path', 'lower_crop', 'upper_crop' and 'vborder' columns.
                           if None ``image_dataframe`` is used.
         :type data_frame: ``None`` or ``Pandas DataFrame``
         :param return_as_array: if True, convert the PIL object to an ``ndarray``. Defaults to True.
@@ -538,11 +547,11 @@ class ImageProcessing(object):
             df = data_frame
 
         # Zip the relevant columns (faster than looping through the dataframe directly).
-        to_predict = zip(*[df[i] for i in ('img_cache_path', 'lower_crop', 'upper_crop', 'vborder')])
+        to_predict = zip(*[df[i] for i in ('cached_images_path', 'lower_crop', 'upper_crop', 'vborder')])
 
         all_cropped_images = list()
-        for img_cache_path, lower_crop, upper_crop, vborder in self._apply_status(to_predict, status):
-            cropped_image = self._apply_cropping(img_cache_path,
+        for cached_images_path, lower_crop, upper_crop, vborder in self._apply_status(to_predict, status):
+            cropped_image = self._apply_cropping(cached_images_path,
                                                  lower_crop,
                                                  upper_crop,
                                                  vborder,
@@ -550,7 +559,7 @@ class ImageProcessing(object):
                                                  convert_to_rgb)
 
             if include_path:
-                all_cropped_images.append((cropped_image, img_cache_path))
+                all_cropped_images.append((cropped_image, cached_images_path))
             else:
                 all_cropped_images.append(cropped_image)
 
@@ -760,7 +769,7 @@ class ImageProcessing(object):
         else:
             if self._verbose:
                 print("\n\nLoading Images...")
-            images_to_return = self._pil_load(valid_df['img_cache_path'], convert_to_rgb, status)
+            images_to_return = self._pil_load(valid_df['cached_images_path'], convert_to_rgb, status)
 
         # Save to disk
         if self._verbose:
