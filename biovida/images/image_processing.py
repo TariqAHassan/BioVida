@@ -82,7 +82,7 @@ def _extract_search_class_db(database_to_extract, search_class):
             warn("\n`records_db` was found to be `None`. Falling back to `cache_record_db`.")
         extracted_db = search_class.cache_record_db
 
-    if extracted_db is None:
+    if type(extracted_db).__name__ == 'NoneType':
         if falling_back is False:
             raise AttributeError("The '{0}' database provided was `None`. ".format(database_to_extract))
         else:
