@@ -70,26 +70,33 @@ def _extract_search_class_db(database_to_extract, search_class):
     :return: extract database
     :rtype: ``Pandas DataFrame``
     """
-    if database_to_extract not in ('search', 'cache'):
-        raise ValueError("`database_to_extract` must be one of: 'search', 'cache'.")
+    if database_to_extract not in ('current', 'cache'):
+        raise ValueError("`database_to_extract` must be one of: 'current', 'cache'.")
 
-    falling_back = False
-    if database_to_extract == 'search' and type(search_class.records_db).__name__ != 'NoneType':
-        extracted_db = search_class.records_db
-    elif database_to_extract == 'cache' or type(search_class.records_db).__name__ == 'NoneType':
-        if type(search_class.records_db).__name__ == 'NoneType':
-            falling_back = True
-            warn("\n`records_db` was found to be `None`. Falling back to `cache_record_db`.")
+    def deep_copy_dataframe(data_frame):
+        to_return = data_frame.copy(deep=True)
+        return to_return
+
+    def is_dataframe(data_frame):
+        return type(data_frame).__name__ == 'DataFrame'
+
+    fall_back = False
+    if database_to_extract == 'current' and is_dataframe(search_class.records_db):
+        return deep_copy_dataframe(search_class.records_db)
+    elif not is_dataframe(search_class.records_db):
+        fall_back = True
+        warn("\n`records_db` is not a DataFrame. Falling back to `cache_record_db`.")
+
+    if database_to_extract == 'cache' or fall_back:
         extracted_db = search_class.cache_record_db
 
-    if type(extracted_db).__name__ == 'NoneType':
-        if falling_back is False:
-            raise AttributeError("The '{0}' database provided was `None`. ".format(database_to_extract))
+    if not is_dataframe(extracted_db):
+        if fall_back is False:  # i.e., the user set ``database_to_extract='cache'``.
+            raise TypeError("The '{0}' database provided is not a DataFrame. ".format(database_to_extract))
         else:
-            raise AttributeError("Both the `records_db` and `cache_record_db` were `None`.")
+            raise TypeError("Neither `records_db` nor `cache_record_db` are DataFrames.")
     else:
-        to_return = extracted_db.copy(deep=True)
-        return to_return
+        return deep_copy_dataframe(extracted_db)
 
 
 class ImageProcessing(object):
@@ -102,22 +109,22 @@ class ImageProcessing(object):
     :param model_location: the location of the model for Convnet.
                           If `None`, the default model will be used. Defaults to ``None``.
     :type model_location: ``str``
-    :param database_to_extract: 'search' to extract the ``records_db`` from ``search_class`` or
-                                 'cache' to extract ``cache_record_db``. Defaults to 'search'.
+    :param database_to_extract: 'current' to extract the ``records_db`` from ``search_class`` or
+                                 'cache' to extract ``cache_record_db``. Defaults to 'current'.
     :type database_to_extract: ``str``
     :param verbose: if ``True``, print additional details. Defaults to ``False``.
     :type verbose: ``bool``
 
-    :var image_dataframe: this is the search dataframe that was passed when instantiating the class and
+    :var image_dataframe: this is the current dataframe that was passed when instantiating the class and
                           contains a cache of all analyses run as new columns.
     """
-    def __init__(self, search_class, model_location=None, database_to_extract='search', verbose=True):
+    def __init__(self, search_class, model_location=None, database_to_extract='current', verbose=True):
         self._verbose = verbose
 
         if "OpeniInterface" != type(search_class).__name__:
             raise ValueError("`search_class` must be a `OpeniInterface` instance.")
 
-        # Extract the search/cache database
+        # Extract the current/cache database
         self.image_dataframe = _extract_search_class_db(database_to_extract, search_class)
 
         # Extract path to the MedPix Logo
@@ -375,12 +382,12 @@ class ImageProcessing(object):
         # Update dataframe with the (x, y) values of the lower left corner of the logo's bonding box.
         self.image_dataframe['medpix_logo_lower_left'] = results
 
-    def border_analysis(self
-                        , signal_strength_threshold=0.25
-                        , min_border_separation=0.15
-                        , lower_bar_search_space=0.9
-                        , new_analysis=False
-                        , status=True):
+    def border_analysis(self,
+                        signal_strength_threshold=0.25,
+                        min_border_separation=0.15,
+                        lower_bar_search_space=0.9,
+                        new_analysis=False,
+                        status=True):
         """
 
         Wrapper for ``biovida.images.models.border_detection.border_detection()``.
@@ -474,7 +481,13 @@ class ImageProcessing(object):
         self.image_dataframe['upper_crop'] = self.image_dataframe.apply(self._h_crop_top_decision, axis=1)
         self.image_dataframe['lower_crop'] = self.image_dataframe.apply(self._h_crop_lower_decision, axis=1)
 
-    def _apply_cropping(self, cached_images_path, lower_crop, upper_crop, vborder, return_as_array=True, convert_to_rgb=True):
+    def _apply_cropping(self,
+                        cached_images_path,
+                        lower_crop,
+                        upper_crop,
+                        vborder,
+                        return_as_array=True,
+                        convert_to_rgb=True):
         """
 
         Applies cropping to a specific image.
@@ -586,9 +599,9 @@ class ImageProcessing(object):
         transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self._ircnn.img_shape, status=status)
 
         # Make the predictions and Save
-        self.image_dataframe['visual_image_problems'] = self._ircnn.predict([transformed_images],
-                                                                   status=status,
-                                                                   verbose=verbose_prediction)
+        self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
+                                                                            status=status,
+                                                                            verbose=verbose_prediction)
 
     def visual_image_problems(self, new_analysis=False, status=True):
         """
