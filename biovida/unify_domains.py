@@ -59,18 +59,18 @@ class _ImagesInterfaceIntegration(object):
             axis=1
         )
 
-        # Convert the 'converted_files_path' column from a series of string to a series of tuples.
-        cache_record_db_cln['converted_files_path'] = cache_record_db_cln['converted_files_path'].map(
+        # Convert the 'cached_images_path' column from a series of string to a series of tuples.
+        cache_record_db_cln['cached_images_path'] = cache_record_db_cln['cached_images_path'].map(
             lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore'
         )
 
         # Define columns to keep
         openi_columns = ['image_id', 'image_caption', 'modality_best_guess', 'age', 'sex',
-                         'diagnosis', 'query', 'query_time', 'download_success', 'converted_files_path']
+                         'diagnosis', 'query', 'query_time', 'download_success', 'cached_images_path']
 
         # Column name changes
         openi_col_rename = {'diagnosis': 'disease',
-                            'converted_files_path': 'files_path',
+                            'cached_images_path': 'files_path',
                             'download_success': 'harvest_success'}
 
         # Define subsection based on `openi_columns`
@@ -94,7 +94,7 @@ class _ImagesInterfaceIntegration(object):
         """
         # Define columns to keep
         cancer_img_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age', 'sex',
-                              'cancer_type', 'query', 'query_time', 'conversion_success', 'converted_files_paths']
+                              'cancer_type', 'query', 'query_time', 'conversion_success', 'cached_images_path']
 
         # Column name changes (based on `_open_i_prep`).
         cancer_img_col_rename = {'series_instance_uid': 'image_id',
@@ -102,7 +102,7 @@ class _ImagesInterfaceIntegration(object):
                                  'modality_full': 'modality_best_guess',
                                  'cancer_type': 'disease',
                                  'conversion_success': 'harvest_success',
-                                 'converted_files_paths': 'files_path'}
+                                 'cached_images_path': 'files_path'}
 
         # Deep copy the input to prevent mutating the original in memory.
         cache_record_db_cln = cache_record_db.copy(deep=True)

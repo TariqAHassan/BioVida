@@ -708,7 +708,7 @@ class _CancerImgArchiveImages(object):
         all_save_paths, success = self._dicom_to_standard_image(f, pull_position, conversion, new_file_name, img_format)
 
         # Update Record
-        cfp_len = self._update_and_set_list(index, 'converted_files_paths', all_save_paths, return_replacement_len=True)
+        cfp_len = self._update_and_set_list(index, 'cached_images_path', all_save_paths, return_replacement_len=True)
         self.real_time_update_db.set_value(index, 'image_count_converted_cache', cfp_len)
 
         # Add record of whether or not the dicom file could be converted to a standard image type
@@ -894,7 +894,7 @@ class _CancerImgArchiveImages(object):
                 shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
                 self._update_and_set_list(index, 'raw_dicom_files_paths', dsl_summary)
-                self._update_and_set_list(index, 'converted_files_paths', sl_summary)
+                self._update_and_set_list(index, 'cached_images_path', sl_summary)
                 self.real_time_update_db.set_value(index, 'conversion_success', cache_complete)
                 self.real_time_update_db.set_value(index, 'image_count_converted_cache', len(sl_summary))
                 # Save the data frame
@@ -959,7 +959,7 @@ class _CancerImgArchiveImages(object):
         self.real_time_update_db = img_records
 
         # Add columns which will be populated as the images are pulled.
-        for c in ('raw_dicom_files_paths', 'converted_files_paths', 'conversion_success',
+        for c in ('raw_dicom_files_paths', 'cached_images_path', 'conversion_success',
                   'allowed_modaility', 'image_count_converted_cache'):
             self.real_time_update_db[c] = None
 
@@ -1015,7 +1015,7 @@ class CancerImageInterface(object):
             self.cache_record_db.to_pickle(self._tcia_cache_record_db_save_path)
         else:
             duplicates_subset_columns = [c for c in self.cache_record_db.columns if c != 'query_time']
-            columns_with_iterables_to_sort = ('converted_files_paths', 'raw_dicom_files_paths')
+            columns_with_iterables_to_sort = ('cached_images_path', 'raw_dicom_files_paths')
             self.cache_record_db = record_db_merge(current_record_db=self.cache_record_db,
                                                    record_db_addition=tcia_cache_record_db_addition,
                                                    query_column_name='query',

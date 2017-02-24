@@ -753,11 +753,11 @@ class _OpeniImages(object):
                 image_downloaded = 1
 
             # Update `real_time_update_db`
-            self.real_time_update_db.set_value(index, 'converted_files_path', image_save_path)
+            self.real_time_update_db.set_value(index, 'cached_images_path', image_save_path)
             self.real_time_update_db.set_value(index, 'download_success', True)
             self._save_real_time_update_db()
         except:
-            self.real_time_update_db.set_value(index, 'converted_files_path', np.NaN)
+            self.real_time_update_db.set_value(index, 'cached_images_path', np.NaN)
             self.real_time_update_db.set_value(index, 'download_success', False)
             self._save_real_time_update_db()
 
@@ -773,14 +773,14 @@ class _OpeniImages(object):
         :param image_size: one of 'grid150', 'large', 'thumb' or 'thumb_large'.
         :param query_time: the time the query was made by ``OpeniInterface.search()``.
         :type query_time: ``datetime``
-        :return: `records_df` with the addition of `converted_files_path` and `download_success` columns.
+        :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
         self.query_time = query_time
         self.real_time_update_db = records_df.copy(deep=True)
 
         # Add needed columns
-        for c in ('converted_files_path', 'download_success'):
+        for c in ('cached_images_path', 'download_success'):
             self.real_time_update_db[c] = None
 
         if image_size not in ('grid150', 'large', 'thumb', 'thumb_large'):
