@@ -130,7 +130,7 @@ class ImageProcessing(object):
         self._ircnn = ImageRecognitionCNN()
 
         # Load the model weights and architecture.
-        MODEL_PATH = pkg_resources.resource_filename('biovida', 'images/_resources/img_problems_model.h5')
+        MODEL_PATH = pkg_resources.resource_filename('biovida', 'images/_resources/visual_image_problems_model.h5')
         if model_location is None:
             self._ircnn.load(MODEL_PATH, override_existing=True)
         elif not isinstance(model_location, str):
@@ -568,7 +568,7 @@ class ImageProcessing(object):
     def _image_problems_predictions(self, status):
         """
 
-        Carries out the actual computations for the ``img_problems()`` method.
+        Carries out the actual computations for the ``visual_image_problems()`` method.
 
         :param status: display status bar. Defaults to True.
         :type status: ``bool``
@@ -586,11 +586,11 @@ class ImageProcessing(object):
         transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self._ircnn.img_shape, status=status)
 
         # Make the predictions and Save
-        self.image_dataframe['img_problems'] = self._ircnn.predict([transformed_images],
+        self.image_dataframe['visual_image_problems'] = self._ircnn.predict([transformed_images],
                                                                    status=status,
                                                                    verbose=verbose_prediction)
 
-    def img_problems(self, new_analysis=False, status=True):
+    def visual_image_problems(self, new_analysis=False, status=True):
         """
 
         This method is powered by a Convolutional Neural Network which
@@ -609,7 +609,7 @@ class ImageProcessing(object):
 
         :Examples:
 
-        >>> DataFrame['img_problems']
+        >>> DataFrame['visual_image_problems']
         ...
         0 [('valid_img', 0.97158539), ('arrows', 0.066939682), ('grids', 0.0010551035)]
         1 [('valid_img', 0.98873705), ('arrows', 0.024444019), ('grids', 0.0001462775)]
@@ -628,7 +628,7 @@ class ImageProcessing(object):
         if self._verbose and self._print_update:
             print("\n\nAnalyzing Images for Problems...")
 
-        if 'img_problems' not in self.image_dataframe.columns or new_analysis:
+        if 'visual_image_problems' not in self.image_dataframe.columns or new_analysis:
             self._image_problems_predictions(status=status)
 
     def auto_analysis(self, new_analysis=False, status=True):
@@ -654,7 +654,7 @@ class ImageProcessing(object):
         self.crop_decision(new_analysis=new_analysis)
 
         # Generate predictions
-        self.img_problems(new_analysis=new_analysis, status=status)
+        self.visual_image_problems(new_analysis=new_analysis, status=status)
 
         # Ban Verbosity
         self._print_update = False
@@ -677,7 +677,7 @@ class ImageProcessing(object):
         :type valid_floor: ``float``
         """
         # ToDo: make `require_grayscale` flexible s.t. it can be imposed only on images of a certain type (e.g., MRI).
-        for i in ('grayscale', 'img_problems'):
+        for i in ('grayscale', 'visual_image_problems'):
             if i not in self.image_dataframe.columns:
                 raise KeyError("`image_dataframe` does not contain a {0} column.".format(i))
 
@@ -689,7 +689,7 @@ class ImageProcessing(object):
                 return False
             else:  # ToDo: add variable img_problem_threshold (e.g., arrows and grids).
                 # if all image problem confidence is < img_problem_threshold, return True; else False.
-                i = x['img_problems']
+                i = x['visual_image_problems']
                 if i[0][0] == 'valid_img' and i[0][1] < valid_floor:
                     return False
                 elif i[0][0] != 'valid_img' and i[0][1] > img_problem_threshold:
