@@ -161,7 +161,7 @@ class _ImagesInterfaceIntegration(object):
         for class_instance in interfaces:
             func = prep_class_dict[type(class_instance).__name__]
             database = getattr(class_instance, 'cache_record_db')
-            if 'DataFrame' not in str(type(database)):
+            if 'DataFrame' != type(database).__name__:
                 raise ValueError("The {0} instance's '{1}' database cannot be `None`.".format(
                     type(class_instance).__name__, 'cache_record_db'))
             frames.append(func(database))
