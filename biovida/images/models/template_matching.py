@@ -292,9 +292,9 @@ def robust_match_template(pattern_img,
 
             - bounding_box (``dict``): ``{'bottom_right': (x, y), 'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}``.
 
-            - match quality (``float``): quality of the match.
+            - match_quality (``float``): quality of the match.
 
-            - base_img_shape (``tuple``): the size of the base image provided. Form: ``(width (x), height(y))``.
+            - base_img_shape (``tuple``): the size of the base image provided. Form: ``(width (x), height (y))``.
 
     :rtype: ``dict``
     """
