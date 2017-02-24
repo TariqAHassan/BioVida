@@ -40,6 +40,7 @@ from biovida.images._resources.openi_parameters import openi_image_type_modality
 
 # Tools for Text Feature Extraction
 from biovida.images.openi_text_processing import feature_extract
+from biovida.images.openi_text_processing import _html_text_clean
 
 # Cache Managment
 from biovida.support_tools._cache_management import package_cache_creator
@@ -570,6 +571,12 @@ class _OpeniRecords(object):
             lambda x: feature_extract(x, list_of_diseases=self.list_of_diseases), axis=1).tolist()).fillna(np.NaN)
         data_frame = data_frame.join(pp, how='left')
 
+        # Clean the abstract
+        data_frame['abstract'] = data_frame.apply(
+            lambda x: _html_text_clean(x['abstract'], 'both', parse_medpix='medpix' in str(x['journal_title']).lower()),
+            axis=1
+        )
+
         # Add the full name for modalities (before the 'image_modality_major' values are altered below).
         data_frame['modality_full'] = data_frame['image_modality_major'].map(
             lambda x: openi_image_type_modality_full.get(cln(x).lower(), x), na_action='ignore'
@@ -585,11 +592,12 @@ class _OpeniRecords(object):
             lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore'
         )
 
-        # Label the number of instance of repeating 'uid's.
+        # Label the number of instance of repeating 'uid's. ToDo: this will get confused when instances are seperated.
         data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
 
-        # Replace 'Not Available' with NaN
-        data_frame = data_frame.replace({'[nN]ot [aA]vailable.?': np.NaN}, regex=True)
+        # Replace 'Not Available' and 'IN PROGRESS' with NaN
+        for r in ('[nN]ot [aA]vailable.?', '[Ii][Nn] [Pp][Rr][Oo][Gg][Rr][Ee][Ss][Ss].?'):
+            data_frame = data_frame.replace({r: np.NaN}, regex=True)
 
         # Replace the 'Replace this - ' placeholder with NaN
         data_frame['image_caption'] = data_frame['image_caption'].map(

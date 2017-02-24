@@ -8,6 +8,7 @@
 import re
 import string
 from itertools import chain
+from six.moves.html_parser import HTMLParser
 
 # Image Support Tools
 from biovida.images._openi_support_tools import item_extract
@@ -17,6 +18,56 @@ from biovida.images._openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
+
+# Pull out the unescape function
+unescape = HTMLParser().unescape
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Custom HTML cleaning
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _html_text_clean(html_text, action, parse_medpix=False):
+    """
+
+    This removes HTML features commonly encountered in the 'abstract' column.
+    While not perfect, it avoids use of a heavy dependency (like ``BeautifulSoup``).
+
+    :param html_text: any HTML text
+    :type html_text: ``str``
+    :param action: 'entities', 'tags' or 'both'.
+    :param parse_medpix:
+    :type parse_medpix: ``bool``
+    :return: cleaned ``html_text``
+    :rtype: ``str``
+    """
+    # Tags to remove
+    KNOWN_TAGS = ('p', 'b')
+
+    # Remove bullet points and line breaks
+    html_text = html_text.replace('&bull;', '').replace('\n', '')
+
+    # Escape HTML entities
+    if action in ('entities', 'both'):
+        html_text = unescape(html_text)
+
+    # Remove known tags
+    if action in ('tags', 'both'):
+        for kt in KNOWN_TAGS:
+            for t in ('<{0}>'.format(kt), '</{0}>'.format(kt)):
+                html_text = html_text.replace(t, ' ')
+
+    # Limit white space to length 1 and strip() `html_text`
+    html_text = cln(html_text)
+
+    # Prettify MedPix Text
+    if parse_medpix:
+        for h in ('History', 'Diagnosis', 'Findings'):
+            html_text = html_text.replace(' {0}'.format(h), '. {0}'.format(h))
+        html_text = html_text.replace('..', '.')
+
+    return html_text
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -40,8 +91,9 @@ def _mexpix_info_extract(abstract):
 
     for k in features_dict:
         try:
-            extract = item_extract(re.findall('<p><b>' + k + ': </b>(.*?)</p><p>', cln_abstract))
-            features_dict[k] = extract.lower() if k == 'Diagnosis' else extract
+            raw_extract = item_extract(re.findall('<p><b>' + k + ': </b>(.*?)</p><p>', cln_abstract))
+            cleaned_extract = _html_text_clean(html_text=raw_extract, action='entities')
+            features_dict[k] = cleaned_extract.lower() if k == 'Diagnosis' else cleaned_extract
         except:
             pass
 
@@ -389,7 +441,7 @@ def _illness_duration_guess_engine(image_summary_info):
 def _illness_duration_guess(history, abstract, image_caption, image_mention):
     """
 
-    Guess the duration of an illness.
+    Guess the duration of an illness. Unit: years.
 
     :param history: history extract from the abstract of a MedPix image.
     :type history: ``str``
@@ -695,7 +747,7 @@ def feature_extract(x, list_of_diseases):
         d['Diagnosis'] = _disease_guess(x['title'], x['abstract'], x['image_caption'],
                                         x['image_mention'], list_of_diseases)
 
-    pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration', _illness_duration_guess)]
+    pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration_years', _illness_duration_guess)]
     for (k, func) in pairs:
         d[k] = func(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
 
