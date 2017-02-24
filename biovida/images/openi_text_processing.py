@@ -18,6 +18,7 @@ from biovida.images._openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import items_null
 
 # Pull out the unescape function
 unescape = HTMLParser().unescape
@@ -42,6 +43,9 @@ def _html_text_clean(html_text, action, parse_medpix=False):
     :return: cleaned ``html_text``
     :rtype: ``str``
     """
+    if items_null(html_text) or html_text is None:
+        return html_text
+
     # Tags to remove
     KNOWN_TAGS = ('p', 'b')
 
