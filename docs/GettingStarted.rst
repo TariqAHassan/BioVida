@@ -51,7 +51,7 @@ If neither is present at install time, BioVida will automatically install Tensor
 
 2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc``, which can be obtained with ``$ brew install gcc``.
 If you do not have ``homebrew`` installed (needed for ``brew``), it can be installed by following the instructions
-found here `here <https://brew.sh>`__.
+found `here <https://brew.sh>`__.
 
 --------------
 
