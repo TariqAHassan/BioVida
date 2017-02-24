@@ -12,6 +12,7 @@ from urllib.parse import urlsplit # handle python 2
 
 # General Support tools
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import items_null
 from biovida.support_tools._support_data import age_dict
 
 # Other Tools
@@ -44,10 +45,12 @@ def url_combine(url1, url2):
     :param url2:
     :return:
     """
-    if any(x is None for x in [url1, url2]):
+    if any(x is None or items_null(x) for x in [url1, url2]):
         return None
     else:
-        return (url1[:-1] if url1.endswith("/") else url1) + url2
+        left = url1[:-1] if url1.endswith("/") else url1
+        right = url2[1:] if url2.startswith("/") else url2
+        return "{0}/{1}".format(left, right)
 
 
 def item_extract(i, list_len=1):

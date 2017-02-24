@@ -500,6 +500,11 @@ class _OpeniRecords(object):
         # Request data from the Open-i servers
         req = requests.get(url + bound).json()['list']
 
+        root_url_columns = ('detailed_query_url', 'get_article_figures', 'similar_in_collection', 'similar_in_results')
+        def append_root_url(item):
+            """Check whether or not to add `self.root_url` to a column."""
+            return 'img_' in item or any(c == item for c in root_url_columns)
+
         # Loop
         list_of_dicts = list()
         for item in req:
@@ -511,7 +516,7 @@ class _OpeniRecords(object):
                     item_dict[iter_join(j)] = null_convert(item.get(j[0], {}).get(j[1], None))
                 elif j == 'journal_date':
                     item_dict[j] = null_convert(self.date_formater(item.get(j, None)))
-                elif 'img_' in camel_to_snake_case(j):
+                elif append_root_url(camel_to_snake_case(j)):
                     item_dict[j] = url_combine(self.root_url, null_convert(item.get(j, None)))
                 else:
                     item_dict[j] = null_convert(item.get(j, None))
