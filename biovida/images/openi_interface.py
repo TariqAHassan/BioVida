@@ -28,9 +28,9 @@ from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
 
 # Open i Support tools
-from biovida.images._openi_support_tools import iter_join
-from biovida.images._openi_support_tools import null_convert
-from biovida.images._openi_support_tools import url_combine
+from biovida.images.interface_support.openi._openi_support_tools import iter_join
+from biovida.images.interface_support.openi._openi_support_tools import null_convert
+from biovida.images.interface_support.openi._openi_support_tools import url_combine
 
 # Open-i API Parameters Information
 from biovida.images.interface_support.openi._openi_parameters import openi_image_type_params
@@ -39,8 +39,8 @@ from biovida.images.interface_support.openi._openi_parameters import openi_artic
 from biovida.images.interface_support.openi._openi_parameters import openi_image_type_modality_full
 
 # Tools for Text Feature Extraction
-from biovida.images.openi_text_processing import feature_extract
-from biovida.images.openi_text_processing import _html_text_clean
+from biovida.images.interface_support.openi.openi_text_processing import feature_extract
+from biovida.images.interface_support.openi.openi_text_processing import _html_text_clean
 
 # Cache Managment
 from biovida.support_tools._cache_management import package_cache_creator

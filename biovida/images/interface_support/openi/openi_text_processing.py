@@ -11,10 +11,10 @@ from itertools import chain
 from six.moves.html_parser import HTMLParser
 
 # Image Support Tools
-from biovida.images._openi_support_tools import item_extract
-from biovida.images._openi_support_tools import filter_unnest
-from biovida.images._openi_support_tools import num_word_to_int
-from biovida.images._openi_support_tools import multiple_decimal_remove
+from biovida.images.interface_support.openi._openi_support_tools import item_extract
+from biovida.images.interface_support.openi._openi_support_tools import filter_unnest
+from biovida.images.interface_support.openi._openi_support_tools import num_word_to_int
+from biovida.images.interface_support.openi._openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
