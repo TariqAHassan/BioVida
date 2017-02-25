@@ -537,7 +537,7 @@ class _CancerImgArchiveImages(object):
 
         :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``record_db``).
         :type db_index: ``Pandas Series``
-        :param pull_time: see ``pull_img()``
+        :param pull_time: see ``pull_images()``
         :type pull_time: ``str``
         """
         # Define the path to save `self.real_time_update_db` to.
@@ -607,7 +607,7 @@ class _CancerImgArchiveImages(object):
         :type conversion: ``str``
         :param new_file_name: see ``_save_dicom_as_img``'s ``save_name`` parameter.
         :type new_file_name: ``str``
-        :param image_format: see: ``pull_img()``.
+        :param image_format: see: ``pull_images()``.
         :type image_format: ``str``
         :return: tuple of the form: ``(a list of paths to saved images, boolean denoting success)``
         :rtype: ``tuple``
@@ -706,7 +706,7 @@ class _CancerImgArchiveImages(object):
         :param color: If ``True``, convert the image to RGB before saving. If ``False``, save as a grayscale image.
                       Defaults to ``False``
         :type color: ``bool``
-        :param image_format: see: ``pull_img()``.
+        :param image_format: see: ``pull_images()``.
         :type image_format: ``str``
         :return: ``_dicom_to_standard_image()``
         :rtype: ``tuple``
@@ -742,7 +742,7 @@ class _CancerImgArchiveImages(object):
         Move the dicom source files to ``self._created_img_dirs['dicoms']``.
         Employ to prevent the raw dicom files from being destroyed.
 
-        :param save_dicoms: see: ``pull_img()``
+        :param save_dicoms: see: ``pull_images()``
         :type save_dicoms: ``bool``
         :param dicom_files: the yield of ``_download_zip()``
         :type dicom_files: ``list``
@@ -838,7 +838,7 @@ class _CancerImgArchiveImages(object):
 
         Check if `modality` or `modality_full` contains the modality the user is looking for.
 
-        :param allowed_modalities: see: ``pull_img()``
+        :param allowed_modalities: see: ``pull_images()``
         :type allowed_modalities: ``list``, ``tuple`` or ``None``.
         :param modality: a single element from the ``modality`` column in ``self.real_time_update_db``.
         :type modality: ``str``
@@ -869,13 +869,13 @@ class _CancerImgArchiveImages(object):
 
         Tool to coordinate the above machinery for pulling and downloading images (or locating them in the cache).
 
-        :param save_dicoms: see: ``pull_img()``.
+        :param save_dicoms: see: ``pull_images()``.
         :type save_dicoms: ``bool``
-        :param image_format: see: ``pull_img()``
+        :param image_format: see: ``pull_images()``
         :param image_format: ``str``
-        :param allowed_modalities: see: ``pull_img()``
+        :param allowed_modalities: see: ``pull_images()``
         :type allowed_modalities: ``list``, ``tuple`` or ``None``.
-        :param check_cache_first: see: ``pull_img()``
+        :param check_cache_first: see: ``pull_images()``
         :param check_cache_first: ``bool``
         """
         columns = ('series_instance_uid', 'patient_id', 'image_count', 'modality', 'modality_full')
@@ -920,14 +920,14 @@ class _CancerImgArchiveImages(object):
                 # Save the data frame
                 self._save_real_time_update_db()
 
-    def pull_img(self,
-                 record_db,
-                 pull_time,
-                 session_limit=1,
-                 image_format='png',
-                 save_dicoms=True,
-                 allowed_modalities=None,
-                 check_cache_first=True):
+    def pull_images(self,
+                    record_db,
+                    pull_time,
+                    session_limit=1,
+                    image_format='png',
+                    save_dicoms=True,
+                    allowed_modalities=None,
+                    check_cache_first=True):
         """
 
         Pull Images from the Cancer Imaging Archive.
@@ -981,7 +981,7 @@ class _CancerImgArchiveImages(object):
         self._pull_images_engine(save_dicoms, allowed_modalities, image_format, check_cache_first)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
-        return self.real_time_update_db
+        return record_update_dbs_joiner(record_db=self.record_db_images, update_db=self.real_time_update_db)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -1262,45 +1262,6 @@ class CancerImageInterface(object):
 
         return record_frames, pull_success
 
-    def _pull_images(self,
-                     record_db,
-                     session_limit,
-                     image_format,
-                     save_dicoms,
-                     allowed_modalities,
-                     check_cache_first):
-        """
-
-        Pull Images from the TCIA API (based on the 'records' obtained with ``_pull_records()``.
-
-        :param record_db: a list of records dataframes.
-        :type record_db: ``list``
-        :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
-                              to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
-        :type session_limit: ``int``
-        :param image_format: see: ``pull()``
-        :type image_format: ``str``
-        :param save_dicoms: see: ``pull()``.
-        :type save_dicoms: ``bool``
-        :param allowed_modalities: see: ``pull()``.
-        :type allowed_modalities: ``list`` or ``tuple``
-        :param check_cache_first: see: ``pull()``.
-        :type check_cache_first: ``bool``
-        :return: a list of dataframes passed through ``_CancerImgArchiveImages().pull_img()``.
-        :rtype: ``list``
-        """
-        if self._verbose:
-            print("\nObtaining Images...")
-        current_img_frame = self._Images.pull_img(record_db=record_db,
-                                                  pull_time=self._pull_time.strftime(self._time_format),
-                                                  session_limit=session_limit,
-                                                  image_format=image_format,
-                                                  save_dicoms=save_dicoms,
-                                                  allowed_modalities=allowed_modalities,
-                                                  check_cache_first=check_cache_first)
-
-        return current_img_frame
-
     def _tcia_cache_record_db_handler(self):
         """
 
@@ -1417,29 +1378,23 @@ class CancerImageInterface(object):
         # Combine all record frames
         record_db = pd.concat(record_frames, ignore_index=True)
 
-        # Download the images for all of the studies
+        # Download the images for all of the studies (collections)
         if isinstance(image_format, str):
-            real_time_update_db = self._pull_images(record_db=record_db,
-                                                    session_limit=session_limit,
-                                                    image_format=image_format,
-                                                    save_dicoms=save_dicoms,
-                                                    allowed_modalities=allowed_modalities,
-                                                    check_cache_first=check_cache_first)
-
-            # Join ``real_time_update_db`` with ``record_db``
-            record_db = record_update_dbs_joiner(record_db, real_time_update_db)
-
-        # Update class ``attr``.
-        self.record_db = record_db
+            if self._verbose:
+                print("\nObtaining Images...")
+            self.record_db = self._Images.pull_images(record_db=record_db,
+                                                      pull_time=self._pull_time.strftime(self._time_format),
+                                                      session_limit=session_limit,
+                                                      image_format=image_format,
+                                                      save_dicoms=save_dicoms,
+                                                      allowed_modalities=allowed_modalities,
+                                                      check_cache_first=check_cache_first)
 
         # Update the cache record if and only if a request was also made for images.
         if isinstance(image_format, str):
             self._tcia_cache_record_db_handler()
 
         return self.record_db
-
-
-
 
 
 
