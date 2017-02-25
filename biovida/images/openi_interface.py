@@ -33,10 +33,10 @@ from biovida.images._openi_support_tools import null_convert
 from biovida.images._openi_support_tools import url_combine
 
 # Open-i API Parameters Information
-from biovida.images._resources.openi_parameters import openi_image_type_params
-from biovida.images._resources.openi_parameters import openi_search_information
-from biovida.images._resources.openi_parameters import openi_article_type_params
-from biovida.images._resources.openi_parameters import openi_image_type_modality_full
+from biovida.images.interface_support.openi._openi_parameters import openi_image_type_params
+from biovida.images.interface_support.openi._openi_parameters import openi_search_information
+from biovida.images.interface_support.openi._openi_parameters import openi_article_type_params
+from biovida.images.interface_support.openi._openi_parameters import openi_image_type_modality_full
 
 # Tools for Text Feature Extraction
 from biovida.images.openi_text_processing import feature_extract
