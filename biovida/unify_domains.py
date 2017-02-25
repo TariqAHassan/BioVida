@@ -66,7 +66,7 @@ class _ImagesInterfaceIntegration(object):
 
         # Define columns to keep
         openi_columns = ['image_id', 'image_caption', 'modality_best_guess', 'age', 'sex',
-                         'diagnosis', 'query', 'query_time', 'download_success', 'cached_images_path']
+                         'diagnosis', 'query', 'pull_time', 'download_success', 'cached_images_path']
 
         # Column name changes
         openi_col_rename = {'diagnosis': 'disease',
@@ -94,7 +94,7 @@ class _ImagesInterfaceIntegration(object):
         """
         # Define columns to keep
         cancer_img_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age', 'sex',
-                              'cancer_type', 'query', 'query_time', 'conversion_success', 'cached_images_path']
+                              'cancer_type', 'query', 'pull_time', 'conversion_success', 'cached_images_path']
 
         # Column name changes (based on `_open_i_prep`).
         cancer_img_col_rename = {'series_instance_uid': 'image_id',
@@ -142,7 +142,7 @@ class _ImagesInterfaceIntegration(object):
          - 'sex'
          - 'disease'
          - 'query'
-         - 'query_time'
+         - 'pull_time'
          - 'harvest_success'
          - 'files_path'
          - 'source_api'
