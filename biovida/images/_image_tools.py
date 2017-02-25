@@ -198,7 +198,7 @@ def record_update_dbs_joiner(record_db, update_db):
     :return: ``record_db`` with ``update_db`` left-joined.
     :rtype: ``Pandas DataFrame``
     """
-    joined_db = record_db.join(update_db, how='left').dropna(subset=list(update_db.columns), how='all')
+    joined_db = record_db.join(update_db, how='left').fillna(np.NaN).dropna(subset=list(update_db.columns), how='all')
     return joined_db.reset_index(drop=True)
 
 
