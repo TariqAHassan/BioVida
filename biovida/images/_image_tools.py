@@ -268,7 +268,7 @@ def record_db_merge(current_record_db,
     :param query_column_name: the column which contains the query responcible for the results. Note: this column
                               *should* contain only dictionaries.
     :type query_column_name: ``str``
-    :param pull_time_column_name: the name of the column with the time the query was created.
+    :param pull_time_column_name: the name of the column with the time the pull request was issued.
     :type pull_time_column_name: ``str``
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
     :type duplicates_subset_columns: ``list`` or ``tuple``
