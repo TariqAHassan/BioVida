@@ -23,8 +23,8 @@ from biovida.images._image_tools import load_and_scale_imgs
 
 # Models
 from biovida.images.models.border_detection import border_detection
-from biovida.images.models.img_classification import ImageRecognitionCNN
 from biovida.images.models.template_matching import robust_match_template
+from biovida.images.models.image_classification import ImageRecognitionCNN
 
 # Suppress Pandas' SettingWithCopyWarning
 pd.options.mode.chained_assignment = None

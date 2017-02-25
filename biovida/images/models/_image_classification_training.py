@@ -20,7 +20,7 @@ from keras import backend as K
 K.set_image_dim_ordering('th')
 
 from keras.preprocessing.image import load_img
-from biovida.images.models.img_classification import ImageRecognitionCNN
+from biovida.images.models.image_classification import ImageRecognitionCNN
 
 
 # ------------------------------------------------------------------------------------------
