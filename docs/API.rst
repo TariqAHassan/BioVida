@@ -4,7 +4,7 @@ API
 .. automodule:: biovida.images.openi_interface
 	:members:
 
-.. automodule:: biovida.images.openi_text_processing
+.. automodule:: biovida.images.interface_support.openi.openi_text_processing
 	:members:
 
 .. automodule:: biovida.images.cancer_image_interface
