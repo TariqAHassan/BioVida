@@ -4,6 +4,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
+# Imports
 import io
 import os
 import shutil
@@ -985,9 +986,12 @@ class CancerImageInterface(object):
 
     Python Interface for the `Cancer Imaging Archive <http://www.cancerimagingarchive.net/>`_'s API.
 
-    :param api_key: an key to the the Cancer Imaging Archive's API.
-                    To request a key, please see:
-            https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide
+    :param api_key: a key to the the Cancer Imaging Archive's API.
+
+        .. note::
+
+            An API key can be obtained by following the instructions provided `here <https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide/>`_.
+
     :type api_key: ``str``
     :param verbose: print additional details.
     :type verbose: ``bool``
