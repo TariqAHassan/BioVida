@@ -26,6 +26,7 @@ from biovida.images._image_tools import NoResultsFound
 from biovida.images._image_tools import record_db_merge
 from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
+from biovida.images._image_tools import record_update_dbs_joiner
 
 # Open-i Support tools
 from biovida.images.interface_support.openi._openi_support_tools import iter_join
@@ -689,13 +690,41 @@ class _OpeniImages(object):
         self.image_save_location = image_save_location
         self.verbose = verbose
 
-        # The time the most recent query was made.
-        self.pull_time = None
-
         # Database
+        self.record_db_images = None
         self.real_time_update_db = None
-        self.temp_folder = os.path.join(database_save_location, "__temp__")
         self.real_time_update_db_path = None
+
+        self.temp_folder = os.path.join(database_save_location, "__temp__")
+
+    def _create_temp_folder(self):
+        """
+
+        Check if ``self.temp_folder`` exists. If not, create it.
+
+        """
+        if not os.path.isdir(self.temp_folder):
+            os.makedirs(self.temp_folder)
+
+    def _instantiate_real_time_update_db(self, db_index, pull_time):
+        """
+
+        Create the ``real_time_update_db`` and define the path to the location where it will be saved.
+
+        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``record_db``).
+        :type db_index: ``Pandas Series``
+        :param pull_time: see ``pull_img()``
+        :type pull_time: ``str``
+        """
+        # Define the path to save `self.real_time_update_db` to.
+        self.real_time_update_db_path = os.path.join(self.temp_folder, "{0}__update_db.p".format(pull_time))
+
+        # Define columns
+        real_time_update_columns = ['cached_images_path', 'download_success']
+
+        # Instantiate
+        db = pd.DataFrame(columns=real_time_update_columns, index=db_index).replace({np.NaN: None})
+        self.real_time_update_db = db
 
     def _save_real_time_update_db(self):
         """
@@ -703,16 +732,6 @@ class _OpeniImages(object):
         Save the ``real_time_update_db`` to disk.
 
         """
-        # ToDo: it is very expensive to write out the whole dataframe each time.
-        # A better solution would be to only write the columns needed and them combine them when
-        # all images have been either downloaded or located in the cache.
-
-        # Create the temp folder
-        if not os.path.isdir(self.temp_folder):
-            os.makedirs(self.temp_folder)
-
-        self.real_time_update_db_path = os.path.join(self.temp_folder, "{0}__temp_db.p".format(self.pull_time))
-
         # Save the `real_time_update_db` to disk.
         self.real_time_update_db.to_pickle(self.real_time_update_db_path)
 
@@ -766,7 +785,6 @@ class _OpeniImages(object):
                     img.write(page.content)
                 image_downloaded = 1
 
-            # Update `real_time_update_db`
             self.real_time_update_db.set_value(index, 'cached_images_path', image_save_path)
             self.real_time_update_db.set_value(index, 'download_success', True)
             self._save_real_time_update_db()
@@ -777,14 +795,45 @@ class _OpeniImages(object):
 
         return image_downloaded
 
-    def images_pull(self, records_df, image_size, pull_time, images_sleep_time):
+    def _pull_images_engine(self, harvesting_information, images_sleep_time, image_size):
         """
 
-        Pull images based on the records dataframe.
+        Use ``_individual_image_harvest()`` to download all of the data (images) in ``harvesting_information``.
+
+        :param harvesting_information: as evolved inside ``harvesting_information``
+        :type harvesting_information: ``list``
+        :param images_sleep_time: see ``pull_images()``
+        :type images_sleep_time: ``tuple``
+        :param image_size: see ``pull_images()``
+        :type image_size: ``str``
+        """
+        if self.verbose:
+            header("Downloading Images... ")
+            
+        download_count = 0
+        for index, image_url in tqdm(harvesting_information):
+            # Generate the save path for the image
+            image_save_path = self._image_titler(url=image_url, image_size=image_size)
+
+            # Save the image
+            download_count += self._individual_image_harvest(index=index,
+                                                             image_url=image_url,
+                                                             image_save_path=image_save_path)
+
+            # Sleep when `download_count` 'builds up' to images_sleep_time[0].
+            if download_count == images_sleep_time[0]:
+                sleep_with_noise(amount_of_time=images_sleep_time[1])
+                download_count = 0  # reset
+
+    def pull_images(self, records_df, image_size, pull_time, images_sleep_time):
+        """
+
+        Pull images based in ``records_df``.
 
         :param records_df: yeild of ``_OpeniRecords().records_pull()``
         :type records_df: ``Pandas DataFrame``
         :param image_size: one of 'grid150', 'large', 'thumb' or 'thumb_large'.
+        :type image_size: ``str``
         :param pull_time: the time the query was made by ``OpeniInterface.search()``.
         :type pull_time: ``datetime``
         :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
@@ -794,37 +843,28 @@ class _OpeniImages(object):
         :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
-        self.pull_time = pull_time
-        self.real_time_update_db = records_df.copy(deep=True)
+        self._create_temp_folder()
+        self.record_db_images = records_df.copy(deep=True)
+        
+        # Save `record_db_images` to the __temp__ folder
+        self.record_db_images.to_pickle(os.path.join(self.temp_folder, "{0}__record_db.p".format(pull_time)))
 
-        # Add needed columns
-        for c in ('cached_images_path', 'download_success'):
-            self.real_time_update_db[c] = None
+        # Instantiate `self.real_time_update_db`
+        self._instantiate_real_time_update_db(db_index=self.record_db_images.index, pull_time=pull_time)
 
         if image_size not in ('grid150', 'large', 'thumb', 'thumb_large'):
             raise ValueError("`image_size` must be one of: 'grid150', 'large', 'thumb' or 'thumb_large'.")
         image_column = "img_{0}".format(image_size)
 
-        # Extract needed information from the dataframe to loop over.
-        iter = list(zip(self.real_time_update_db.index, self.real_time_update_db[image_column]))
+        # Extract needed information from the `record_db_images` dataframe to loop over.
+        harvesting_information = list(zip(self.record_db_images.index, self.record_db_images[image_column]))
 
-        if self.verbose:
-            header("Downloading Images... ")
+        # Harvest
+        self._pull_images_engine(harvesting_information=harvesting_information,
+                                 images_sleep_time=images_sleep_time,
+                                 image_size=image_size)
 
-        download_count = 0
-        for index, image_url in tqdm(iter):
-            # Generate the save path for the image
-            image_save_path = self._image_titler(url=image_url, image_size=image_size)
-
-            # Save the image
-            download_count += self._individual_image_harvest(index, image_url=image_url, image_save_path=image_save_path)
-
-            # Sleep when `download_count` 'builds up' to images_sleep_time[0].
-            if download_count == images_sleep_time[0]:
-                sleep_with_noise(amount_of_time=images_sleep_time[1])
-                download_count = 0  # reset
-
-        return self.real_time_update_db
+        return record_update_dbs_joiner(self.record_db_images, self.real_time_update_db)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -1108,6 +1148,7 @@ class OpeniInterface(object):
         if self.current_query is None:
             raise ValueError("`search()` must be called before `pull()`.")
 
+        # Note the time the pull request was made
         self._pull_time = datetime.now()
 
         # Pull Records
@@ -1123,7 +1164,7 @@ class OpeniInterface(object):
         # Pull Images
         if isinstance(image_size, str):
             # Pull the images.
-            self.records_db = self._Images.images_pull(records_df=self.records_db,
+            self.records_db = self._Images.pull_images(records_df=self.records_db,
                                                        image_size=image_size,
                                                        pull_time=self._pull_time.strftime(self._time_format),
                                                        images_sleep_time=images_sleep_time)
@@ -1136,10 +1177,6 @@ class OpeniInterface(object):
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
 
         return self.records_db
-
-
-
-
 
 
 
