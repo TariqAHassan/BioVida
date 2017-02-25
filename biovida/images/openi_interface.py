@@ -713,7 +713,7 @@ class _OpeniImages(object):
 
         :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``record_db``).
         :type db_index: ``Pandas Series``
-        :param pull_time: see ``pull_img()``
+        :param pull_time: see ``pull_images()``
         :type pull_time: ``str``
         """
         # Define the path to save `self.real_time_update_db` to.
@@ -808,7 +808,7 @@ class _OpeniImages(object):
         :type image_size: ``str``
         """
         if self.verbose:
-            header("Downloading Images... ")
+            header("Obtaining Images... ")
             
         download_count = 0
         for index, image_url in tqdm(harvesting_information):
@@ -864,7 +864,7 @@ class _OpeniImages(object):
                                  images_sleep_time=images_sleep_time,
                                  image_size=image_size)
 
-        return record_update_dbs_joiner(self.record_db_images, self.real_time_update_db)
+        return record_update_dbs_joiner(record_db=self.record_db_images, update_db=self.real_time_update_db)
 
 
 # ----------------------------------------------------------------------------------------------------------
