@@ -1389,6 +1389,8 @@ class CancerImageInterface(object):
                                                       save_dicoms=save_dicoms,
                                                       allowed_modalities=allowed_modalities,
                                                       check_cache_first=check_cache_first)
+        else:
+            self.record_db = record_db
 
         # Update the cache record if and only if a request was also made for images.
         if isinstance(image_format, str):
