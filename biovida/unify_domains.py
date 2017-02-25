@@ -632,13 +632,45 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     :return: a dataframe which unifies image interfaces with  genomic and diagnostics data.
     :rtype: ``Pandas DataFrame``
 
+
+    This function evolves a DataFrame with the following columns:
+
+    .. hlist::
+        :columns: 4
+
+        * 'image_id'
+        * 'image_caption'
+        * 'modality_best_guess'
+        * 'age'
+        * 'sex'
+        * 'disease'
+        * 'query'
+        * 'pull_time'
+        * 'harvest_success'
+        * 'files_path'
+        * 'source_api'
+        * 'disease_family'
+        * 'disease_synonym'
+        * 'disease_definition'
+        * 'known_associated_symptoms'
+        * 'known_associated_genes'
+
+    .. warning::
+
+        The `'known_associated_symptoms'` and `'known_associated_genes'` columns denote symptoms and genes
+        known to be associated with the disease the patient presented with. **These columns are not an account
+        of the symptomatology or genotype of any given patient in this database**.
+
     :Example:
 
+    >>> from biovida.unify_domains import unify
     >>> from biovida.images.openi_interface import OpeniInterface
     >>> from biovida.images.cancer_image_interface import CancerImageInterface
     ...
     >>> opi = OpeniInterface()
+    # --- Search and Pull ---
     >>> cii = CancerImageInterface(YOUR_API_KEY_HERE)
+    # --- Search and Pull ---
     ...
     >>> udf = unify(interfaces=[opi, cii])
     """
