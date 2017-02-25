@@ -7,6 +7,7 @@
 # Imports
 import io
 import os
+import dicom
 import shutil
 import zipfile
 import requests
@@ -37,7 +38,7 @@ from biovida.support_tools.support_tools import list_to_bulletpoints
 # Import Printing Tools
 from biovida.support_tools.printing import pandas_pprint
 
-# Cache Managment
+# Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
 
 # Cancer Image Support tools
@@ -171,8 +172,8 @@ class _CancerImgArchiveOverview(object):
             summary_df = summary_df[summary_df['location'].map(
                 lambda x: any([cln(l).lower() in i.lower() for i in x for l in location]))]
 
-        def modaility_filter(x, modaility):
-            """Apply filter to look for rows which match `modaility`."""
+        def modality_filter(x, modality):
+            """Apply filter to look for rows which match `modality`."""
             sdf_modalities = cln(x['modalities']).lower()
             sdf_modalities_full = [cln(i).lower() for i in x['modalities_full']]
 
@@ -186,7 +187,7 @@ class _CancerImgArchiveOverview(object):
         # Filter by `modality`.
         if isinstance(modality, (str, list, tuple)):
             modality = [modality.lower()] if isinstance(modality, str) else list(map(lambda x: x.lower(), modality))
-            summary_df = summary_df[summary_df.apply(lambda x: modaility_filter(x, modality), axis=1)]
+            summary_df = summary_df[summary_df.apply(lambda x: modality_filter(x, modality), axis=1)]
 
         return summary_df
 
@@ -568,10 +569,12 @@ class _CancerImgArchiveImages(object):
         r = requests.get(url)
         z = zipfile.ZipFile(io.BytesIO(r.content))
         z.extractall(temporary_folder)
+        
         def file_path_full(f):
             """Construct the full path for a given file in ``z``."""
             base_name = cln(os.path.basename(f.filename))
             return os.path.join(temporary_folder, base_name) if len(base_name) else None
+        
         # Generate the list of paths to the dicoms
         return list(filter(None, map(file_path_full, z.filelist)))
 
@@ -585,7 +588,7 @@ class _CancerImgArchiveImages(object):
 
         - 3D images will be saved as individual frames
 
-        - if pydicom cannot render the DICOM as a pixel array, this method will its hault image extraction efforts.
+        - if pydicom cannot render the DICOM as a pixel array, this method will its halt image extraction efforts.
 
         :param f: a (py)dicom image.
         :type f: ``pydicom object``
@@ -612,6 +615,7 @@ class _CancerImgArchiveImages(object):
             return [], False
 
         save_location = self._created_img_dirs['raw']
+
         def save_path(instance):
             """Define the path to save the image to."""
             head = "{0}_{1}".format(instance, pull_position)
@@ -687,7 +691,7 @@ class _CancerImgArchiveImages(object):
         :param index: the row index currently being processed inside of the main loop in ``_pull_images_engine()``.
         :type index: ``int``
         :param save_name: name of the new file (do *NOT* include a file extension).
-                          To specifiy a file format, use ``img_format``.
+                          To specify a file format, use ``img_format``.
                           If ``None``, name from ``path_to_dicom_file`` will be conserved.
         :type save_name: ``str``
         :param color: If ``True``, convert the image to RGB before saving. If ``False``, save as a grayscale image.
@@ -731,7 +735,7 @@ class _CancerImgArchiveImages(object):
 
         :param save_dicoms: see: ``pull_img()``
         :type save_dicoms: ``bool``
-        :param dicom_files: the yeild of ``_download_zip()``
+        :param dicom_files: the yield of ``_download_zip()``
         :type dicom_files: ``list``
         :param series_abbrev: as evolved inside ``_pull_images_engine()``.
         :type series_abbrev: ``str``
