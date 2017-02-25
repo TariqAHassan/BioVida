@@ -615,7 +615,7 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     with Diagnostic and Genomic Data.
 
     :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a list.
-    :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``.
+    :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                        Default to ``None`` (which will generate a cache in the home folder).
     :type cache_path: ``str`` or ``None``
