@@ -621,7 +621,7 @@ class _OpeniRecords(object):
                      to_harvest,
                      total,
                      query,
-                     query_time,
+                     pull_time,
                      records_sleep_time,
                      download_limit=None):
         """
@@ -632,7 +632,7 @@ class _OpeniRecords(object):
         :param to_harvest:
         :param total:
         :param query:
-        :param query_time:
+        :param pull_time:
         :param records_sleep_time: (every x downloads, period of time [seconds])
         :param download_limit:
         :return:
@@ -664,7 +664,7 @@ class _OpeniRecords(object):
 
         # Add the query
         records_df['query'] = [query] * records_df.shape[0]
-        records_df['query_time'] = [query_time] * records_df.shape[0]
+        records_df['pull_time'] = [pull_time] * records_df.shape[0]
 
         # Add to attrs.
         self.records_df = records_df
@@ -690,7 +690,7 @@ class _OpeniImages(object):
         self.verbose = verbose
 
         # The time the most recent query was made.
-        self.query_time = None
+        self.pull_time = None
 
         # Database
         self.real_time_update_db = None
@@ -711,7 +711,7 @@ class _OpeniImages(object):
         if not os.path.isdir(self.temp_folder):
             os.makedirs(self.temp_folder)
 
-        self.real_time_update_db_path = os.path.join(self.temp_folder, "{0}__temp_db.p".format(self.query_time))
+        self.real_time_update_db_path = os.path.join(self.temp_folder, "{0}__temp_db.p".format(self.pull_time))
 
         # Save the `real_time_update_db` to disk.
         self.real_time_update_db.to_pickle(self.real_time_update_db_path)
@@ -777,7 +777,7 @@ class _OpeniImages(object):
 
         return image_downloaded
 
-    def images_pull(self, records_df, image_size, query_time, images_sleep_time):
+    def images_pull(self, records_df, image_size, pull_time, images_sleep_time):
         """
 
         Pull images based on the records dataframe.
@@ -785,8 +785,8 @@ class _OpeniImages(object):
         :param records_df: yeild of ``_OpeniRecords().records_pull()``
         :type records_df: ``Pandas DataFrame``
         :param image_size: one of 'grid150', 'large', 'thumb' or 'thumb_large'.
-        :param query_time: the time the query was made by ``OpeniInterface.search()``.
-        :type query_time: ``datetime``
+        :param pull_time: the time the query was made by ``OpeniInterface.search()``.
+        :type pull_time: ``datetime``
         :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
                                    Note: noise is randomly added to the sleep time by sampling from a normal distribution
                                    (with mean = 0, sd = 0.75).
@@ -794,7 +794,7 @@ class _OpeniImages(object):
         :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
-        self.query_time = query_time
+        self.pull_time = pull_time
         self.real_time_update_db = records_df.copy(deep=True)
 
         # Add needed columns
@@ -889,42 +889,42 @@ class OpeniInterface(object):
 
         """
         # Load the latent database(s).
-        record_db_addition = load_temp_dbs(temp_db_path=self._Images.temp_folder)
-        if record_db_addition is not None:
+        record_db_update = load_temp_dbs(temp_db_path=self._Images.temp_folder)
+        if record_db_update is not None:
             # Update `self.current_record_db`.
             self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
-                                                record_db_addition=record_db_addition)
+                                                record_db_update=record_db_update)
             # Delete the latent 'databases/__temp__' folder.
             shutil.rmtree(self._openi_cache_record_db_save_path, ignore_errors=True)
 
-    def _openi_cache_record_db_handler(self, current_record_db, record_db_addition):
+    def _openi_cache_record_db_handler(self, current_record_db, record_db_update):
         """
 
-        1. if cache_record_db.p doesn't exist, simply dump ``record_db_addition``
-        2. if cache_record_db.p does exist, merge with ``record_db_addition``
+        1. if cache_record_db.p doesn't exist, simply dump ``record_db_update``
+        2. if cache_record_db.p does exist, merge with ``record_db_update``
 
         :param current_record_db:
         :type current_record_db:
-        :param record_db_addition:
-        :type record_db_addition:
+        :param record_db_update:
+        :type record_db_update:
         """
         def rows_to_conserve_func(x):
             return x['download_success'] == True
 
-        if current_record_db is None and record_db_addition is None:
-            raise ValueError("`current_record_db` and `record_db_addition` cannot both be None.")
-        elif current_record_db is not None and record_db_addition is None:
+        if current_record_db is None and record_db_update is None:
+            raise ValueError("`current_record_db` and `record_db_update` cannot both be None.")
+        elif current_record_db is not None and record_db_update is None:
             to_return = current_record_db
             to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
-        elif current_record_db is None and record_db_addition is not None:
-            to_return = _img_relation_map(record_db_addition)
+        elif current_record_db is None and record_db_update is not None:
+            to_return = _img_relation_map(record_db_update)
             to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         else:
-            duplicates_subset_columns = [c for c in current_record_db.columns if c != 'query_time']
+            duplicates_subset_columns = [c for c in current_record_db.columns if c != 'pull_time']
             to_return = record_db_merge(current_record_db=current_record_db,
-                                        record_db_addition=record_db_addition,
+                                        record_db_update=record_db_update,
                                         query_column_name='query',
-                                        query_time_column_name='query_time',
+                                        pull_time_column_name='pull_time',
                                         duplicates_subset_columns=duplicates_subset_columns,
                                         rows_to_conserve_func=rows_to_conserve_func,
                                         post_concat_mapping=('uid_instance', 'uid', resetting_label),
@@ -965,7 +965,7 @@ class OpeniInterface(object):
                                     verbose=verbose)
 
         # Search attributes
-        self._query_time = None
+        self._pull_time = None
         self.current_query = None
         self.current_search_url = None
         self.current_search_total = None
@@ -1048,8 +1048,6 @@ class OpeniInterface(object):
         :param print_results: if ``True``, print the number of search results.
         :type print_results: ``bool``
         """
-        self._query_time = datetime.now()
-
         # Note this simply wraps ``_OpeniSearch().search()``.
         search = self._Search.search(query=query,
                                      image_type=image_type,
@@ -1110,13 +1108,15 @@ class OpeniInterface(object):
         if self.current_query is None:
             raise ValueError("`search()` must be called before `pull()`.")
 
+        self._pull_time = datetime.now()
+
         # Pull Records
         if new_records_pull:
             self.records_db = self._Records.records_pull(search_url=self.current_search_url,
                                                          to_harvest=self._current_search_to_harvest,
                                                          total=self.current_search_total,
                                                          query=self.current_query,
-                                                         query_time=self._query_time,
+                                                         pull_time=self._pull_time,
                                                          records_sleep_time=records_sleep_time,
                                                          download_limit=download_limit)
 
@@ -1125,12 +1125,12 @@ class OpeniInterface(object):
             # Pull the images.
             self.records_db = self._Images.images_pull(records_df=self.records_db,
                                                        image_size=image_size,
-                                                       query_time=self._query_time.strftime(self._time_format),
+                                                       pull_time=self._pull_time.strftime(self._time_format),
                                                        images_sleep_time=images_sleep_time)
 
             # Add the new records_db datafame with the existing `cache_record_db`.
             self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
-                                                record_db_addition=self.records_db)
+                                                record_db_update=self.records_db)
 
             # Delete the 'databases/__temp__' folder.
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
