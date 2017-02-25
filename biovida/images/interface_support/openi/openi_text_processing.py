@@ -115,13 +115,13 @@ def _patient_sex_extract(image_summary_info):
     Tool to Extract the age of a patient.
 
     :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
-                               or 'image_mention'.
+                               or 'image_mention'. (Expected to be lower case)
     :type image_summary_info: ``str``
     :return: the sex of the patient.
     :rtype: ``str`` or ``None``
     """
-    counts_dict_f = {t: image_summary_info.lower().count(t) for t in ['female', 'woman', 'girl',' f ']}
-    counts_dict_m = {t: image_summary_info.lower().count(t) for t in ['male', 'man', 'boy', ' m ']}
+    counts_dict_f = {t: image_summary_info.count(t) for t in ['female', 'woman', 'girl', ' she ', ' f ']}
+    counts_dict_m = {t: image_summary_info.count(t) for t in ['male', 'man', 'boy', ' he ', ' m ']}
 
     # Block Conflicting Information
     if sum(counts_dict_f.values()) > 0 and sum([v for k, v in counts_dict_m.items() if k not in ['male', 'man']]) > 0:
@@ -154,7 +154,7 @@ def _patient_sex_guess(history, abstract, image_caption, image_mention):
     """
     for source in (history, abstract, image_caption, image_mention):
         if isinstance(source, str):
-            extract = _patient_sex_extract(source)
+            extract = _patient_sex_extract(source.lower())
             if isinstance(extract, str):
                 return extract
     else:
@@ -460,7 +460,7 @@ def _illness_duration_guess(history, abstract, image_caption, image_mention):
     """
     for source in (history, abstract, image_caption, image_mention):
         if isinstance(source, str):
-            duration_guess = _illness_duration_guess_engine(source)
+            duration_guess = _illness_duration_guess_engine(source.lower())
             if isinstance(duration_guess, float):
                 return duration_guess
     else:
@@ -774,8 +774,6 @@ def feature_extract(x, list_of_diseases):
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
-
-
 
 
 
