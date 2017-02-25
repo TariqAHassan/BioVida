@@ -27,7 +27,7 @@ from biovida.images._image_tools import record_db_merge
 from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
 
-# Open i Support tools
+# Open-i Support tools
 from biovida.images.interface_support.openi._openi_support_tools import iter_join
 from biovida.images.interface_support.openi._openi_support_tools import null_convert
 from biovida.images.interface_support.openi._openi_support_tools import url_combine

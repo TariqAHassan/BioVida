@@ -11,7 +11,6 @@ import zipfile
 import requests
 import numpy as np
 import pandas as pd
-
 from PIL import Image
 from tqdm import tqdm
 from time import sleep
@@ -19,11 +18,13 @@ from warnings import warn
 from itertools import chain
 from datetime import datetime
 
+# General Image Support Tools
 from biovida.images._image_tools import dict_to_tot
 from biovida.images._image_tools import load_temp_dbs
 from biovida.images._image_tools import NoResultsFound
 from biovida.images._image_tools import record_db_merge
 
+# General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
@@ -32,8 +33,13 @@ from biovida.support_tools.support_tools import combine_dicts
 from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
+# Import Printing Tools
 from biovida.support_tools.printing import pandas_pprint
+
+# Cache Managment
 from biovida.support_tools._cache_management import package_cache_creator
+
+# Cancer Image Support tools
 from biovida.images.interface_support.cancer_image._cancer_image_parameters import CancerImgArchiveParams
 
 
