@@ -25,6 +25,7 @@ from biovida.images._image_tools import dict_to_tot
 from biovida.images._image_tools import load_temp_dbs
 from biovida.images._image_tools import NoResultsFound
 from biovida.images._image_tools import record_db_merge
+from biovida.images._image_tools import record_update_dbs_joiner
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
@@ -134,7 +135,7 @@ class _CancerImgArchiveOverview(object):
 
         if not os.path.isfile(save_path) or download_override:
             if self._verbose:
-                header("Downloading Record of Available Studies... ", flank=False)
+                header("Downloading Table of Available Studies... ", flank=False)
             summary_df = self._all_studies_parser()
             summary_df.to_pickle(save_path)
         else:
@@ -260,7 +261,7 @@ class _CancerImgArchiveRecords(object):
             self._url_sep = '+'  # reset
             if study_df.shape[0] == 0:
                 raise IndexError("The '{0}' collection/study data has no length.\n"
-                                 "The separator being used to replace spaces in the URL is may incorrect. An attempt\n"
+                                 "The separator being used to replace spaces in the URL may be incorrect. An attempt\n"
                                  "was made with the following separators: '+' and '-'. Alternatively, this problem\n"
                                  "could be caused by a problem with the Cancer Imaging Archive API.\n".format(study))
         return study_df
@@ -416,7 +417,7 @@ class _CancerImgArchiveRecords(object):
         condition_name = summary_df[summary_df['collection'] == collection]['cancer_type'].iloc[0]
         return condition_name.lower() if isinstance(condition_name, str) else condition_name
 
-    def records_pull(self, study, search_dict, query_time, overview_download_override=False, patient_limit=3):
+    def records_pull(self, study, search_dict, pull_time, overview_download_override=False, patient_limit=3):
         """
 
         Extract record of all images for all patients in a given study.
@@ -426,8 +427,8 @@ class _CancerImgArchiveRecords(object):
         :param search_dict: a dicitionary which contains the search information provided by the user
                             (as evolved inside  ``CancerImageInterface()_search_dict_gen()``.
         :type search_dict: ``dict``
-        :param query_time: the time the query was launched.
-        :type query_time: ``datetime``
+        :param pull_time: the time the query was launched.
+        :type pull_time: ``datetime``
         :param overview_download_override: see ``_CancerImgArchiveOverview()_all_studies_cache_mngt()``'s
                                            ``download_override`` param.
         :type overview_download_override: ``bool``
@@ -468,7 +469,7 @@ class _CancerImgArchiveRecords(object):
 
         # Add the Search query which created the current results and the time the search was launched.
         patient_study_df['query'] = [search_dict] * patient_study_df.shape[0]
-        patient_study_df['query_time'] = [query_time] * patient_study_df.shape[0]
+        patient_study_df['pull_time'] = [pull_time] * patient_study_df.shape[0]
 
         # Clean the dataframe
         self.records_df = self._clean_patient_study_df(patient_study_df)
@@ -513,6 +514,7 @@ class _CancerImgArchiveImages(object):
         self.ROOT_URL = root_url
 
         # Add Record DataFrame; this database updates in real time as the images are downloaded.
+        self.record_db_images = None
         self.real_time_update_db = None
         self.real_time_update_db_path = None
 
@@ -528,20 +530,27 @@ class _CancerImgArchiveImages(object):
         if not os.path.isdir(self.temp_directory_path):
             os.makedirs(self.temp_directory_path)
 
-    def _real_time_update_db_path_gen(self, start_time, collection_name):
+    def _instantiate_real_time_update_db(self, db_index, pull_time):
         """
 
-        Define the path to be used when saving ``real_time_update_db``.
+        Create the ``real_time_update_db`` and define the path to the location where it will be saved.
 
-        :param start_time: see ``pull_img()``
-        :type start_time: ``str``
-        :param collection_name: the name of the collection (study).
-        :type collection_name: ``str``
+        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``record_db``).
+        :type db_index: ``Pandas Series``
+        :param pull_time: see ``pull_img()``
+        :type pull_time: ``str``
         """
-        # Create the path name for ``real_time_update_db``.
-        db_name = "{0}_{1}.p".format(start_time, cln(collection_name).replace(" ", "_"))
-        self.real_time_update_db_path = os.path.join(self.temp_directory_path, db_name)
+        # Define the path to save `self.real_time_update_db` to.
+        self.real_time_update_db_path = os.path.join(self.temp_directory_path, "{0}__update_db.p".format(pull_time))
 
+        # Define columns
+        real_time_update_columns = ['raw_dicom_files_paths', 'cached_images_path', 'conversion_success',
+                                    'allowed_modality', 'image_count_converted_cache']
+
+        # Instantiate
+        db = pd.DataFrame(columns=real_time_update_columns, index=db_index).replace({np.NaN: None})
+        self.real_time_update_db = db
+        
     def _save_real_time_update_db(self):
         """
 
@@ -551,7 +560,7 @@ class _CancerImgArchiveImages(object):
         # Save the `real_time_update_db` to disk.
         self.real_time_update_db.to_pickle(self.real_time_update_db_path)
 
-    def _download_zip(self, series_uid, temporary_folder, index):
+    def _download_zip(self, series_uid, temporary_folder):
         """
 
         Downloads the zipped from from the Cancer Imaging Archive for a given 'SeriesInstanceUID' (``series_uid``).
@@ -578,7 +587,7 @@ class _CancerImgArchiveImages(object):
         # Generate the list of paths to the dicoms
         return list(filter(None, map(file_path_full, z.filelist)))
 
-    def _dicom_to_standard_image(self, f, pull_position, conversion, new_file_name, img_format):
+    def _dicom_to_standard_image(self, f, pull_position, conversion, new_file_name, image_format):
         """
 
         This method handles the act of saving dicom images as in a more common file format (e.g., .png).
@@ -598,8 +607,8 @@ class _CancerImgArchiveImages(object):
         :type conversion: ``str``
         :param new_file_name: see ``_save_dicom_as_img``'s ``save_name`` parameter.
         :type new_file_name: ``str``
-        :param img_format: see: ``pull_img()``.
-        :type img_format: ``str``
+        :param image_format: see: ``pull_img()``.
+        :type image_format: ``str``
         :return: tuple of the form: ``(a list of paths to saved images, boolean denoting success)``
         :rtype: ``tuple``
         """
@@ -619,11 +628,11 @@ class _CancerImgArchiveImages(object):
         def save_path(instance):
             """Define the path to save the image to."""
             head = "{0}_{1}".format(instance, pull_position)
-            file_name = "{0}__{1}__default.{2}".format(head, os.path.basename(new_file_name), img_format.replace(".", ""))
+            file_name = "{0}__{1}__default.{2}".format(head, os.path.basename(new_file_name), image_format.replace(".", ""))
             return os.path.join(save_location, file_name)
 
         if pixel_arr.ndim == 2:
-            # Define save name by combining the images instance in the set, `new_file_name` and `img_format`.
+            # Define save name by combining the images instance in the set, `new_file_name` and `image_format`.
             instance = cln(str(f.InstanceNumber)) if len(cln(str(f.InstanceNumber))) else '0'
             path = save_path(instance)
             Image.fromarray(pixel_arr).convert(conversion).save(path)
@@ -679,7 +688,7 @@ class _CancerImgArchiveImages(object):
                            pull_position,
                            save_name=None,
                            color=False,
-                           img_format='png'):
+                           image_format='png'):
         """
 
         Save a dicom image as a more common file format.
@@ -691,14 +700,14 @@ class _CancerImgArchiveImages(object):
         :param index: the row index currently being processed inside of the main loop in ``_pull_images_engine()``.
         :type index: ``int``
         :param save_name: name of the new file (do *NOT* include a file extension).
-                          To specify a file format, use ``img_format``.
+                          To specify a file format, use ``image_format``.
                           If ``None``, name from ``path_to_dicom_file`` will be conserved.
         :type save_name: ``str``
         :param color: If ``True``, convert the image to RGB before saving. If ``False``, save as a grayscale image.
                       Defaults to ``False``
         :type color: ``bool``
-        :param img_format: see: ``pull_img()``.
-        :type img_format: ``str``
+        :param image_format: see: ``pull_img()``.
+        :type image_format: ``str``
         :return: ``_dicom_to_standard_image()``
         :rtype: ``tuple``
         """
@@ -715,7 +724,7 @@ class _CancerImgArchiveImages(object):
             new_file_name = os.path.basename(os.path.splitext(path_to_dicom_file)[0])
 
         # Convert the image into a PIL object and save to disk.
-        all_save_paths, success = self._dicom_to_standard_image(f, pull_position, conversion, new_file_name, img_format)
+        all_save_paths, success = self._dicom_to_standard_image(f, pull_position, conversion, new_file_name, image_format)
 
         # Update Record
         cfp_len = self._update_and_set_list(index, 'cached_images_path', all_save_paths, return_replacement_len=True)
@@ -744,6 +753,7 @@ class _CancerImgArchiveImages(object):
         """
         if save_dicoms is False:
             self.real_time_update_db.set_value(index, 'raw_dicom_files_paths', np.NaN)
+            self._save_real_time_update_db()
             return None
 
         new_dircom_paths = list()
@@ -823,7 +833,7 @@ class _CancerImgArchiveImages(object):
         os.makedirs(temp_folder)
         return temp_folder
 
-    def _valid_modaility(self, allowed_modalities, modality, modality_full):
+    def _valid_modality(self, allowed_modalities, modality, modality_full):
         """
 
         Check if `modality` or `modality_full` contains the modality the user is looking for.
@@ -834,7 +844,7 @@ class _CancerImgArchiveImages(object):
         :type modality: ``str``
         :param modality_full: a single element from the ``modality_full`` column in ``self.real_time_update_db``.
         :type modality_full: ``str``
-        :return: whether or not the image satisfies the modaility the user is looking for.
+        :return: whether or not the image satisfies the modality the user is looking for.
         :rtype: ``bool``
         """
         # Assume True if `allowed_modalities` is left to its default (`None`).
@@ -854,29 +864,29 @@ class _CancerImgArchiveImages(object):
         else:
             return False
 
-    def _pull_images_engine(self, save_dicoms, allowed_modalities, img_format, check_cache_first):
+    def _pull_images_engine(self, save_dicoms, allowed_modalities, image_format, check_cache_first):
         """
 
         Tool to coordinate the above machinery for pulling and downloading images (or locating them in the cache).
 
         :param save_dicoms: see: ``pull_img()``.
         :type save_dicoms: ``bool``
-        :param img_format: see: ``pull_img()``
-        :param img_format: ``str``
+        :param image_format: see: ``pull_img()``
+        :param image_format: ``str``
         :param allowed_modalities: see: ``pull_img()``
         :type allowed_modalities: ``list``, ``tuple`` or ``None``.
         :param check_cache_first: see: ``pull_img()``
         :param check_cache_first: ``bool``
         """
         columns = ('series_instance_uid', 'patient_id', 'image_count', 'modality', 'modality_full')
-        zipped_cols = list(zip(*[self.real_time_update_db[c] for c in columns] + [pd.Series(self.real_time_update_db.index)]))
+        zipped_cols = list(zip(*[self.record_db_images[c] for c in columns] + [pd.Series(self.record_db_images.index)]))
 
         for series_uid, patient_id, image_count, modality, modality_full, index in tqdm(zipped_cols):
             # Check if the image should be harvested (or loaded from the cache).
-            valid_image = self._valid_modaility(allowed_modalities, modality, modality_full)
+            valid_image = self._valid_modality(allowed_modalities, modality, modality_full)
 
-            # Add whether or not the image was of the modaility (or modailities) requested by the user.
-            self.real_time_update_db.set_value(index, 'allowed_modaility', valid_image)
+            # Add whether or not the image was of the modality (or modalities) requested by the user.
+            self.real_time_update_db.set_value(index, 'allowed_modality', valid_image)
 
             # Compose central part of the file name from 'patient_id' and the last ten digits of 'series_instance_uid'
             series_abbrev = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
@@ -891,11 +901,11 @@ class _CancerImgArchiveImages(object):
                 temporary_folder = self._create_temp_dir()
 
                 # Download the images into a temporary folder.
-                dicom_files = self._download_zip(series_uid, temporary_folder=temporary_folder, index=index)
+                dicom_files = self._download_zip(series_uid, temporary_folder=temporary_folder)
 
-                # Convert dicom files to `img_format`
+                # Convert dicom files to `image_format`
                 for e, f in enumerate(dicom_files, start=1):
-                    self._save_dicom_as_img(f, index, pull_position=e, save_name=series_abbrev, img_format=img_format)
+                    self._save_dicom_as_img(f, index, pull_position=e, save_name=series_abbrev, image_format=image_format)
 
                 # Save raw dicom files, if `save_dicoms` is True.
                 self._move_dicoms(save_dicoms, dicom_files, series_abbrev, index)
@@ -911,11 +921,10 @@ class _CancerImgArchiveImages(object):
                 self._save_real_time_update_db()
 
     def pull_img(self,
-                 collection_name,
-                 records,
-                 start_time,
+                 record_db,
+                 pull_time,
                  session_limit=1,
-                 img_format='png',
+                 image_format='png',
                  save_dicoms=True,
                  allowed_modalities=None,
                  check_cache_first=True):
@@ -923,17 +932,15 @@ class _CancerImgArchiveImages(object):
 
         Pull Images from the Cancer Imaging Archive.
 
-        :param collection_name: name of the collection which ``records`` corresponds to.
-        :type collection_name: ``str``
-        :param records: the yeild from ``_CancerImgArchiveRecords().records_pull()``.
-        :type records: ``Pandas DataFrame``
-        :param start_time: the time the pull for images was initiated (standard format: "%Y_%h_%d__%H_%M_%S_%f").
-        :type start_time: ``str``
+        :param record_db: the yield from ``_CancerImgArchiveRecords().records_pull()``.
+        :type record_db: ``Pandas DataFrame``
+        :param pull_time: the time the pull for images was initiated (standard format: "%Y_%h_%d__%H_%M_%S_%f").
+        :type pull_time: ``str``
         :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
                               to this parameter. If ``None``, no limit will be imposed. Defaults to `1`.
         :type session_limit: ``int``
-        :param img_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
-        :type img_format: ``str``
+        :param image_format: format for the image, e.g., 'png', 'jpg', etc. Defaults to 'png'.
+        :type image_format: ``str``
         :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.
         :type save_dicoms: ``bool``
         :param allowed_modalities: limit images downloaded to certain modalities.
@@ -952,29 +959,26 @@ class _CancerImgArchiveImages(object):
         # 2. values may be discrepant with the 'image_count' column because 3D images are expanded
         #    into their individual frames when saved to the converted images cache.
 
-        # Create the temp folder if it does not already exist.
+        # Create the __temp__ folder if it does not already exist.
         self._create_temp_directory()
-
-        # Define the path to be used when saving ``real_time_update_db``.
-        self._real_time_update_db_path_gen(start_time, collection_name)
 
         # Apply limit on number of sessions, if any
         if isinstance(session_limit, int):
             if session_limit < 1:
-                raise ValueError("`session_limit` must be an intiger greater than or equal to 1.")
-            img_records = records[records['session'].map(
+                raise ValueError("`session_limit` must be greater than or equal to 1.")
+            self.record_db_images = record_db[record_db['session'].map(
                 lambda x: float(x) <= session_limit if pd.notnull(x) else False)].reset_index(drop=True).copy(deep=True)
+        else:
+            self.record_db_images = record_db.reset_index(drop=True).copy(deep=True)
 
-        # Add limited record
-        self.real_time_update_db = img_records
+        # Save `record_db_images` to the __temp__ folder
+        self.record_db_images.to_pickle(os.path.join(self.temp_directory_path, "{0}__record_db.p".format(pull_time)))
 
-        # Add columns which will be populated as the images are pulled.
-        for c in ('raw_dicom_files_paths', 'cached_images_path', 'conversion_success',
-                  'allowed_modaility', 'image_count_converted_cache'):
-            self.real_time_update_db[c] = None
+        # Instantiate `self.real_time_update_db`
+        self._instantiate_real_time_update_db(db_index=self.record_db_images.index, pull_time=pull_time)
 
         # Harvest images
-        self._pull_images_engine(save_dicoms, allowed_modalities, img_format, check_cache_first)
+        self._pull_images_engine(save_dicoms, allowed_modalities, image_format, check_cache_first)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
         return self.real_time_update_db
@@ -1004,15 +1008,15 @@ class CancerImageInterface(object):
     :type cache_path: ``str`` or ``None``
     """
 
-    def _tcia_cache_record_db_gen(self, tcia_cache_record_db_addition):
+    def _tcia_cache_record_db_gen(self, tcia_cache_record_db_update):
         """
 
         Generate the `cache_record_db` database.
         If it does not exist, use `cache_record_db`.
-        If if already exists, merge it with `tcia_cache_record_db_addition`.
+        If if already exists, merge it with `tcia_cache_record_db_update`.
 
-        :param tcia_cache_record_db_addition: the new search dataframe to added to the existing one.
-        :type tcia_cache_record_db_addition: ``Pandas DataFrame``
+        :param tcia_cache_record_db_update: the new search dataframe to added to the existing one.
+        :type tcia_cache_record_db_update: ``Pandas DataFrame``
         """
         def rows_to_conserve_func(x):
             """Mark to conserve the row in the cache if the conversion was sucessful or dicoms were saved."""
@@ -1022,17 +1026,17 @@ class CancerImageInterface(object):
 
         # Compose or update the master 'cache_record_db' dataframe
         if self.cache_record_db is None:
-            cache_record_db = tcia_cache_record_db_addition.copy(deep=True)
+            cache_record_db = tcia_cache_record_db_update.copy(deep=True)
             self.cache_record_db = cache_record_db[
                 cache_record_db.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
             self.cache_record_db.to_pickle(self._tcia_cache_record_db_save_path)
         else:
-            duplicates_subset_columns = [c for c in self.cache_record_db.columns if c != 'query_time']
+            duplicates_subset_columns = [c for c in self.cache_record_db.columns if c != 'pull_time']
             columns_with_iterables_to_sort = ('cached_images_path', 'raw_dicom_files_paths')
             self.cache_record_db = record_db_merge(current_record_db=self.cache_record_db,
-                                                   record_db_addition=tcia_cache_record_db_addition,
+                                                   record_db_update=tcia_cache_record_db_update,
                                                    query_column_name='query',
-                                                   query_time_column_name='query_time',
+                                                   pull_time_column_name='pull_time',
                                                    duplicates_subset_columns=duplicates_subset_columns,
                                                    rows_to_conserve_func=rows_to_conserve_func,
                                                    columns_with_iterables_to_sort=columns_with_iterables_to_sort,
@@ -1071,7 +1075,7 @@ class CancerImageInterface(object):
         self.record_db = None
 
         # The format for date information
-        self._time_format = "%Y_%h_%d__%H_%M_%S_%f"
+        self._time_format = "%Y_%h_%d_%H_%M_%S_%f"
 
         # Path to the `cache_record_db`
         self._tcia_cache_record_db_save_path = os.path.join(self._Images._created_img_dirs['databases'],
@@ -1084,7 +1088,7 @@ class CancerImageInterface(object):
             if os.path.isdir(self._Images.temp_directory_path):
                 latent_temps = load_temp_dbs(self._Images.temp_directory_path)
                 if latent_temps is not None:
-                    self._tcia_cache_record_db_gen(tcia_cache_record_db_addition=latent_temps)
+                    self._tcia_cache_record_db_gen(tcia_cache_record_db_update=latent_temps)
                 # Delete the latent '__temp__' folder
                 shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
         else:
@@ -1092,7 +1096,7 @@ class CancerImageInterface(object):
 
         # Dictionary of the most recent search
         self._search_dict = None
-        self._query_time = None
+        self._pull_time = None
 
     def _collection_filter(self, summary_df, collection, cancer_type, location):
         """
@@ -1190,9 +1194,6 @@ class CancerImageInterface(object):
               ...                          ...                                  ...               ...         ...
 
         """
-        # Note the time the search request was made
-        self._query_time = datetime.now()
-
         # Create the search dict.
         self._search_dict_gen(collection, cancer_type, location, modality)
 
@@ -1252,7 +1253,7 @@ class CancerImageInterface(object):
             try:
                 record_frames.append(self._Records.records_pull(study=collection,
                                                                 search_dict=self._search_dict,
-                                                                query_time=self._query_time,
+                                                                pull_time=self._pull_time,
                                                                 patient_limit=patient_limit))
                 pull_success.append((True, collection))
             except IndexError as e:
@@ -1262,10 +1263,9 @@ class CancerImageInterface(object):
         return record_frames, pull_success
 
     def _pull_images(self,
-                     record_frames,
-                     collection_names,
+                     record_db,
                      session_limit,
-                     img_format,
+                     image_format,
                      save_dicoms,
                      allowed_modalities,
                      check_cache_first):
@@ -1273,15 +1273,13 @@ class CancerImageInterface(object):
 
         Pull Images from the TCIA API (based on the 'records' obtained with ``_pull_records()``.
 
-        :param record_frames: a list of records dataframes.
-        :type record_frames: ``list``
-        :param collection_names: list of strings noting collects for which records were sucessfully downloaded.
-        :type collection_names: ``list``
+        :param record_db: a list of records dataframes.
+        :type record_db: ``list``
         :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
                               to this parameter. If ``None``, no limit will be imposed. Defaults to 1.
         :type session_limit: ``int``
-        :param img_format: see: ``pull()``
-        :type img_format: ``str``
+        :param image_format: see: ``pull()``
+        :type image_format: ``str``
         :param save_dicoms: see: ``pull()``.
         :type save_dicoms: ``bool``
         :param allowed_modalities: see: ``pull()``.
@@ -1291,29 +1289,25 @@ class CancerImageInterface(object):
         :return: a list of dataframes passed through ``_CancerImgArchiveImages().pull_img()``.
         :rtype: ``list``
         """
-        img_frames = list()
-        for records, collection in zip(record_frames, collection_names):
-            if self._verbose:
-                print("\nObtaining Images for the '{0}' Collection...".format(collection))
-            current_img_frame = self._Images.pull_img(collection_name=collection,
-                                                      records=records,
-                                                      start_time=self._query_time.strftime(self._time_format),
-                                                      session_limit=session_limit,
-                                                      img_format=img_format,
-                                                      save_dicoms=save_dicoms,
-                                                      allowed_modalities=allowed_modalities,
-                                                      check_cache_first=check_cache_first)
-            img_frames.append(current_img_frame)
+        if self._verbose:
+            print("\nObtaining Images...")
+        current_img_frame = self._Images.pull_img(record_db=record_db,
+                                                  pull_time=self._pull_time.strftime(self._time_format),
+                                                  session_limit=session_limit,
+                                                  image_format=image_format,
+                                                  save_dicoms=save_dicoms,
+                                                  allowed_modalities=allowed_modalities,
+                                                  check_cache_first=check_cache_first)
 
-        return img_frames
+        return current_img_frame
 
     def _tcia_cache_record_db_handler(self):
         """
 
         Behavior:
 
-        If ``cache_record_db`` does not exists on disk, create it using ``tcia_cache_record_db_addition`` (evolved inside this
-        function). If it already exists, merge it with ``tcia_cache_record_db_addition``.
+        If ``cache_record_db`` does not exists on disk, create it using ``tcia_cache_record_db_update`` (evolved inside this
+        function). If it already exists, merge it with ``tcia_cache_record_db_update``.
 
         More broadly, this whole script follows the following procedure for caching:
 
@@ -1327,7 +1321,7 @@ class CancerImageInterface(object):
 
         """
         # Generate the `cache_record_db`.
-        self._tcia_cache_record_db_gen(tcia_cache_record_db_addition=load_temp_dbs(self._Images.temp_directory_path))
+        self._tcia_cache_record_db_gen(tcia_cache_record_db_update=load_temp_dbs(self._Images.temp_directory_path))
 
         # Delete the '__temp__' folder
         shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
@@ -1337,7 +1331,7 @@ class CancerImageInterface(object):
              session_limit=1,
              collections_limit=None,
              allowed_modalities=None,
-             img_format='png',
+             image_format='png',
              save_dicoms=False,
              check_cache_first=True):
         """
@@ -1350,7 +1344,7 @@ class CancerImageInterface(object):
 
         - Images have the following format:
 
-            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale ('default')].img_format``
+            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale ('default')].image_format``
 
         where:
 
@@ -1384,9 +1378,9 @@ class CancerImageInterface(object):
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
                                    This parameter is not case sensitive. Defaults to ``None``.
         :type allowed_modalities: ``list`` or ``tuple``
-        :param img_format: format for the image, e.g., 'png', 'jpg', etc. If ``None``, images will not be downloaded.
+        :param image_format: format for the image, e.g., 'png', 'jpg', etc. If ``None``, images will not be downloaded.
                            Defaults to 'png'.
-        :type img_format: ``str``
+        :type image_format: ``str``
         :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.
         :type save_dicoms: ``bool``
         :param check_cache_first: check the image cache for the image prior to downloading.
@@ -1405,36 +1399,41 @@ class CancerImageInterface(object):
         if self.current_search is None:
             raise AttributeError("`current_search` is empty. A search must be performed before `pull()` is called.")
 
+        # Note the time the pull request was made
+        self._pull_time = datetime.now()
+
         # Download Records for all of the studies
         record_frames, pull_success = self._pull_records(patient_limit=patient_limit,
                                                          collections_limit=collections_limit)
 
         # Check for failures
         download_failures = [collection for (success, collection) in pull_success if success is False]
-        download_successes = [collection for (success, collection) in pull_success if success is True]
 
         if len(download_failures) == len(pull_success):
             raise IndexError("Data could not be harvested for any of the requested collections.")
         elif len(download_failures):
-            warn("\nThe following collections failed to download:\n{0}".format(list_to_bulletpoints(download_failures)))
+            warn("\n\nThe following collections failed to download:\n{0}".format(list_to_bulletpoints(download_failures)))
+
+        # Combine all record frames
+        record_db = pd.concat(record_frames, ignore_index=True)
 
         # Download the images for all of the studies
-        if isinstance(img_format, str):
-            final_frames = self._pull_images(record_frames=record_frames,
-                                             collection_names=download_successes,
-                                             session_limit=session_limit,
-                                             img_format=img_format,
-                                             save_dicoms=save_dicoms,
-                                             allowed_modalities=allowed_modalities,
-                                             check_cache_first=check_cache_first)
-        else:
-            final_frames = record_frames
+        if isinstance(image_format, str):
+            real_time_update_db = self._pull_images(record_db=record_db,
+                                                    session_limit=session_limit,
+                                                    image_format=image_format,
+                                                    save_dicoms=save_dicoms,
+                                                    allowed_modalities=allowed_modalities,
+                                                    check_cache_first=check_cache_first)
 
-        # Concatenate
-        self.record_db = pd.concat(final_frames, ignore_index=True)
+            # Join ``real_time_update_db`` with ``record_db``
+            record_db = record_update_dbs_joiner(record_db, real_time_update_db)
 
-        # Update the image record if and only if a request was also made for images.
-        if isinstance(img_format, str):
+        # Update class ``attr``.
+        self.record_db = record_db
+
+        # Update the cache record if and only if a request was also made for images.
+        if isinstance(image_format, str):
             self._tcia_cache_record_db_handler()
 
         return self.record_db

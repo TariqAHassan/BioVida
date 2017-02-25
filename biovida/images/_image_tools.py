@@ -10,6 +10,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 from time import sleep
+from warnings import warn
 from scipy.misc import imread, imresize
 from skimage.color.colorconv import rgb2gray
 
@@ -185,6 +186,22 @@ def show_plt(img):
 # ----------------------------------------------------------------------------------------------------------
 
 
+def record_update_dbs_joiner(record_db, update_db):
+    """
+
+    Join and drop rows for which `update_db`'s columns exclusively contain NaNs.
+
+    :param record_db: permanent database/dataframe which keeps a record of files in the cache.
+    :type record_db: ``Pandas DataFrame``
+    :param update_db: database/dataframe to 'update' ``record_db``
+    :type update_db: ``Pandas DataFrame``
+    :return: ``record_db`` with ``update_db`` left-joined.
+    :rtype: ``Pandas DataFrame``
+    """
+    joined_db = record_db.join(update_db, how='left').dropna(subset=list(update_db.columns), how='all')
+    return joined_db.reset_index(drop=True)
+
+
 def load_temp_dbs(temp_db_path):
     """
 
@@ -193,25 +210,48 @@ def load_temp_dbs(temp_db_path):
     :param temp_db_path: path to the temporary databases (must be pickled and use the '.p' extension).
     :type temp_db_path: ``str``
     :return: all of the '.p' dataframes in ``temp_db_path`` merged into a single dataframe.
-    :rtype: ``Pandas DataFrame``
+    :rtype: ``Pandas DataFrame`` or ``None``
     """
-    # Apply the merging function
+    # Get pickled objects in ``temp_db_path``
     db_paths = [os.path.join(temp_db_path, p) for p in os.listdir(temp_db_path) if p.endswith(".p")]
     
     if not len(db_paths):
         return None
 
+    # Set of to group db_paths by
+    unique_pull_times = {os.path.basename(path).split("__")[0] for path in db_paths}
+
+    groupings = list()
+    for pull_time in unique_pull_times:
+        group = [p for p in db_paths if pull_time in p]
+        if len(group) == 1:
+            os.remove(group[0])
+            warn("FileNotFoundError: Either '{0}__record_db.p' or '{0}__update_db.p'"
+                 " is missing from\n {1}\nDeleting the file which is present...\n"
+                 "As a result, images obtained from the last `pull()` will likely be missing"
+                 " from `cache_record_db`.\nFor this reason, it is recommended that you\n"
+                 "**precisely** repeat your last `search()` and `pull()`.".format(pull_time, temp_db_path))
+        else:
+            groupings.append(group)
+
+    if not len(groupings):
+        return None
+
     # Read the dataframes in the '__temp__' directory into memory
-    frames = [pd.read_pickle(p) for p in db_paths]
+    frames = list()
+    for group in groupings:
+        record_db = pd.read_pickle([i for i in group if "__record_db.p" in i][0])
+        update_db = pd.read_pickle([i for i in group if "__update_db.p" in i][0])
+        frames.append(record_update_dbs_joiner(record_db, update_db))
 
     # Concatenate all frames
     return pd.concat(frames, ignore_index=True)
 
 
 def record_db_merge(current_record_db,
-                    record_db_addition,
+                    record_db_update,
                     query_column_name,
-                    query_time_column_name,
+                    pull_time_column_name,
                     duplicates_subset_columns,
                     rows_to_conserve_func=None,
                     post_concat_mapping=None,
@@ -223,13 +263,13 @@ def record_db_merge(current_record_db,
 
     :param current_record_db: the existing record database.
     :type current_record_db: ``Pandas DataFrame``
-    :param record_db_addition: the new records dataframe to be merged with the existing one (``current_record_db``).
-    :type record_db_addition: ``Pandas DataFrame``
+    :param record_db_update: the new records dataframe to be merged with the existing one (``current_record_db``).
+    :type record_db_update: ``Pandas DataFrame``
     :param query_column_name: the column which contains the query responcible for the results. Note: this column
                               *should* contain only dictionaries.
     :type query_column_name: ``str``
-    :param query_time_column_name: the name of the column with the time the query was created.
-    :type query_time_column_name: ``str``
+    :param pull_time_column_name: the name of the column with the time the query was created.
+    :type pull_time_column_name: ``str``
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
     :type duplicates_subset_columns: ``list`` or ``tuple``
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
@@ -242,11 +282,11 @@ def record_db_merge(current_record_db,
     :type columns_with_iterables_to_sort: ``list`` or ``tuple``
     :param relationship_mapping_func: function to map relationships in the dataframe. Defaults to ``None``.
     :type relationship_mapping_func: ``function``
-    :return: a dataframe which merges ``current_record_db`` and ``record_db_addition``
+    :return: a dataframe which merges ``current_record_db`` and ``record_db_update``
     :rtype: ``Pandas DataFrame``
     """
-    # Load in the current database and combine with the `record_db_addition` database
-    combined_dbs = pd.concat([current_record_db, record_db_addition], ignore_index=True)
+    # Load in the current database and combine with the `record_db_update` database
+    combined_dbs = pd.concat([current_record_db, record_db_update], ignore_index=True)
 
     # Mark each row to conserve order following ``pandas.drop_duplicates()``.
     combined_dbs['temp_order'] = range(combined_dbs.shape[0])
@@ -260,8 +300,8 @@ def record_db_merge(current_record_db,
         column_name, column_to_extract, func = post_concat_mapping
         combined_dbs[column_name] = func(combined_dbs[column_to_extract].tolist())
 
-    # Sort by ``query_time_column_name``
-    combined_dbs = combined_dbs.sort_values(query_time_column_name)
+    # Sort by ``pull_time_column_name``
+    combined_dbs = combined_dbs.sort_values(pull_time_column_name)
 
     # Convert 'query_column_name' to a tuple of tuples
     # (making them hashable, as required by ``pandas.drop_duplicates()``).
