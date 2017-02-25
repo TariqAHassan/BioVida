@@ -1061,21 +1061,21 @@ class OpeniInterface(object):
         :param query: a search term. ``None`` will be converted to an empty string.
         :type query: ``str`` or ``None``
         :param image_type: see ``OpeniInterface().options('image_type')`` for valid values.
-        :type image_type: ``list``, ``tuple`` or ``None``.
+        :type image_type: ``list``, ``tuple`` or ``None``
         :param rankby: see ``OpeniInterface().options('rankby')`` for valid values.
-        :type rankby: ``list``, ``tuple`` or ``None``.
+        :type rankby: ``list``, ``tuple`` or ``None``
         :param article_type: see ``OpeniInterface().options('article_type')`` for valid values.
-        :type article_type: ``list``, ``tuple`` or ``None``.
+        :type article_type: ``list``, ``tuple`` or ``None``
         :param subset: see ``OpeniInterface().options('subset')`` for valid values.
-        :type subset: ``list``, ``tuple`` or ``None``.
+        :type subset: ``list``, ``tuple`` or ``None``
         :param collection: see ``OpeniInterface().options('collection')`` for valid values.
-        :type collection: ``list``, ``tuple`` or ``None``.
+        :type collection: ``list``, ``tuple`` or ``None``
         :param fields: see ``OpeniInterface().options('fields')`` for valid values.
-        :type fields: ``list``, ``tuple`` or ``None``.
+        :type fields: ``list``, ``tuple`` or ``None``
         :param specialties: see ``OpeniInterface().options('specialties')`` for valid values.
-        :type specialties: ``list``, ``tuple`` or ``None``.
+        :type specialties: ``list``, ``tuple`` or ``None``
         :param video: see ``OpeniInterface().options('video')`` for valid values. Defaults to ``None``.
-        :type video: ``list``, ``tuple`` or ``None``.
+        :type video: ``list``, ``tuple`` or ``None``
         :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ``['graphics']``.
 
                     .. note::

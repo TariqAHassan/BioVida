@@ -659,7 +659,7 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
 
         The `'known_associated_symptoms'` and `'known_associated_genes'` columns denote symptoms and genes
         known to be associated with the disease the patient presented with. **These columns are not an account
-        of the symptomatology or genotype of any given patient in this database**.
+        of the symptomatology or genotype of the individual patient**.
 
     :Example:
 
