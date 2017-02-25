@@ -6,7 +6,6 @@
 """
 import io
 import os
-import dicom
 import shutil
 import zipfile
 import requests
@@ -35,7 +34,7 @@ from biovida.support_tools.support_tools import list_to_bulletpoints
 
 from biovida.support_tools.printing import pandas_pprint
 from biovida.support_tools._cache_management import package_cache_creator
-from biovida.images._resources.cancer_image_parameters import CancerImgArchiveParams
+from biovida.images.interface_support.cancer_image._cancer_image_parameters import CancerImgArchiveParams
 
 
 # ----------------------------------------------------------------------------------------------------------
