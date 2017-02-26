@@ -493,17 +493,46 @@ def _imaging_technology_guess_info():
     }
 
     modality_subtypes = {
-        'ct': [['angiography'], ['chest'], ['head', 'brain'], ['spinal', 'spine'], ['segmentation'],
-               ['non-contrast', 'non contrast', 'noncontrast', 'w/o contrast'],
-               ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']],
-        'mri': [[' gadolinium ', ' gad '], ['post-gadolinium', 'post-gad', 'post gad '], ['t1'], ['t2'], ['flair'],
-                ['localizer'], [' dwi ', 'diffusion weighted'], [' dti ', 'diffusion tensor']],
-        'x-ray': [['chest'], ['abdomen', 'abdominal']]
+        'ct': [
+            ['angiography'],
+            ['chest'],
+            ['head', 'brain'],
+            ['spinal', 'spine'],
+            ['segmentation'],
+            ['non-contrast', 'non contrast', 'noncontrast', 'w/o contrast'],
+            ['pre-contrast', 'precontrast'],
+            ['post-contrast', 'postcontrast'],
+            ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast']
+        ],
+        'mri': [
+            [' gadolinium ', ' gad '],
+            ['post-gadolinium', 'post-gad', 'post gad '],
+            ['t1'],
+            ['t2'],
+            ['flair'],
+            ['pre-contrast', 'precontrast'],
+            ['post-contrast', 'postcontrast'],
+            ['localizer'],
+            [' dwi ', 'diffusion weighted'],
+            [' dti ', 'diffusion tensor']
+        ],
+        'x-ray': [
+            ['chest'],
+            ['abdomen', 'abdominal']
+        ]
     }
 
-    contraditions = [['t1', 't2'], ['non-contrast', 'contrast-enhanced'],
-                     ['gadolinium', 'post-gadolinium'], ['chest', 'abdomen'], ['head', 'abdomen'],
-                     ['spinal', 'abdomen'], ['head', 'spinal'], ['chest', 'head']]
+    contraditions = [
+        ['t1', 't2'],
+        ['non-contrast', 'contrast-enhanced'],
+        ['pre-contrast', 'post-contrast'],
+        ['gadolinium', 'post-gadolinium'],
+        ['chest', 'abdomen'],
+        ['head', 'abdomen'],
+        ['spinal', 'abdomen'],
+        ['head', 'spinal'],
+        ['chest', 'head']
+    ]
 
     return terms_dict, modality_subtypes, contraditions
 
