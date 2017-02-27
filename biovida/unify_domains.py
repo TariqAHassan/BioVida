@@ -70,7 +70,7 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
 
         The `'known_associated_symptoms'` and `'known_associated_genes'` columns denote symptoms and genes
         known to be associated with the disease the patient presented with. **These columns are not an account
-        of the symptomatology or genotype of the individual patient**.
+        of the symptomatology or genotype of the patients themselves**.
 
     :Example:
 
