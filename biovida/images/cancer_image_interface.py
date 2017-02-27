@@ -44,6 +44,10 @@ from biovida.support_tools._cache_management import package_cache_creator
 
 # Cancer Image Support tools
 from biovida.images.interface_support.cancer_image._cancer_image_parameters import CancerImgArchiveParams
+from biovida.images.interface_support._dicom_data_to_dict import dicom_to_dict
+
+# Spin up tqdm
+tqdm.pandas("status")
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -751,7 +755,7 @@ class _CancerImgArchiveImages(object):
         :param index: the row index currently being processed inside of the main loop in ``_pull_images_engine()``.
         :type index: ``int``
         """
-        if save_dicoms is False:
+        if save_dicoms is not True:
             self.real_time_update_db.set_value(index, 'raw_dicom_files_paths', np.NaN)
             self._save_real_time_update_db()
             return None
@@ -1287,6 +1291,48 @@ class CancerImageInterface(object):
         # Delete the '__temp__' folder
         shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
 
+    def extract_dicom_data(self, database='record_db', make_hashable=False):
+        """
+
+        Extract data from all dicom files referenced in ``record_db`` or ``cache_record_db``.
+
+        :param database: the name of the database to use. Must be one of: 'record_db', 'cache_record_db'.
+                         Defaults to 'record_db'.
+        :type database: ``str``
+        :param make_hashable: If ``True`` convert the data extracted to nested tuples.
+                              If ``False`` generate nested dictionaries. Defaults to ``False``
+        :type make_hashable: ``bool``
+        :return: a series of the dicom data with dictionaries of the form ``{path: {DICOM Description: value, ...}, ...}``.
+                 If ``make_hashable`` is ``True``, all dictionaries will be converted to ``tuples``.
+        :rtype: ``Pandas Series``
+        """
+        if database == 'record_db':
+            database_to_use = self.record_db
+        elif database == 'cache_record_db':
+            database_to_use = self.cache_record_db
+        else:
+            raise ValueError("`database` must be one of 'record_db', 'cache_record_db'.")
+
+        if type(database_to_use).__name__ != 'DataFrame':
+            raise TypeError('`{0}` is not a DataFrame.'.format(database))
+        else:
+            db = database_to_use.copy(deep=True)
+
+        def dicom_apply(paths):
+            """Extract dicom data."""
+            if not isinstance(paths, (list, tuple)):
+                return paths
+            elif not len(paths):
+                return paths
+            else:
+                if make_hashable:
+                    return tuple({p: tuple(dicom_to_dict(dicom_file=p).items()) for p in paths}.items())
+                else:
+                    return {p: dicom_to_dict(dicom_file=p) for p in paths}
+
+        # Deploy and Return
+        return db['raw_dicom_files_paths'].progress_map(dicom_apply, na_action='ignore')
+
     def pull(self,
              patient_limit=3,
              session_limit=1,
@@ -1397,8 +1443,6 @@ class CancerImageInterface(object):
             self._tcia_cache_record_db_handler()
 
         return self.record_db
-
-
 
 
 
