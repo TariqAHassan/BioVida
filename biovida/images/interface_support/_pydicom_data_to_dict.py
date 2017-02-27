@@ -70,7 +70,7 @@ def dicom_value_parse(key, value):
     :param value:
     :return:
     """
-    value = cln(str(value)).replace("\'", "").replace("\"", "")
+    value = cln(str(value).replace("\'", "").replace("\"", ""))
 
     if not len(value) or value.lower() == 'none':
         return None
@@ -122,7 +122,9 @@ def pydicom_to_dict(dicom_file):
     :return: a dictionary with the dicom meta data.
     :rtype: ``dict``
     """
-    if isinstance(dicom_file, str) and os.path.isfile(dicom_file):
+    if isinstance(dicom_file, str):
+        if not os.path.isfile(dicom_file):
+            FileNotFoundError("Could not locate '{0}'.".format(dicom_file))
         dicom_object = dicom.read_file(dicom_file)
     elif type(dicom_file).__name__ == 'FileDataset':
         dicom_object = dicom_file
@@ -130,8 +132,6 @@ def pydicom_to_dict(dicom_file):
         raise TypeError("`dicom_file` must be of type `dicom.FileDataset` or a string.")
 
     return dicom_object_dict_gen(dicom_object)
-
-
 
 
 
