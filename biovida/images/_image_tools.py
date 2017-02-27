@@ -37,6 +37,23 @@ def sleep_with_noise(amount_of_time, mean=0.0, noise=0.75):
     sleep(abs(amount_of_time + np.random.normal(loc=mean, scale=noise)))
 
 
+def try_fuzzywuzzy_import():
+    """
+
+    Try to import the ``fuzzywuzzy`` library.
+
+    """
+    try:
+        from fuzzywuzzy import process
+        return process
+    except ImportError:
+        error_msg = "`fuzzy_threshold` requires the `fuzzywuzzy` library,\n" \
+                    "which can be installed with `$ pip install fuzzywuzzy`.\n" \
+                    "For best performance, it is also recommended that python-Levenshtein is installed.\n" \
+                    "(`pip install python-levenshtein`)."
+        raise ImportError(error_msg)
+
+
 def resetting_label(to_label):
     """
 
