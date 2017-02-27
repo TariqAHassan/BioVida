@@ -608,7 +608,7 @@ def _try_fuzzywuzzy_import():
         raise ImportError(error_msg)
 
 
-def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
+def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     """
 
     Tool to unify image interfaces (``OpeniInterface`` and ``CancerImageInterface``)
@@ -663,7 +663,7 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
 
     :Example:
 
-    >>> from biovida.unify_domains import unify
+    >>> from biovida.unify_domains import unify_against_images
     >>> from biovida.images.openi_interface import OpeniInterface
     >>> from biovida.images.cancer_image_interface import CancerImageInterface
     ...
@@ -672,7 +672,7 @@ def unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     >>> cii = CancerImageInterface(YOUR_API_KEY_HERE)
     # --- Search and Pull ---
     ...
-    >>> udf = unify(interfaces=[opi, cii])
+    >>> udf = unify_against_images(interfaces=[opi, cii])
     """
     # Catch ``fuzzy_threshold=True`` and set to a reasonably high default.
     if fuzzy_threshold is True:
