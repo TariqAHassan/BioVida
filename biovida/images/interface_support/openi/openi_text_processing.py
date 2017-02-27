@@ -522,7 +522,7 @@ def _imaging_technology_guess_info():
         ]
     }
 
-    contraditions = [
+    contradictions = [
         ['t1', 't2'],
         ['non-contrast', 'contrast-enhanced'],
         ['pre-contrast', 'post-contrast'],
@@ -534,7 +534,7 @@ def _imaging_technology_guess_info():
         ['chest', 'head']
     ]
 
-    return terms_dict, modality_subtypes, contraditions
+    return terms_dict, modality_subtypes, contradictions
 
 
 def _imaging_technology_guess(abstract, image_caption, image_mention):
@@ -551,11 +551,11 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
     :return: imaging modality.
     :rtype: ``str`` or ``None``
     """
-    terms_dict, modality_subtypes, contraditions = _imaging_technology_guess_info()
+    terms_dict, modality_subtypes, contradictions = _imaging_technology_guess_info()
 
-    def drop_contraditions(matches):
-        """Check for and eliminate invalid contraditions."""
-        for c in contraditions:
+    def drop_contradictions(matches):
+        """Check for and eliminate invalid contradictions."""
+        for c in contradictions:
             if all(i in matches for i in c):
                 matches = [m for m in matches if m not in c]
         return matches
@@ -564,9 +564,9 @@ def _imaging_technology_guess(abstract, image_caption, image_mention):
         """Combine `terms_dict` and `modality_subtypes`."""
         if modality_short in modality_subtypes:
             matches = [cln(m[0]) for m in modality_subtypes[modality_short] if any(i in source_ for i in m)]
-            matches_without_contraditions = drop_contraditions(matches)
-            if len(matches_without_contraditions):
-                return "{0}: {1}".format(modality_long, "; ".join(sorted(matches_without_contraditions)))
+            matches_without_contradictions = drop_contradictions(matches)
+            if len(matches_without_contradictions):
+                return "{0}: {1}".format(modality_long, "; ".join(sorted(matches_without_contradictions)))
             else:
                 return modality_long
         else:
