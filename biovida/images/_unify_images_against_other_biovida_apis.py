@@ -67,7 +67,7 @@ class _ImagesInterfaceIntegration(object):
         )
 
         # Define columns to keep
-        openi_columns = ['image_id', 'image_caption', 'modality_best_guess', 'age', 'sex',
+        openi_columns = ['abstract', 'image_id', 'image_caption', 'modality_best_guess', 'age', 'sex',
                          'diagnosis', 'query', 'pull_time', 'download_success', 'cached_images_path']
 
         # Column name changes
@@ -112,6 +112,9 @@ class _ImagesInterfaceIntegration(object):
         # Define subsection based on `cancer_img_columns`
         cancer_img_subsection = cache_record_db_cln[cancer_img_columns]
 
+        # Add an 'abstract' column
+        cancer_img_subsection['abstract'] = np.NaN
+
         # Add a column to allow the user to identify the API which provided the data
         cancer_img_subsection['source_api'] = ['tcia'] * cancer_img_subsection.shape[0]
 
@@ -137,6 +140,7 @@ class _ImagesInterfaceIntegration(object):
 
         yields a single dataframe with the following columns:
 
+         - 'abstract'*
          - 'image_id'
          - 'image_caption'
          - 'modality_best_guess'
@@ -148,6 +152,8 @@ class _ImagesInterfaceIntegration(object):
          - 'harvest_success'
          - 'files_path'
          - 'source_api'
+
+         *NOTE: this column will be dropped after passing through ``_DiseaseSymptomsIntegration().integration()``.
 
         :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a tuple.
         :rtype interfaces: ``tuple``, ``list``, ``OpeniInterface`` class or ``CancerImageInterface`` class.
@@ -513,12 +519,33 @@ class _DiseaseSymptomsIntegration(object):
         # Create a disease-symptoms mapping
         self.disease_symptom_dict = self._disease_symptom_dict_gen(dis_symp_db)
 
+    def _patient_symptoms(self, data_frame):
+        """
+
+        Match 'known_associated_symptoms' to the 'abstract' for the individual patient
+
+        :param data_frame: ``updated_data_frame`` as evolved in ``_DiseaseSymptomsIntegration().integration()``.
+        :type data_frame: ``Pandas DataFrame``
+        :return: a series with tuples of 'known_associated_symptoms' found in 'abstract'.
+        :rtype: ``Pandas Series``
+        """
+        def match_symptoms(x):
+            """Find items in 'known_associated_symptoms' in 'abstract'."""
+            if isinstance(x['known_associated_symptoms'], (list, tuple)) and isinstance(x['abstract'], str):
+                abstract_lower = x['abstract'].lower()
+                symptoms = [i for i in x['known_associated_symptoms'] if i in abstract_lower]
+                return tuple(symptoms) if len(symptoms) else np.NaN
+            else:
+                return np.NaN
+
+        return data_frame.progress_apply(match_symptoms, axis=1)
+
     def integration(self, data_frame, fuzzy_threshold=False):
         """
 
         Adds a 'known_associated_symptoms' column to ``data_frame`` based on the Disease Symptoms database.
 
-        :param data_frame: a dataframe which has been passed through ``_DiseaseOntologyIntegration().integration()``
+        :param data_frame: a dataframe which has been passed through ``_DiseaseOntologyIntegration().integration()``.
         :type data_frame: ``Pandas DataFrame``
         :param fuzzy_threshold: an integer on ``(0, 100]``.
         :type fuzzy_threshold: ``int``, ``bool``, ``None``
@@ -528,10 +555,19 @@ class _DiseaseSymptomsIntegration(object):
         if self.verbose:
             header("Integrating Disease Symptoms Data... ")
 
-        return _resource_integration(data_frame=data_frame,
-                                     resource_dict=self.disease_symptom_dict,
-                                     fuzzy_threshold=fuzzy_threshold,
-                                     new_column_name='known_associated_symptoms')
+        # Generate a 'known_associated_symptoms' columns
+        updated_data_frame = _resource_integration(data_frame=data_frame,
+                                                   resource_dict=self.disease_symptom_dict,
+                                                   fuzzy_threshold=fuzzy_threshold,
+                                                   new_column_name='known_associated_symptoms')
+
+        # Find 'known_associated_symptoms' which individual patients presented with by scaning the abstract
+        updated_data_frame['patient_symptoms'] = self._patient_symptoms(updated_data_frame)
+
+        # Drop the 'abstract' column as it is no longer needed
+        del updated_data_frame['abstract']
+
+        return updated_data_frame
 
 
 # ----------------------------------------------------------------------------------------------------------
