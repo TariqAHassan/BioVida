@@ -80,7 +80,7 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
     >>> opi = OpeniInterface()
     # --- Search and Pull ---
     >>> udf1 = unify_against_images(opi)
-
+    ...
     # Adding another Interface from the images subpackage
     >>> cii = CancerImageInterface(YOUR_API_KEY_HERE)
     # --- Search and Pull ---

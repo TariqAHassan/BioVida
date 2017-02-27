@@ -469,8 +469,7 @@ def border_detection(image,
           with standard deviation approximately equal to 0 are replaced with zero vectors. (a).
        2. Values are averaged along this same axis.
           This produces a signal (which can be visualized as a line graph). (b).
-       3. The median value for this signal is computed. The median is used here,
-          as opposed to the average, because it is more robust against outliers.
+       3. The median value for this signal is computed. (c).
        4. The ``n`` points for which are the furthest, in absolute value, from the median are selected.
        5. The signal strength of the ``n`` points is quantified using percent error, where the median value
           is used as the expected value.
@@ -486,6 +485,7 @@ def border_detection(image,
 
     (a) This reduces the muffling effect that areas with solid color can have on step 2.
     (b) Large inflections after areas with little change suggest a transition from a solid background to an image.
+    (c) The median is used here, as opposed to the average, because it is more robust against outliers.
 
     :param image: a path to an image or an image represented as a 2D ndarray.
 
