@@ -235,7 +235,7 @@ class ImageProcessing(object):
 
         Note:
               - this tool is very conservative (very small amounts of 'color' will yield `False`).
-              - the exception to the above rule is the *very rare* of an image which even split
+              - the exception to the above rule is the *very rare* case of an image which even split
                 of red, green and blue.
 
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.

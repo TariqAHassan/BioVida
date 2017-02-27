@@ -1034,8 +1034,10 @@ class OpeniInterface(object):
 
         :param search_parameter: one of: 'image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
                                          'specialties', 'video' or 'exclusions'.
-        :param print: if ``True``, pretty print the options, else return as a ``list``. Defaults to ``True``.
-        :return: a list of valid values for a given search `search_parameter`.
+        :type search_parameter: ``str``
+        :param print_options: if ``True``, pretty print the options, else return as a ``list``. Defaults to ``True``.
+        :type print_options: ``bool``
+        :return: a list of valid values for a given search ``search_parameter``.
         :rtype: ``list``
         """
         # Note this simply wraps ``_OpeniSearch().options()``.
