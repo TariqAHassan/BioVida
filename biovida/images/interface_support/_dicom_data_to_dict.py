@@ -112,7 +112,7 @@ def dicom_object_dict_gen(dicom_object):
     return d
 
 
-def pydicom_to_dict(dicom_file):
+def dicom_to_dict(dicom_file):
     """
 
     Convert the metadata associated with ``dicom_file`` into a python dictionary
