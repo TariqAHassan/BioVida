@@ -8,10 +8,7 @@
 from biovida.support_tools.support_tools import is_int
 
 # Subpackage Unification Tools -- Images
-from biovida.images._unify_images_against_other_biovida_apis import (_ImagesInterfaceIntegration,
-                                                                     _DiseaseOntologyIntegration,
-                                                                     _DiseaseSymptomsIntegration,
-                                                                     _DisgenetIntegration)
+from biovida.images._unify_images_against_other_biovida_apis import _images_unify
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -64,13 +61,15 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
         * 'disease_synonym'
         * 'disease_definition'
         * 'known_associated_symptoms'
+        * 'patient_symptoms'
         * 'known_associated_genes'
 
     .. warning::
 
         The `'known_associated_symptoms'` and `'known_associated_genes'` columns denote symptoms and genes
         known to be associated with the disease the patient presented with. **These columns are not an account
-        of the symptomatology or genotype of the patients themselves**.
+        of the symptomatology or genotype of the patients themselves**. Conversely, 'patient_symptoms' *is*
+        an account of a given patient's symptoms.
 
     :Example:
 
@@ -80,30 +79,15 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
     ...
     >>> opi = OpeniInterface()
     # --- Search and Pull ---
+    >>> udf1 = unify_against_images(opi)
+
+    # Adding another Interface from the images subpackage
     >>> cii = CancerImageInterface(YOUR_API_KEY_HERE)
     # --- Search and Pull ---
-    ...
-    >>> udf = unify_against_images(interfaces=[opi, cii])
+    >>> udf2 = unify_against_images([opi, cii])
     """
-    # Catch ``fuzzy_threshold=True`` and set to a reasonably high default.
-    if fuzzy_threshold is True:
-        fuzzy_threshold = 95
-
-    # Combine Instances
-    combined_df = _ImagesInterfaceIntegration().integration(interfaces=interfaces)
-
-    # Disease Ontology
-    combined_df = _DiseaseOntologyIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
-
-    # Disease Symptoms
-    combined_df = _DiseaseSymptomsIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
-
-    # Disgenet
-    combined_df = _DisgenetIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
-
-    return combined_df
-
-
+    # Note: this simply wraps ``biovida.images._unify_images_against_other_biovida_apis._images_unify``
+    return _images_unify(interfaces=interfaces, cache_path=cache_path, verbose=verbose, fuzzy_threshold=fuzzy_threshold)
 
 
 

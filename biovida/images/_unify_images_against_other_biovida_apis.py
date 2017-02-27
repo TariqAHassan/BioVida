@@ -632,6 +632,46 @@ class _DisgenetIntegration(object):
                                      new_column_name='known_associated_genes')
 
 
+# ----------------------------------------------------------------------------------------------------------
+# Unify
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _images_unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
+    """
+
+    Unify Interfaces in the ``images`` subpackage against other BioVida APIs.
+
+    :param interfaces: See: ``biovia.unify_domains.unify_against_images()``
+    :param interfaces: `list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
+    :param cache_path: See: ``biovia.unify_domains.unify_against_images()``
+    :param cache_path: `str`` or ``None``
+    :param verbose: See: ``biovia.unify_domains.unify_against_images()``
+    :param verbose: ``bool``
+    :param fuzzy_threshold: See: ``biovia.unify_domains.unify_against_images()``
+    :param fuzzy_threshold: ``int``, ``bool``, ``None``
+    :return: See: ``biovia.unify_domains.unify_against_images()``
+    :rtype: ``Pandas DataFrame``
+    """
+    # Catch ``fuzzy_threshold=True`` and set to a reasonably high default.
+    if fuzzy_threshold is True:
+        fuzzy_threshold = 95
+
+    # Combine Instances
+    combined_df = _ImagesInterfaceIntegration().integration(interfaces=interfaces)
+
+    # Disease Ontology
+    combined_df = _DiseaseOntologyIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+
+    # Disease Symptoms
+    combined_df = _DiseaseSymptomsIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+
+    # Disgenet
+    combined_df = _DisgenetIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+
+    return combined_df
+
+
 
 
 
