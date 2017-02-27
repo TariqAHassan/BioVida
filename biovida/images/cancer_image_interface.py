@@ -1099,7 +1099,7 @@ class CancerImageInterface(object):
             self.cache_record_db = None
 
         # Dictionary of the most recent search
-        self._search_dict = None
+        self.search_dict = None
         self._pull_time = None
 
     def _collection_filter(self, summary_df, collection, cancer_type, location):
@@ -1157,7 +1157,7 @@ class CancerImageInterface(object):
             else:
                 return v
 
-        self._search_dict = {k: lower_sdict(v) for k, v in sdict.items()}
+        self.search_dict = {k: lower_sdict(v) for k, v in sdict.items()}
 
     def search(self,
                collection=None,
@@ -1256,7 +1256,7 @@ class CancerImageInterface(object):
                 print("\nDownloading Records for the '{0}' Collection...".format(collection))
             try:
                 record_frames.append(self._Records.records_pull(study=collection,
-                                                                search_dict=self._search_dict,
+                                                                search_dict=self.search_dict,
                                                                 pull_time=self._pull_time,
                                                                 patient_limit=patient_limit))
                 pull_success.append((True, collection))
