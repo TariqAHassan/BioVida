@@ -124,7 +124,7 @@ def pydicom_to_dict(dicom_file):
     """
     if isinstance(dicom_file, str):
         if not os.path.isfile(dicom_file):
-            FileNotFoundError("Could not locate '{0}'.".format(dicom_file))
+            raise FileNotFoundError("Could not locate '{0}'.".format(dicom_file))
         dicom_object = dicom.read_file(dicom_file)
     elif type(dicom_file).__name__ == 'FileDataset':
         dicom_object = dicom_file
