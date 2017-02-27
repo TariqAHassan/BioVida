@@ -26,7 +26,7 @@ def parse_age(value):
     :return:
     """
     if not isinstance(value, str):
-        raise TypeError
+        raise TypeError('`value` must be a string.')
     elif len(value) > 4:
         return value
 
