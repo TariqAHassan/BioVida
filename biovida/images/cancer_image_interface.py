@@ -1049,12 +1049,9 @@ class CancerImageInterface(object):
             # Save to disk
             self.cache_record_db.to_pickle(self._tcia_cache_record_db_save_path)
 
-    def __init__(self,
-                 api_key,
-                 verbose=True,
-                 cache_path=None):
+    def __init__(self, api_key, verbose=True, cache_path=None):
         self._verbose = verbose
-        self.dicom_modality_abbrevs = CancerImgArchiveParams().dicom_modality_abbreviations('dict')
+        self.dicom_modality_abbrevs = CancerImgArchiveParams(cache_path, verbose).dicom_modality_abbreviations('dict')
 
         # Root URL to for the Cancer Imaging Archive's REST API
         root_url = 'https://services.cancerimagingarchive.net/services/v3/TCIA'
@@ -1295,6 +1292,7 @@ class CancerImageInterface(object):
         """
 
         Extract data from all dicom files referenced in ``record_db`` or ``cache_record_db``.
+        Note: this requires that ``save_dicoms`` is ``True`` when ``pull()`` is called.
 
         :param database: the name of the database to use. Must be one of: 'record_db', 'cache_record_db'.
                          Defaults to 'record_db'.
@@ -1306,6 +1304,7 @@ class CancerImageInterface(object):
                  If ``make_hashable`` is ``True``, all dictionaries will be converted to ``tuples``.
         :rtype: ``Pandas Series``
         """
+        # ToDo: remove need for ``save_dicoms`` by calling upstream before the temporary dicom files are destroyed.
         if database == 'record_db':
             database_to_use = self.record_db
         elif database == 'cache_record_db':
