@@ -799,6 +799,11 @@ def feature_extract(x, list_of_diseases):
         - the plane of the image ('image_plane')
         - image problems ('arrows', 'asterisks' and 'grids') inferred from the image caption ('image_problems_from_text')
 
+    .. warning::
+
+        For images from sources other than *MedPix*, the ``'diagnosis'`` column may be inaccurate.
+
+
     :param x: series passed though Pandas' ``DataFrame().apply()`` method, e.g.,
               ``df.apply(lambda x: feature_extract(x, list_of_diseases), axis=1)``.
 
