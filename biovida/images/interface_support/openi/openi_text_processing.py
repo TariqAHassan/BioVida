@@ -811,7 +811,7 @@ def feature_extract(x, list_of_diseases):
 
     This function automatically generates the following columns when ``OpeniInterface().pull()`` is called:
 
-    Exclusive to MedPix® Image:
+    Exclusive to MedPix® Images:
         - 'history'
         - 'finding'
         - 'ddx' (differential diagnosis)
