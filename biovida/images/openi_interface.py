@@ -606,7 +606,7 @@ class _OpeniRecords(object):
         data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
 
         # Replace 'Not Available' and 'IN PROGRESS' with NaN
-        for r in ('[nN]ot [aA]vailable.?', '[Ii][Nn] [Pp][Rr][Oo][Gg][Rr][Ee][Ss][Ss].?'):
+        for r in ('[nN]ot [aA]vailable.?', '[Nn]one.?', '[Ii][Nn] [Pp][Rr][Oo][Gg][Rr][Ee][Ss][Ss].?'):
             data_frame = data_frame.replace({r: np.NaN}, regex=True)
 
         # Replace the 'Replace this - ' placeholder with NaN
