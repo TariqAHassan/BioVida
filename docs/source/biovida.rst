@@ -42,8 +42,8 @@ biovida.images.image_processing module
     :undoc-members:
     :show-inheritance:
 
-biovida.images.models.img_classification module
------------------------------------------------
+biovida.images.models.image_classification module
+-------------------------------------------------
 
 .. automodule:: biovida.images.models.img_classification
     :members:

@@ -18,7 +18,7 @@ from biovida.images._image_tools import load_and_scale_imgs
 
 from keras import callbacks
 from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential, load_model, model_from_json, Model
+from keras.models import Sequential, load_model, Model
 from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.layers import Activation, Dropout, Flatten, Dense, Input, merge
 from keras.optimizers import RMSprop, SGD
@@ -35,7 +35,7 @@ from keras.optimizers import RMSprop, SGD
 class ImageRecognitionCNN(object):
     """
 
-    Keras Convolutional Neural Network Interface.
+    Keras Convolutional Neural Networks Interface.
 
     :param data_path: path to the directory with the subdirectories entitled 'train' and 'validation'.
                       This directory *must* have this structure. Defaults to ``None`` (to be use when loading

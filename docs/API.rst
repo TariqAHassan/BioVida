@@ -13,7 +13,7 @@ API
 .. automodule:: biovida.images.image_processing
 	:members:
 
-.. automodule:: biovida.images.models.img_classification
+.. automodule:: biovida.images.models.image_classification
 	:members:
 
 .. automodule:: biovida.images.models.template_matching
