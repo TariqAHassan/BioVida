@@ -549,25 +549,58 @@ def _imaging_modality_guess(abstract, image_caption):
     :return: imaging modality.
     :rtype: ``str`` or ``None``
     """
+    # ToDo: block 'with and without contrast'
     terms_dict, modality_subtypes, contradictions = _imaging_modality_guess_info()
 
-    matches = dict()
-    for source in (abstract, image_caption):
-        source_clean = cln(source).lower()
-        # Try to extract the everything from ``image_caption``.
-        for k, (alternative_names, _) in terms_dict.items():
-            if any(i in source_clean for i in alternative_names):
-                matches[k] = []
+    def matcher(dictionary, flatten=False):
+        matches = set()
+        for source in (abstract, image_caption):
+            source_clean = cln(source).lower()
+            for k, v in dictionary.items():
+                match_on = list(chain(*v)) if flatten else v[0]
+                if any(i in source_clean for i in match_on):
+                    matches.add(k)
+        return matches
 
     # If that did not work, try using values in `modality_subtypes` which are unique.
-    unique_subtypes = list(map(cln, chain(*chain(*modality_subtypes.values()))))
+    def gen_modality_specific_subtypes():
+        unique_subtypes = list(map(cln, chain(*chain(*modality_subtypes.values()))))
+        modality_specific_subtypes = dict()
+        for k, v in modality_subtypes.items():
+            new_value = filter(None, [[j for j in i if unique_subtypes.count(cln(j)) == 1] for i in v])
+            modality_specific_subtypes[k] = list(new_value)
+        return modality_specific_subtypes
 
-    modality_specific_subtypes = dict()
-    for k, v in modality_subtypes.items():
-        new_value = filter(None, [[j for j in i if unique_subtypes.count(cln(j)) == 1] for i in v])
-        modality_specific_subtypes[k] = list(new_value)
+    matches = matcher(dictionary=terms_dict)
 
-    pprint(modality_specific_subtypes)
+    if not len(matches):
+        matches = matcher(dictionary=gen_modality_specific_subtypes(), flatten=True)
+        if not len(matches):
+            return None  # Give up.
+
+    source_clean = cln(image_caption).lower()
+
+    # Look for subtypes
+    match_subtypes = defaultdict(list)
+    for k in matches:
+        for s in modality_subtypes[k]:
+            if any(i in source_clean for i in s):
+                match_subtypes[terms_dict[k][1]].append(cln(s[0]))
+
+
+    def drop_contradictions(matches):
+        """Check for and eliminate contradictions."""
+        for c in contradictions:
+            if all(i in matches for i in c):
+                matches = [m for m in matches if m not in c]
+        return matches
+
+    if len(match_subtypes.key()) != 1:
+        return None
+    else:
+        key = list(match_subtypes.keys())[0]
+        values = drop_contradictions(match_subtypes[key])
+        return "{0}: {1}".format(key, "; ".join(sorted(values)))
 
 
 
