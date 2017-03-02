@@ -783,19 +783,21 @@ def feature_extract(x, list_of_diseases):
 
     Tool to extract text features from patient summaries.
 
+    This function automatically generates the following columns when ``OpeniInterface().pull()`` is called:
+
     Exclusive to MedPix® Image:
-        - history
-        - finding
-        - ddx (differential diagnosis)
-        - dxhow
+        - 'history'
+        - 'finding'
+        - 'ddx' (differential diagnosis)
+        - 'dxhow'
 
     For images from all sources:
-        - age
-        - sex
-        - ethnicity
-        - diagnosis
-        - duration of illness ('illness_duration')
-        - the imaging modality mentioned in the image caption ('caption_imaging_modality')
+        - 'age'
+        - 'sex'
+        - 'ethnicity'
+        - 'diagnosis'
+        - duration of illness ('illness_duration_years')
+        - the imaging modality (e.g., MRI) used, based on the text associated with the image ('imaging_modality_from_text')
         - the plane of the image ('image_plane')
         - image problems ('arrows', 'asterisks' and 'grids') inferred from the image caption ('image_problems_from_text')
 
@@ -851,8 +853,6 @@ def feature_extract(x, list_of_diseases):
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
-
-
 
 
 
