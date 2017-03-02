@@ -398,12 +398,13 @@ def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseas
     """
     possible_diseases = list()
     for source in (title, image_caption, image_mention, abstract):
-        source_clean = cln(source).lower()
-        for d in list_of_diseases:
-            if d in source_clean:
-                possible_diseases.append(d)
-        if len(possible_diseases):  # break to prevent a later source contradicting a former one.
-            break
+        if isinstance(source, str):
+            source_clean = cln(source).lower()
+            for d in list_of_diseases:
+                if d in source_clean:
+                    possible_diseases.append(d)
+            if len(possible_diseases):  # break to prevent a later source contradicting a former one.
+                break
     return possible_diseases[0] if len(possible_diseases) == 1 else None
 
 
