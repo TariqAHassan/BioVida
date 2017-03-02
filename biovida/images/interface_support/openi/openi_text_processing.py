@@ -69,7 +69,7 @@ def _html_text_clean(html_text, action, parse_medpix=False):
 
     # Prettify MedPix Text
     if parse_medpix:
-        for h in ('History', 'Diagnosis', 'Findings'):
+        for h in ('History', 'Diagnosis', 'Findings', 'Ddx', 'Dxhow'):
             html_text = html_text.replace(' {0}'.format(h), '. {0}'.format(h))
         html_text = html_text.replace('..', '.')
 
@@ -385,6 +385,8 @@ def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseas
 
     Search `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
 
+    Warning: this is likely to be confused by multiple disease names appearing in, say, ``abstract``.
+
     :param title:
     :param abstract:
     :param image_caption:
@@ -396,9 +398,9 @@ def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseas
     """
     possible_diseases = list()
     for source in (title, image_caption, image_mention, abstract):
-        souce = cln(source).lower()
+        source_clean = cln(source).lower()
         for d in list_of_diseases:
-            if d in source:
+            if d in source_clean:
                 possible_diseases.append(d)
         if len(possible_diseases):  # break to prevent a later source contradicting a former one.
             break
@@ -592,7 +594,7 @@ def _imaging_modality_guess(abstract, image_caption, image_mention):
                 if any(j in source for j in i):
                     matches[k].add(cln(i[0]))
 
-        if not matches:
+        if len(matches.keys()) != 1:
             return None
         else:
             return {k: list(filter(None, v)) for k, v in matches.items()}
@@ -736,6 +738,32 @@ def _enumerations_test(l):
         return False
 
 
+def _enumerations_guess(image_caption, enumerations_grid_threshold):
+    """
+
+    Look for grids based on the presence of enumerations in the image caption.
+
+    :param image_caption:
+    :type image_caption: ``str``
+    :param enumerations_grid_threshold:
+    :type enumerations_grid_threshold: ``int``
+    :return: true if ``image_caption`` contains markers that indicate image enumeration.
+    :rtype: ``bool``
+    """
+    image_caption_clean_lower = cln(image_caption).lower()
+    # Check for markers of enumeration like '(a-e)', '(a,e)', '(b and c)'.
+    for regex in ["[(|\[][a-z]" + i + "[a-z][)|\]]" for i in ('-', ',', ' and ')]:
+        if len(re.findall(regex, image_caption_clean_lower)):
+            return True
+    else:
+        # Fall back to standard enumerations
+        enums = _extract_enumerations(image_caption)
+        if _enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
+            return True
+        else:
+            return False
+
+
 # ----------------------------------------------------------------------------------------------------------
 # Image Problems (Detected by Analysing their Associated Text)
 # ----------------------------------------------------------------------------------------------------------
@@ -753,7 +781,7 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
                                         'grid' of images, e.g., '1a. here we. 1b, rather' would suffice if this
                                         parameter is equal to `2`.
     :type enumerations_grid_threshold: ``int``
-    :return: information on
+    :return: information on the presence of problematic image features.
     :rtype: ``tuple``
     """
     # Initialize
@@ -765,9 +793,7 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
         if any(i in image_caption for i in match_on):
             features.append("{0}s".format(term))
 
-    # Look for grids based on the presence of enumerations in the image caption
-    enums = _extract_enumerations(image_caption)
-    if _enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
+    if _enumerations_guess(image_caption, enumerations_grid_threshold):
         features.append('grids')
     
     return tuple(features) if len(features) else None
@@ -853,6 +879,10 @@ def feature_extract(x, list_of_diseases):
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
+
+
+
+
 
 
 
