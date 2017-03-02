@@ -40,6 +40,7 @@ from biovida.images.interface_support.openi._openi_parameters import openi_artic
 from biovida.images.interface_support.openi._openi_parameters import openi_image_type_modality_full
 
 # Tools for Text Feature Extraction
+from biovida.images.interface_support.openi.openi_text_processing import unescape
 from biovida.images.interface_support.openi.openi_text_processing import feature_extract
 from biovida.images.interface_support.openi.openi_text_processing import _html_text_clean
 
@@ -575,6 +576,10 @@ class _OpeniRecords(object):
         """
         # Convert column names to snake_case
         data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
+
+        # Escape HTML elements in the 'image_caption' and 'image_mention' columns.
+        for c in ('image_caption', 'image_mention'):
+            data_frame[c] = data_frame[c].map(lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
 
         # Run Feature Extracting Tool and Join with `data_frame`.
         pp = pd.DataFrame(data_frame.apply(
