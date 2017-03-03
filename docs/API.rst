@@ -31,7 +31,7 @@ API
 .. automodule:: biovida.diagnostics.disease_symptoms_interface
 	:members:
 
-.. automodule:: biovida.unify_domains
+.. automodule:: biovida.unification.unify_domains
 	:members:
 
 .. automodule:: biovida.support_tools.printing
