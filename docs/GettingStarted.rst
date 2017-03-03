@@ -237,6 +237,20 @@ the database was created by *DiseaseOntology.org:*
     doi.db_date
     # datetime.datetime(2017, 1, 13, 0, 0)
 
+Following a similar approach, information on the
+symptoms associated with numerous diseases can easily be obtained.
+
+.. code:: python
+
+    # 1. Import the Interface for Disease-Symptoms Information
+    from biovida.diagnostics import DiseaseSymptomsInterface
+
+    # 2. Create an Instance of the Tool
+    dsi = DiseaseSymptomsInterface()
+
+    # 3. Pull the Database
+    dsdf = doi.pull()
+
 --------------
 
 Resources
