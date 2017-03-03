@@ -1,6 +1,9 @@
 API
 ===
 
+Images
+------
+
 .. automodule:: biovida.images.openi_interface
 	:members:
 
@@ -22,8 +25,14 @@ API
 .. automodule:: biovida.images.models.border_detection
 	:members:
 
+Genomics
+--------
+
 .. automodule:: biovida.genomics.disgenet_interface
 	:members:
+
+Diagnostics
+-----------
 
 .. automodule:: biovida.diagnostics.disease_ont_interface
 	:members:
@@ -31,8 +40,14 @@ API
 .. automodule:: biovida.diagnostics.disease_symptoms_interface
 	:members:
 
+Resource Integration
+--------------------
+
 .. automodule:: biovida.unification.unify_domains
 	:members:
+
+Support Tools
+-------------
 
 .. automodule:: biovida.support_tools.printing
 	:members:
