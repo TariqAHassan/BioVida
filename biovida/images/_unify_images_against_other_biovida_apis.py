@@ -56,7 +56,7 @@ class _ImagesInterfaceIntegration(object):
 
         # Column which provides a guess, based on the text, on which imaging modality created the image.
         cache_record_db_cln['modality_best_guess'] = cache_record_db_cln.apply(
-            lambda x: x['caption_imaging_modality'] if not items_null(x['caption_imaging_modality']) else x[
+            lambda x: x['imaging_modality_from_text'] if isinstance(x['imaging_modality_from_text'], str) else x[
                 'modality_full'],
             axis=1
         )
