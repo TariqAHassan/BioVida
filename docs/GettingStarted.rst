@@ -257,14 +257,33 @@ Genomics
       García-García, Ferran Sanz, and Laura I. Furlong. DisGeNET: a
       comprehensive platform integrating information on human
       disease-associated genes and variants. Nucl. Acids Res. (2016)
-      doi:10.1093/nar/gkw943
+      `doi:10.1093/nar/gkw943 <https://doi.org/10.1093/nar/gkw943>`__
 
    -  Janet Piñero, Núria Queralt-Rosinach, Àlex Bravo, Jordi Deu-Pons,
       Anna Bauer-Mehren, Martin Baron, Ferran Sanz, Laura I. Furlong.
       DisGeNET: a discovery platform for the dynamical exploration of
       human diseases and their genes. Database (2015)
-      doi:10.1093/database/bav028
+      `doi:10.1093/database/bav028 <https://doi.org/10.1093/database/bav028>`__
 
 Diagnostics
 
 - `DiseaseOntology <http://disease-ontology.org/>`__
+
+- Rephetio - Medline
+
+  - Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman,
+    Sabrina Chen, Dexter Hadley, Ari Green, Pouya Khankhanian, Sergio Baranzini
+    (2016) Rephetio: Repurposing drugs on a hetnet (report).
+    Thinklab. `doi:10.15363/thinklab.a7 <http://www.thinklab.com/p/rephetio/report>`__.
+    Code & Data Repository: https://github.com/dhimmel/medline.
+
+- Human Symptoms Disease Network
+
+  - Zhou, X., Menche, J., Barabási, A. L., & Sharma, A. (2014).
+    Human symptoms–disease network.Nature communications, 5.
+    `doi:10.1038/ncomms5212 <http://www.nature.com/articles/ncomms5212>`__.
+    Code & Data Repository: https://github.com/dhimmel/hsdn.
+
+
+
+
