@@ -127,6 +127,8 @@ gdf = dna.pull('curated')
 
 BioVida also makes it easy to obtain diagnostics data.
 
+Information on disease definitions, families and synonyms: 
+
 ```python
 # 1. Import the Interface for DiseaseOntology.org
 from biovida.diagnostics import DiseaseOntInterface
@@ -136,6 +138,19 @@ doi = DiseaseOntInterface()
 
 # 3. Pull the Database
 ddf = doi.pull()
+```
+
+Information on symptoms associated with diseases:
+
+```python
+# 1. Import the Interface for Disease-Symptoms Information
+from biovida.diagnostics import DiseaseSymptomsInterface
+
+# 2. Create an Instance of the Tool
+dsi = DiseaseSymptomsInterface()
+
+# 3. Pull the Database
+dsdf = dsi.pull()
 ```
 
 ------------------------------------------------------------------------
