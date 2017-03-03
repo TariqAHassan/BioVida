@@ -157,7 +157,7 @@ Images
 
 Genomics
 
-   - [DisGeNET]:
+   - [DisGeNET]
 
       * Janet Piñero, Àlex Bravo, Núria Queralt-Rosinach, Alba Gutiérrez-Sacristán, Jordi Deu-Pons, Emilio Centeno, 
       Javier García-García, Ferran Sanz, and Laura I. Furlong. DisGeNET: a comprehensive platform integrating 
