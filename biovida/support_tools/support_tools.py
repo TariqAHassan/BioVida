@@ -10,8 +10,12 @@ import os
 import re
 import numpy as np
 import pandas as pd
-from collections import Hashable
 from itertools import chain
+from collections import Hashable
+from six.moves.html_parser import HTMLParser
+
+# Pull out the unescape function
+unescape = HTMLParser().unescape
 
 
 def dict_reverse(d):
