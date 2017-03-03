@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>biovida package &#8212; BioVida 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.3.6/simplex/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          BioVida</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/TariqAHassan/BioVida">View on GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#dependencies">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#image-data">Image Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#genomic-data">Genomic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#id1">Data Harvesting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#resources">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#disgenet-interface">DisGeNET Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Current Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">biovida package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-biovida.images.openi_interface">biovida.images.openi_interface module</a><ul>
+<li><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.interface_support.openi.openi_text_processing">biovida.images.interface_support.openi.openi_text_processing module</a><ul>
+<li><a class="reference internal" href="#open-i-text-processing">Open-i Text Processing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.cancer_image_interface">biovida.images.cancer_image_interface module</a><ul>
+<li><a class="reference internal" href="#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.image_processing">biovida.images.image_processing module</a><ul>
+<li><a class="reference internal" href="#image-processing">Image Processing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#biovida-images-models-image-classification-module">biovida.images.models.image_classification module</a></li>
+<li><a class="reference internal" href="#module-biovida.images.models.template_matching">biovida.images.models.template_matching module</a><ul>
+<li><a class="reference internal" href="#template-matching">Template Matching</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.models.border_detection">biovida.images.models.border_detection module</a><ul>
+<li><a class="reference internal" href="#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.genomics.disgenet_interface">biovida.genomics.disgenet_interface module</a><ul>
+<li><a class="reference internal" href="#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.diagnostics.disease_ont_interface">biovida.diagnostics.disease_ont_interface</a><ul>
+<li><a class="reference internal" href="#disease-ontology-interface">Disease Ontology Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.diagnostics.disease_symptoms_interface">biovida.diagnostics.disease_symptoms_interface</a><ul>
+<li><a class="reference internal" href="#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#biovida-unify-domains">biovida.unify_domains</a></li>
+<li><a class="reference internal" href="#module-biovida.support_tools.printing">biovida.support_tools.printing module</a><ul>
+<li><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">biovida package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-biovida.images.openi_interface">biovida.images.openi_interface module</a><ul>
+<li><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.interface_support.openi.openi_text_processing">biovida.images.interface_support.openi.openi_text_processing module</a><ul>
+<li><a class="reference internal" href="#open-i-text-processing">Open-i Text Processing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.cancer_image_interface">biovida.images.cancer_image_interface module</a><ul>
+<li><a class="reference internal" href="#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.image_processing">biovida.images.image_processing module</a><ul>
+<li><a class="reference internal" href="#image-processing">Image Processing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#biovida-images-models-image-classification-module">biovida.images.models.image_classification module</a></li>
+<li><a class="reference internal" href="#module-biovida.images.models.template_matching">biovida.images.models.template_matching module</a><ul>
+<li><a class="reference internal" href="#template-matching">Template Matching</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.models.border_detection">biovida.images.models.border_detection module</a><ul>
+<li><a class="reference internal" href="#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.genomics.disgenet_interface">biovida.genomics.disgenet_interface module</a><ul>
+<li><a class="reference internal" href="#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.diagnostics.disease_ont_interface">biovida.diagnostics.disease_ont_interface</a><ul>
+<li><a class="reference internal" href="#disease-ontology-interface">Disease Ontology Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.diagnostics.disease_symptoms_interface">biovida.diagnostics.disease_symptoms_interface</a><ul>
+<li><a class="reference internal" href="#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#biovida-unify-domains">biovida.unify_domains</a></li>
+<li><a class="reference internal" href="#module-biovida.support_tools.printing">biovida.support_tools.printing module</a><ul>
+<li><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <div class="section" id="biovida-package">
+<h1>biovida package<a class="headerlink" href="#biovida-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-biovida.images.openi_interface">
+<span id="biovida-images-openi-interface-module"></span><h2>biovida.images.openi_interface module<a class="headerlink" href="#module-biovida.images.openi_interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="open-i-interface">
+<h3>Open-i Interface<a class="headerlink" href="#open-i-interface" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="biovida.images.openi_interface.OpeniInterface">
+<em class="property">class </em><code class="descclassname">biovida.images.openi_interface.</code><code class="descname">OpeniInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Python Interface for the NIH&#8217;s <a class="reference external" href="https://openi.nlm.nih.gov">Open-i</a> API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; path to the location of the BioVida cache. If a cache does not exist in this location,
+one will created. Default to <code class="docutils literal"><span class="pre">None</span></code>, which will generate a cache in the home folder.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print additional details.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biovida.images.openi_interface.OpeniInterface.options">
+<code class="descname">options</code><span class="sig-paren">(</span><em>search_parameter</em>, <em>print_options=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Options for parameters of <code class="docutils literal"><span class="pre">search()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>search_parameter</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; one of: &#8216;image_type&#8217;, &#8216;rankby&#8217;, &#8216;article_type&#8217;, &#8216;subset&#8217;, &#8216;collection&#8217;, &#8216;fields&#8217;,
+&#8216;specialties&#8217;, &#8216;video&#8217; or &#8216;exclusions&#8217;.</li>
+<li><strong>print_options</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the options, else return as a <code class="docutils literal"><span class="pre">list</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a list of valid values for a given search <code class="docutils literal"><span class="pre">search_parameter</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">list</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.openi_interface.OpeniInterface.pull">
+<code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=60</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull (i.e., download) the current search.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <p>if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Setting <code class="docutils literal"><span class="pre">new_records_pull=False</span></code> can be useful if one wishes to initially set <code class="docutils literal"><span class="pre">image_size=None</span></code>,
+truncate or otherwise modify <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code> and then download images.</p>
+</div>
+</li>
+<li><strong>image_size</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; one of: &#8216;large&#8217;, &#8216;grid150&#8217;, &#8216;thumb&#8217;, &#8216;thumb_large&#8217; or <code class="docutils literal"><span class="pre">None</span></code>. Defaults to &#8216;large&#8217;.
+If <code class="docutils literal"><span class="pre">None</span></code>, no attempt will be made to download images.</li>
+<li><strong>records_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
+Note: noise is randomly added to the sleep time by sampling from a normal distribution
+(with mean = 0, sd = 0.75).</li>
+<li><strong>images_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
+Note: noise is randomly added to the sleep time by sampling from a normal distribution
+(with mean = 0, sd = 0.75).</li>
+<li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
+(not recommended). Defaults to 60.</li>
+<li><strong>use_image_caption</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; block downloading of an image if its caption suggests the presence
+of problematic image properties (e.g., &#8216;arrows&#8217;) likely to corrupt
+a dataset intended for machine learning. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a DataFrame with the record information.
+If <code class="docutils literal"><span class="pre">image_size</span></code> is not None, images will also be harvested and cached.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if <code class="docutils literal"><span class="pre">search()</span></code> has not been called.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.openi_interface.OpeniInterface.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>query, image_type=None, rankby=None, article_type=None, subset=None, collection=None, fields=None, specialties=None, video=None, exclusions=['graphics'], print_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tool to generate a search term (URL) for the NIH&#8217;s Open-i API.
+The computed term is stored as a class attribute (<code class="docutils literal"><span class="pre">INSTANCE.current_search_url</span></code>)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>query</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a search term. <code class="docutils literal"><span class="pre">None</span></code> will be converted to an empty string.</li>
+<li><strong>image_type</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('image_type')</span></code> for valid values.</li>
+<li><strong>rankby</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('rankby')</span></code> for valid values.</li>
+<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values.</li>
+<li><strong>subset</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('subset')</span></code> for valid values.</li>
+<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('collection')</span></code> for valid values.</li>
+<li><strong>fields</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('fields')</span></code> for valid values.</li>
+<li><strong>specialties</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('specialties')</span></code> for valid values.</li>
+<li><strong>video</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('video')</span></code> for valid values. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>exclusions</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>one or both of: &#8216;graphics&#8217;, &#8216;multipanel&#8217;. Defaults to <code class="docutils literal"><span class="pre">['graphics']</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Excluding &#8216;multipanel&#8217; can result in images that <em>are</em> multipanel
+being returned from Open-i API. For this reason, including &#8216;multipanel&#8217;
+is not currently recommended.</p>
+</div>
+</li>
+<li><strong>print_results</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the number of search results.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida.images.interface_support.openi.openi_text_processing">
+<span id="biovida-images-interface-support-openi-openi-text-processing-module"></span><h2>biovida.images.interface_support.openi.openi_text_processing module<a class="headerlink" href="#module-biovida.images.interface_support.openi.openi_text_processing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="open-i-text-processing">
+<h3>Open-i Text Processing<a class="headerlink" href="#open-i-text-processing" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="biovida.images.interface_support.openi.openi_text_processing.feature_extract">
+<code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">feature_extract</code><span class="sig-paren">(</span><em>x</em>, <em>list_of_diseases</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_processing.html#feature_extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.feature_extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tool to extract text features from patient summaries.</p>
+<p>This function automatically generates the following columns when <code class="docutils literal"><span class="pre">OpeniInterface().pull()</span></code> is called:</p>
+<dl class="docutils">
+<dt>Exclusive to MedPix® Images:</dt>
+<dd><ul class="first last simple">
+<li>&#8216;history&#8217;</li>
+<li>&#8216;finding&#8217;</li>
+<li>&#8216;ddx&#8217; (differential diagnosis)</li>
+<li>&#8216;dxhow&#8217;</li>
+</ul>
+</dd>
+<dt>For images from all sources:</dt>
+<dd><ul class="first last simple">
+<li>&#8216;age&#8217;</li>
+<li>&#8216;sex&#8217;</li>
+<li>&#8216;ethnicity&#8217;</li>
+<li>&#8216;diagnosis&#8217;</li>
+<li>duration of illness (&#8216;illness_duration_years&#8217;)</li>
+<li>the imaging modality (e.g., MRI) used, based on the text associated with the image (&#8216;imaging_modality_from_text&#8217;)</li>
+<li>the plane of the image (&#8216;image_plane&#8217;)</li>
+<li>image problems (&#8216;arrows&#8217;, &#8216;asterisks&#8217; and &#8216;grids&#8217;) inferred from the image caption (&#8216;image_problems_from_text&#8217;)</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">For images from sources other than <em>MedPix</em>, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code> column may be inaccurate.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code>) &#8211; <p>series passed though Pandas&#8217; <code class="docutils literal"><span class="pre">DataFrame().apply()</span></code> method, e.g.,
+<code class="docutils literal"><span class="pre">df.apply(lambda</span> <span class="pre">x:</span> <span class="pre">feature_extract(x,</span> <span class="pre">list_of_diseases),</span> <span class="pre">axis=1)</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The dataframe must contain &#8216;title&#8217;, &#8216;abstract&#8217;, &#8216;image_caption&#8217;, &#8216;image_mention&#8217;
+and &#8216;journal_title&#8217; columns.</p>
+</div>
+</li>
+<li><strong>list_of_diseases</strong> (<code class="docutils literal"><span class="pre">list</span></code>) &#8211; a list of diseases (e.g., via <code class="docutils literal"><span class="pre">DiseaseOntInterface().pull()['name'].tolist()</span></code>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary with the keys listed in the description.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">dict</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida.images.cancer_image_interface">
+<span id="biovida-images-cancer-image-interface-module"></span><h2>biovida.images.cancer_image_interface module<a class="headerlink" href="#module-biovida.images.cancer_image_interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cancer-imaging-archive-interface">
+<h3>Cancer Imaging Archive Interface<a class="headerlink" href="#cancer-imaging-archive-interface" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface">
+<em class="property">class </em><code class="descclassname">biovida.images.cancer_image_interface.</code><code class="descname">CancerImageInterface</code><span class="sig-paren">(</span><em>api_key</em>, <em>verbose=True</em>, <em>cache_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Python Interface for the <a class="reference external" href="http://www.cancerimagingarchive.net/">Cancer Imaging Archive</a>&#8216;s API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>api_key</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>a key to the the Cancer Imaging Archive&#8217;s API.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">An API key can be obtained by following the instructions provided <a class="reference external" href="https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide/">here</a>.</p>
+</div>
+</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print additional details.</li>
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; path to the location of the BioVida cache. If a cache does not exist in this location,
+one will created. Default to <code class="docutils literal"><span class="pre">None</span></code>, which will generate a cache in the home folder.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data">
+<code class="descname">extract_dicom_data</code><span class="sig-paren">(</span><em>database='record_db'</em>, <em>make_hashable=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.extract_dicom_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract data from all dicom files referenced in <code class="docutils literal"><span class="pre">record_db</span></code> or <code class="docutils literal"><span class="pre">cache_record_db</span></code>.
+Note: this requires that <code class="docutils literal"><span class="pre">save_dicoms</span></code> is <code class="docutils literal"><span class="pre">True</span></code> when <code class="docutils literal"><span class="pre">pull()</span></code> is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the name of the database to use. Must be one of: &#8216;record_db&#8217;, &#8216;cache_record_db&#8217;.
+Defaults to &#8216;record_db&#8217;.</li>
+<li><strong>make_hashable</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code> convert the data extracted to nested tuples.
+If <code class="docutils literal"><span class="pre">False</span></code> generate nested dictionaries. Defaults to <code class="docutils literal"><span class="pre">False</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a series of the dicom data with dictionaries of the form <code class="docutils literal"><span class="pre">{path:</span> <span class="pre">{DICOM</span> <span class="pre">Description:</span> <span class="pre">value,</span> <span class="pre">...},</span> <span class="pre">...}</span></code>.
+If <code class="docutils literal"><span class="pre">make_hashable</span></code> is <code class="docutils literal"><span class="pre">True</span></code>, all dictionaries will be converted to <code class="docutils literal"><span class="pre">tuples</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.pull">
+<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>image_format='png'</em>, <em>save_dicoms=False</em>, <em>check_cache_first=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull (i.e., download) the current search.</p>
+<p>Notes:</p>
+<ul>
+<li><p class="first">3D images are saved as individual frames.</p>
+</li>
+<li><p class="first">Images have the following format:</p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">[instance,</span> <span class="pre">pull_position]__[patient_id_[Last</span> <span class="pre">10</span> <span class="pre">Digits</span> <span class="pre">of</span> <span class="pre">SeriesInstanceUID]]__[Image</span> <span class="pre">Scale</span> <span class="pre">('default')].image_format</span></code></p>
+</div></blockquote>
+</li>
+</ul>
+<p>where:</p>
+<table class="hlist"><tr><td><ul class="simple">
+<li>&#8216;instance&#8217; denotes the image&#8217;s position in the 3D image (if applicable and available)</li>
+<li>&#8216;pull_position&#8217; denotes the position of the image in the set returned for the given &#8216;SeriesInstanceUID&#8217; by the Cancer Imaging Archive.</li>
+</ul>
+</td></tr></table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>patient_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; limit on the number of patients to extract.
+Patient IDs are sorted prior to this limit being imposed.
+If <code class="docutils literal"><span class="pre">None</span></code>, no patient_limit will be imposed. Defaults to <cite>3</cite>.</li>
+<li><strong>session_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; <dl class="docutils">
+<dt>restrict image harvesting to the first <code class="docutils literal"><span class="pre">n</span></code> imaging sessions (days) for a given patient,</dt>
+<dd>where <code class="docutils literal"><span class="pre">n</span></code> is the value passed to this parameter. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed.
+Defaults to <cite>1</cite>.</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Several studies (collections) in the Cancer Imaging Archive database have multiple imaging sessions.
+Latter sessions may be of patients following interventions, such as surgery, intended to
+<em>eliminate</em> cancerous tissue. For this reason it cannot be assumed that images obtained from
+non-baseline sessions (i.e., session number &gt; 1) contain signs of disease.</p>
+</div>
+</li>
+<li><strong>collections_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; limit the number of collections to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be applied.
+Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>allowed_modalities</strong> (<code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; limit images downloaded to certain modalities.
+See: <code class="docutils literal"><span class="pre">CancerImageInterface(YOUR_API_KEY_HERE).dicom_modality_abbrevs</span></code> (use the keys).
+Note: &#8216;MRI&#8217;, &#8216;PET&#8217;, &#8216;CT&#8217; and &#8216;X-Ray&#8217; can also be used.
+This parameter is not case sensitive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>image_format</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; format for the image, e.g., &#8216;png&#8217;, &#8216;jpg&#8217;, etc. If <code class="docutils literal"><span class="pre">None</span></code>, images will not be downloaded.
+Defaults to &#8216;png&#8217;.</li>
+<li><strong>save_dicoms</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the raw dicom files. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>check_cache_first</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <dl class="docutils">
+<dt>check the image cache for the image prior to downloading.</dt>
+<dd>If the image is already present, no attempt will be made to download it again.</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Manually deleting images from the cache is likely to interfere with this parameter.
+For instance, if a single frame of a 3D image is missing from the cache the entire image will
+be downloaded again.</p>
+</div>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a DataFrame with the record information.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>collection=None</em>, <em>cancer_type=None</em>, <em>location=None</em>, <em>modality=None</em>, <em>download_override=False</em>, <em>pretty_print=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to Search for studies on the Cancer Imaging Archive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a collection (study), or iterable (e.g., list) of collections,
+hosted by the Cancer Imaging Archive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>cancer_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a string or list/tuple of specifying cancer types. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>location</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a string or list/tuple of specifying body locations. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>modality</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the type of imaging technology. See: <code class="docutils literal"><span class="pre">CancerImageInterface().dicom_modality_abbrevs</span></code> for
+valid values. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the search results. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dataframe containing the search results.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CancerImageInterface</span><span class="p">(</span><span class="n">YOUR_API_KEY_HERE</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cancer_type</span><span class="o">=</span><span class="s1">&#39;carcinoma&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;head&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">   collection                   cancer_type                          modalities         subjects    location</span>
+<span class="go">0  TCGA-HNSC            Head and Neck Squamous Cell Carcinoma  CT, MR, PT                 164     [Head, Neck]</span>
+<span class="go">1  QIN-HeadNeck         Head and Neck Carcinomas               PT, CT, SR, SEG, RWV       156     [Head, Neck]</span>
+<span class="go">      ...                          ...                                  ...               ...         ...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida.images.image_processing">
+<span id="biovida-images-image-processing-module"></span><h2>biovida.images.image_processing module<a class="headerlink" href="#module-biovida.images.image_processing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="image-processing">
+<h3>Image Processing<a class="headerlink" href="#image-processing" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="biovida.images.image_processing.ImageProcessing">
+<em class="property">class </em><code class="descclassname">biovida.images.image_processing.</code><code class="descname">ImageProcessing</code><span class="sig-paren">(</span><em>search_class</em>, <em>model_location=None</em>, <em>database_to_extract='current'</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class is designed to allow easy analysis of cached image data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>search_class</strong> (<code class="docutils literal"><span class="pre">OpenInterface</span> <span class="pre">Class</span></code>) &#8211; aninstance of the <code class="docutils literal"><span class="pre">biovida.images.openi_interface.OpenInterface()</span></code> class.</li>
+<li><strong>model_location</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the location of the model for Convnet.
+If <cite>None</cite>, the default model will be used. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>database_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; &#8216;current&#8217; to extract the <code class="docutils literal"><span class="pre">records_db</span></code> from <code class="docutils literal"><span class="pre">search_class</span></code> or
+&#8216;cache&#8217; to extract <code class="docutils literal"><span class="pre">cache_record_db</span></code>. Defaults to &#8216;current&#8217;.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional details. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><strong>image_dataframe</strong> &#8211; this is the current dataframe that was passed when instantiating the class and
+contains a cache of all analyses run as new columns.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.auto">
+<code class="descname">auto</code><span class="sig-paren">(</span><em>img_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>require_grayscale=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically carry out all aspects of image preprocessing (recommended).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <cite>0.275</cite>.</li>
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
+<li><strong>require_grayscale</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code></li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the <cite>image_dataframe</cite>, complete with the results of all possible analyses
+(using default parameter values).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.auto_analysis">
+<code class="descname">auto_analysis</code><span class="sig-paren">(</span><em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically use the class methods to analyze the <code class="docutils literal"><span class="pre">image_dataframe</span></code> using default
+parameter values for class methods.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.auto_decision">
+<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>img_problem_threshold</em>, <em>require_grayscale</em>, <em>valid_floor=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically generate &#8216;valid_image&#8217; column in the <cite>image_dataframe</cite>
+column by deciding whether or not images are valid using default parameter values for class methods.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>img_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a scalar from 0 to 1 which specifies the threshold value required
+to cause the image to be marked as invalid.
+For instance, a threshold value of <cite>0.5</cite> would mean that any image
+which contains a image problem probability above <cite>0.5</cite> will be marked
+as invalid.</li>
+<li><strong>require_grayscale</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if True, require that images are grayscale to be considered valid.</li>
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.border_analysis">
+<code class="descname">border_analysis</code><span class="sig-paren">(</span><em>signal_strength_threshold=0.25</em>, <em>min_border_separation=0.15</em>, <em>lower_bar_search_space=0.9</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.border_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.border_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for <code class="docutils literal"><span class="pre">biovida.images.models.border_detection.border_detection()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<li><strong>min_border_separation</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.crop_decision">
+<code class="descname">crop_decision</code><span class="sig-paren">(</span><em>new_analysis=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.crop_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.crop_decision" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.grayscale_analysis">
+<code class="descname">grayscale_analysis</code><span class="sig-paren">(</span><em>new_analysis=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.grayscale_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.grayscale_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the images to determine whether or not they are grayscale
+(uses the PIL image library).</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd><ul class="first last simple">
+<li>this tool is very conservative (very small amounts of &#8216;color&#8217; will yield <cite>False</cite>).</li>
+<li>the exception to the above rule is the <em>very rare</em> case of an image which even split
+of red, green and blue.</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.logo_analysis">
+<code class="descname">logo_analysis</code><span class="sig-paren">(</span><em>match_quality_threshold=0.25</em>, <em>xy_position_threshold=(0.3333333333333333</em>, <em>0.4)</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_img_cropping=(0.15</em>, <em>0.5)</em>, <em>return_full=False</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.logo_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.logo_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
+populate the corresponding row of the &#8216;medpix_logo_lower_left&#8217; column in the &#8216;image_dataframe&#8217;
+with its a full bonding box if <code class="docutils literal"><span class="pre">return_full=True</span></code>, otherwise only the lower left corner.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>match_quality_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the minimum match quality required to accept the match.
+See: <code class="docutils literal"><span class="pre">skimage.feature.match_template()</span></code> for more information.</li>
+<li><strong>xy_position_threshold</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: (x_greater_check, y_greater_check).
+For instance the default (<code class="docutils literal"><span class="pre">(1/3.0,</span> <span class="pre">1/2.5)</span></code>) requires that the
+x position of the logo is greater than 1/3 of the image&#8217;s width
+and less than 1/2.5 of the image&#8217;s height.</li>
+<li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
+<li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
+<li><strong>base_img_cropping</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code></li>
+<li><strong>return_full</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, return a dictionary with the location of all four corners for the
+logo&#8217;s bounding box. Otherwise, only the bottom left corner will be returned.
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.
+Note: <code class="docutils literal"><span class="pre">True</span></code> <strong>cannot</strong> be used in conjunction with &#8216;auto&#8217; methods in this class.</li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>save_path</em>, <em>crop_images=True</em>, <em>convert_to_rgb=False</em>, <em>block_duplicates=True</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save processed images to disk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>save_path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the directory to save the images.</li>
+<li><strong>crop_images</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; Crop the images using analyses results from <cite>border_analysis()</cite> and
+<code class="docutils literal"><span class="pre">logo_analysis()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>convert_to_rgb</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, use the PIL library to convert the images to RGB. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>block_duplicates</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, prohibit writing duplicates. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.visual_image_problems">
+<code class="descname">visual_image_problems</code><span class="sig-paren">(</span><em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.visual_image_problems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.visual_image_problems" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is powered by a Convolutional Neural Network which
+computes probabilities for the presence of problematic image properties or types.</p>
+<p>Currently, the model can identify the follow problems:</p>
+<ul class="simple">
+<li>arrows in images</li>
+<li>images arrayed as grids</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DataFrame</span><span class="p">[</span><span class="s1">&#39;visual_image_problems&#39;</span><span class="p">]</span>
+<span class="gp">...</span>
+<span class="go">0 [(&#39;valid_img&#39;, 0.97158539), (&#39;arrows&#39;, 0.066939682), (&#39;grids&#39;, 0.0010551035)]</span>
+<span class="go">1 [(&#39;valid_img&#39;, 0.98873705), (&#39;arrows&#39;, 0.024444019), (&#39;grids&#39;, 0.0001462775)]</span>
+<span class="go">2 [(&#39;valid_img&#39;, 0.89019465), (&#39;arrows&#39;, 0.16754828), (&#39;grids&#39;, 0.009004808)]</span>
+<span class="go">3 [(&#39;grids&#39;, 0.85855108), (&#39;valid_img&#39;, 0.0002961561), (&#39;arrows&#39;, 6.8026602e-09)]</span>
+</pre></div>
+</div>
+<p>The first value in the tuple represents the problem identified and second
+value represents its associated probability. For example, in the final row
+we can see that the model strongly &#8216;believes&#8217; both that the image is, in fact,
+an image composed of several smaller images (forming an image &#8216;grid&#8217;). Conversely,
+it believes all of the other images are likely devoid of problems it has been
+trained to detect.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="biovida-images-models-image-classification-module">
+<h2>biovida.images.models.image_classification module<a class="headerlink" href="#biovida-images-models-image-classification-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-biovida.images.models.template_matching">
+<span id="biovida-images-models-template-matching-module"></span><h2>biovida.images.models.template_matching module<a class="headerlink" href="#module-biovida.images.models.template_matching" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="template-matching">
+<h3>Template Matching<a class="headerlink" href="#template-matching" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="biovida.images.models.template_matching.robust_match_template">
+<code class="descclassname">biovida.images.models.template_matching.</code><code class="descname">robust_match_template</code><span class="sig-paren">(</span><em>pattern_img</em>, <em>base_img</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_img_cropping=(0.15</em>, <em>0.5)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/template_matching.html#robust_match_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.template_matching.robust_match_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for a pattern image in a base image using a algorithm which is robust
+against variation in the size of the pattern in the base image.</p>
+<p>Method: Fast Normalized Cross-Correlation.</p>
+<p>Limitations:</p>
+<ul class="simple">
+<li>Cropping is limited to the the top left of the base image. The can be circumvented by setting
+<code class="docutils literal"><span class="pre">base_img_cropping=(1,</span> <span class="pre">1)</span></code> and cropping <code class="docutils literal"><span class="pre">base_img</span></code> oneself.</li>
+<li>This function may become unstable in situations where the pattern image is larger than the base image.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pattern_img</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; <p>the pattern image.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If a <cite>ndarray</cite> is passed to <cite>pattern_img</cite>, it <em>must</em> be preprocessed to be a 2D array,
+e.g., <code class="docutils literal"><span class="pre">scipy.misc.imread(pattern_img,</span> <span class="pre">flatten=True)</span></code></p>
+</div>
+</li>
+<li><strong>base_img</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; <p>the base image in which to look for the <code class="docutils literal"><span class="pre">pattern_img</span></code>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If a <cite>ndarray</cite> is passed to <cite>base_img</cite>, it <em>must</em> be preprocessed to be a 2D array,
+e.g., <code class="docutils literal"><span class="pre">scipy.misc.imread(base_img,</span> <span class="pre">flatten=True)</span></code></p>
+</div>
+</li>
+<li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; the range over which to rescale the base image.Define as a tuple of the
+form <code class="docutils literal"><span class="pre">(start,</span> <span class="pre">end,</span> <span class="pre">step</span> <span class="pre">size)</span></code>. Defaults to <code class="docutils literal"><span class="pre">(0.5,</span> <span class="pre">2.0,</span> <span class="pre">0.1)</span></code>.</li>
+<li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code> or  <code class="docutils literal"><span class="pre">None</span></code>) &#8211; if a match of this quality is found, end the search. Set equal to <code class="docutils literal"><span class="pre">None</span></code> to disable.
+Defaults to 0.875.</li>
+<li><strong>base_img_cropping</strong> &#8211; the amount of the image to crop with respect to the x and y axis.
+form: <code class="docutils literal"><span class="pre">(height,</span> <span class="pre">width)</span></code>. Defaults to <code class="docutils literal"><span class="pre">(0.15,</span> <span class="pre">0.5)</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Notes:</p>
+<ul class="simple">
+<li>Decreasing <code class="docutils literal"><span class="pre">height</span></code> will increase the amount of the lower part of the image removed.</li>
+<li>Increasing <code class="docutils literal"><span class="pre">width</span></code> will increase the amount of the image&#8217;s left half removed.</li>
+<li>Cropping more of the base image reduces the probability that the algorithm getting confused.
+However, if the image is cropped too much, the target pattern itself could be removed.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the form: <code class="docutils literal"><span class="pre">{&quot;bounding_box&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;match_quality&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;base_img_shape&quot;:</span> <span class="pre">...}</span></code>.<ul class="simple">
+<li>bounding_box (<code class="docutils literal"><span class="pre">dict</span></code>): <code class="docutils literal"><span class="pre">{'bottom_right':</span> <span class="pre">(x,</span> <span class="pre">y),</span> <span class="pre">'top_right':</span> <span class="pre">(x,</span> <span class="pre">y),</span> <span class="pre">'top_left':</span> <span class="pre">(x,</span> <span class="pre">y),</span> <span class="pre">'bottom_left':</span> <span class="pre">(x,</span> <span class="pre">y)}</span></code>.</li>
+<li>match_quality (<code class="docutils literal"><span class="pre">float</span></code>): quality of the match.</li>
+<li>base_img_shape (<code class="docutils literal"><span class="pre">tuple</span></code>): the size of the base image provided. Form: <code class="docutils literal"><span class="pre">(width</span> <span class="pre">(x),</span> <span class="pre">height</span> <span class="pre">(y))</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">dict</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida.images.models.border_detection">
+<span id="biovida-images-models-border-detection-module"></span><h2>biovida.images.models.border_detection module<a class="headerlink" href="#module-biovida.images.models.border_detection" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="border-and-edge-detection">
+<h3>Border and Edge Detection<a class="headerlink" href="#border-and-edge-detection" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="biovida.images.models.border_detection.border_detection">
+<code class="descclassname">biovida.images.models.border_detection.</code><code class="descname">border_detection</code><span class="sig-paren">(</span><em>image</em>, <em>signal_strength_threshold=0.25</em>, <em>min_border_separation=0.15</em>, <em>lower_bar_search_space=0.9</em>, <em>report_signal_strength=False</em>, <em>rescale_input_ndarray=True</em>, <em>lower_bar_second_pass=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/border_detection.html#border_detection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.border_detection.border_detection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detects the borders and lower bar in an image.</p>
+<dl class="docutils">
+<dt>At a high level, this algorithm works as follows:</dt>
+<dd><ol class="first last arabic simple">
+<li>Along a given axis (rows or columns), vectors
+with standard deviation approximately equal to 0 are replaced with zero vectors. (a).</li>
+<li>Values are averaged along this same axis.
+This produces a signal (which can be visualized as a line graph). (b).</li>
+<li>The median value for this signal is computed. (c).</li>
+<li>The <code class="docutils literal"><span class="pre">n</span></code> points for which are the furthest, in absolute value, from the median are selected.</li>
+<li>The signal strength of the <code class="docutils literal"><span class="pre">n</span></code> points is quantified using percent error, where the median value
+is used as the expected value.</li>
+<li>Candidates for border pairs (e.g., left and right borders) are then weighed based on three lines of evidence.
+Namely, their signal strength, how separated they are and their absolute distance
+from the image&#8217;s midline (about the corresponding axis). If a candidate fails to meet any of these criteria,
+it is rejected.</li>
+<li>The evidence for a lower bar concerns only its signal strength, though only an area of image below a given
+height is considered when trying to locate it. A double pass, the default, will try a second time to find
+another lower bar (for reasons explained in the docstring for the <code class="docutils literal"><span class="pre">lower_bar_analysis()</span></code> function).
+Regardless of whether or not the second pass could find a second edge, all of the edges detect are averaged
+and returned as an integer. If no plausible borders could be found, <code class="docutils literal"><span class="pre">None</span></code> is returned.</li>
+</ol>
+</dd>
+</dl>
+<ol class="loweralpha simple">
+<li>This reduces the muffling effect that areas with solid color can have on step 2.</li>
+<li>Large inflections after areas with little change suggest a transition from a solid background to an image.</li>
+<li>The median is used here, as opposed to the average, because it is more robust against outliers.</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code>) &#8211; <p>a path to an image or an image represented as a 2D ndarray.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If a <code class="docutils literal"><span class="pre">ndarray</span></code> is passed, it should be the output of the
+<code class="docutils literal"><span class="pre">biovida.images.image_tools.load_img_rescale()</span></code> function.
+Without this preprocessing, this function&#8217;s stability is not assured.</p>
+</div>
+</li>
+<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the signal strength required
+for an area required to be considered a &#8216;lower bar&#8217;.
+Internally, this is measured as a location deviation from
+the median signal strength of the average image.</li>
+<li><strong>min_border_separation</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 that determines the proportion of the axis
+that two edges must be separated for them to be considered borders.
+(i.e., <code class="docutils literal"><span class="pre">axis_size</span></code> * <code class="docutils literal"><span class="pre">min_border_separation</span></code>)</li>
+<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the proportion of the image
+to search for a lower bar (e.g., 0.90). Set to <code class="docutils literal"><span class="pre">None</span></code> to disable.</li>
+<li><strong>report_signal_strength</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> include the strength of the signal suggesting the existence of an edge.
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>rescale_input_ndarray</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if True, rescale a <code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code> passed to <code class="docutils literal"><span class="pre">image</span></code>.</li>
+<li><strong>lower_bar_second_pass</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> perform a second pass on the lower bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>a dictionary of the form:</dt>
+<dd><p class="first last"><code class="docutils literal"><span class="pre">{'vborder':</span> <span class="pre">(left,</span> <span class="pre">right)</span> <span class="pre">or</span> <span class="pre">None,</span> <span class="pre">'hborder':</span> <span class="pre">(upper,</span> <span class="pre">lower)</span> <span class="pre">or</span> <span class="pre">None,</span> <span class="pre">'hbar':</span> <span class="pre">int</span> <span class="pre">or</span> <span class="pre">None}</span></code></p>
+</dd>
+</dl>
+<ul class="simple">
+<li>&#8216;vborder&#8217; gives the locations of vertical borders.</li>
+<li>&#8216;hborder&#8217; gives the locations of horizontal borders.</li>
+<li>&#8216;hbar&#8217; gives the location for the top of the horizontal bar at the bottom of the image.</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">dict</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biovida.images.models.border_detection.edge_detection">
+<code class="descclassname">biovida.images.models.border_detection.</code><code class="descname">edge_detection</code><span class="sig-paren">(</span><em>img</em>, <em>axis=0</em>, <em>n_largest_override=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/border_detection.html#edge_detection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.border_detection.edge_detection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detects edges within an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img</strong> (<code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; an image represented as a matrix</li>
+<li><strong>axis</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; 0 for columns; 1 for rows.</li>
+<li><strong>n_largest_override</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; override the defaults for the number of inflections to report
+when searching the image along a given axis.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the location of large inflections (changes) in the image along a given axis.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">list</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biovida.images.models.border_detection.lower_bar_analysis">
+<code class="descclassname">biovida.images.models.border_detection.</code><code class="descname">lower_bar_analysis</code><span class="sig-paren">(</span><em>image_array</em>, <em>lower_bar_search_space</em>, <em>signal_strength_threshold</em>, <em>lower_bar_second_pass</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/border_detection.html#lower_bar_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.border_detection.lower_bar_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes a two passes looking for a lower bar.
+This can be helpful if the lower border is striated in such a way that could confuse the
+algorithm. Namely, two the space between two lines of text can confuse the algorithm.
+The first pass with truncate the first line; the second pass will truncate the line above it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image_array</strong> (<code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code>) &#8211; an image represented as a matrix.</li>
+<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the proportion of the image
+to search for a lower bar (e.g., 0.90).</li>
+<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; a value between 0 and 1 specify the signal strength required
+for an area required to be considered a &#8216;lower bar&#8217;.
+This is measured as a absolute value of the difference between
+a location and the median signal strength of the average image.</li>
+<li><strong>lower_bar_second_pass</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> perform a second pass on the lower bar.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the location of the start of the lower bar (i.e., edge).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">int</span></code></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<p>Take the following lower border in an image:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">_____________________________</span>
+<span class="n">The</span> <span class="n">quick</span> <span class="n">brown</span> <span class="n">fox</span> <span class="n">jumped</span>
+<span class="n">over</span> <span class="n">jumps</span> <span class="n">over</span> <span class="n">the</span> <span class="n">lazy</span> <span class="n">dog</span>
+<span class="o">-----------------------------</span>
+</pre></div>
+</div>
+<p>One pass of this procedure should produce:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">_____________________________</span>
+<span class="n">The</span> <span class="n">quick</span> <span class="n">brown</span> <span class="n">fox</span> <span class="n">jumped</span>
+<span class="o">-----------------------------</span>
+</pre></div>
+</div>
+<p>Following this up with a second pass should yeild:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">_____________________________</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida.genomics.disgenet_interface">
+<span id="biovida-genomics-disgenet-interface-module"></span><h2>biovida.genomics.disgenet_interface module<a class="headerlink" href="#module-biovida.genomics.disgenet_interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disgenet-interface">
+<h3>DisGeNET Interface<a class="headerlink" href="#disgenet-interface" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="biovida.genomics.disgenet_interface.DisgenetInterface">
+<em class="property">class </em><code class="descclassname">biovida.genomics.disgenet_interface.</code><code class="descname">DisgenetInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/genomics/disgenet_interface.html#DisgenetInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.genomics.disgenet_interface.DisgenetInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Python Interface for Harvesting Databases from <a class="reference external" href="http://www.disgenet.org/">DisGeNET</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biovida.genomics.disgenet_interface.DisgenetInterface.options">
+<code class="descname">options</code><span class="sig-paren">(</span><em>database=None</em>, <em>pretty_print=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/genomics/disgenet_interface.html#DisgenetInterface.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.genomics.disgenet_interface.DisgenetInterface.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disgenet databases which can be downloaded
+as well as additional information about the databases.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; A database to review. Must be one of: &#8216;all&#8217;, &#8216;curated&#8217;, &#8216;snp_disgenet&#8217; or <code class="docutils literal"><span class="pre">None</span></code>.
+If a specific database is given, the database&#8217;s full name and description will be provided.
+If <code class="docutils literal"><span class="pre">None</span></code>, a list of databases which can be downloaded will be returned (or printed).
+Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; pretty print the information. Defaults to True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a <code class="docutils literal"><span class="pre">list</span></code> if <cite>database</cite> is <code class="docutils literal"><span class="pre">None</span></code>, else a <code class="docutils literal"><span class="pre">dict</span></code> with the database&#8217;s full name and description.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">dict</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.genomics.disgenet_interface.DisgenetInterface.pull">
+<code class="descname">pull</code><span class="sig-paren">(</span><em>database</em>, <em>download_override=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/genomics/disgenet_interface.html#DisgenetInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.genomics.disgenet_interface.DisgenetInterface.pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull (i.e., download) a DisGeNET Database.</p>
+<p>Note: if a database is already cached, it will be used instead of downloading
+(the <cite>download_override</cite> argument can be used override this behaviour).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; A database to download. Must be one of: &#8216;all&#8217;, &#8216;curated&#8217;, &#8216;snp_disgenet&#8217; or <code class="docutils literal"><span class="pre">None</span></code>.
+See <code class="docutils literal"><span class="pre">options()</span></code> for more information.</li>
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a DisGeNET database</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida.diagnostics.disease_ont_interface">
+<span id="biovida-diagnostics-disease-ont-interface"></span><h2>biovida.diagnostics.disease_ont_interface<a class="headerlink" href="#module-biovida.diagnostics.disease_ont_interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disease-ontology-interface">
+<h3>Disease Ontology Interface<a class="headerlink" href="#disease-ontology-interface" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="biovida.diagnostics.disease_ont_interface.DiseaseOntInterface">
+<em class="property">class </em><code class="descclassname">biovida.diagnostics.disease_ont_interface.</code><code class="descname">DiseaseOntInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_ont_interface.html#DiseaseOntInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Python Interface for Harvesting the <a class="reference external" href="http://disease-ontology.org/">Disease Ontology</a> Database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull">
+<code class="descname">pull</code><span class="sig-paren">(</span><em>download_override=False</em>, <em>disease_ontology_db_url='http://purl.obolibrary.org/obo/doid.obo'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_ont_interface.html#DiseaseOntInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull (i.e., download) the Disease Ontology Database.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li>if a database is already cached, it will be used instead of downloading (use <code class="docutils literal"><span class="pre">download_override</span></code> to override).</li>
+<li>multiple values are separated by semicolons followed by a space, i.e., &#8221;; &#8221;.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>disease_ontology_db_url</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; URL to the disease ontology database in &#8216;.obo&#8217; format.
+Defaults to &#8216;<a class="reference external" href="http://purl.obolibrary.org/obo/doid.obo">http://purl.obolibrary.org/obo/doid.obo</a>&#8216;.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the Disease Ontology database as a DataFrame.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida.diagnostics.disease_symptoms_interface">
+<span id="biovida-diagnostics-disease-symptoms-interface"></span><h2>biovida.diagnostics.disease_symptoms_interface<a class="headerlink" href="#module-biovida.diagnostics.disease_symptoms_interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disease-symptoms-interface">
+<h3>Disease-Symptoms Interface<a class="headerlink" href="#disease-symptoms-interface" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface">
+<em class="property">class </em><code class="descclassname">biovida.diagnostics.disease_symptoms_interface.</code><code class="descname">DiseaseSymptomsInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_symptoms_interface.html#DiseaseSymptomsInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Tools to obtain databases relating symptoms to diseases.</p>
+<p>References:</p>
+<ul class="simple">
+<li>Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman, Sabrina Chen, Dexter Hadley, Ari Green,
+Pouya Khankhanian, Sergio Baranzini (2016) Rephetio: Repurposing drugs on a hetnet [report].
+Thinklab. doi:10.15363/thinklab.a7. [1].</li>
+<li>Zhou, X., Menche, J., Barabási, A. L., &amp; Sharma, A. (2014). Human symptoms–disease network. Nature communications, 5. [2].</li>
+</ul>
+<ol class="arabic simple">
+<li><a class="reference external" href="http://www.thinklab.com/p/rephetio/report#edges">http://www.thinklab.com/p/rephetio/report#edges</a></li>
+<li><a class="reference external" href="http://www.nature.com/articles/ncomms5212">http://www.nature.com/articles/ncomms5212</a></li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.hsdn_pull">
+<code class="descname">hsdn_pull</code><span class="sig-paren">(</span><em>download_override=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_symptoms_interface.html#DiseaseSymptomsInterface.hsdn_pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.hsdn_pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull (i.e., download) the Human Symptoms Disease Network Database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the Human Symptoms Disease Network database as a DataFrame.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.pull">
+<code class="descname">pull</code><span class="sig-paren">(</span><em>download_override=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_symptoms_interface.html#DiseaseSymptomsInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a dataframe by combining the <cite>Rephetio Medline</cite> and <cite>Human Symptoms Disease Network</cite> databases.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a combined dataframe with the following columns: &#8216;common_disease_name&#8217; and &#8216;common_symptom_term&#8217;.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.rephetio_ml_pull">
+<code class="descname">rephetio_ml_pull</code><span class="sig-paren">(</span><em>download_override=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_symptoms_interface.html#DiseaseSymptomsInterface.rephetio_ml_pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.rephetio_ml_pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull (i.e., download) the Rephetio Medline Database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the Rephetio Medline database as a DataFrame.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="biovida-unify-domains">
+<h2>biovida.unify_domains<a class="headerlink" href="#biovida-unify-domains" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-biovida.support_tools.printing">
+<span id="biovida-support-tools-printing-module"></span><h2>biovida.support_tools.printing module<a class="headerlink" href="#module-biovida.support_tools.printing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="printing-tools">
+<h3>Printing Tools<a class="headerlink" href="#printing-tools" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="biovida.support_tools.printing.dict_pprint">
+<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">dict_pprint</code><span class="sig-paren">(</span><em>d</em>, <em>max_value_length=70</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/printing.html#dict_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.dict_pprint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pretty prints a dictionary with vertically aligned values.
+Dictionary values with strings longer than <cite>max_value_length</cite>
+are automatically broken and aligned with the line(s) above.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>d</strong> (<code class="docutils literal"><span class="pre">dict</span></code>) &#8211; a dictionary</li>
+<li><strong>max_value_length</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of characters in a string before a line break.
+This is a fuzzy threshold because the algorithm will only insert
+line breaks where there are already spaces and will not insert line breaks
+between braces.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biovida.support_tools.printing.pandas_pprint">
+<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align='right'</em>, <em>header_align='center'</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>lift_column_width_limit=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pretty Print a Pandas DataFrame or Series.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code>) &#8211; a dataframe or series.</li>
+<li><strong>col_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; &#8216;left&#8217;, &#8216;right&#8217;, &#8216;center&#8217; or a dictionary of the form: <code class="docutils literal"><span class="pre">{'column_name':</span> <span class="pre">'alignment'}</span></code>,
+e.g., <code class="docutils literal"><span class="pre">{'my_column':</span> <span class="pre">'left',</span> <span class="pre">'my_column2':</span> <span class="pre">'right'}</span></code>.</li>
+<li><strong>header_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; alignment of headers. Must be one of: &#8216;left&#8217;, &#8216;right&#8217;, &#8216;center&#8217;.</li>
+<li><strong>full_rows</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all rows.</li>
+<li><strong>full_cols</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all columns.</li>
+<li><strong>lift_column_width_limit</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; remove limit on how wide columns can be. Defaults to <code class="docutils literal"><span class="pre">False</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-biovida" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Tariq A. Hassan.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

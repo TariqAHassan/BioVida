@@ -1,0 +1,5 @@
+Genomics
+========
+
+.. automodule:: biovida.genomics.disgenet_interface
+	:members:

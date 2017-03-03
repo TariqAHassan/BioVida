@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>biovida.images.models.border_detection &#8212; BioVida 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/bootswatch-3.3.6/simplex/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../../index.html">
+          BioVida</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/TariqAHassan/BioVida">View on GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted.html#dependencies">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted.html#image-data">Image Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../GettingStarted.html#id1">Data Harvesting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted.html#resources">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#disgenet-interface">DisGeNET Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Current Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <h1>Source code for biovida.images.models.border_detection</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Border and Edge Detection</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># Imports</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="k">import</span> <span class="n">sub</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
+
+
+<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_img_rescale</span>
+
+
+<span class="k">def</span> <span class="nf">_rounder</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Rounds all of the elements in an iterable.</span>
+
+<span class="sd">    :param l: a list of values</span>
+<span class="sd">    :type l: ``list`` or ``tuple``</span>
+<span class="sd">    :param by:  If 0, the values will be converted to integers.</span>
+<span class="sd">    :type by: ``int``</span>
+<span class="sd">    :return: rounded numbers.</span>
+<span class="sd">    :rtype: ``list``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="nb">int</span> <span class="k">if</span> <span class="n">by</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">by</span><span class="p">),</span> <span class="n">l</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_deltas</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Compute the _deltas between all adjacent elements in ``iterable``.</span>
+
+<span class="sd">    :param iterable: an iterable structure</span>
+<span class="sd">    :type iterable: ``list`` or ``tuple``</span>
+<span class="sd">    :return: an array with the delta between juxtaposed entries.</span>
+<span class="sd">    :rtype: ``ndarray``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Source: http://stackoverflow.com/a/2400875/4898004.</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">iterable</span><span class="p">[</span><span class="mi">1</span><span class="p">:])])</span>
+
+
+<span class="k">def</span> <span class="nf">_largest_n_values</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Returns the index (i.e., rows or columns) of the largest n numbers</span>
+
+<span class="sd">    :param arr: a numpy array</span>
+<span class="sd">    :type arr: ``1D ndarray``</span>
+<span class="sd">    :param n: the largest ``n`` values to return.</span>
+<span class="sd">    :type n: ``int``</span>
+<span class="sd">    :return: sorted list of the ``n`` largest values in ``arr`` (ascending order).</span>
+<span class="sd">    :rtype: ``tuple``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[</span><span class="o">-</span><span class="n">n</span><span class="p">:]))</span>
+
+
+<span class="k">def</span> <span class="nf">_subsection</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">exclude</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Selects a subsection of an array, excluding a single subsection</span>
+
+<span class="sd">    :param iterable: some iterable data structure, which can be indexed.</span>
+<span class="sd">    :type iterable: ``list`` or ``tuple``</span>
+<span class="sd">    :param exclude: the index to exclude.</span>
+<span class="sd">    :type exclude: ``int``</span>
+<span class="sd">    :param start: where to start the slice.</span>
+<span class="sd">    :type start: ``int``</span>
+<span class="sd">    :param end: where to end the slice</span>
+<span class="sd">    :type end: ``int``</span>
+<span class="sd">    :return: a list of the desired subsection.</span>
+<span class="sd">    :rtype: ``list``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">iterable</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">exclude</span><span class="p">]</span> <span class="o">+</span> <span class="n">iterable</span><span class="p">[</span><span class="n">exclude</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_anomaly_removal</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Replaces single numbers that do not match their homogeneous neighbourhood</span>
+<span class="sd">    with the value of the homogeneous neighbors.</span>
+
+<span class="sd">    E.g., 0, 0, 0, 0, 99, 0, 0, 0, 0 --&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0.</span>
+
+<span class="sd">    :param numeric_array: must be a list or tuple. Numpy array will break this.</span>
+<span class="sd">    :param window:</span>
+<span class="sd">    :return: a list of smoothed values.</span>
+<span class="sd">    :rtype: ``list``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; row = [0.24677, 0.24677, 0.24677, 0.9, 0.24677, 0.24677, 0.24677]</span>
+<span class="sd">    &gt;&gt;&gt; for i, j in zip(row, _anomaly_removal(row, 3)):</span>
+<span class="sd">    ...     print(i, &quot;--&gt;&quot;, j, &quot;.Change Made: &quot;, i != j)</span>
+<span class="sd">        0.24677 --&gt; 0.24677 .Change Made:  False</span>
+<span class="sd">        0.24677 --&gt; 0.24677 .Change Made:  False</span>
+<span class="sd">        0.24677 --&gt; 0.24677 .Change Made:  False</span>
+<span class="sd">        0.9     --&gt; 0.24677 .Change Made:  True</span>
+<span class="sd">        0.24677 --&gt; 0.24677 .Change Made:  False</span>
+<span class="sd">        0.24677 --&gt; 0.24677 .Change Made:  False</span>
+<span class="sd">        0.24677 --&gt; 0.24677 .Change Made:  False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Note: the logic is somewhat complex here...a mistake is possible.</span>
+
+    <span class="k">if</span> <span class="n">window</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">window</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`window` must be greater than 1 and less than the length of `numeric_array`.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">window</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">window</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">smoothed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">)):</span>
+        <span class="c1"># if can&#39;t look back</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">window</span><span class="p">:</span>
+            <span class="c1"># If all forward neighbours are the same</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">window</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Smooth using the next element</span>
+                <span class="n">smoothed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># if not, leave &#39;as is&#39;</span>
+                <span class="n">smoothed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="c1"># if can look back</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">window</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">_subsection</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="n">window</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="n">window</span><span class="p">)))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># smooth using the prior element (needed to prevent error at the end of the iterable).</span>
+                <span class="n">smoothed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">smoothed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numeric_array</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">smoothed</span>
+
+
+<span class="k">def</span> <span class="nf">_rolling_avg</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">window</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Computes the rolling average using ``Pandas``.</span>
+
+<span class="sd">    :param iterable: some iterable data structure, which can be indexed.</span>
+<span class="sd">    :type iterable: ``list`` or ``tuple``</span>
+<span class="sd">    :param window: the window for the rolling average.</span>
+<span class="sd">    :type window: ``int``</span>
+<span class="sd">    :return: the rolling average of the iterable. Note: center = ``False``.</span>
+<span class="sd">    :rtype: ``Pandas Series``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_array_cleaner</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">round_by</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">anomaly_window</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Round array elements and remove anomalies using ``_anomaly_removal()``.</span>
+
+<span class="sd">    :param arr: a numpy array</span>
+<span class="sd">    :type arr: ``ndarray``</span>
+<span class="sd">    :param round_by: how much to round the input array</span>
+<span class="sd">    :type round_by: ``int``</span>
+<span class="sd">    :param anomaly_window: window on which to check for a replace anomalies. See _anomaly_removal().</span>
+<span class="sd">    :type anomaly_window: ``int``</span>
+<span class="sd">    :return: an array of the smoothed values.</span>
+<span class="sd">    :rtype: ``ndarray``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rounded_arr</span> <span class="o">=</span> <span class="n">_rounder</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">round_by</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_anomaly_removal</span><span class="p">(</span><span class="n">rounded_arr</span><span class="p">,</span> <span class="n">anomaly_window</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_largest_n_changes_with_values</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Compute the index of the ``n`` largest _deltas the their associated values.</span>
+
+<span class="sd">    :param iterable: an iterable data structure which supports indexing.</span>
+<span class="sd">    :type iterable: ``list`` or ``tuple``</span>
+<span class="sd">    :param n: ``n`` largest.</span>
+<span class="sd">    :type n: ``int``</span>
+<span class="sd">    :return: a list of the index with largest changes, along with the values themselves</span>
+<span class="sd">    :rtype: ``list``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">large_ds</span> <span class="o">=</span> <span class="n">_largest_n_values</span><span class="p">(</span><span class="n">_deltas</span><span class="p">(</span><span class="n">iterable</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span>
+
+    <span class="c1"># Look around for true smallest value for each.</span>
+    <span class="c1"># i.e., the index of the value which triggered the large delta.</span>
+    <span class="n">true_smallest</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">large_ds</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">neighbours</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+            <span class="n">neighbours</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">neighbours</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[(</span><span class="n">d</span><span class="o">+</span><span class="n">i</span><span class="p">,</span> <span class="n">iterable</span><span class="p">[</span><span class="n">d</span><span class="o">+</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighbours</span><span class="p">]</span>
+        <span class="n">flr</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">options</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">min</span><span class="p">((</span><span class="n">j</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">options</span><span class="p">))][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">true_smallest</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[(</span><span class="n">d</span><span class="p">,</span> <span class="n">iterable</span><span class="p">[</span><span class="n">d</span><span class="p">])</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">true_smallest</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_expectancy_violation</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="n">round_by</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Formula to compute the percent error.</span>
+
+<span class="sd">    :param expected: the expected value for a given event.</span>
+<span class="sd">    :type expected: ``float`` or ``int``</span>
+<span class="sd">    :param actual: the actual value for a given event.</span>
+<span class="sd">    :type actual: ``float`` or ``int``</span>
+<span class="sd">    :param round_by: how much to round the result. Defaults to 4.</span>
+<span class="sd">    :type round_by: ``int``</span>
+<span class="sd">    :return: percent error</span>
+<span class="sd">    :type: ``float``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ToDo: explore better solutions.</span>
+    <span class="c1"># This just blocks division by zero (given all values will be &gt;= 0)</span>
+    <span class="n">expected</span> <span class="o">+=</span> <span class="mf">0.0001</span>
+    <span class="n">actual</span> <span class="o">+=</span> <span class="mf">0.0001</span>
+
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">expected</span> <span class="o">-</span> <span class="n">actual</span><span class="p">)</span> <span class="o">/</span> <span class="n">expected</span><span class="p">),</span> <span class="n">round_by</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">round_by</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_largest_median_inflection</span><span class="p">(</span><span class="n">averaged_axis_values</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Finds the values in a vector which diverge most strongly from the median value.</span>
+
+<span class="sd">    :param averaged_axis_values: a 1D array which has been computed by averaging about a given axis in a matrix.</span>
+<span class="sd">    :type averaged_axis_values: ``ndarray``</span>
+<span class="sd">    :param axis: 0 for columns; 1 for rows.</span>
+<span class="sd">    :type axis: ``int``</span>
+<span class="sd">    :return: a list of rows/columns which diverge from the median,</span>
+<span class="sd">             and the percent error as a metric of the strength of this divergence.</span>
+<span class="sd">    :rtype: ``list``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_largest_override</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">n_largest</span> <span class="o">=</span> <span class="n">n_largest_override</span>
+    <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">n_largest</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_largest</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="c1"># Position of largest changes</span>
+    <span class="n">large_inflections</span> <span class="o">=</span> <span class="n">_largest_n_changes_with_values</span><span class="p">(</span><span class="n">averaged_axis_values</span><span class="p">,</span> <span class="n">n_largest</span><span class="p">)</span>
+
+    <span class="c1"># Sort by position</span>
+    <span class="n">large_inflections_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">large_inflections</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Compute the median for the whole axis</span>
+    <span class="n">median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">averaged_axis_values</span><span class="p">)</span>
+
+    <span class="c1"># Compute the how much the signal deviated from the median value (0-1).</span>
+    <span class="n">median_deltas</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">_expectancy_violation</span><span class="p">(</span><span class="n">median</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="ow">in</span> <span class="n">large_inflections_sorted</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_largest_override</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># neighborhood search in _largest_n_changes_with_values may --&gt; duplicates.</span>
+        <span class="k">return</span> <span class="n">median_deltas</span>
+    <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">median_deltas</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">median_deltas</span>
+
+
+<span class="k">def</span> <span class="nf">_zero_var_axis_elements_remove</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Replaces, by axis, matrix elements with approx. no variance</span>
+<span class="sd">    (technically using the standard deviation here).</span>
+
+<span class="sd">    :param img: an image represented as an array.</span>
+<span class="sd">    :type img: ``ndarray``</span>
+<span class="sd">    :param axis: 0 for columns; 1 for rows.</span>
+<span class="sd">    :type axis: ``int``</span>
+<span class="sd">    :param rounding: how much to round the standard deviation values for a given row/column.</span>
+<span class="sd">    :type rounding: ``int``</span>
+<span class="sd">    :return: a matrix with rows/columns with standard deviation == 0 replaced with zero vectors.</span>
+<span class="sd">    :rtype: ``ndarray``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">zero_var_items</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">),</span> <span class="n">rounding</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">img</span><span class="p">[:,</span> <span class="n">zero_var_items</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">img</span><span class="p">[</span><span class="n">zero_var_items</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">img</span>
+
+
+<div class="viewcode-block" id="edge_detection"><a class="viewcode-back" href="../../../../source/biovida.html#biovida.images.models.border_detection.edge_detection">[docs]</a><span class="k">def</span> <span class="nf">edge_detection</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Detects edges within an image.</span>
+
+<span class="sd">    :param img: an image represented as a matrix</span>
+<span class="sd">    :type img: ``ndarray``</span>
+<span class="sd">    :param axis: 0 for columns; 1 for rows.</span>
+<span class="sd">    :type axis: ``int``</span>
+<span class="sd">    :param n_largest_override: override the defaults for the number of inflections to report</span>
+<span class="sd">                               when searching the image along a given axis.</span>
+<span class="sd">    :type n_largest_override: ``int`` or ``None``</span>
+<span class="sd">    :return: the location of large inflections (changes) in the image along a given axis.</span>
+<span class="sd">    :rtype: ``list``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set rows with no ~variance to zero vectors to eliminate their muffling effect on the signal.</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">_zero_var_axis_elements_remove</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+
+    <span class="c1"># Average the remaining values</span>
+    <span class="c1"># ToDo: it&#39;s not not clear if _array_cleaner() helps much...after all, the vector has already been averaged.</span>
+    <span class="n">averaged_axis_values</span> <span class="o">=</span> <span class="n">_array_cleaner</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_largest_median_inflection</span><span class="p">(</span><span class="n">averaged_axis_values</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_weigh_evidence</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">axis_size</span><span class="p">,</span> <span class="n">signal_strength_threshold</span><span class="p">,</span> <span class="n">min_border_separation</span><span class="p">,</span> <span class="n">buffer_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">15</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Weigh the evidence that a true border has been detected.</span>
+
+<span class="sd">    :param candidates: a list of lists or list of tuples</span>
+<span class="sd">    :type candidates: ``list``</span>
+<span class="sd">    :param axis_size: how long a given axis is, e.g., 512 (for a 512x256 image).</span>
+<span class="sd">    :type axis_size: ``int``</span>
+<span class="sd">    :param signal_strength_threshold: how strong the inflection must be relative</span>
+<span class="sd">                                      to the median for the image. Must be between 0 and 1.</span>
+<span class="sd">    :type signal_strength_threshold: ``float``</span>
+<span class="sd">    :param min_border_separation: a value between 0 and 1 that determines the proportion of the axis</span>
+<span class="sd">                                  that two edges must be separated for them to be considered borders.</span>
+<span class="sd">                                  (i.e., ``axis_size`` * ``min_border_separation``)</span>
+<span class="sd">    :type min_border_separation: ``float``</span>
+<span class="sd">    :param buffer_multiplier: How far from the midpoint two lines must to be considered a border.</span>
+<span class="sd">                              (calculation: midpoint +/- (axis_size * buffer_multiplier). Defaults to 1/15.</span>
+<span class="sd">    :type buffer_multiplier: ``int`` or ``float</span>
+<span class="sd">    :return: None if it was &#39;decided&#39; that there was no enough evidence, else the candidates are returned &#39;as is&#39;.</span>
+<span class="sd">    :rtype: ``list`` or ``None``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">midpoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">axis_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">lu_buffer</span> <span class="o">=</span> <span class="n">midpoint</span> <span class="o">-</span> <span class="p">(</span><span class="n">axis_size</span> <span class="o">*</span> <span class="n">buffer_multiplier</span><span class="p">)</span>  <span class="c1"># left/upper</span>
+    <span class="n">rl_buffer</span> <span class="o">=</span> <span class="n">midpoint</span> <span class="o">+</span> <span class="p">(</span><span class="n">axis_size</span> <span class="o">*</span> <span class="n">buffer_multiplier</span><span class="p">)</span>  <span class="c1"># right/lower</span>
+
+    <span class="n">conclusion</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">signal_strength_threshold</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">]))</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">min_border_separation</span> <span class="o">*</span> <span class="n">axis_size</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">lu_buffer</span> <span class="ow">and</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">rl_buffer</span><span class="p">:</span>
+                <span class="n">conclusion</span> <span class="o">=</span> <span class="n">candidates</span>
+
+    <span class="k">return</span> <span class="n">conclusion</span>
+
+
+<span class="k">def</span> <span class="nf">_lower_bar_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">lower_bar_search_space</span><span class="p">,</span> <span class="n">signal_strength_threshold</span><span class="p">,</span> <span class="n">cfloor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Executes a single pass looking for a lower bar.</span>
+
+<span class="sd">    :param image_array: an image represented as a numpy array.</span>
+<span class="sd">    :type image_array: ``ndarray``</span>
+<span class="sd">    :param lower_bar_search_space: a value between 0 and 1 specify the proportion of the image</span>
+<span class="sd">                                   to search for a lower bar (e.g., 0.90).</span>
+<span class="sd">    :type lower_bar_search_space: ``float``</span>
+<span class="sd">    :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required</span>
+<span class="sd">                                      for an area required to be considered a &#39;lower bar&#39;.</span>
+<span class="sd">                                      Internally, this is measured as a location deviation from</span>
+<span class="sd">                                      the median signal strength of the average image.</span>
+<span class="sd">    :type signal_strength_threshold: ``int``</span>
+<span class="sd">    :param cfloor: check floor. If None, the floor is the last image in the photo.</span>
+<span class="sd">    :type cfloor: ``int`` or ``None</span>
+<span class="sd">    :return: the height (y position) of the top of the lower bar (given one pass of this algorithm).</span>
+<span class="sd">    :rtype: ``int``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Compute the location to crop the image</span>
+    <span class="n">cut_off</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">lower_bar_search_space</span><span class="p">)</span>
+    <span class="n">flr</span> <span class="o">=</span> <span class="n">image_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfloor</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">cfloor</span>
+
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">cut_off</span> <span class="o">-</span> <span class="n">flr</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cfloor</span> <span class="k">if</span> <span class="n">cfloor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>  <span class="c1"># redundant</span>
+
+    <span class="n">lower_image_array</span> <span class="o">=</span> <span class="n">image_array</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">cut_off</span><span class="p">:</span><span class="n">flr</span><span class="p">]</span>
+
+    <span class="c1"># Run an edge analysis</span>
+    <span class="n">lower_bar_candidates</span> <span class="o">=</span> <span class="n">edge_detection</span><span class="p">(</span><span class="n">img</span><span class="o">=</span><span class="n">lower_image_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+    <span class="c1"># Apply Threshold</span>
+    <span class="n">thresholded_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">cut_off</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lower_bar_candidates</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">signal_strength_threshold</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">thresholded_values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Return the averaged guess</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">thresholded_values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="lower_bar_analysis"><a class="viewcode-back" href="../../../../source/biovida.html#biovida.images.models.border_detection.lower_bar_analysis">[docs]</a><span class="k">def</span> <span class="nf">lower_bar_analysis</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">lower_bar_search_space</span><span class="p">,</span> <span class="n">signal_strength_threshold</span><span class="p">,</span> <span class="n">lower_bar_second_pass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Executes a two passes looking for a lower bar.</span>
+<span class="sd">    This can be helpful if the lower border is striated in such a way that could confuse the</span>
+<span class="sd">    algorithm. Namely, two the space between two lines of text can confuse the algorithm.</span>
+<span class="sd">    The first pass with truncate the first line; the second pass will truncate the line above it.</span>
+
+<span class="sd">    :param image_array: an image represented as a matrix.</span>
+<span class="sd">    :type image_array: ``2D ndarray``</span>
+<span class="sd">    :param lower_bar_search_space: a value between 0 and 1 specify the proportion of the image</span>
+<span class="sd">                                   to search for a lower bar (e.g., 0.90).</span>
+<span class="sd">    :type lower_bar_search_space: ``float``</span>
+<span class="sd">    :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required</span>
+<span class="sd">                                      for an area required to be considered a &#39;lower bar&#39;.</span>
+<span class="sd">                                      This is measured as a absolute value of the difference between</span>
+<span class="sd">                                      a location and the median signal strength of the average image.</span>
+<span class="sd">    :type signal_strength_threshold: ``int``</span>
+<span class="sd">    :param lower_bar_second_pass: if ``True`` perform a second pass on the lower bar.</span>
+<span class="sd">    :type lower_bar_second_pass: ``bool``</span>
+<span class="sd">    :return: the location of the start of the lower bar (i.e., edge).</span>
+<span class="sd">    :rtype: ``int``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    Take the following lower border in an image:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        _____________________________</span>
+<span class="sd">        The quick brown fox jumped</span>
+<span class="sd">        over jumps over the lazy dog</span>
+<span class="sd">        -----------------------------</span>
+
+<span class="sd">    One pass of this procedure should produce:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        _____________________________</span>
+<span class="sd">        The quick brown fox jumped</span>
+<span class="sd">        -----------------------------</span>
+
+<span class="sd">    Following this up with a second pass should yeild:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        _____________________________</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Run a first pass</span>
+    <span class="n">first_pass_rslt</span> <span class="o">=</span> <span class="n">_lower_bar_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">lower_bar_search_space</span><span class="p">,</span> <span class="n">signal_strength_threshold</span><span class="p">)</span>
+    
+    <span class="c1"># Run a second pass</span>
+    <span class="k">if</span> <span class="n">lower_bar_second_pass</span><span class="p">:</span>
+        <span class="n">second_pass_rslt</span> <span class="o">=</span> <span class="n">_lower_bar_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span>
+                                                <span class="n">lower_bar_search_space</span><span class="p">,</span>
+                                                <span class="n">signal_strength_threshold</span><span class="p">,</span>
+                                                <span class="n">cfloor</span><span class="o">=</span><span class="n">first_pass_rslt</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">second_pass_rslt</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">second_pass_rslt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">first_pass_rslt</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">second_pass_rslt</span></div>
+
+
+<div class="viewcode-block" id="border_detection"><a class="viewcode-back" href="../../../../source/biovida.html#biovida.images.models.border_detection.border_detection">[docs]</a><span class="k">def</span> <span class="nf">border_detection</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                     <span class="n">signal_strength_threshold</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+                     <span class="n">min_border_separation</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+                     <span class="n">lower_bar_search_space</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                     <span class="n">report_signal_strength</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">rescale_input_ndarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">lower_bar_second_pass</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Detects the borders and lower bar in an image.</span>
+
+<span class="sd">    At a high level, this algorithm works as follows:</span>
+<span class="sd">       1. Along a given axis (rows or columns), vectors</span>
+<span class="sd">          with standard deviation approximately equal to 0 are replaced with zero vectors. (a).</span>
+<span class="sd">       2. Values are averaged along this same axis.</span>
+<span class="sd">          This produces a signal (which can be visualized as a line graph). (b).</span>
+<span class="sd">       3. The median value for this signal is computed. (c).</span>
+<span class="sd">       4. The ``n`` points for which are the furthest, in absolute value, from the median are selected.</span>
+<span class="sd">       5. The signal strength of the ``n`` points is quantified using percent error, where the median value</span>
+<span class="sd">          is used as the expected value.</span>
+<span class="sd">       6. Candidates for border pairs (e.g., left and right borders) are then weighed based on three lines of evidence.</span>
+<span class="sd">          Namely, their signal strength, how separated they are and their absolute distance</span>
+<span class="sd">          from the image&#39;s midline (about the corresponding axis). If a candidate fails to meet any of these criteria,</span>
+<span class="sd">          it is rejected.</span>
+<span class="sd">       7. The evidence for a lower bar concerns only its signal strength, though only an area of image below a given</span>
+<span class="sd">          height is considered when trying to locate it. A double pass, the default, will try a second time to find</span>
+<span class="sd">          another lower bar (for reasons explained in the docstring for the ``lower_bar_analysis()`` function).</span>
+<span class="sd">          Regardless of whether or not the second pass could find a second edge, all of the edges detect are averaged</span>
+<span class="sd">          and returned as an integer. If no plausible borders could be found, ``None`` is returned.</span>
+
+<span class="sd">    (a) This reduces the muffling effect that areas with solid color can have on step 2.</span>
+<span class="sd">    (b) Large inflections after areas with little change suggest a transition from a solid background to an image.</span>
+<span class="sd">    (c) The median is used here, as opposed to the average, because it is more robust against outliers.</span>
+
+<span class="sd">    :param image: a path to an image or an image represented as a 2D ndarray.</span>
+
+<span class="sd">                 .. warning::</span>
+
+<span class="sd">                        If a ``ndarray`` is passed, it should be the output of the</span>
+<span class="sd">                        ``biovida.images.image_tools.load_img_rescale()`` function.</span>
+<span class="sd">                        Without this preprocessing, this function&#39;s stability is not assured.</span>
+
+<span class="sd">    :type image: ``str`` or ``2D ndarray``</span>
+<span class="sd">    :param signal_strength_threshold: a value between 0 and 1 specify the signal strength required</span>
+<span class="sd">                                      for an area required to be considered a &#39;lower bar&#39;.</span>
+<span class="sd">                                      Internally, this is measured as a location deviation from</span>
+<span class="sd">                                      the median signal strength of the average image.</span>
+<span class="sd">    :type signal_strength_threshold: ``float``</span>
+<span class="sd">    :param min_border_separation: a value between 0 and 1 that determines the proportion of the axis</span>
+<span class="sd">                                  that two edges must be separated for them to be considered borders.</span>
+<span class="sd">                                  (i.e., ``axis_size`` * ``min_border_separation``)</span>
+<span class="sd">    :type min_border_separation: ``float``</span>
+<span class="sd">    :param lower_bar_search_space: a value between 0 and 1 specify the proportion of the image</span>
+<span class="sd">                                   to search for a lower bar (e.g., 0.90). Set to ``None`` to disable.</span>
+<span class="sd">    :type lower_bar_search_space: ``float``</span>
+<span class="sd">    :param report_signal_strength: if ``True`` include the strength of the signal suggesting the existence of an edge.</span>
+<span class="sd">                                   Defaults to ``False``.</span>
+<span class="sd">    :type report_signal_strength: ``bool``</span>
+<span class="sd">    :param rescale_input_ndarray: if True, rescale a ``2D ndarray`` passed to ``image``.</span>
+<span class="sd">    :param lower_bar_second_pass:  if ``True`` perform a second pass on the lower bar. Defaults to ``True``.</span>
+<span class="sd">    :type lower_bar_second_pass: ``bool``</span>
+<span class="sd">    :type rescale_input_ndarray: ``bool``</span>
+<span class="sd">    :return: a dictionary of the form:</span>
+<span class="sd">             ``{&#39;vborder&#39;: (left, right) or None, &#39;hborder&#39;: (upper, lower) or None, &#39;hbar&#39;: int or None}``</span>
+
+<span class="sd">            - &#39;vborder&#39; gives the locations of vertical borders.</span>
+
+<span class="sd">            - &#39;hborder&#39; gives the locations of horizontal borders.</span>
+
+<span class="sd">            - &#39;hbar&#39; gives the location for the top of the horizontal bar at the bottom of the image.</span>
+
+<span class="sd">    :rtype: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;numpy&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">image</span><span class="p">)):</span>
+        <span class="n">image_copy</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rescale_input_ndarray</span><span class="p">:</span>
+            <span class="n">image_array</span> <span class="o">=</span> <span class="n">load_img_rescale</span><span class="p">(</span><span class="n">image_copy</span><span class="p">,</span> <span class="n">gray_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image_array</span> <span class="o">=</span> <span class="n">image_copy</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">image_array</span> <span class="o">=</span> <span class="n">load_img_rescale</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`image_array` must be either a path to an image or the image as a 2D ndarray.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Initialize the return dict</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="s1">&#39;vborder&#39;</span><span class="p">,</span> <span class="s1">&#39;hborder&#39;</span><span class="p">,</span> <span class="s1">&#39;hbar&#39;</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Get Values for columns</span>
+    <span class="n">v_edge_candidates</span> <span class="o">=</span> <span class="n">edge_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Run Analysis</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;vborder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_weigh_evidence</span><span class="p">(</span><span class="n">v_edge_candidates</span><span class="p">,</span>
+                                   <span class="n">image_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>      <span class="c1"># Note: we have (rows, columns) = (height, width).</span>
+                                   <span class="n">signal_strength_threshold</span><span class="p">,</span>
+                                   <span class="n">min_border_separation</span><span class="p">)</span>
+
+    <span class="c1"># Get Values for rows</span>
+    <span class="n">h_border_candidates</span> <span class="o">=</span> <span class="n">edge_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Run Analysis. This excludes final element in `h_border_candidates` as including a third element</span>
+    <span class="c1"># is simply meant to deflect the pull of the lower bar, if present.</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;hborder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_weigh_evidence</span><span class="p">(</span><span class="n">h_border_candidates</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span>
+                                   <span class="n">image_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                   <span class="n">signal_strength_threshold</span><span class="p">,</span>
+                                   <span class="n">min_border_separation</span><span class="p">)</span>
+
+    <span class="c1"># Look for lower bar</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;hbar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lower_bar_analysis</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">lower_bar_search_space</span><span class="p">,</span> <span class="n">signal_strength_threshold</span><span class="p">,</span> <span class="n">lower_bar_second_pass</span><span class="p">)</span>
+
+    <span class="c1"># Return the analysis</span>
+    <span class="k">if</span> <span class="n">report_signal_strength</span><span class="p">:</span>  <span class="c1"># ToDo: not working for &#39;hbar&#39;.</span>
+        <span class="k">return</span> <span class="n">d</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">v</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+<span class="k">def</span> <span class="nf">_lines_plotter</span><span class="p">(</span><span class="n">path_to_image</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Visualizes the default ``border_detection()`` settings.</span>
+
+<span class="sd">    :param path_to_image: path to the image</span>
+<span class="sd">    :type path_to_image: ``str``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+    <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">collections</span> <span class="k">as</span> <span class="n">mc</span>
+
+    <span class="n">image</span> <span class="o">=</span> <span class="n">load_img_rescale</span><span class="p">(</span><span class="n">path_to_image</span><span class="p">)</span>
+    <span class="n">analysis</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">border_detection</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">h_lines_explicit</span> <span class="o">=</span> <span class="p">[[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hborder&#39;</span><span class="p">,</span> <span class="p">[])]</span>
+    <span class="n">v_line_explicit</span> <span class="o">=</span> <span class="p">[[(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">h</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vborder&#39;</span><span class="p">,</span> <span class="p">[])]</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">h_lines_explicit</span> <span class="o">+</span> <span class="n">v_line_explicit</span>
+
+    <span class="k">if</span> <span class="s2">&quot;int&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hbar&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))):</span>
+        <span class="n">lines</span> <span class="o">+=</span> <span class="p">[[(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;hbar&#39;</span><span class="p">])),</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;hbar&#39;</span><span class="p">]))]]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="n">line_c</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">LineCollection</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">line_c</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">gray</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">analysis</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;No Results to Display&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">gray</span><span class="p">)</span>
+        <span class="c1"># print(&quot;No Results to Display.&quot;)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">analysis</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Tariq A. Hassan.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

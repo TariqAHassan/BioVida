@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>biovida.unification.unify_domains &#8212; BioVida 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootswatch-3.3.6/simplex/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          BioVida</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/TariqAHassan/BioVida">View on GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#dependencies">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#image-data">Image Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#resources">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disgenet-interface">DisGeNET Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Current Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <h1>Source code for biovida.unification.unify_domains</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Unifying BioVida APIs</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># Imports</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">is_int</span>
+
+<span class="c1"># Subpackage Unification Tools -- Images</span>
+<span class="kn">from</span> <span class="nn">biovida.images._unify_images_against_other_biovida_apis</span> <span class="k">import</span> <span class="n">_images_unify</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Unify Against Images</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../other/unification.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Tool to unify image interfaces (``OpeniInterface`` and ``CancerImageInterface``)</span>
+<span class="sd">    with Diagnostic and Genomic Data.</span>
+
+<span class="sd">    :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a list.</span>
+<span class="sd">    :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``</span>
+<span class="sd">    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.</span>
+<span class="sd">                       Default to ``None`` (which will generate a cache in the home folder).</span>
+<span class="sd">    :type cache_path: ``str`` or ``None``</span>
+<span class="sd">    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.</span>
+<span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    :param fuzzy_threshold: an integer on ``(0, 100]``. If ``True`` a threshold of `95` will be used. Defaults to ``False``.</span>
+<span class="sd">    </span>
+<span class="sd">                .. warning::</span>
+
+<span class="sd">                        Fuzzy searching with large databases, such as those this function integrates, is very</span>
+<span class="sd">                        computationally expensive.</span>
+<span class="sd">    </span>
+<span class="sd">    :type fuzzy_threshold: ``int``, ``bool``, ``None``</span>
+<span class="sd">    :return: a dataframe which unifies image interfaces with  genomic and diagnostics data.</span>
+<span class="sd">    :rtype: ``Pandas DataFrame``</span>
+
+
+<span class="sd">    This function evolves a DataFrame with the following columns:</span>
+
+<span class="sd">    .. hlist::</span>
+<span class="sd">        :columns: 4</span>
+
+<span class="sd">        * &#39;image_id&#39;</span>
+<span class="sd">        * &#39;image_caption&#39;</span>
+<span class="sd">        * &#39;modality_best_guess&#39;</span>
+<span class="sd">        * &#39;age&#39;</span>
+<span class="sd">        * &#39;sex&#39;</span>
+<span class="sd">        * &#39;disease&#39;</span>
+<span class="sd">        * &#39;query&#39;</span>
+<span class="sd">        * &#39;pull_time&#39;</span>
+<span class="sd">        * &#39;harvest_success&#39;</span>
+<span class="sd">        * &#39;files_path&#39;</span>
+<span class="sd">        * &#39;source_api&#39;</span>
+<span class="sd">        * &#39;disease_family&#39;</span>
+<span class="sd">        * &#39;disease_synonym&#39;</span>
+<span class="sd">        * &#39;disease_definition&#39;</span>
+<span class="sd">        * &#39;known_associated_symptoms&#39;</span>
+<span class="sd">        * &#39;patient_symptoms&#39;</span>
+<span class="sd">        * &#39;known_associated_genes&#39;</span>
+
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The `&#39;known_associated_genes&#39;` column is of the form ``((Gene Name, DisGeNET Evidence Score), ...)``.</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        The `&#39;known_associated_symptoms&#39;` and `&#39;known_associated_genes&#39;` columns denote symptoms and genes</span>
+<span class="sd">        known to be associated with the disease the patient presented with. **These columns are not an account</span>
+<span class="sd">        of the symptomatology or genotype of the patients themselves**. Conversely, &#39;patient_symptoms&#39; *is*</span>
+<span class="sd">        an account of a given patient&#39;s symptoms.</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; from biovida.unification import unify_against_images</span>
+<span class="sd">    &gt;&gt;&gt; from biovida.images.openi_interface import OpeniInterface</span>
+<span class="sd">    &gt;&gt;&gt; from biovida.images.cancer_image_interface import CancerImageInterface</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; opi = OpeniInterface()</span>
+<span class="sd">    # --- Search and Pull ---</span>
+<span class="sd">    &gt;&gt;&gt; udf1 = unify_against_images(opi)</span>
+<span class="sd">    ...</span>
+<span class="sd">    # Adding another Interface from the images subpackage</span>
+<span class="sd">    &gt;&gt;&gt; cii = CancerImageInterface(YOUR_API_KEY_HERE)</span>
+<span class="sd">    # --- Search and Pull ---</span>
+<span class="sd">    &gt;&gt;&gt; udf2 = unify_against_images([opi, cii])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Note: this simply wraps ``biovida.images._unify_images_against_other_biovida_apis._images_unify``</span>
+    <span class="k">return</span> <span class="n">_images_unify</span><span class="p">(</span><span class="n">interfaces</span><span class="o">=</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="n">fuzzy_threshold</span><span class="p">)</span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Tariq A. Hassan.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

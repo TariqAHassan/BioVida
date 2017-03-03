@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>biovida.genomics.disgenet_interface &#8212; BioVida 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootswatch-3.3.6/simplex/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          BioVida</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/TariqAHassan/BioVida">View on GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#dependencies">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#image-data">Image Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#resources">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disgenet-interface">DisGeNET Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Current Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <h1>Source code for biovida.genomics.disgenet_interface</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    DisGeNET Interface</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># Imports</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="c1"># Tool to create required caches</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
+
+<span class="c1"># BioVida Support Tools</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">header</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">camel_to_snake_case</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
+
+<span class="c1"># BioVida Printing Tools</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.printing</span> <span class="k">import</span> <span class="n">dict_pprint</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<span class="c1"># DisGeNET Reference Data</span>
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+
+
+<span class="n">_disgenet_delimited_databases</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Source: http://www.disgenet.org/web/DisGeNET/menu/downloads#curated</span>
+    <span class="c1"># Structure: {database_short_name: {full_name: ..., url: ..., description: ..., number_of_rows_in_header: ...}}</span>
+    <span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;full_name&#39;</span><span class="p">:</span> <span class="s1">&#39;All Gene-Disease Associations&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.disgenet.org/ds/DisGeNET/results/all_gene_disease_associations.tsv.gz&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;The file contains all gene-disease associations in DisGeNET.&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;header&#39;</span><span class="p">:</span> <span class="mi">21</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;curated&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;full_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Curated Gene-Disease Associations&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.disgenet.org/ds/DisGeNET/results/curated_gene_disease_associations.tsv.gz&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;The file contains gene-disease associations from UNIPROT, CTD (human subset), ClinVar, Orphanet,&#39;</span>
+                       <span class="s1">&#39; and the GWAS Catalog.&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;header&#39;</span><span class="p">:</span> <span class="mi">21</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;snp_disgenet&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;full_name&#39;</span><span class="p">:</span> <span class="s1">&#39;All SNP-Gene-Disease Associations&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.disgenet.org/ds/DisGeNET/results/all_snps_sentences_pubmeds.tsv.gz&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;All SNP-gene-disease associations.&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;header&#39;</span><span class="p">:</span> <span class="mi">20</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<span class="c1"># Tools for Harvesting DisGeNET Data</span>
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span> <span class="nf">_disgenet_readme</span><span class="p">(</span><span class="n">created_gene_dirs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Writes the DisGeNET README to disk.</span>
+
+<span class="sd">    :param created_gene_dirs: the dictionary of directories returned by ``_package_cache_creator()``</span>
+<span class="sd">    :type created_gene_dirs: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Save address</span>
+    <span class="n">save_address</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">created_gene_dirs</span><span class="p">[</span><span class="s1">&#39;disgenet&#39;</span><span class="p">],</span> <span class="s1">&#39;DisGeNET_README.txt&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Write if the file does not exist</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">save_address</span><span class="p">):</span>
+        <span class="c1"># URL to DisGeNET README</span>
+        <span class="n">readme_url</span> <span class="o">=</span> <span class="s1">&#39;http://www.disgenet.org/ds/DisGeNET/results/readme.txt&#39;</span>
+
+        <span class="c1"># Resquest</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">readme_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Write</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_address</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="c1"># Notice</span>
+        <span class="n">header</span><span class="p">(</span><span class="s2">&quot;The DisGeNET README has been downloaded to:</span><span class="se">\n\n</span><span class="s2"> </span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+               <span class="s2">&quot;Please take the time to review this document.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_address</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="DisgenetInterface"><a class="viewcode-back" href="../../../source/biovida.html#biovida.genomics.disgenet_interface.DisgenetInterface">[docs]</a><span class="k">class</span> <span class="nc">DisgenetInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Python Interface for Harvesting Databases from `DisGeNET &lt;http://www.disgenet.org/&gt;`_.</span>
+
+<span class="sd">    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.</span>
+<span class="sd">                       Default to ``None`` (which will generate a cache in the home folder).</span>
+<span class="sd">    :type cache_path: ``str`` or ``None``</span>
+<span class="sd">    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.</span>
+<span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Initialize the ``DisgenetInterface()`` Class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+        <span class="c1"># Cache Creation</span>
+        <span class="n">ppc</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;genomics&#39;</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span> <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;disgenet&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_gene_dirs</span> <span class="o">=</span> <span class="n">ppc</span>
+
+        <span class="c1"># Check if a readme exists.</span>
+        <span class="n">_disgenet_readme</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_gene_dirs</span><span class="p">)</span>
+
+        <span class="c1"># Containers for the most recently requested database.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database_full_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database_description</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_disgenet_delimited_databases_key_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Raises an error when an reference is made to a database not in `_disgenet_delimited_databases.keys()`.</span>
+
+<span class="sd">        :param database: `erroneous` database reference.</span>
+<span class="sd">        :type database: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">database</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_disgenet_delimited_databases</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is an invalid value for `database`.</span><span class="se">\n</span><span class="s2">`database` must be one of:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">database</span><span class="p">),</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">_disgenet_delimited_databases</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+<div class="viewcode-block" id="DisgenetInterface.options"><a class="viewcode-back" href="../../../source/biovida.html#biovida.genomics.disgenet_interface.DisgenetInterface.options">[docs]</a>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Disgenet databases which can be downloaded</span>
+<span class="sd">        as well as additional information about the databases.</span>
+
+<span class="sd">        :param database: A database to review. Must be one of: &#39;all&#39;, &#39;curated&#39;, &#39;snp_disgenet&#39; or ``None``.</span>
+<span class="sd">                         If a specific database is given, the database&#39;s full name and description will be provided.</span>
+<span class="sd">                         If ``None``, a list of databases which can be downloaded will be returned (or printed).</span>
+<span class="sd">                         Defaults to ``None``.</span>
+<span class="sd">        :type database: ``str``</span>
+<span class="sd">        :param pretty_print: pretty print the information. Defaults to True.</span>
+<span class="sd">        :type pretty_print: ``bool``</span>
+<span class="sd">        :return: a ``list`` if `database` is ``None``, else a ``dict`` with the database&#39;s full name and description.</span>
+<span class="sd">        :rtype: ``list`` or ``dict``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">database</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_disgenet_delimited_databases</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">database</span> <span class="ow">in</span> <span class="n">_disgenet_delimited_databases</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;full_name&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">]}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_disgenet_delimited_databases_key_error</span><span class="p">(</span><span class="n">database</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pretty_print</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">database</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available Databases:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">info</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dict_pprint</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">info</span></div>
+
+    <span class="k">def</span> <span class="nf">_df_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param data_frame:</span>
+<span class="sd">        :type data_frame: ``Pandas DataFrame``</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: ``Pandas DataFrame``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Lower to make easier to match in the future</span>
+        <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;diseaseName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;diseaseName&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Rename Columns</span>
+        <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">data_frame</span>
+
+<div class="viewcode-block" id="DisgenetInterface.pull"><a class="viewcode-back" href="../../../source/biovida.html#biovida.genomics.disgenet_interface.DisgenetInterface.pull">[docs]</a>    <span class="k">def</span> <span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Pull (i.e., download) a DisGeNET Database.</span>
+
+<span class="sd">        Note: if a database is already cached, it will be used instead of downloading</span>
+<span class="sd">        (the `download_override` argument can be used override this behaviour).</span>
+
+<span class="sd">        :param database: A database to download. Must be one of: &#39;all&#39;, &#39;curated&#39;, &#39;snp_disgenet&#39; or ``None``.</span>
+<span class="sd">                         See ``options()`` for more information.</span>
+<span class="sd">        :type database: ``str``</span>
+<span class="sd">        :param download_override: If ``True``, override any existing database currently cached and download a new one.</span>
+<span class="sd">                                  Defaults to ``False``.</span>
+<span class="sd">        :type download_override: ``bool``</span>
+<span class="sd">        :return: a DisGeNET database</span>
+<span class="sd">        :rtype: ``Pandas DataFrame``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_disgenet_delimited_databases_key_error</span><span class="p">(</span><span class="n">database</span><span class="p">)</span>
+
+        <span class="c1"># Download Location</span>
+        <span class="n">db_url</span> <span class="o">=</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Save Name</span>
+        <span class="n">save_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Save address</span>
+        <span class="n">save_address</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_gene_dirs</span><span class="p">[</span><span class="s1">&#39;disgenet&#39;</span><span class="p">],</span> <span class="n">save_name</span><span class="p">)</span>
+
+        <span class="c1"># Download or simply load from cache</span>
+        <span class="k">if</span> <span class="n">download_override</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">save_address</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
+                <span class="n">header</span><span class="p">(</span><span class="s2">&quot;Downloading DisGeNET Database... &quot;</span><span class="p">,</span> <span class="n">flank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># Harvest</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;header&#39;</span><span class="p">],</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">)</span>
+            <span class="c1"># Clean and Save</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_df_clean</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">save_address</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">save_address</span><span class="p">)</span>
+
+        <span class="c1"># Cache the database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database_name</span> <span class="o">=</span> <span class="n">database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database_full_name</span> <span class="o">=</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;full_name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database_description</span> <span class="o">=</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">df</span></div></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Tariq A. Hassan.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

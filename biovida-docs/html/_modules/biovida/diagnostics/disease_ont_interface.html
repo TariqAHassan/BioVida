@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>biovida.diagnostics.disease_ont_interface &#8212; BioVida 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootswatch-3.3.6/simplex/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          BioVida</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/TariqAHassan/BioVida">View on GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#dependencies">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#image-data">Image Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#resources">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disgenet-interface">DisGeNET Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Current Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <h1>Source code for biovida.diagnostics.disease_ont_interface</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Disease Ontology Interface</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="c1"># Biovida support tools</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">header</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">items_null</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
+
+
+<div class="viewcode-block" id="DiseaseOntInterface"><a class="viewcode-back" href="../../../source/biovida.html#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface">[docs]</a><span class="k">class</span> <span class="nc">DiseaseOntInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Python Interface for Harvesting the `Disease Ontology &lt;http://disease-ontology.org/&gt;`_ Database.</span>
+
+<span class="sd">    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.</span>
+<span class="sd">                   Default to ``None`` (which will generate a cache in the home folder).</span>
+<span class="sd">    :type cache_path: ``str`` or ``None``</span>
+<span class="sd">    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.</span>
+<span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="c1"># Cache creation</span>
+        <span class="n">pcc</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;diagnostics&#39;</span><span class="p">,</span> <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;disease_ontology&#39;</span><span class="p">],</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_disease_ont_dirs</span> <span class="o">=</span> <span class="n">pcc</span>
+
+        <span class="c1"># The database itself</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disease_db</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_date</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_quote_value_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Splits a string on the presence of quotes (&quot;) inside the string itself.</span>
+<span class="sd">    </span>
+<span class="sd">        :param q: a string containing quotes.</span>
+<span class="sd">        :type q: ``str``</span>
+<span class="sd">        :return: ``[text in quotes, text outside of quotes]``</span>
+<span class="sd">        :rtype: ``list``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">cln</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">))))</span>
+    
+    <span class="k">def</span> <span class="nf">_def_url_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">definition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Separate the text of a disease definition from the list of reference URLs for that definition.</span>
+<span class="sd">    </span>
+<span class="sd">        :param definition: the raw text of the definition as represented in the Disease Ontology Database.</span>
+<span class="sd">        :type definition: ``str``</span>
+<span class="sd">        :return: a list of two ``tuple``s of the form:</span>
+<span class="sd">                ``[(&#39;def&#39;, disease definition), (&#39;def_urls&#39;, urls to def. sources)]``</span>
+<span class="sd">        :rtype: ``list``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Note: this method automatically replaces the underscores in the definition quotes.</span>
+        <span class="c1"># this seems to be valid currently as this shortcut seems to invariably produce the same</span>
+        <span class="c1"># result as would be obtained by following the list of mappings at the top of the .obo</span>
+        <span class="c1"># database file. *This could change*.</span>
+        <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;def&quot;</span><span class="p">,</span> <span class="n">definition</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;def_urls&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)]</span>
+    
+        <span class="c1"># Separate the quote from the list of URLS</span>
+        <span class="n">parsed_definition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quote_value_parse</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+    
+        <span class="c1"># Extract the list of urls</span>
+        <span class="n">urls</span> <span class="o">=</span> <span class="n">parsed_definition</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;url:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+    
+        <span class="c1"># Remove escape for the colon in the urls</span>
+        <span class="n">cleaned_urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;\:/&quot;</span><span class="p">,</span> <span class="s2">&quot;:/&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">]</span>
+    
+        <span class="c1"># Return the quote and the urls as seperate entities</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;def&quot;</span><span class="p">,</span> <span class="n">parsed_definition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;def_urls&quot;</span><span class="p">,</span> <span class="n">cleaned_urls</span><span class="p">)]</span>
+    
+    <span class="k">def</span> <span class="nf">_is_a_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_a</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Seperates the DOID from the text of the entry in an &#39;is_a&#39; entry.</span>
+
+<span class="sd">        :param is_a: a value corresponding to a term entry &#39;is_a&#39; in the Disease Ontology database</span>
+<span class="sd">        :type is_a: ``str``</span>
+<span class="sd">        :return: list of tuples of the form:</span>
+<span class="sd">                `` [(&quot;is_a&quot;, text of entry), (&quot;is_a_doid&quot;, DOID number of entry)]``</span>
+<span class="sd">        :rtype: ``list``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot; ! &quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">is_a</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">is_a</span>
+        <span class="n">parse_input</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">is_a</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; ! &quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;is_a&quot;</span><span class="p">,</span> <span class="n">parse_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="s2">&quot;is_a_doid&quot;</span><span class="p">,</span> <span class="n">parse_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;DOID:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))]</span>
+    
+    <span class="k">def</span> <span class="nf">_value_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parses the ``v`` evolved inside ``DiseaseOntInterface()._parsed_term_to_dict()`` based on ``k``.</span>
+<span class="sd">    </span>
+<span class="sd">        :param k: the k (key) passed inside of ``DiseaseOntInterface()._parsed_term_to_dict`` .</span>
+<span class="sd">        :type k: ``str``</span>
+<span class="sd">        :param v: the v (value) passed inside of ``DiseaseOntInterface()._parsed_term_to_dict``.</span>
+<span class="sd">        :type v: ``str``</span>
+<span class="sd">        :return: one of:</span>
+
+<span class="sd">        - ``[(&#39;def&#39;, disease definition), (&#39;def_urls&#39;, urls to def. sources)]``</span>
+
+<span class="sd">        - ``[(KEY, value.replace(&quot;DOID:&quot;, &quot;&quot;))]``</span>
+
+<span class="sd">        - ``[(KEY, information within quotes in v), (KEY_FLAG, list information in v)]``*</span>
+
+<span class="sd">        - ``[(KEY, value)]``</span>
+
+<span class="sd">        *Example: &quot;&#39;the quick brown fox&#39; EXACT [info1, info2, info3]&quot;, where &#39;EXACT&#39; is the FLAG.</span>
+<span class="sd">        Here:</span>
+
+<span class="sd">            - &quot;information within quotes in v&quot; = &#39;the quick brown fox&#39;.</span>
+
+<span class="sd">            - &quot;list information in v&quot;: &quot;[info1, info2, info3]&quot; (string) --&gt; [&#39;info1&#39;, &#39;info2&#39;, &#39;info3&#39;]  (python list).</span>
+
+<span class="sd">        :rtype: ``list``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;def&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_def_url_parser</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;is_a&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_a_parser</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;alt_id&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;DOID:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))]</span>
+        <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Split the true quote and the &#39;flags&#39; (e.g., &#39;EXACT&#39;).</span>
+            <span class="n">parsed_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quote_value_parse</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="c1"># Split the flag and its corresponding list</span>
+            <span class="n">additional_v</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s(?=\[)&#39;</span><span class="p">,</span> <span class="n">parsed_v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="c1"># Clean the flag list</span>
+            <span class="n">cleaned_flag</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">cln</span><span class="p">,</span> <span class="n">additional_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">))</span>
+            <span class="c1"># Filter the flag list</span>
+            <span class="n">related_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">cleaned_flag</span><span class="p">))</span>
+            <span class="c1"># Return the (key, quote) and the (key_flag, info).</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">parsed_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">additional_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()),</span> <span class="n">related_info</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span>
+    
+    <span class="k">def</span> <span class="nf">_parsed_term_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed_term</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parses an individual &quot;[Term]&quot; in the database and recasts it as a dictionary.</span>
+<span class="sd">    </span>
+<span class="sd">        :param parsed_term: a list of the form [[KEY, VALUE]...] as described</span>
+<span class="sd">        :type parsed_term: ``list``</span>
+<span class="sd">        :return: ``parsed_term`` converted into a dictionary where the information as well as a list of the keys </span>
+<span class="sd">                (future column names) which contain lists.</span>
+<span class="sd">        :rtype: ``tuple``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">keys_with_lists</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">parsed_term</span><span class="p">:</span>
+            <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_parser</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="n">cln</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">kp</span><span class="p">,</span> <span class="n">vp</span><span class="p">)</span> <span class="ow">in</span> <span class="n">parsed</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vp</span><span class="p">):</span>
+                            <span class="n">keys_with_lists</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kp</span><span class="p">)</span>
+                            <span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">]</span> <span class="o">=</span> <span class="n">vp</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">]</span> <span class="o">=</span> <span class="n">vp</span>
+                <span class="k">elif</span> <span class="n">kp</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                        <span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">]</span> <span class="o">+=</span> <span class="n">vp</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">vp</span><span class="p">]</span>
+                        <span class="n">keys_with_lists</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kp</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">items_null</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">]):</span>
+                        <span class="c1"># In short, if the current value is NaN, replace with it with `vp` if</span>
+                        <span class="c1"># and only if it is a list with nonzero length, otherwise leave as a NaN.</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">vp</span><span class="p">):</span>
+                            <span class="n">keys_with_lists</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kp</span><span class="p">)</span>
+                            <span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">]</span> <span class="o">=</span> <span class="n">vp</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">keys_with_lists</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kp</span><span class="p">)</span>
+                        <span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">],</span> <span class="n">vp</span><span class="p">]</span>
+    
+        <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="n">keys_with_lists</span>
+    
+    <span class="k">def</span> <span class="nf">_do_term_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        This method splits a &quot;[Term]&quot; on line breaks (&quot;\n&quot;), the resultant list</span>
+<span class="sd">        is then converted to a list of lists (where the sublists are invariably of length `2`),</span>
+<span class="sd">        by splitting the elements into keys and values, e.g., ``[&#39;id&#39;, &#39;000000&#39;]``.</span>
+<span class="sd">        This list of lists is passed to ``DiseaseOntInterface()._parsed_term_to_dict()`` where it</span>
+<span class="sd">        is converted into a dictionary.</span>
+<span class="sd">        </span>
+<span class="sd">        :param term: a single &quot;[Term]&quot; from the Disease Ontology Database.</span>
+<span class="sd">        :type term: ``str``</span>
+<span class="sd">        :return: a term which as been parsed by ``DiseaseOntInterface()._parsed_term_to_dict()``.</span>
+<span class="sd">        :rtype: ``dict``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Split the term on line breaks</span>
+        <span class="n">split_term</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">cln</span><span class="p">(</span><span class="n">term</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+    
+        <span class="c1"># Split each element in `term` on the &quot;: &quot; pattern.</span>
+        <span class="n">parsed_term</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;: &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">split_term</span><span class="p">]</span>
+    
+        <span class="c1"># Convert to a dict and return</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed_term_to_dict</span><span class="p">(</span><span class="n">parsed_term</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_do_df_cleaner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">,</span> <span class="n">columns_with_lists</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        This method cleans the final Disease Ontology database in the following ways:</span>
+
+<span class="sd">        - converts columns which contains lists to strings.</span>
+
+<span class="sd">        - lowers all strings in the following columns: &#39;name&#39;, &#39;synonym&#39;, &#39;subset&#39; and &#39;is_a&#39;.</span>
+
+<span class="sd">        - converts the &#39;true&#39; string in the &#39;is_obsolete&#39; column to an actual python boolean ``True``.</span>
+<span class="sd">    </span>
+<span class="sd">        :param data_frame: the dataframe evolved in the ``DiseaseOntInterface()._harvest()`` method.</span>
+<span class="sd">        :type data_frame: ``Pandas DataFrame``</span>
+<span class="sd">        :param columns_with_lists: a &#39;list&#39; of columns in the dataframe which contain lists.</span>
+<span class="sd">        :type columns_with_lists: ``iterable``</span>
+<span class="sd">        :return: a dataframe with the above mentioned cleaning steps taken.</span>
+<span class="sd">        :rtype: ``Pandas DataFrame``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Homogenize columns with lists</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns_with_lists</span><span class="p">:</span>
+            <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+    
+        <span class="c1"># Lower columns to make it easier to match in the future</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;synonym&#39;</span><span class="p">,</span> <span class="s1">&#39;subset&#39;</span><span class="p">,</span> <span class="s1">&#39;is_a&#39;</span><span class="p">):</span>
+            <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+    
+        <span class="c1"># Convert &#39;true&#39; in the &#39;is_obsolete&#39; column to an actual python boolean ``True``.</span>
+        <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;is_obsolete&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;is_obsolete&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span>
+        <span class="p">)</span>
+    
+        <span class="k">return</span> <span class="n">data_frame</span>
+
+    <span class="k">def</span> <span class="nf">_extract_date_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_parsed_by_term</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Extracts the date the Disease Ontology data was created.</span>
+
+<span class="sd">        :param first_parsed_by_term: the first element in the list obtained by splitting the database on &#39;[Term]&#39;.</span>
+<span class="sd">        :type first_parsed_by_term: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">extracted_date</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;data-version: (.*)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">first_parsed_by_term</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">extracted_date_cleaned</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">extracted_date</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">extracted_date_cleaned</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Could not extract the date on which the Disease Ontology database was generated.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_harvest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disease_ontology_db_url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        This method Harvests and orchestrates and conversion of the Disease Ontology Database</span>
+<span class="sd">        from &#39;.obo&#39; format to a Pandas DataFrame.</span>
+
+<span class="sd">        :param disease_ontology_db_url: see: ``DiseaseOntInterface().pull()``.</span>
+<span class="sd">        :type disease_ontology_db_url: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Open the file and discard [Typedef] information at the end of the file.</span>
+        <span class="n">obo_file</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">disease_ontology_db_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[Typedef]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    
+        <span class="c1"># Parse the file by splitting on [Term].</span>
+        <span class="n">parsed_by_term</span> <span class="o">=</span> <span class="n">obo_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[Term]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+        <span class="c1"># Extract the date</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extract_date_version</span><span class="p">(</span><span class="n">parsed_by_term</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Convert to a list of dicts</span>
+        <span class="n">fully_parsed_terms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_do_term_parser</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">parsed_by_term</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+    
+        <span class="c1"># Extract the dicts</span>
+        <span class="n">list_of_dicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fully_parsed_terms</span><span class="p">]</span>
+    
+        <span class="c1"># Extract keys (future column names) which contain lists</span>
+        <span class="n">keys_with_lists</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fully_parsed_terms</span><span class="p">))</span>
+    
+        <span class="c1"># Compress `keys_with_lists` to uniques.</span>
+        <span class="n">columns_with_lists</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">keys_with_lists</span><span class="p">))</span>
+    
+        <span class="c1"># Convert to a DataFrame, Clean and Return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disease_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_df_cleaner</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">list_of_dicts</span><span class="p">),</span> <span class="n">columns_with_lists</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DiseaseOntInterface.pull"><a class="viewcode-back" href="../../../source/biovida.html#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull">[docs]</a>    <span class="k">def</span> <span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">disease_ontology_db_url</span><span class="o">=</span><span class="s1">&#39;http://purl.obolibrary.org/obo/doid.obo&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Pull (i.e., download) the Disease Ontology Database.</span>
+
+<span class="sd">        Notes:</span>
+
+<span class="sd">        - if a database is already cached, it will be used instead of downloading (use ``download_override`` to override).</span>
+
+<span class="sd">        - multiple values are separated by semicolons followed by a space, i.e., &quot;; &quot;.</span>
+
+<span class="sd">        :param download_override: If ``True``, override any existing database currently cached and download a new one.</span>
+<span class="sd">                                  Defaults to ``False``.</span>
+<span class="sd">        :type download_override: ``bool``</span>
+<span class="sd">        :param disease_ontology_db_url: URL to the disease ontology database in &#39;.obo&#39; format.</span>
+<span class="sd">                                        Defaults to &#39;http://purl.obolibrary.org/obo/doid.obo&#39;.</span>
+<span class="sd">        :type disease_ontology_db_url: ``str``</span>
+<span class="sd">        :return: the Disease Ontology database as a DataFrame.</span>
+<span class="sd">        :rtype: ``Pandas DataFrame``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_disease_ont_dirs</span><span class="p">[</span><span class="s1">&#39;disease_ontology&#39;</span><span class="p">],</span> <span class="s2">&quot;disease_ontology_db&quot;</span><span class="p">)</span>
+        <span class="n">db_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+        <span class="n">support_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_support.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">download_override</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
+                <span class="n">header</span><span class="p">(</span><span class="s2">&quot;Downloading Disease Ontology Database... &quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_harvest</span><span class="p">(</span><span class="n">disease_ontology_db_url</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disease_db</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_date</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">support_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="s1">&#39;dataframe&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_db</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_date</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">support_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disease_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_db</span></div></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Tariq A. Hassan.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
