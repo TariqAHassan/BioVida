@@ -64,7 +64,7 @@ Cancer Imaging Archive
 .. code:: python
 
     # 1. Import the interface for the Cancer Imaging Archive
-    from biovida.images.cancer_image_interface import CancerImageInterface
+    from biovida.images import CancerImageInterface
 
     # 2. Create an Instance of the Tool
     cii = CancerImageInterface(YOUR_API_KEY_HERE)
@@ -81,7 +81,7 @@ Open-i BioMedical Image Search Engine
 .. code:: python
 
     # 1. Import the Interface for the NIH's Open-i API.
-    from biovida.images.openi_interface import OpeniInterface
+    from biovida.images import OpeniInterface
 
     # 2. Create an Instance of the Tool
     opi = OpeniInterface()
@@ -124,7 +124,7 @@ Cleaning the images which have been downloaded is extremely simple.
 .. code:: python
 
     # 1. Import Image Processing Tools
-    from biovida.images.image_processing import ImageProcessing
+    from biovida.images import ImageProcessing
 
     # 2. Instantiate the Tool using the OpeniInterface Instance
     ip = ImageProcessing(opi)
@@ -154,7 +154,7 @@ Data Harvesting
 .. code:: python
 
     # 1. Create an instance of the tool
-    from biovida.genomics.disgenet_interface import DisgenetInterface
+    from biovida.genomics import DisgenetInterface
 
     # 2. Create an Instance of the Tool
     dna = DisgenetInterface()
@@ -214,7 +214,7 @@ Data Harvesting
 .. code:: python
 
     # 1. Import the Interface for DiseaseOntology.org
-    from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+    from biovida.diagnostics import DiseaseOntInterface
 
     # 2. Create an Instance of the Tool
     doi = DiseaseOntInterface()
