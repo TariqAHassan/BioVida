@@ -562,9 +562,9 @@ def _image_plane_guess(image_caption):
     :return: see description.
     :rtype: ``str`` or ``None``
     """
-    # ToDo: expand
     image_caption_clean = cln(image_caption).lower()
-    planes = [p for p in ('axial', 'coronal', 'sagittal') if p in image_caption_clean]
+    plane_terms = [['axial', 'transverse'], ['coronal'], ['sagittal']]
+    planes = [p[0] for p in plane_terms if any(i in image_caption_clean for i in p)]
     return planes[0] if len(planes) == 1 else None
 
 
