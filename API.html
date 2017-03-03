@@ -90,18 +90,33 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="GettingStarted.html#resources">Resources</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#open-i-text-processing">Open-i Text Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#image-processing">Image Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#image-classification">Image Classification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#template-matching">Template Matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#border-and-edge-detection">Border and Edge Detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#disgenet-interface">DisGeNET Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#disease-ontology-interface">Disease Ontology Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#unifying-biovida-apis">Unifying BioVida APIs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biovida.images.openi_interface">Images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#image-processing">Image Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#image-classification">Image Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#template-matching">Template Matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biovida.genomics.disgenet_interface">Genomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biovida.diagnostics.disease_ont_interface">Diagnostics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biovida.unification.unify_domains">Resource Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biovida.support_tools.printing">Support Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -118,6 +133,7 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">API</a><ul>
+<li><a class="reference internal" href="#module-biovida.images.openi_interface">Images</a><ul>
 <li><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
 <li><a class="reference internal" href="#open-i-text-processing">Open-i Text Processing</a></li>
 <li><a class="reference internal" href="#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
@@ -125,11 +141,25 @@
 <li><a class="reference internal" href="#image-classification">Image Classification</a></li>
 <li><a class="reference internal" href="#template-matching">Template Matching</a></li>
 <li><a class="reference internal" href="#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.genomics.disgenet_interface">Genomics</a><ul>
 <li><a class="reference internal" href="#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.diagnostics.disease_ont_interface">Diagnostics</a><ul>
 <li><a class="reference internal" href="#disease-ontology-interface">Disease Ontology Interface</a></li>
 <li><a class="reference internal" href="#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.unification.unify_domains">Resource Integration</a><ul>
 <li><a class="reference internal" href="#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.support_tools.printing">Support Tools</a><ul>
 <li><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -170,6 +200,7 @@
       <div class="col-md-3">
         <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
 <li><a class="reference internal" href="#">API</a><ul>
+<li><a class="reference internal" href="#module-biovida.images.openi_interface">Images</a><ul>
 <li><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
 <li><a class="reference internal" href="#open-i-text-processing">Open-i Text Processing</a></li>
 <li><a class="reference internal" href="#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
@@ -177,11 +208,25 @@
 <li><a class="reference internal" href="#image-classification">Image Classification</a></li>
 <li><a class="reference internal" href="#template-matching">Template Matching</a></li>
 <li><a class="reference internal" href="#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.genomics.disgenet_interface">Genomics</a><ul>
 <li><a class="reference internal" href="#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.diagnostics.disease_ont_interface">Diagnostics</a><ul>
 <li><a class="reference internal" href="#disease-ontology-interface">Disease Ontology Interface</a></li>
 <li><a class="reference internal" href="#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.unification.unify_domains">Resource Integration</a><ul>
 <li><a class="reference internal" href="#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.support_tools.printing">Support Tools</a><ul>
 <li><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -190,10 +235,12 @@
       </div>
     <div class="col-md-9 content">
       
-  <div class="section" id="module-biovida.images.openi_interface">
-<span id="api"></span><h1>API<a class="headerlink" href="#module-biovida.images.openi_interface" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-biovida.images.openi_interface">
+<span id="images"></span><h2>Images<a class="headerlink" href="#module-biovida.images.openi_interface" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="open-i-interface">
-<h2>Open-i Interface<a class="headerlink" href="#open-i-interface" title="Permalink to this headline">¶</a></h2>
+<h3>Open-i Interface<a class="headerlink" href="#open-i-interface" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.images.openi_interface.OpeniInterface">
 <em class="property">class </em><code class="descclassname">biovida.images.openi_interface.</code><code class="descname">OpeniInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/openi_interface.html#OpeniInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface" title="Permalink to this definition">¶</a></dt>
@@ -321,7 +368,7 @@ is not currently recommended.</p>
 
 </div>
 <span class="target" id="module-biovida.images.interface_support.openi.openi_text_processing"></span><div class="section" id="open-i-text-processing">
-<h2>Open-i Text Processing<a class="headerlink" href="#open-i-text-processing" title="Permalink to this headline">¶</a></h2>
+<h3>Open-i Text Processing<a class="headerlink" href="#open-i-text-processing" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.images.interface_support.openi.openi_text_processing.feature_extract">
 <code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">feature_extract</code><span class="sig-paren">(</span><em>x</em>, <em>list_of_diseases</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/interface_support/openi/openi_text_processing.html#feature_extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.feature_extract" title="Permalink to this definition">¶</a></dt>
@@ -382,7 +429,7 @@ and &#8216;journal_title&#8217; columns.</p>
 
 </div>
 <span class="target" id="module-biovida.images.cancer_image_interface"></span><div class="section" id="cancer-imaging-archive-interface">
-<h2>Cancer Imaging Archive Interface<a class="headerlink" href="#cancer-imaging-archive-interface" title="Permalink to this headline">¶</a></h2>
+<h3>Cancer Imaging Archive Interface<a class="headerlink" href="#cancer-imaging-archive-interface" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface">
 <em class="property">class </em><code class="descclassname">biovida.images.cancer_image_interface.</code><code class="descname">CancerImageInterface</code><span class="sig-paren">(</span><em>api_key</em>, <em>verbose=True</em>, <em>cache_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface" title="Permalink to this definition">¶</a></dt>
@@ -553,7 +600,7 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 
 </div>
 <span class="target" id="module-biovida.images.image_processing"></span><div class="section" id="image-processing">
-<h2>Image Processing<a class="headerlink" href="#image-processing" title="Permalink to this headline">¶</a></h2>
+<h3>Image Processing<a class="headerlink" href="#image-processing" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.images.image_processing.ImageProcessing">
 <em class="property">class </em><code class="descclassname">biovida.images.image_processing.</code><code class="descname">ImageProcessing</code><span class="sig-paren">(</span><em>search_class</em>, <em>model_location=None</em>, <em>database_to_extract='current'</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing" title="Permalink to this definition">¶</a></dt>
@@ -806,7 +853,7 @@ trained to detect.</p>
 
 </div>
 <span class="target" id="module-biovida.images.models.image_classification"></span><div class="section" id="image-classification">
-<h2>Image Classification<a class="headerlink" href="#image-classification" title="Permalink to this headline">¶</a></h2>
+<h3>Image Classification<a class="headerlink" href="#image-classification" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.images.models.image_classification.ImageRecognitionCNN">
 <em class="property">class </em><code class="descclassname">biovida.images.models.image_classification.</code><code class="descname">ImageRecognitionCNN</code><span class="sig-paren">(</span><em>data_path=None</em>, <em>img_shape=(150</em>, <em>150)</em>, <em>rescale=0.00392156862745098</em>, <em>shear_range=0.05</em>, <em>zoom_range=0.3</em>, <em>horizontal_flip=True</em>, <em>vertical_flip=False</em>, <em>batch_size=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/image_classification.html#ImageRecognitionCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageRecognitionCNN" title="Permalink to this definition">¶</a></dt>
@@ -962,7 +1009,7 @@ will be added automatically.</li>
 
 </div>
 <span class="target" id="module-biovida.images.models.template_matching"></span><div class="section" id="template-matching">
-<h2>Template Matching<a class="headerlink" href="#template-matching" title="Permalink to this headline">¶</a></h2>
+<h3>Template Matching<a class="headerlink" href="#template-matching" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.images.models.template_matching.robust_match_template">
 <code class="descclassname">biovida.images.models.template_matching.</code><code class="descname">robust_match_template</code><span class="sig-paren">(</span><em>pattern_img</em>, <em>base_img</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_img_cropping=(0.15</em>, <em>0.5)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/template_matching.html#robust_match_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.template_matching.robust_match_template" title="Permalink to this definition">¶</a></dt>
@@ -1031,7 +1078,7 @@ However, if the image is cropped too much, the target pattern itself could be re
 
 </div>
 <span class="target" id="module-biovida.images.models.border_detection"></span><div class="section" id="border-and-edge-detection">
-<h2>Border and Edge Detection<a class="headerlink" href="#border-and-edge-detection" title="Permalink to this headline">¶</a></h2>
+<h3>Border and Edge Detection<a class="headerlink" href="#border-and-edge-detection" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.images.models.border_detection.border_detection">
 <code class="descclassname">biovida.images.models.border_detection.</code><code class="descname">border_detection</code><span class="sig-paren">(</span><em>image</em>, <em>signal_strength_threshold=0.25</em>, <em>min_border_separation=0.15</em>, <em>lower_bar_search_space=0.9</em>, <em>report_signal_strength=False</em>, <em>rescale_input_ndarray=True</em>, <em>lower_bar_second_pass=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/border_detection.html#border_detection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.border_detection.border_detection" title="Permalink to this definition">¶</a></dt>
@@ -1192,8 +1239,11 @@ a location and the median signal strength of the average image.</li>
 </dd></dl>
 
 </div>
-<span class="target" id="module-biovida.genomics.disgenet_interface"></span><div class="section" id="disgenet-interface">
-<h2>DisGeNET Interface<a class="headerlink" href="#disgenet-interface" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-biovida.genomics.disgenet_interface">
+<span id="genomics"></span><h2>Genomics<a class="headerlink" href="#module-biovida.genomics.disgenet_interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disgenet-interface">
+<h3>DisGeNET Interface<a class="headerlink" href="#disgenet-interface" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.genomics.disgenet_interface.DisgenetInterface">
 <em class="property">class </em><code class="descclassname">biovida.genomics.disgenet_interface.</code><code class="descname">DisgenetInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/genomics/disgenet_interface.html#DisgenetInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.genomics.disgenet_interface.DisgenetInterface" title="Permalink to this definition">¶</a></dt>
@@ -1270,8 +1320,11 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 </dd></dl>
 
 </div>
-<span class="target" id="module-biovida.diagnostics.disease_ont_interface"></span><div class="section" id="disease-ontology-interface">
-<h2>Disease Ontology Interface<a class="headerlink" href="#disease-ontology-interface" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-biovida.diagnostics.disease_ont_interface">
+<span id="diagnostics"></span><h2>Diagnostics<a class="headerlink" href="#module-biovida.diagnostics.disease_ont_interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disease-ontology-interface">
+<h3>Disease Ontology Interface<a class="headerlink" href="#disease-ontology-interface" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.diagnostics.disease_ont_interface.DiseaseOntInterface">
 <em class="property">class </em><code class="descclassname">biovida.diagnostics.disease_ont_interface.</code><code class="descname">DiseaseOntInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/diagnostics/disease_ont_interface.html#DiseaseOntInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface" title="Permalink to this definition">¶</a></dt>
@@ -1324,7 +1377,7 @@ Defaults to &#8216;<a class="reference external" href="http://purl.obolibrary.or
 
 </div>
 <span class="target" id="module-biovida.diagnostics.disease_symptoms_interface"></span><div class="section" id="disease-symptoms-interface">
-<h2>Disease-Symptoms Interface<a class="headerlink" href="#disease-symptoms-interface" title="Permalink to this headline">¶</a></h2>
+<h3>Disease-Symptoms Interface<a class="headerlink" href="#disease-symptoms-interface" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface">
 <em class="property">class </em><code class="descclassname">biovida.diagnostics.disease_symptoms_interface.</code><code class="descname">DiseaseSymptomsInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/diagnostics/disease_symptoms_interface.html#DiseaseSymptomsInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface" title="Permalink to this definition">¶</a></dt>
@@ -1410,8 +1463,11 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 </dd></dl>
 
 </div>
-<span class="target" id="module-biovida.unification.unify_domains"></span><div class="section" id="unifying-biovida-apis">
-<h2>Unifying BioVida APIs<a class="headerlink" href="#unifying-biovida-apis" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-biovida.unification.unify_domains">
+<span id="resource-integration"></span><h2>Resource Integration<a class="headerlink" href="#module-biovida.unification.unify_domains" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="unifying-biovida-apis">
+<h3>Unifying BioVida APIs<a class="headerlink" href="#unifying-biovida-apis" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
 <code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>cache_path=None</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
@@ -1507,8 +1563,11 @@ an account of a given patient&#8217;s symptoms.</p>
 </dd></dl>
 
 </div>
-<span class="target" id="module-biovida.support_tools.printing"></span><div class="section" id="printing-tools">
-<h2>Printing Tools<a class="headerlink" href="#printing-tools" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-biovida.support_tools.printing">
+<span id="support-tools"></span><h2>Support Tools<a class="headerlink" href="#module-biovida.support_tools.printing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="printing-tools">
+<h3>Printing Tools<a class="headerlink" href="#printing-tools" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.support_tools.printing.dict_pprint">
 <code class="descclassname">biovida.support_tools.printing.</code><code class="descname">dict_pprint</code><span class="sig-paren">(</span><em>d</em>, <em>max_value_length=70</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/printing.html#dict_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.dict_pprint" title="Permalink to this definition">¶</a></dt>
@@ -1555,6 +1614,7 @@ e.g., <code class="docutils literal"><span class="pre">{'my_column':</span> <spa
 </table>
 </dd></dl>
 
+</div>
 </div>
 </div>
 

@@ -89,18 +89,33 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted.html#resources">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../API.html">API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#image-processing">Image Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#image-classification">Image Classification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#template-matching">Template Matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#disgenet-interface">DisGeNET Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#printing-tools">Printing Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#module-biovida.genomics.disgenet_interface">Genomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#module-biovida.diagnostics.disease_ont_interface">Diagnostics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#module-biovida.unification.unify_domains">Resource Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../API.html#module-biovida.support_tools.printing">Support Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -186,7 +201,7 @@
 <span class="c1"># performs the preprocessing described in https://arxiv.org/pdf/1409.1556.pdf</span>
 
 
-<div class="viewcode-block" id="ImageRecognitionCNN"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN">[docs]</a><span class="k">class</span> <span class="nc">ImageRecognitionCNN</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageRecognitionCNN"><a class="viewcode-back" href="../../../../API.html#biovida.images.models.image_classification.ImageRecognitionCNN">[docs]</a><span class="k">class</span> <span class="nc">ImageRecognitionCNN</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Keras Convolutional Neural Networks Interface.</span>
@@ -495,7 +510,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">nb_classes</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="n">output_layer_activation</span><span class="p">))</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.convnet"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.convnet">[docs]</a>    <span class="k">def</span> <span class="nf">convnet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="ImageRecognitionCNN.convnet"><a class="viewcode-back" href="../../../../API.html#biovida.images.models.image_classification.ImageRecognitionCNN.convnet">[docs]</a>    <span class="k">def</span> <span class="nf">convnet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">model_to_use</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
                 <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;binary_crossentropy&#39;</span><span class="p">,</span>
                 <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
@@ -572,7 +587,7 @@
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;The model cannot be </span><span class="si">{0}</span><span class="s2"> until `ImageRecognitionCNN().</span><span class="si">{1}</span><span class="s2">()` &quot;</span>
                                  <span class="s2">&quot;has been called.</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">first_format</span><span class="p">,</span> <span class="n">second_format</span><span class="p">,</span> <span class="n">additional</span><span class="p">))</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.fit"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageRecognitionCNN.fit"><a class="viewcode-back" href="../../../../API.html#biovida.images.models.image_classification.ImageRecognitionCNN.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Fit the model to the training data and run a validation.</span>
@@ -623,7 +638,7 @@
         <span class="n">save_location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_support.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_name</span><span class="p">))</span>
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_location</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.save"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageRecognitionCNN.save"><a class="viewcode-back" href="../../../../API.html#biovida.images.models.image_classification.ImageRecognitionCNN.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Save the weights from a trained model.</span>
@@ -666,7 +681,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_classes</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.load"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default_model_load</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageRecognitionCNN.load"><a class="viewcode-back" href="../../../../API.html#biovida.images.models.image_classification.ImageRecognitionCNN.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default_model_load</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Load a model from disk.</span>
@@ -708,7 +723,7 @@
         <span class="n">predictions</span> <span class="o">=</span> <span class="p">((</span><span class="n">data_classes_reversed</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">single_img_prediction</span><span class="p">))</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.predict"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_images</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageRecognitionCNN.predict"><a class="viewcode-back" href="../../../../API.html#biovida.images.models.image_classification.ImageRecognitionCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_images</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Generate Predictions for a list of images.</span>
