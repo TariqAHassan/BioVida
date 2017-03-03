@@ -1,5 +1,0 @@
-Unification
-===========
-
-.. automodule:: biovida.unification.unify_domains
-	:members:

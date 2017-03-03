@@ -1,5 +1,0 @@
-Support Tools
-=============
-
-.. automodule:: biovida.support_tools.printing
-	:members:
