@@ -709,11 +709,13 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
     """
     # Initialize
     features = []
+    molds = (' {0} ', ' {0}', ' {0}s ', ' {0}s', '({0})', '({0}s)', '[{0}]', '[{0}s]')
 
+    image_caption_clean = cln(image_caption).lower()
     for term in ('arrow', 'asterisk'):
         # Look for arrows or asterisk
-        match_on = tuple(map(lambda x: x.format(term), (' {0} ', ' {0}', ' {0}s ', ' {0}s')))
-        if any(i in image_caption for i in match_on):
+        match_on = tuple(map(lambda x: x.format(term), molds))
+        if any(i in image_caption_clean for i in match_on):
             features.append("{0}s".format(term))
 
     if _enumerations_guess(image_caption, enumerations_grid_threshold):
