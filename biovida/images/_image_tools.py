@@ -64,30 +64,25 @@ def resetting_label(to_label):
     :return: a list of string of the form shown in the example below.
     :rtype: ``list``
 
-
     :Example:
 
-    >>> l = ['a', 'a', 'a', 'b', 'b', 'z']
-     print(_reseting_label(to_label=l))
-     ...
-     ['a_1', 'a_2', 'a_3', 'b_1', 'b_2', 'z_1']
+    >>> resetting_label(['a', 'a', 'a', 'b', 'b', 'z', 'a'])
+    ...
+    ['a_1', 'a_2', 'a_3', 'b_1', 'b_2', 'z_1', 'a_4']
+
     """
     def formatted_label(existing_name, label):
         """Joins the items in `to_label` with the label number generated below."""
-        head = cln(str(existing_name)) if not items_null(existing_name) and existing_name is not None else ""
-        return "{0}_{1}".format(head, str(label))
+        return "{0}_{1}".format(existing_name, str(label))
 
-    label = 1
-    prior = to_label[0]
-    all_labels = [formatted_label(prior, label)]
-    for i in to_label[1:]:
-        if i == prior:
-            label += 1
-            all_labels.append(formatted_label(prior, label))
-        elif i != prior:
-            label = 1
-            prior = i
-            all_labels.append(formatted_label(prior, label))
+    all_labels = list()
+    label_record = dict.fromkeys(set(filter(lambda x: isinstance(x, str), to_label)), 1)
+    for i in to_label:
+        if not isinstance(i, str):
+            all_labels.append(i)
+        else:
+            all_labels.append(formatted_label(cln(i), label_record[i]))
+            label_record[i] += 1
 
     return all_labels
 
