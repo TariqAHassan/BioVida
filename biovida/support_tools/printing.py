@@ -308,17 +308,20 @@ def pandas_pprint(data,
     :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
     :type lift_column_width_limit: ``bool``
     """
+    if type(data).__name__ not in ('DataFrame', 'Series'):
+        raise TypeError("Invalid type for `data`.")
+
+    # Deep copy to prevent altering ``data`` in memory.
+    data_copy = data.copy(deep=True)
+
     # Source: https://github.com/TariqAHassan/EasyMoney
-    if 'DataFrame' in str(type(data)):
-        aligned_df = _align_pandas(data, col_align)
+    if 'DataFrame' == type(data_copy).__name__:
+        aligned_df = _align_pandas(data_copy, col_align)
         pd.set_option('colheader_justify', header_align)
         _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols, lift_column_width_limit)
         pd.set_option('colheader_justify', 'right')
-    elif 'Series' in str(type(data)):
-        _pandas_series_print(data)
-    else:
-        raise TypeError("Invalid type for `data`.")
-
+    elif 'Series' == type(data_copy).__name__:
+        _pandas_series_print(data_copy)
 
 
 
