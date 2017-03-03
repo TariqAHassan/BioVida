@@ -12,6 +12,7 @@ from urllib.parse import urlsplit # handle python 2
 
 # General Support tools
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import items_null
 from biovida.support_tools._support_data import age_dict
 
@@ -147,10 +148,20 @@ def url_path_extract(url):
     return urlsplit(url).path[1:].replace("/", "__")
 
 
+def mesh_cleaner(mesh):
+    """
 
+    Clean mesh terms by cleaning them
 
-
-
+    :param mesh: a list of mesh terms
+    :type mesh: ``tuple`` or ``list``
+    :return: a cleaned tuple of mesh terms.
+    :rtype: ``tuple`` or ``type(mesh)``
+    """
+    if isinstance(mesh, (list, tuple)):
+        return tuple([cln(unescape(i)) if isinstance(i, str) else i for i in mesh])
+    else:
+        return mesh
 
 
 
