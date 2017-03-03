@@ -30,8 +30,9 @@ from biovida.images._image_tools import record_update_dbs_joiner
 
 # Open-i Support tools
 from biovida.images.interface_support.openi._openi_support_tools import iter_join
-from biovida.images.interface_support.openi._openi_support_tools import null_convert
 from biovida.images.interface_support.openi._openi_support_tools import url_combine
+from biovida.images.interface_support.openi._openi_support_tools import mesh_cleaner
+from biovida.images.interface_support.openi._openi_support_tools import null_convert
 
 # Open-i API Parameters Information
 from biovida.images.interface_support.openi._openi_parameters import openi_image_type_params
@@ -40,7 +41,6 @@ from biovida.images.interface_support.openi._openi_parameters import openi_artic
 from biovida.images.interface_support.openi._openi_parameters import openi_image_type_modality_full
 
 # Tools for Text Feature Extraction
-from biovida.images.interface_support.openi.openi_text_processing import unescape
 from biovida.images.interface_support.openi.openi_text_processing import feature_extract
 from biovida.images.interface_support.openi.openi_text_processing import _html_text_clean
 
@@ -50,6 +50,7 @@ from biovida.support_tools._cache_management import package_cache_creator
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
+from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
@@ -368,7 +369,7 @@ class _OpeniRecords(object):
         """
         self.root_url = root_url
         self.date_format = date_format
-        self.verbose = verbose
+        self._verbose = verbose
         self.req_limit = req_limit
 
         self.records_df = None
@@ -548,7 +549,7 @@ class _OpeniRecords(object):
         header("Downloading Records... ")
 
         # Print updates
-        if self.verbose:
+        if self._verbose:
             print("\nNumber of Records to Download: {0} (maximum chunk size: {1} rows).".format(
                 '{:,.0f}'.format(download_no), str(self.req_limit)))
 
@@ -581,6 +582,10 @@ class _OpeniRecords(object):
         for c in ('image_caption', 'image_mention'):
             data_frame[c] = data_frame[c].map(lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
 
+        # Clean mesh terms
+        for c in ('mesh_major', 'mesh_minor'):
+            data_frame[c] = data_frame[c].map(mesh_cleaner, na_action='ignore')
+
         # Run Feature Extracting Tool and Join with `data_frame`.
         pp = pd.DataFrame(data_frame.apply(
             lambda x: feature_extract(x, list_of_diseases=self.list_of_diseases), axis=1).tolist()).fillna(np.NaN)
@@ -589,23 +594,19 @@ class _OpeniRecords(object):
         # Clean the abstract
         data_frame['abstract'] = data_frame.apply(
             lambda x: _html_text_clean(x['abstract'], 'both', parse_medpix='medpix' in str(x['journal_title']).lower()),
-            axis=1
-        )
+            axis=1)
 
         # Add the full name for modalities (before the 'image_modality_major' values are altered below).
         data_frame['modality_full'] = data_frame['image_modality_major'].map(
-            lambda x: openi_image_type_modality_full.get(cln(x).lower(), x), na_action='ignore'
-        )
+            lambda x: openi_image_type_modality_full.get(cln(x).lower(), x), na_action='ignore')
 
         # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
         data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
-            lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore'
-        )
+            lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore')
 
         # Look up the article type
         data_frame['article_type'] = data_frame['article_type'].map(
-            lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore'
-        )
+            lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore')
 
         # Label the number of instance of repeating 'uid's. ToDo: this will get confused when instances are seperated.
         data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
@@ -617,8 +618,7 @@ class _OpeniRecords(object):
         # Replace the 'Replace this - ' placeholder with NaN
         data_frame['image_caption'] = data_frame['image_caption'].map(
             lambda x: np.NaN if isinstance(x, str) and cln(x).lower().startswith('replace this - ') else x,
-            na_action='ignore'
-        )
+            na_action='ignore')
 
         return data_frame
 
@@ -666,6 +666,8 @@ class _OpeniRecords(object):
         records_df = pd.DataFrame(harvest).fillna(np.NaN)
 
         # Clean and Extract Features
+        if self._verbose:
+            print("\nProcessing Text Information...\n")
         records_df = self._df_processing(records_df)
 
         # Add the query
@@ -693,7 +695,7 @@ class _OpeniImages(object):
 
     def __init__(self, image_save_location, database_save_location, verbose):
         self.image_save_location = image_save_location
-        self.verbose = verbose
+        self._verbose = verbose
 
         # Database
         self.record_db_images = None
@@ -812,7 +814,7 @@ class _OpeniImages(object):
         :param image_size: see ``pull_images()``
         :type image_size: ``str``
         """
-        if self.verbose:
+        if self._verbose:
             header("Obtaining Images... ")
             
         download_count = 0
