@@ -19,6 +19,10 @@ from biovida.support_tools.support_tools import items_null
 non_decimal = re.compile(r'[^\d.]+')
 
 
+class ImageProblemBasedOnText(Exception):
+    pass
+
+
 def iter_join(t, join_on="_"):
     """
 

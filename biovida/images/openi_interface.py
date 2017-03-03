@@ -33,6 +33,7 @@ from biovida.images.interface_support.openi._openi_support_tools import iter_joi
 from biovida.images.interface_support.openi._openi_support_tools import url_combine
 from biovida.images.interface_support.openi._openi_support_tools import null_convert
 from biovida.images.interface_support.openi._openi_support_tools import ensure_hashable
+from biovida.images.interface_support.openi._openi_support_tools import ImageProblemBasedOnText
 
 # Open-i API Parameters Information
 from biovida.images.interface_support.openi._openi_parameters import openi_image_type_params
@@ -607,7 +608,7 @@ class _OpeniRecords(object):
         data_frame['article_type'] = data_frame['article_type'].map(
             lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore')
 
-        # Label the number of instance of repeating 'uid's. ToDo: this will get confused when instances are seperated.
+        # Label the number of instance of repeating 'uid's.
         data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
 
         # Replace 'Not Available' and 'IN PROGRESS' with NaN
@@ -764,7 +765,7 @@ class _OpeniImages(object):
         # Return the save path.
         return os.path.join(self.image_save_location, image_name)
 
-    def _individual_image_harvest(self, index, image_url, image_save_path):
+    def _individual_image_harvest(self, index, image_url, image_save_path, block):
         """
 
         Harvests a single image.
@@ -775,6 +776,8 @@ class _OpeniImages(object):
         :type image_url: ``str``
         :param image_save_path: the location to save the image.
         :type image_save_path: ``str``
+        :param block: whether or not to block downloading the image if it does not already exist in the cache.
+        :type block: ``bool``
         :return: `1` if an image was downloaded, `0` otherwise.
         :rtype: ``int``
         """
@@ -782,6 +785,9 @@ class _OpeniImages(object):
         try:
             # Only download if the file does not already exist in the cache.
             if not os.path.isfile(image_save_path):
+                if block:
+                    raise ImageProblemBasedOnText
+
                 # Get the image
                 page = requests.get(image_url)
                 # Save to disk
@@ -799,7 +805,7 @@ class _OpeniImages(object):
 
         return image_downloaded
 
-    def _pull_images_engine(self, harvesting_information, images_sleep_time, image_size):
+    def _pull_images_engine(self, harvesting_information, images_sleep_time, image_size, use_image_caption):
         """
 
         Use ``_individual_image_harvest()`` to download all of the data (images) in ``harvesting_information``.
@@ -810,26 +816,35 @@ class _OpeniImages(object):
         :type images_sleep_time: ``tuple``
         :param image_size: see ``pull_images()``
         :type image_size: ``str``
+        :param use_image_caption: block downloading of an image if its caption suggests the presence
+                                  of problematic image properties (e.g., 'arrows') likely to corrupt
+                                  a dataset intended for machine learning.
+        :type use_image_caption: ``bool``
         """
         if self._verbose:
             header("Obtaining Images... ")
+
+        def block_decision(ipt):
+            """Decide whether or not to block the downloading."""
+            return use_image_caption == True and isinstance(ipt, (list, tuple)) and len(ipt)
             
         download_count = 0
-        for index, image_url in tqdm(harvesting_information):
+        for index, image_url, image_problems_text in tqdm(harvesting_information):
             # Generate the save path for the image
             image_save_path = self._image_titler(url=image_url, image_size=image_size)
 
             # Save the image
             download_count += self._individual_image_harvest(index=index,
                                                              image_url=image_url,
-                                                             image_save_path=image_save_path)
+                                                             image_save_path=image_save_path,
+                                                             block=block_decision(image_problems_text))
 
             # Sleep when `download_count` 'builds up' to images_sleep_time[0].
             if download_count == images_sleep_time[0]:
                 sleep_with_noise(amount_of_time=images_sleep_time[1])
                 download_count = 0  # reset
 
-    def pull_images(self, records_df, image_size, pull_time, images_sleep_time):
+    def pull_images(self, records_df, image_size, pull_time, images_sleep_time, use_image_caption):
         """
 
         Pull images based in ``records_df``.
@@ -844,6 +859,10 @@ class _OpeniImages(object):
                                    Note: noise is randomly added to the sleep time by sampling from a normal distribution
                                    (with mean = 0, sd = 0.75).
         :type images_sleep_time: ``tuple``
+        :param use_image_caption: block downloading of an image if its caption suggests the presence
+                                  of problematic image properties (e.g., 'arrows') likely to corrupt
+                                  a dataset intended for machine learning.
+        :type use_image_caption: ``bool``
         :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
@@ -861,12 +880,15 @@ class _OpeniImages(object):
         image_column = "img_{0}".format(image_size)
 
         # Extract needed information from the `record_db_images` dataframe to loop over.
-        harvesting_information = list(zip(self.record_db_images.index, self.record_db_images[image_column]))
+        harvesting_information = list(zip(*[self.record_db_images.index,
+                                            self.record_db_images[image_column],
+                                            self.record_db_images['image_problems_from_text']]))
 
         # Harvest
         self._pull_images_engine(harvesting_information=harvesting_information,
                                  images_sleep_time=images_sleep_time,
-                                 image_size=image_size)
+                                 image_size=image_size,
+                                 use_image_caption=use_image_caption)
 
         return record_update_dbs_joiner(record_db=self.record_db_images, update_db=self.real_time_update_db)
 
@@ -1118,7 +1140,8 @@ class OpeniInterface(object):
              image_size='large',
              records_sleep_time=(10, 1.5),
              images_sleep_time=(10, 1.5),
-             download_limit=60):
+             download_limit=60,
+             use_image_caption=False):
         """
 
         Pull (i.e., download) the current search.
@@ -1146,6 +1169,10 @@ class OpeniInterface(object):
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 60.
         :type download_limit: ``int``
+        :param use_image_caption: block downloading of an image if its caption suggests the presence
+                                  of problematic image properties (e.g., 'arrows') likely to corrupt
+                                  a dataset intended for machine learning.
+        :type use_image_caption: ``bool``
         :return: a DataFrame with the record information.
                  If ``image_size`` is not None, images will also be harvested and cached.
         :rtype: ``Pandas DataFrame``
@@ -1173,7 +1200,8 @@ class OpeniInterface(object):
             self.records_db = self._Images.pull_images(records_df=self.records_db,
                                                        image_size=image_size,
                                                        pull_time=self._pull_time.strftime(self._time_format),
-                                                       images_sleep_time=images_sleep_time)
+                                                       images_sleep_time=images_sleep_time,
+                                                       use_image_caption=use_image_caption)
 
             # Add the new records_db datafame with the existing `cache_record_db`.
             self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
@@ -1183,6 +1211,7 @@ class OpeniInterface(object):
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
 
         return self.records_db
+
 
 
 
