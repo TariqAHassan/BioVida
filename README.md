@@ -173,13 +173,13 @@ Diagnostics
    
    - Rephetio - Medline
    
-        * Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman, Sabrina Chen, Dexter Hadley, Ari Green,
+      * Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman, Sabrina Chen, Dexter Hadley, Ari Green,
         Pouya Khankhanian, Sergio Baranzini (2016) Rephetio: Repurposing drugs on a hetnet (report).
         Thinklab. doi:[10.15363/thinklab.a7]. Code & Data Repositiory: https://github.com/dhimmel/medline.
         
    - Human Symptoms Disease Network
    
-        * Zhou, X., Menche, J., Barabási, A. L., & Sharma, A. (2014). Human symptoms–disease network.
+      * Zhou, X., Menche, J., Barabási, A. L., & Sharma, A. (2014). Human symptoms–disease network.
         Nature communications, 5. doi:[10.1038/ncomms5212]. Code & Data Repositiory: https://github.com/dhimmel/hsdn.
    
    
