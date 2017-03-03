@@ -1,8 +1,7 @@
 """
 
-    Support Tools for the `images` subpackage
+    Support Tools for the `images` Subpackage
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 """
 # Imports
@@ -12,11 +11,11 @@ from urllib.parse import urlsplit # handle python 2
 
 # General Support tools
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools._support_data import age_dict
 from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import items_null
-from biovida.support_tools._support_data import age_dict
 
-# Other Tools
+# Regex for ``extract_float()``
 non_decimal = re.compile(r'[^\d.]+')
 
 
@@ -79,9 +78,12 @@ def extract_float(i):
 def multiple_decimal_remove(s):
     """
 
+    Remove multiple decimal from a string (``s``)
+
     :param s: a string
     :type s: ``str``
-    :return:
+    :return: ``s`` with only one
+    :rtype: ``None`` or ``str``
     """
     if isinstance(s, (int, float)):
         return s
@@ -95,17 +97,6 @@ def multiple_decimal_remove(s):
         return None
     else:
         return cln(s_repeats_rmv, extent=2)
-
-
-def numb_extract(string, join_on=""):
-    """
-
-    :param string:
-    :param join_on:
-    :return:
-    """
-    # ToDo: depreciate -- cannot find usage.
-    return join_on.join(re.findall(r'[0-9]+', string))
 
 
 def filter_unnest(l, filter_for=None):
@@ -148,7 +139,7 @@ def url_path_extract(url):
     return urlsplit(url).path[1:].replace("/", "__")
 
 
-def mesh_cleaner(mesh):
+def _mesh_cleaner(mesh):
     """
 
     Clean mesh terms by cleaning them
@@ -164,6 +155,30 @@ def mesh_cleaner(mesh):
         return mesh
 
 
+def ensure_hashable(data_frame):
+    """
+
+    Ensure the records dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
+
+    :param data_frame: the dataframe evolved inside ``biovida.images.openi_interface._OpeniRecords()._df_processing()``
+    :type data_frame: ``Pandas DataFrame``
+    :return: ``data_frame`` corrected such that all columns considered can be hashed.
+    :rtype: ``Pandas DataFrame``
+    """
+    # Escape HTML elements in the 'image_caption' and 'image_mention' columns.
+    for c in ('image_caption', 'image_mention'):
+        data_frame[c] = data_frame[c].map(lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
+
+    # Clean mesh terms
+    for c in ('mesh_major', 'mesh_minor'):
+        data_frame[c] = data_frame[c].map(_mesh_cleaner, na_action='ignore')
+
+    # Conver all elements in the 'license_type' and 'license_url' columns to string.
+    for c in ('license_type', 'license_url'):
+        data_frame[c] = data_frame[c].map(lambda x: "; ".join(map(str, x)) if isinstance(x, (list, tuple)) else x,
+                                          na_action='ignore')
+
+    return data_frame
 
 
 

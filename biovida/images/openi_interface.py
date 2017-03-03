@@ -31,8 +31,8 @@ from biovida.images._image_tools import record_update_dbs_joiner
 # Open-i Support tools
 from biovida.images.interface_support.openi._openi_support_tools import iter_join
 from biovida.images.interface_support.openi._openi_support_tools import url_combine
-from biovida.images.interface_support.openi._openi_support_tools import mesh_cleaner
 from biovida.images.interface_support.openi._openi_support_tools import null_convert
+from biovida.images.interface_support.openi._openi_support_tools import ensure_hashable
 
 # Open-i API Parameters Information
 from biovida.images.interface_support.openi._openi_parameters import openi_image_type_params
@@ -578,13 +578,8 @@ class _OpeniRecords(object):
         # Convert column names to snake_case
         data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
-        # Escape HTML elements in the 'image_caption' and 'image_mention' columns.
-        for c in ('image_caption', 'image_mention'):
-            data_frame[c] = data_frame[c].map(lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
-
-        # Clean mesh terms
-        for c in ('mesh_major', 'mesh_minor'):
-            data_frame[c] = data_frame[c].map(mesh_cleaner, na_action='ignore')
+        # Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
+        data_frame = ensure_hashable(data_frame)
 
         # Run Feature Extracting Tool and Join with `data_frame`.
         pp = pd.DataFrame(data_frame.apply(
