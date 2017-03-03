@@ -38,7 +38,7 @@ In just a few lines of code, you can download and clean images from various biom
 ####Cancer Imaging Archive
 ```python
 # 1. Import the interface for the Cancer Imaging Archive
-from biovida.images.cancer_image_interface import CancerImageInterface
+from biovida.images import CancerImageInterface
 
 # 2. Create an Instance of the Tool
 cii = CancerImageInterface(YOUR_API_KEY_HERE)
@@ -54,7 +54,7 @@ cdf = cii.pull()
 ```python
 
 # 1. Import the Interface for the NIH's Open-i API.
-from biovida.images.openi_interface import OpeniInterface
+from biovida.images import OpeniInterface
 
 # 2. Create an Instance of the Tool
 opi = OpeniInterface()
@@ -69,7 +69,7 @@ search_df = opi.pull()
 ####Automated Image Data Cleaning
 ```python
 # 1. Import Image Processing Tools
-from biovida.images.image_processing import ImageProcessing
+from biovida.images import ImageProcessing
 
 # 2. Instantiate the Tool using the OpeniInterface Instance
 ip = ImageProcessing(opi)
@@ -112,7 +112,7 @@ BioVida provides a simple interface for obtaining genomic data.
 
 ```python
 # 1. Import the Interface for DisGeNET.org
-from biovida.genomics.disgenet_interface import DisgenetInterface
+from biovida.genomics import DisgenetInterface
 
 # 2. Create an Instance of the Tool
 dna = DisgenetInterface()
@@ -129,7 +129,7 @@ BioVida also makes it easy to obtain diagnostics data.
 
 ```python
 # 1. Import the Interface for DiseaseOntology.org
-from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+from biovida.diagnostics import DiseaseOntInterface
 
 # 2. Create an Instance of the Tool
 doi = DiseaseOntInterface()
@@ -201,10 +201,7 @@ Diagnostics
 [here]: https://tariqahassan.github.io/BioVida/API.html
 [DiseaseOntology]: http://disease-ontology.org
 [Cancer Imaging Archive]: http://www.cancerimagingarchive.net
-
-
 [10.1093/nar/gkw943]: https://doi.org/10.1093/nar/gkw943
 [10.1093/database/bav028]: https://doi.org/10.1093/database/bav028
-
 [10.15363/thinklab.a7]: http://www.thinklab.com/p/rephetio/report
 [10.1038/ncomms5212]: http://www.nature.com/articles/ncomms5212
