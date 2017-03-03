@@ -25,7 +25,7 @@ terms_dict = {
             'computed tomography', '(ct)'], 'Computed Tomography (CT)'),
     "mri": (['mr ', ' mr ', 'mri ', 'mri:', 'mri-', ' mri', ' mri ', '(mri)',
              'magnetic resonance imag'], 'Magnetic Resonance Imaging (MRI)'),  # 'imag' catches 'es' and 'ing'.
-    "pet": ([' pet', 'pet ', 'pet:', 'pet-', ' pet', ' pet ', '(pet)',
+    "pet": (['pet:', 'pet-', ' pet ', '(pet)',
              'positron emission tomography'], 'Positron Emission Tomography (PET)'),
     "photograph": (['photograph'], 'Photograph'),
     "ultrasound": (['ultrasound'], 'Ultrasound'),
