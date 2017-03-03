@@ -161,15 +161,27 @@ Genomics
 
       * Janet Piñero, Àlex Bravo, Núria Queralt-Rosinach, Alba Gutiérrez-Sacristán, Jordi Deu-Pons, Emilio Centeno, 
       Javier García-García, Ferran Sanz, and Laura I. Furlong. DisGeNET: a comprehensive platform integrating 
-      information on human disease-associated genes and variants. Nucl. Acids Res. (2016) doi:10.1093/nar/gkw943
+      information on human disease-associated genes and variants. Nucl. Acids Res. (2016) doi:[10.1093/nar/gkw943].
       
       * Janet Piñero, Núria Queralt-Rosinach, Àlex Bravo, Jordi Deu-Pons, Anna Bauer-Mehren, Martin Baron, 
       Ferran Sanz, Laura I. Furlong. DisGeNET: a discovery platform for the dynamical exploration of human 
-      diseases and their genes. Database (2015) doi:10.1093/database/bav028
+      diseases and their genes. Database (2015) doi:[10.1093/database/bav028].
 
 Diagnostics
 
    - [DiseaseOntology]
+   
+   - Rephetio - Medline
+   
+        * Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman, Sabrina Chen, Dexter Hadley, Ari Green,
+        Pouya Khankhanian, Sergio Baranzini (2016) Rephetio: Repurposing drugs on a hetnet (report).
+        Thinklab. doi:[10.15363/thinklab.a7]. Code & Data Repositiory: https://github.com/dhimmel/medline.
+        
+   - Human Symptoms Disease Network
+   
+        * Zhou, X., Menche, J., Barabási, A. L., & Sharma, A. (2014). Human symptoms–disease network.
+        Nature communications, 5. doi:[10.1038/ncomms5212]. Code & Data Repositiory: https://github.com/dhimmel/hsdn.
+   
    
    
 [click here]: https://tariqahassan.github.io/BioVida/index.html
@@ -189,3 +201,10 @@ Diagnostics
 [here]: https://tariqahassan.github.io/BioVida/API.html
 [DiseaseOntology]: http://disease-ontology.org
 [Cancer Imaging Archive]: http://www.cancerimagingarchive.net
+
+
+[10.1093/nar/gkw943]: https://doi.org/10.1093/nar/gkw943
+[10.1093/database/bav028]: https://doi.org/10.1093/database/bav028
+
+[10.15363/thinklab.a7]: http://www.thinklab.com/p/rephetio/report
+[10.1038/ncomms5212]: http://www.nature.com/articles/ncomms5212
