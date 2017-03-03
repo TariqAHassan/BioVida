@@ -22,9 +22,14 @@ non_decimal = re.compile(r'[^\d.]+')
 def iter_join(t, join_on="_"):
     """
 
-    :param t:
-    :param join_on:
-    :return:
+    Convert an iterabe (``t``) to a string by joining on ``join_on``.
+
+    :param t: any iterable.
+    :type t: ``iterable``
+    :param join_on: a string to join ``t`` on.
+    :type join_on: ``str``
+    :return: ``t`` as a string.
+    :rtype: ``str``
     """
     return join_on.join(t) if isinstance(t, (list, tuple)) else i
 
@@ -32,8 +37,12 @@ def iter_join(t, join_on="_"):
 def null_convert(i):
     """
 
-    :param i:
-    :return:
+    Convert ``i`` to ``None`` if it is void else ``i`` is returned.
+
+    :param i: any.
+    :type i: ``any``
+    :return: None ``i`` is void (e.g., '' or []) else ``i``.
+    :rtype: ``None`` else ``type(i)``
     """
     return None if not i else i
 
@@ -41,9 +50,14 @@ def null_convert(i):
 def url_combine(url1, url2):
     """
 
-    :param url1:
-    :param url2:
-    :return:
+    Combines two urls into one.
+
+    :param url1: a URL.
+    :type url1: ``str``
+    :param url2: a URL.
+    :type url2: ``str``
+    :return: a string of the form ``url1/url2``.
+    :rtype: ``None`` or ``str``
     """
     if any(x is None or items_null(x) for x in [url1, url2]):
         return None
@@ -56,11 +70,14 @@ def url_combine(url1, url2):
 def item_extract(i, list_len=1):
     """
 
-    Extract the first item in a list or tuple, else return None
+    Extract the first item in a list or tuple, else return ``None``.
 
-    :param i:
-    :param list_len:
-    :return:
+    :param i: any list or tuple.
+    :type i: ``list`` or ``tuple``
+    :param list_len: required length of ``i``. Defaults to `1`.
+    :type list_len: ``int``
+    :return: the first element in ``i`` if ``i`` is a ``list`` or ``tuple`` and ``len(i) == list_len``.
+    :rtype: ``type(i[0])`` or ``None``
     """
     return i[0] if isinstance(i, (list, tuple)) and len(i) == list_len else None
 
@@ -68,8 +85,12 @@ def item_extract(i, list_len=1):
 def extract_float(i):
     """
 
-    :param i:
-    :return:
+    Extract a d from a string ``i``
+
+    :param i: a string.
+    :type i: ``str``
+    :return: the floating point number in ``i`` as a string.
+    :rtype: ``str``
     """
     # Source: http://stackoverflow.com/a/947789/4898004
     return non_decimal.sub('', i)
@@ -80,9 +101,9 @@ def multiple_decimal_remove(s):
 
     Remove multiple decimal from a string (``s``)
 
-    :param s: a string
+    :param s: a string.
     :type s: ``str``
-    :return: ``s`` with only one
+    :return: ``s`` with only one.
     :rtype: ``None`` or ``str``
     """
     if isinstance(s, (int, float)):
@@ -102,9 +123,14 @@ def multiple_decimal_remove(s):
 def filter_unnest(l, filter_for=None):
     """
 
-    :param l:
-    :param filter_for:
-    :return:
+    Filters out ``filter_for`` and flattens ``l``.
+
+    :param l: a 2D iterable.
+    :type l: ``iterable``
+    :param filter_for: items to be removed. Defaults to ``None``.
+    :type filter_for: any
+    :return: ``l`` flattened with ``filter_for`` removed.
+    :rtype: ``list``
     """
     return list(chain(*filter(filter_for, l)))
 
@@ -142,9 +168,9 @@ def url_path_extract(url):
 def _mesh_cleaner(mesh):
     """
 
-    Clean mesh terms by cleaning them
+    Clean mesh terms by cleaning them.
 
-    :param mesh: a list of mesh terms
+    :param mesh: a list of mesh terms.
     :type mesh: ``tuple`` or ``list``
     :return: a cleaned tuple of mesh terms.
     :rtype: ``tuple`` or ``type(mesh)``
@@ -160,7 +186,7 @@ def ensure_hashable(data_frame):
 
     Ensure the records dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
 
-    :param data_frame: the dataframe evolved inside ``biovida.images.openi_interface._OpeniRecords()._df_processing()``
+    :param data_frame: the dataframe evolved inside ``biovida.images.openi_interface._OpeniRecords()._df_processing()``.
     :type data_frame: ``Pandas DataFrame``
     :return: ``data_frame`` corrected such that all columns considered can be hashed.
     :rtype: ``Pandas DataFrame``
@@ -179,6 +205,15 @@ def ensure_hashable(data_frame):
                                           na_action='ignore')
 
     return data_frame
+
+
+
+
+
+
+
+
+
 
 
 
