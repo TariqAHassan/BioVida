@@ -10,7 +10,6 @@ import string
 from itertools import chain
 from itertools import combinations
 from collections import defaultdict
-from six.moves.html_parser import HTMLParser
 
 # Image Support Tools
 from biovida.images.interface_support.openi._openi_support_tools import item_extract
@@ -20,10 +19,8 @@ from biovida.images.interface_support.openi._openi_support_tools import multiple
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import items_null
-
-# Pull out the unescape function
-unescape = HTMLParser().unescape
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -753,7 +750,7 @@ def _enumerations_guess(image_caption, enumerations_grid_threshold):
     """
     image_caption_clean_lower = cln(image_caption).lower()
     # Check for markers of enumeration like '(a-e)', '(a,e)', '(b and c)'.
-    for regex in ["[(|\[][a-z]" + i + "[a-z][)|\]]" for i in ('-', ',', ' and ')]:
+    for regex in ["[(|\[][a-z]" + i + "[a-z][)|\]]" for i in ("-", " - ", ",", ", ", " and ")]:
         if len(re.findall(regex, image_caption_clean_lower)):
             return True
     else:
