@@ -582,10 +582,14 @@ class _OpeniRecords(object):
         data_frame = ensure_hashable(data_frame)
 
         # Run Feature Extracting Tool and Join with `data_frame`.
-        pp = pd.DataFrame(data_frame.apply(
+        if self._verbose:
+            print("\nExtracting Text Features...\n")
+        pp = pd.DataFrame(data_frame.progress_apply(
             lambda x: feature_extract(x, list_of_diseases=self.list_of_diseases), axis=1).tolist()).fillna(np.NaN)
         data_frame = data_frame.join(pp, how='left')
 
+        if self._verbose:
+            print("\nCleaning Text Information...\n")
         # Clean the abstract
         data_frame['abstract'] = data_frame.apply(
             lambda x: _html_text_clean(x['abstract'], 'both', parse_medpix='medpix' in str(x['journal_title']).lower()),
@@ -661,8 +665,6 @@ class _OpeniRecords(object):
         records_df = pd.DataFrame(harvest).fillna(np.NaN)
 
         # Clean and Extract Features
-        if self._verbose:
-            print("\nProcessing Text Information...\n")
         records_df = self._df_processing(records_df)
 
         # Add the query
