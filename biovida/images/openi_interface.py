@@ -1171,7 +1171,7 @@ class OpeniInterface(object):
         :type download_limit: ``int``
         :param use_image_caption: block downloading of an image if its caption suggests the presence
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
-                                  a dataset intended for machine learning.
+                                  a dataset intended for machine learning. Defaults to ``False``.
         :type use_image_caption: ``bool``
         :return: a DataFrame with the record information.
                  If ``image_size`` is not None, images will also be harvested and cached.
