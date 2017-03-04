@@ -985,9 +985,9 @@
 <span class="sd">        :type images_sleep_time: ``tuple``</span>
 <span class="sd">        :param image_size: see ``pull_images()``</span>
 <span class="sd">        :type image_size: ``str``</span>
-<span class="sd">        :param use_image_caption: block downloading of an image if its caption suggests the presence</span>
+<span class="sd">        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence</span>
 <span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt</span>
-<span class="sd">                                  a dataset intended for machine learning.</span>
+<span class="sd">                                  a dataset intended for machine learning. Defaults to ``False``.</span>
 <span class="sd">        :type use_image_caption: ``bool``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
@@ -1028,9 +1028,9 @@
 <span class="sd">                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
 <span class="sd">                                   (with mean = 0, sd = 0.75).</span>
 <span class="sd">        :type images_sleep_time: ``tuple``</span>
-<span class="sd">        :param use_image_caption: block downloading of an image if its caption suggests the presence</span>
+<span class="sd">        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence</span>
 <span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt</span>
-<span class="sd">                                  a dataset intended for machine learning.</span>
+<span class="sd">                                  a dataset intended for machine learning. Defaults to ``False``.</span>
 <span class="sd">        :type use_image_caption: ``bool``</span>
 <span class="sd">        :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
@@ -1338,7 +1338,7 @@
 <span class="sd">        :param download_limit: max. number of results to download. If ``None``, no limit will be imposed</span>
 <span class="sd">                              (not recommended). Defaults to 60.</span>
 <span class="sd">        :type download_limit: ``int``</span>
-<span class="sd">        :param use_image_caption: block downloading of an image if its caption suggests the presence</span>
+<span class="sd">        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence</span>
 <span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt</span>
 <span class="sd">                                  a dataset intended for machine learning. Defaults to ``False``.</span>
 <span class="sd">        :type use_image_caption: ``bool``</span>

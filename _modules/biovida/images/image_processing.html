@@ -205,7 +205,7 @@
 <span class="c1">#</span>
 <span class="c1">#   1. Check if grayscale                                                       X</span>
 <span class="c1">#         - mark finding in dataframe.</span>
-<span class="c1">#   2. Look for MedLine(R) logo                                                 X</span>
+<span class="c1">#   2. Look for MedPix(R) logo                                                 X</span>
 <span class="c1">#         - if true, try to crop</span>
 <span class="c1">#   3. Look for text bar                                                        P</span>
 <span class="c1">#         - if true, try crop</span>
@@ -536,10 +536,10 @@
         <span class="n">output_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">match_quality_threshold</span><span class="p">,</span> <span class="n">xy_position_threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xy_position_threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">return_full</span><span class="p">)</span>
 
         <span class="c1"># Load the Pattern. ToDo: Allow for non MedPix logos logos.</span>
-        <span class="n">medline_template_img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_medpix_path</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">medpix_template_img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_medpix_path</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">robust_match_template_wrapper</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">robust_match_template</span><span class="p">(</span><span class="n">pattern_img</span><span class="o">=</span><span class="n">medline_template_img</span><span class="p">,</span>
+            <span class="k">return</span> <span class="n">robust_match_template</span><span class="p">(</span><span class="n">pattern_img</span><span class="o">=</span><span class="n">medpix_template_img</span><span class="p">,</span>
                                          <span class="n">base_img</span><span class="o">=</span><span class="n">img</span><span class="p">,</span>
                                          <span class="n">base_resizes</span><span class="o">=</span><span class="n">base_resizes</span><span class="p">,</span>
                                          <span class="n">end_search_threshold</span><span class="o">=</span><span class="n">end_search_threshold</span><span class="p">,</span>
