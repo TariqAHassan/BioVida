@@ -534,7 +534,6 @@ class _OpeniRecords(object):
         """
 
 
-
         :param bounds_list:
         :param joined_url:
         :param to_harvest:
@@ -543,28 +542,20 @@ class _OpeniRecords(object):
         :return:
         """
         # Initialize
-        c = 1
         harvested_data = list()
-
-        # Print Header
         header("Downloading Records... ")
 
-        # Print updates
         if self._verbose:
-            print("\nNumber of Records to Download: {0} (maximum chunk size: {1} rows).".format(
+            print("\nNumber of Records to Download: {0} (chunk size: {1} records).".format(
                 '{:,.0f}'.format(download_no), str(self.req_limit)))
 
-        for bound in tqdm(bounds_list):
+        for c, bound in enumerate(tqdm(bounds_list), start=1):
             if c % records_sleep_time[0] == 0:
                 sleep_with_noise(amount_of_time=records_sleep_time[1])
 
             # Harvest
             harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
 
-            # Update counter
-            c += 1
-
-        # Return
         return harvested_data
 
     def _df_processing(self, data_frame):
