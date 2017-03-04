@@ -648,6 +648,70 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
+<div class="viewcode-block" id="im_scan"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_processing.im_scan">[docs]</a><span class="k">def</span> <span class="nf">im_scan</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Scan a ``source`` for modality information.</span>
+
+<span class="sd">    :param source:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1. Look for modality matches</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">terms_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="c1"># Add that the `k` modality was found (e.g., &#39;mri&#39;).</span>
+            <span class="n">matches</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="c1"># Scan `source` for subtypes (taking the optunity to</span>
+            <span class="c1"># look for those that may not be modality specific).</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">modality_subtypes</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">modality_subtypes</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">j</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">):</span>
+                        <span class="n">matches</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="c1"># 2. Look for subtype matches which can be used to infer the modality itself.</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">modality_specific_subtypes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">j</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="p">):</span>
+                <span class="n">matches</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+<div class="viewcode-block" id="im_drop_contradictions"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_processing.im_drop_contradictions">[docs]</a><span class="k">def</span> <span class="nf">im_drop_contradictions</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Check for and eliminate contradictions.</span>
+
+<span class="sd">    :param values:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contradictions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c</span><span class="p">):</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">values</span></div>
+
+
+<div class="viewcode-block" id="im_formatter"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_processing.im_formatter">[docs]</a><span class="k">def</span> <span class="nf">im_formatter</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Format the output; form: &#39;formal modality name: subtype1; subtype2; ...&#39;.</span>
+
+<span class="sd">    :param dictionary:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">modality</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">modality_formal_name</span> <span class="o">=</span> <span class="n">terms_dict</span><span class="p">[</span><span class="n">modality</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">im_drop_contradictions</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dictionary</span><span class="p">[</span><span class="n">modality</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">modality_formal_name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">modality_formal_name</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span></div>
+
+
 <span class="k">def</span> <span class="nf">_imaging_modality_guess</span><span class="p">(</span><span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -663,55 +727,12 @@
 <span class="sd">    :return: imaging modality.</span>
 <span class="sd">    :rtype: ``str`` or ``None``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Scan a ``source`` for modality information.&quot;&quot;&quot;</span>
-        <span class="c1"># 1. Look for modality matches</span>
-        <span class="n">matches</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">terms_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                <span class="c1"># Add that the `k` modality was found (e.g., &#39;mri&#39;).</span>
-                <span class="n">matches</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="c1"># Scan `source` for subtypes (taking the optunity to</span>
-                <span class="c1"># look for those that may not be modality specific).</span>
-                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">modality_subtypes</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">modality_subtypes</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
-                        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">j</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">):</span>
-                            <span class="n">matches</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-
-        <span class="c1"># 2. Look for subtype matches which can be used to infer the modality itself.</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">modality_specific_subtypes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">j</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="p">):</span>
-                    <span class="n">matches</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-
-    <span class="k">def</span> <span class="nf">drop_contradictions</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Check for and eliminate contradictions.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contradictions</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c</span><span class="p">):</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">values</span>
-
-    <span class="k">def</span> <span class="nf">formatter</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Format the output; form: &#39;formal modality name: subtype1; subtype2; ...&#39;.&quot;&quot;&quot;</span>
-        <span class="n">modality</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">modality_formal_name</span> <span class="o">=</span> <span class="n">terms_dict</span><span class="p">[</span><span class="n">modality</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">drop_contradictions</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dictionary</span><span class="p">[</span><span class="n">modality</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">modality_formal_name</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">modality_formal_name</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span>
-
     <span class="c1"># Try to return by scanning `image_caption`, `image_mention` and `abstract`</span>
     <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">,</span> <span class="n">abstract</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">scan_rslt</span> <span class="o">=</span> <span class="n">scan</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">cln</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="n">scan_rslt</span> <span class="o">=</span> <span class="n">im_scan</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">cln</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scan_rslt</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">scan_rslt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">formatter</span><span class="p">(</span><span class="n">scan_rslt</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">im_formatter</span><span class="p">(</span><span class="n">scan_rslt</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># capitulate</span>
 

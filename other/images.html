@@ -284,7 +284,7 @@ If <code class="docutils literal"><span class="pre">image_size</span></code> is 
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>query, image_type=None, rankby=None, article_type=None, subset=None, collection=None, fields=None, specialties=None, video=None, exclusions=['graphics'], print_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.search" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search</code><span class="sig-paren">(</span><em>query=None, image_type=None, rankby=None, article_type=None, subset=None, collection=None, fields=None, specialties=None, video=None, exclusions=['graphics'], print_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tool to generate a search term (URL) for the NIH&#8217;s Open-i API.
 The computed term is stored as a class attribute (<code class="docutils literal"><span class="pre">INSTANCE.current_search_url</span></code>)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -293,14 +293,14 @@ The computed term is stored as a class attribute (<code class="docutils literal"
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>query</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a search term. <code class="docutils literal"><span class="pre">None</span></code> will be converted to an empty string.</li>
-<li><strong>image_type</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('image_type')</span></code> for valid values.</li>
-<li><strong>rankby</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('rankby')</span></code> for valid values.</li>
-<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values.</li>
-<li><strong>subset</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('subset')</span></code> for valid values.</li>
-<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('collection')</span></code> for valid values.</li>
-<li><strong>fields</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('fields')</span></code> for valid values.</li>
-<li><strong>specialties</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('specialties')</span></code> for valid values.</li>
-<li><strong>video</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('video')</span></code> for valid values. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>image_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('image_type')</span></code> for valid values.</li>
+<li><strong>rankby</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('rankby')</span></code> for valid values.</li>
+<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values.</li>
+<li><strong>subset</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('subset')</span></code> for valid values.</li>
+<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('collection')</span></code> for valid values.</li>
+<li><strong>fields</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('fields')</span></code> for valid values.</li>
+<li><strong>specialties</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('specialties')</span></code> for valid values.</li>
+<li><strong>video</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('video')</span></code> for valid values.</li>
 <li><strong>exclusions</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>one or both of: &#8216;graphics&#8217;, &#8216;multipanel&#8217;. Defaults to <code class="docutils literal"><span class="pre">['graphics']</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -315,6 +315,13 @@ is not currently recommended.</p>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If passing a single option to <code class="docutils literal"><span class="pre">image_type</span></code>, <code class="docutils literal"><span class="pre">rankby</span></code>, <code class="docutils literal"><span class="pre">article_type</span></code>, <code class="docutils literal"><span class="pre">subset</span></code>,
+<code class="docutils literal"><span class="pre">collection</span></code>, <code class="docutils literal"><span class="pre">fields</span></code>, <code class="docutils literal"><span class="pre">specialties</span></code> or <code class="docutils literal"><span class="pre">video</span></code>, a string can be used, e.g.,
+<code class="docutils literal"><span class="pre">...image_type='ultrasound')</span></code>. For multiple values, a list or tuple must be used,
+e.g., <code class="docutils literal"><span class="pre">...image_type=('ct',</span> <span class="pre">'mri')</span></code>.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -375,6 +382,54 @@ and &#8216;journal_title&#8217; columns.</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">dict</span></code></p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biovida.images.interface_support.openi.openi_text_processing.im_drop_contradictions">
+<code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">im_drop_contradictions</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_processing.html#im_drop_contradictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.im_drop_contradictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for and eliminate contradictions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>values</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biovida.images.interface_support.openi.openi_text_processing.im_formatter">
+<code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">im_formatter</code><span class="sig-paren">(</span><em>dictionary</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_processing.html#im_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.im_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format the output; form: &#8216;formal modality name: subtype1; subtype2; ...&#8217;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dictionary</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biovida.images.interface_support.openi.openi_text_processing.im_scan">
+<code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">im_scan</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_processing.html#im_scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.im_scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan a <code class="docutils literal"><span class="pre">source</span></code> for modality information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>source</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
 </tr>
 </tbody>
 </table>

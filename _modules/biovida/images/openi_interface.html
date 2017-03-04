@@ -482,7 +482,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No Search Criterion Detected. Please specify criterion to narrow your search.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Extract the function arguments</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">}</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">}</span>
 
         <span class="c1"># Merge `image_type` with `exclusions`</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclusions_img_type_merge</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclusions</span><span class="p">)</span>
@@ -1239,7 +1239,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Search</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">,</span> <span class="n">print_options</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpeniInterface.search"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-               <span class="n">query</span><span class="p">,</span>
+               <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">rankby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">article_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1258,21 +1258,21 @@
 <span class="sd">        :param query: a search term. ``None`` will be converted to an empty string.</span>
 <span class="sd">        :type query: ``str`` or ``None``</span>
 <span class="sd">        :param image_type: see ``OpeniInterface().options(&#39;image_type&#39;)`` for valid values.</span>
-<span class="sd">        :type image_type: ``list``, ``tuple`` or ``None``</span>
+<span class="sd">        :type image_type: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param rankby: see ``OpeniInterface().options(&#39;rankby&#39;)`` for valid values.</span>
-<span class="sd">        :type rankby: ``list``, ``tuple`` or ``None``</span>
+<span class="sd">        :type rankby: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param article_type: see ``OpeniInterface().options(&#39;article_type&#39;)`` for valid values.</span>
-<span class="sd">        :type article_type: ``list``, ``tuple`` or ``None``</span>
+<span class="sd">        :type article_type: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param subset: see ``OpeniInterface().options(&#39;subset&#39;)`` for valid values.</span>
-<span class="sd">        :type subset: ``list``, ``tuple`` or ``None``</span>
+<span class="sd">        :type subset: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param collection: see ``OpeniInterface().options(&#39;collection&#39;)`` for valid values.</span>
-<span class="sd">        :type collection: ``list``, ``tuple`` or ``None``</span>
+<span class="sd">        :type collection: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param fields: see ``OpeniInterface().options(&#39;fields&#39;)`` for valid values.</span>
-<span class="sd">        :type fields: ``list``, ``tuple`` or ``None``</span>
+<span class="sd">        :type fields: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param specialties: see ``OpeniInterface().options(&#39;specialties&#39;)`` for valid values.</span>
-<span class="sd">        :type specialties: ``list``, ``tuple`` or ``None``</span>
-<span class="sd">        :param video: see ``OpeniInterface().options(&#39;video&#39;)`` for valid values. Defaults to ``None``.</span>
-<span class="sd">        :type video: ``list``, ``tuple`` or ``None``</span>
+<span class="sd">        :type specialties: ``str``, ``list``, ``tuple`` or ``None``</span>
+<span class="sd">        :param video: see ``OpeniInterface().options(&#39;video&#39;)`` for valid values.</span>
+<span class="sd">        :type video: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param exclusions: one or both of: &#39;graphics&#39;, &#39;multipanel&#39;. Defaults to ``[&#39;graphics&#39;]``.</span>
 
 <span class="sd">                    .. note::</span>
@@ -1284,6 +1284,14 @@
 <span class="sd">        :type exclusions: ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param print_results: if ``True``, print the number of search results.</span>
 <span class="sd">        :type print_results: ``bool``</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">                If passing a single option to ``image_type``, ``rankby``, ``article_type``, ``subset``,</span>
+<span class="sd">                ``collection``, ``fields``, ``specialties`` or ``video``, a string can be used, e.g.,</span>
+<span class="sd">                ``...image_type=&#39;ultrasound&#39;)``. For multiple values, a list or tuple must be used,</span>
+<span class="sd">                e.g., ``...image_type=(&#39;ct&#39;, &#39;mri&#39;)``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Note this simply wraps ``_OpeniSearch().search()``.</span>
         <span class="n">search</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Search</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
