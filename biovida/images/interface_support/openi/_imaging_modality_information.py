@@ -90,8 +90,8 @@ ct_and_mri = [
 
 # Define a dictionary to use when there is a match for an item in ``terms_dict``.
 modality_subtypes = deepcopy(modality_specific_subtypes)
-modality_subtypes['ct'] += ct_mri_xray + ct_and_mri + [contrast + ['contrast ct']]
-modality_subtypes['mri'] += ct_mri_xray + ct_and_mri + [contrast + ['contrast mr']]
+modality_subtypes['ct'] += ct_mri_xray + ct_and_mri + [contrast + [' contrast ct ', ' contrast-ct ']]
+modality_subtypes['mri'] += ct_mri_xray + ct_and_mri + [contrast + [' contrast mr ', ' contrast-mr ']]
 modality_subtypes['x-ray'] = ct_mri_xray
 
 
@@ -103,7 +103,7 @@ modality_subtypes['x-ray'] = ct_mri_xray
 # Add contradictions to block
 contradictions = [
     ['t1', 't2'],
-    ['non-contrast', 'contrast-enhanced'],
+    ['contrast-enhanced', 'non-contrast'],
     ['pre-contrast', 'post-contrast'],
     ['gadolinium', 'post-gadolinium'],
 ]

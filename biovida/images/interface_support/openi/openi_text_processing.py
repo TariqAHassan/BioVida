@@ -506,7 +506,7 @@ def _imaging_modality_guess(abstract, image_caption, image_mention):
                 # look for those that may not be modality specific).
                 if k in modality_subtypes:
                     for v2 in modality_subtypes[k]:
-                        if any(i in source for i in v2):
+                        if any(j in source for j in v2):
                             matches[k].add(cln(v2[0]))
 
         # 2. Look for subtype matches which can be used to infer the modality itself.
