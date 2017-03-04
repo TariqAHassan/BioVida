@@ -479,6 +479,70 @@ def _illness_duration_guess(history, abstract, image_caption, image_mention):
 # ----------------------------------------------------------------------------------------------------------
 
 
+def im_scan(source):
+    """
+
+    Scan a ``source`` for modality information.
+
+    :param source:
+    :return:
+    """
+    # 1. Look for modality matches
+    matches = defaultdict(set)
+    for k, v in terms_dict.items():
+        if any(i in source for i in v[0]):
+            # Add that the `k` modality was found (e.g., 'mri').
+            matches[k].add(None)
+            # Scan `source` for subtypes (taking the optunity to
+            # look for those that may not be modality specific).
+            if k in modality_subtypes:
+                for v2 in modality_subtypes[k]:
+                    if any(j in source for j in v2):
+                        matches[k].add(cln(v2[0]))
+
+    # 2. Look for subtype matches which can be used to infer the modality itself.
+    for k, v in modality_specific_subtypes.items():
+        for i in v:
+            if any(j in source for j in i):
+                matches[k].add(cln(i[0]))
+
+    if len(matches.keys()) != 1:
+        return None
+    else:
+        return {k: list(filter(None, v)) for k, v in matches.items()}
+
+
+def im_drop_contradictions(values):
+    """
+
+    Check for and eliminate contradictions.
+
+    :param values:
+    :return:
+    """
+    for c in contradictions:
+        if all(i in values for i in c):
+            values = [m for m in values if m not in c]
+    return values
+
+
+def im_formatter(dictionary):
+    """
+
+    Format the output; form: 'formal modality name: subtype1; subtype2; ...'.
+
+    :param dictionary:
+    :return:
+    """
+    modality = list(dictionary.keys())[0]
+    modality_formal_name = terms_dict[modality][-1]
+    values = im_drop_contradictions(set(dictionary[modality]))
+    if not len(values):
+        return modality_formal_name
+    else:
+        return "{0}: {1}".format(modality_formal_name, "; ".join(sorted(values)))
+
+
 def _imaging_modality_guess(abstract, image_caption, image_mention):
     """
 
@@ -494,55 +558,12 @@ def _imaging_modality_guess(abstract, image_caption, image_mention):
     :return: imaging modality.
     :rtype: ``str`` or ``None``
     """
-    def scan(source):
-        """Scan a ``source`` for modality information."""
-        # 1. Look for modality matches
-        matches = defaultdict(set)
-        for k, v in terms_dict.items():
-            if any(i in source for i in v[0]):
-                # Add that the `k` modality was found (e.g., 'mri').
-                matches[k].add(None)
-                # Scan `source` for subtypes (taking the optunity to
-                # look for those that may not be modality specific).
-                if k in modality_subtypes:
-                    for v2 in modality_subtypes[k]:
-                        if any(j in source for j in v2):
-                            matches[k].add(cln(v2[0]))
-
-        # 2. Look for subtype matches which can be used to infer the modality itself.
-        for k, v in modality_specific_subtypes.items():
-            for i in v:
-                if any(j in source for j in i):
-                    matches[k].add(cln(i[0]))
-
-        if len(matches.keys()) != 1:
-            return None
-        else:
-            return {k: list(filter(None, v)) for k, v in matches.items()}
-
-    def drop_contradictions(values):
-        """Check for and eliminate contradictions."""
-        for c in contradictions:
-            if all(i in values for i in c):
-                values = [m for m in values if m not in c]
-        return values
-
-    def formatter(dictionary):
-        """Format the output; form: 'formal modality name: subtype1; subtype2; ...'."""
-        modality = list(dictionary.keys())[0]
-        modality_formal_name = terms_dict[modality][-1]
-        values = drop_contradictions(set(dictionary[modality]))
-        if not len(values):
-            return modality_formal_name
-        else:
-            return "{0}: {1}".format(modality_formal_name, "; ".join(sorted(values)))
-
     # Try to return by scanning `image_caption`, `image_mention` and `abstract`
     for source in (image_caption, image_mention, abstract):
         if isinstance(source, str):
-            scan_rslt = scan(source=cln(source).lower())
+            scan_rslt = im_scan(source=cln(source).lower())
             if isinstance(scan_rslt, dict) and len(scan_rslt.keys()) == 1:
-                return formatter(scan_rslt)
+                return im_formatter(scan_rslt)
     else:
         return None  # capitulate
 
