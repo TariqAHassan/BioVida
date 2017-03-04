@@ -194,7 +194,8 @@ def _pandas_series_alignment(pandas_series, justify):
         if isinstance(x, list) or 'ndarray' in str(type(x)):
             return "[{0}]".format(", ".join(map(str, list(x))))
         elif isinstance(x, tuple):
-            return "({0})".format(", ".join(map(str, x)))
+            pattern = "({0},)" if len(x) == 1 else "({0})"
+            return pattern.format(", ".join(map(str, x)))
         elif 'pandas' in str(type(x)) and 'Timestamp' in str(type(x)):
             if all((x.hour == 0, x.minute == 0, x.second == 0)):
                 return x.strftime('%Y-%m-%d')
