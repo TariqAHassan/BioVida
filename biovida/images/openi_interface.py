@@ -91,7 +91,7 @@ class _OpeniSearch(object):
         :param args:
         :return: ``None``
         """
-        general_error_msg = "'{0}' is not valid for `{1}`.\n`{1}` must be one of:\n{2}"
+        general_error_msg = "'{0}' is not valid for `{1}`.\nValid values for `{1}`:\n{2}"
 
         # Check `query`
         if not isinstance(search_arguments['query'], str):
