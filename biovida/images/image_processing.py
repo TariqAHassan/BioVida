@@ -36,7 +36,7 @@ pd.options.mode.chained_assignment = None
 #
 #   1. Check if grayscale                                                       X
 #         - mark finding in dataframe.
-#   2. Look for MedLine(R) logo                                                 X
+#   2. Look for MedPix(R) logo                                                 X
 #         - if true, try to crop
 #   3. Look for text bar                                                        P
 #         - if true, try crop
@@ -367,10 +367,10 @@ class ImageProcessing(object):
         output_params = (match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1], return_full)
 
         # Load the Pattern. ToDo: Allow for non MedPix logos logos.
-        medline_template_img = imread(self._medpix_path, flatten=True)
+        medpix_template_img = imread(self._medpix_path, flatten=True)
 
         def robust_match_template_wrapper(img):
-            return robust_match_template(pattern_img=medline_template_img,
+            return robust_match_template(pattern_img=medpix_template_img,
                                          base_img=img,
                                          base_resizes=base_resizes,
                                          end_search_threshold=end_search_threshold,
