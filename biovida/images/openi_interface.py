@@ -313,7 +313,7 @@ class _OpeniSearch(object):
             raise ValueError("No Search Criterion Detected. Please specify criterion to narrow your search.")
 
         # Extract the function arguments
-        args = {k: v for k, v in args_cleaned.items() if k != 'exclusions'}
+        args = {k: [v] if isinstance(v, str) else v for k, v in args_cleaned.items() if k != 'exclusions'}
 
         # Merge `image_type` with `exclusions`
         args = self._exclusions_img_type_merge(args, exclusions)
@@ -1070,7 +1070,7 @@ class OpeniInterface(object):
         return self._Search.options(search_parameter, print_options)
 
     def search(self,
-               query,
+               query=None,
                image_type=None,
                rankby=None,
                article_type=None,
@@ -1089,21 +1089,21 @@ class OpeniInterface(object):
         :param query: a search term. ``None`` will be converted to an empty string.
         :type query: ``str`` or ``None``
         :param image_type: see ``OpeniInterface().options('image_type')`` for valid values.
-        :type image_type: ``list``, ``tuple`` or ``None``
+        :type image_type: ``str``, ``list``, ``tuple`` or ``None``
         :param rankby: see ``OpeniInterface().options('rankby')`` for valid values.
-        :type rankby: ``list``, ``tuple`` or ``None``
+        :type rankby: ``str``, ``list``, ``tuple`` or ``None``
         :param article_type: see ``OpeniInterface().options('article_type')`` for valid values.
-        :type article_type: ``list``, ``tuple`` or ``None``
+        :type article_type: ``str``, ``list``, ``tuple`` or ``None``
         :param subset: see ``OpeniInterface().options('subset')`` for valid values.
-        :type subset: ``list``, ``tuple`` or ``None``
+        :type subset: ``str``, ``list``, ``tuple`` or ``None``
         :param collection: see ``OpeniInterface().options('collection')`` for valid values.
-        :type collection: ``list``, ``tuple`` or ``None``
+        :type collection: ``str``, ``list``, ``tuple`` or ``None``
         :param fields: see ``OpeniInterface().options('fields')`` for valid values.
-        :type fields: ``list``, ``tuple`` or ``None``
+        :type fields: ``str``, ``list``, ``tuple`` or ``None``
         :param specialties: see ``OpeniInterface().options('specialties')`` for valid values.
-        :type specialties: ``list``, ``tuple`` or ``None``
-        :param video: see ``OpeniInterface().options('video')`` for valid values. Defaults to ``None``.
-        :type video: ``list``, ``tuple`` or ``None``
+        :type specialties: ``str``, ``list``, ``tuple`` or ``None``
+        :param video: see ``OpeniInterface().options('video')`` for valid values.
+        :type video: ``str``, ``list``, ``tuple`` or ``None``
         :param exclusions: one or both of: 'graphics', 'multipanel'. Defaults to ``['graphics']``.
 
                     .. note::
@@ -1115,6 +1115,14 @@ class OpeniInterface(object):
         :type exclusions: ``list``, ``tuple`` or ``None``
         :param print_results: if ``True``, print the number of search results.
         :type print_results: ``bool``
+
+        .. note::
+
+                If passing a single option to ``image_type``, ``rankby``, ``article_type``, ``subset``,
+                ``collection``, ``fields``, ``specialties`` or ``video``, a string can be used, e.g.,
+                ``...image_type='ultrasound')``. For multiple values, a list or tuple must be used,
+                e.g., ``...image_type=('ct', 'mri')``.
+
         """
         # Note this simply wraps ``_OpeniSearch().search()``.
         search = self._Search.search(query=query,
