@@ -816,9 +816,9 @@ class _OpeniImages(object):
         :type images_sleep_time: ``tuple``
         :param image_size: see ``pull_images()``
         :type image_size: ``str``
-        :param use_image_caption: block downloading of an image if its caption suggests the presence
+        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
-                                  a dataset intended for machine learning.
+                                  a dataset intended for machine learning. Defaults to ``False``.
         :type use_image_caption: ``bool``
         """
         if self._verbose:
@@ -859,9 +859,9 @@ class _OpeniImages(object):
                                    Note: noise is randomly added to the sleep time by sampling from a normal distribution
                                    (with mean = 0, sd = 0.75).
         :type images_sleep_time: ``tuple``
-        :param use_image_caption: block downloading of an image if its caption suggests the presence
+        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
-                                  a dataset intended for machine learning.
+                                  a dataset intended for machine learning. Defaults to ``False``.
         :type use_image_caption: ``bool``
         :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
@@ -1169,7 +1169,7 @@ class OpeniInterface(object):
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 60.
         :type download_limit: ``int``
-        :param use_image_caption: block downloading of an image if its caption suggests the presence
+        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
                                   a dataset intended for machine learning. Defaults to ``False``.
         :type use_image_caption: ``bool``
