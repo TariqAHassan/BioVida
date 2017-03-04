@@ -4,9 +4,6 @@
     ~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
-from biovida.support_tools.support_tools import is_int
-
 # Subpackage Unification Tools -- Images
 from biovida.images._unify_images_against_other_biovida_apis import _images_unify
 
