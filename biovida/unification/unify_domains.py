@@ -75,9 +75,9 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
 
     :Example:
 
+    >>> from biovida.images import OpeniInterface
+    >>> from biovida.images import CancerImageInterface
     >>> from biovida.unification import unify_against_images
-    >>> from biovida.images.openi_interface import OpeniInterface
-    >>> from biovida.images.cancer_image_interface import CancerImageInterface
     ...
     >>> opi = OpeniInterface()
     # --- Search and Pull ---
