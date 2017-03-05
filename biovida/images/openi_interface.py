@@ -32,18 +32,13 @@ from biovida.images._image_tools import record_update_dbs_joiner
 from biovida.images.interface_support.openi._openi_support_tools import iter_join
 from biovida.images.interface_support.openi._openi_support_tools import url_combine
 from biovida.images.interface_support.openi._openi_support_tools import null_convert
-from biovida.images.interface_support.openi._openi_support_tools import ensure_records_db_hashable
 from biovida.images.interface_support.openi._openi_support_tools import ImageProblemBasedOnText
 
 # Open-i API Parameters Information
-from biovida.images.interface_support.openi._openi_parameters import openi_image_type_params
 from biovida.images.interface_support.openi._openi_parameters import openi_search_information
-from biovida.images.interface_support.openi._openi_parameters import openi_article_type_params
-from biovida.images.interface_support.openi._openi_parameters import openi_image_type_modality_full
 
-# Tools for Text Feature Extraction
-from biovida.images.interface_support.openi.openi_text_processing import feature_extract
-from biovida.images.interface_support.openi.openi_text_processing import _html_text_clean
+# Oeni-i Raw Text Processing
+from biovida.images.interface_support.openi._clean_raw_text_data import openi_raw_extract_and_clean
 
 # Cache Managment
 from biovida.support_tools._cache_management import package_cache_creator
@@ -360,21 +355,25 @@ class _OpeniRecords(object):
         """
 
         :param root_url: suggested: 'https://openi.nlm.nih.gov'
+        :type root_url: ``str``
         :param date_format: suggested: "%d/%m/%Y" (consider leaving as datetime)
+        :type date_format: ``str``
         :param verbose: print additional details.
-        :param cache_path:
+        :type verbose: ``bool``
+        :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
+                       one will created. Default to ``None``, which will generate a cache in the home folder.
+        :type cache_path: ``str``
         :param req_limit: Defaults to 30 (max allowed by Open-i; see: https://openi.nlm.nih.gov/services.php?it=xg).
+        :type req_limit: ``int``
         """
         self.root_url = root_url
         self.date_format = date_format
         self._verbose = verbose
+        self._cache_path = cache_path
         self.req_limit = req_limit
 
         self.records_df = None
         self.download_limit = 60  # set to reasonable default.
-
-        # Obtain a list of disease names
-        self._list_of_diseases = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()['name'].tolist()
 
         # Sleep Time
         self.records_sleep_time = None
@@ -555,74 +554,6 @@ class _OpeniRecords(object):
 
         return harvested_data
 
-    def _df_clean(self, data_frame):
-        """
-
-        :param data_frame:
-        :rtype data_frame: ``Pandas DataFrame``
-        :return:
-        """
-        # Clean the abstract
-        data_frame['abstract'] = data_frame.apply(
-            lambda x: _html_text_clean(x['abstract'], 'both', parse_medpix='medpix' in str(x['journal_title']).lower()),
-            axis=1)
-
-        # Add the full name for modalities (before the 'image_modality_major' values are altered below).
-        data_frame['modality_full'] = data_frame['image_modality_major'].map(
-            lambda x: openi_image_type_modality_full.get(cln(x).lower(), x), na_action='ignore')
-
-        # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
-        data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
-            lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore')
-
-        # Look up the article type
-        data_frame['article_type'] = data_frame['article_type'].map(
-            lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore')
-
-        # Label the number of instance of repeating 'uid's.
-        data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
-
-        # Replace 'Not Available' and 'IN PROGRESS' with NaN
-        to_nan = ('[nN]ot [aA]vailable.?', '[Nn]one.?', '[Nn]/[Aa]', '[Nn][Aa]',
-                  '[Ii][Nn] [Pp][Rr][Oo][Gg][Rr][Ee][Ss][Ss].?')
-        data_frame = data_frame.replace(dict.fromkeys(to_nan, np.NaN), regex=True)
-
-        # Replace the 'Replace this - ' placeholder with NaN
-        data_frame['image_caption'] = data_frame['image_caption'].map(
-            lambda x: np.NaN if isinstance(x, str) and cln(x).lower().startswith('replace this - ') else x,
-            na_action='ignore')
-
-        return data_frame
-
-    def _df_processing(self, data_frame):
-        """
-
-        Clean and Extract features from ``data_frame``.
-
-        :param data_frame:
-        :rtype data_frame: ``Pandas DataFrame``
-        :return:
-        """
-        # Convert column names to snake_case
-        data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
-
-        # Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
-        data_frame = ensure_records_db_hashable(data_frame)
-
-        # Run Feature Extracting Tool and Join with `data_frame`.
-        if self._verbose:
-            print("\nExtracting Text Features...\n")
-        pp = pd.DataFrame(data_frame.progress_apply(
-            lambda x: feature_extract(x, list_of_diseases=self._list_of_diseases), axis=1).tolist()).fillna(np.NaN)
-        data_frame = data_frame.join(pp, how='left')
-
-        if self._verbose:
-            print("\nCleaning Text Information...\n")
-        # Clean the abstract
-        data_frame = self._df_clean(data_frame)
-
-        return data_frame
-
     def records_pull(self,
                      search_url,
                      to_harvest,
@@ -666,8 +597,10 @@ class _OpeniRecords(object):
         # Convert to a DataFrame
         records_df = pd.DataFrame(harvest).fillna(np.NaN)
 
-        # Clean and Extract Features
-        records_df = self._df_processing(records_df)
+        # Process Text
+        records_df = openi_raw_extract_and_clean(data_frame=records_df,
+                                                 verbose=self._verbose,
+                                                 cache_path=self._cache_path)
 
         # Add the query
         records_df['query'] = [query] * records_df.shape[0]

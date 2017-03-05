@@ -1,7 +1,7 @@
 """
 
-    Support Tools for the `images` Subpackage
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    General Support Tools for ``openi_interface()._OpeniRecords()``
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
 # Imports
@@ -12,16 +12,10 @@ from urllib.parse import urlsplit # handle python 2
 # General Support tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools._support_data import age_dict
-from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import items_null
 
 # Regex for ``extract_float()``
 non_decimal = re.compile(r'[^\d.]+')
-
-
-# ----------------------------------------------------------------------------------------------------------
-# General Support Tools
-# ----------------------------------------------------------------------------------------------------------
 
 
 class ImageProblemBasedOnText(Exception):
@@ -156,7 +150,7 @@ def num_word_to_int(input_str):
     :rtype: ``str``
     """
     for w, i in age_dict.items():
-        for case in [w.upper(), w.lower(), w.title()]: # not perfect, but should do
+        for case in [w.upper(), w.lower(), w.title()]:  # not perfect, but should do
             input_str = input_str.replace(case, str(i))
     return input_str
 
@@ -172,54 +166,6 @@ def url_path_extract(url):
     :rtype: ``str``
     """
     return urlsplit(url).path[1:].replace("/", "__")
-
-
-def _mesh_cleaner(mesh):
-    """
-
-    Clean mesh terms by cleaning them.
-
-    :param mesh: a list of mesh terms.
-    :type mesh: ``tuple`` or ``list``
-    :return: a cleaned tuple of mesh terms.
-    :rtype: ``tuple`` or ``type(mesh)``
-    """
-    if isinstance(mesh, (list, tuple)):
-        return tuple([cln(unescape(i)) if isinstance(i, str) else i for i in mesh])
-    else:
-        return mesh
-
-
-def ensure_records_db_hashable(data_frame):
-    """
-
-    Ensure the records dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
-
-    :param data_frame: the dataframe evolved inside ``biovida.images.openi_interface._OpeniRecords()._df_processing()``.
-    :type data_frame: ``Pandas DataFrame``
-    :return: ``data_frame`` corrected such that all columns considered can be hashed.
-    :rtype: ``Pandas DataFrame``
-    """
-    # Escape HTML elements in the 'image_caption' and 'image_mention' columns.
-    for c in ('image_caption', 'image_mention'):
-        data_frame[c] = data_frame[c].map(lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
-
-    # Clean mesh terms
-    for c in ('mesh_major', 'mesh_minor'):
-        data_frame[c] = data_frame[c].map(_mesh_cleaner, na_action='ignore')
-
-    # Conver all elements in the 'license_type' and 'license_url' columns to string.
-    for c in ('license_type', 'license_url'):
-        data_frame[c] = data_frame[c].map(lambda x: "; ".join(map(str, x)) if isinstance(x, (list, tuple)) else x,
-                                          na_action='ignore')
-
-    return data_frame
-
-
-
-
-
-
 
 
 
