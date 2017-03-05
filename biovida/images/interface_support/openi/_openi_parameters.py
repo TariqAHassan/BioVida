@@ -84,11 +84,11 @@ openi_subset_params = {
 
 
 openi_collection_params = {
-    'pmc': 'pubmed_central',
+    'pmc': 'pubmed',
     'hmd': 'history_of_medicine',
-    'iu': 'indiana_u_chest',
+    'iu': 'indiana_u_xray',
     'mpx': 'medpix',
-    'usc': 'usc_ortho_anatomy',
+    'usc': 'usc_anatomy',
 }
 
 
