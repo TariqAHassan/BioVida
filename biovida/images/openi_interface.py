@@ -38,7 +38,7 @@ from biovida.images.interface_support.openi._openi_support_tools import ImagePro
 from biovida.images.interface_support.openi._openi_parameters import openi_search_information
 
 # Oeni-i Raw Text Processing
-from biovida.images.interface_support.openi._clean_raw_text_data import openi_raw_extract_and_clean
+from biovida.images.interface_support.openi._openi_text_processing import openi_raw_extract_and_clean
 
 # Cache Managment
 from biovida.support_tools._cache_management import package_cache_creator

@@ -22,10 +22,10 @@ from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import items_null
 
 # Data
-from biovida.images.interface_support.openi._imaging_modality_information import (terms_dict,
-                                                                                  modality_subtypes,
-                                                                                  contradictions,
-                                                                                  modality_specific_subtypes)
+from biovida.images.interface_support.openi._openi_imaging_modality_information import (terms_dict,
+                                                                                        modality_subtypes,
+                                                                                        contradictions,
+                                                                                        modality_specific_subtypes)
 
 
 # ----------------------------------------------------------------------------------------------------------

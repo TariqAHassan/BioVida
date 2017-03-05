@@ -24,8 +24,8 @@ from biovida.images.interface_support.openi._openi_parameters import openi_artic
 from biovida.images.interface_support.openi._openi_parameters import openi_image_type_modality_full
 
 # Tools for Text Feature Extraction
-from biovida.images.interface_support.openi.openi_text_processing import feature_extract
-from biovida.images.interface_support.openi.openi_text_processing import _html_text_clean
+from biovida.images.interface_support.openi.openi_text_feature_extraction import feature_extract
+from biovida.images.interface_support.openi.openi_text_feature_extraction import _html_text_clean
 
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
