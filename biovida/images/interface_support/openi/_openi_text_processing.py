@@ -67,8 +67,13 @@ def _df_make_hashable(data_frame):
 
     # Convert all elements in the 'license_type' and 'license_url' columns to string.
     for c in ('license_type', 'license_url'):
-        data_frame[c] = data_frame[c].map(lambda x: "; ".join(map(str, x)) if isinstance(x, (list, tuple)) else x,
-                                          na_action='ignore')
+        if c in data_frame.columns:
+            data_frame[c] = data_frame[c].map(lambda x: "; ".join(map(str, x)) if isinstance(x, (list, tuple)) else x,
+                                              na_action='ignore')
+        else:
+            # Handle cases where some searches (e.g., collection='pubmed')
+            # Open-i does not return these columns (not clear why...).
+            data_frame[c] = [np.NaN] * data_frame.shape[0]
 
     return data_frame
 
