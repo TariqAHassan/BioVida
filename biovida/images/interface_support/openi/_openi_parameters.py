@@ -125,7 +125,8 @@ openi_article_type_params = {
     'sr': 'systematic_reviews',
     'rr': 'radiology_report',
     'os': 'orthopedic_slides',
-    'hs': 'historical_slide'
+    'hs': 'historical_slide',
+    'ot': 'other'
 }
 
 
