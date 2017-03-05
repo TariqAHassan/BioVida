@@ -703,7 +703,6 @@
         <span class="sd">&quot;&quot;&quot;</span>
 
 
-
 <span class="sd">        :param bounds_list:</span>
 <span class="sd">        :param joined_url:</span>
 <span class="sd">        :param to_harvest:</span>
@@ -712,28 +711,20 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Initialize</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">harvested_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-
-        <span class="c1"># Print Header</span>
         <span class="n">header</span><span class="p">(</span><span class="s2">&quot;Downloading Records... &quot;</span><span class="p">)</span>
 
-        <span class="c1"># Print updates</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Number of Records to Download: </span><span class="si">{0}</span><span class="s2"> (maximum chunk size: </span><span class="si">{1}</span><span class="s2"> rows).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Number of Records to Download: </span><span class="si">{0}</span><span class="s2"> (chunk size: </span><span class="si">{1}</span><span class="s2"> records).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="s1">&#39;</span><span class="si">{:,.0f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">download_no</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span><span class="p">)))</span>
 
-        <span class="k">for</span> <span class="n">bound</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">bounds_list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">bound</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">bounds_list</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">c</span> <span class="o">%</span> <span class="n">records_sleep_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sleep_with_noise</span><span class="p">(</span><span class="n">amount_of_time</span><span class="o">=</span><span class="n">records_sleep_time</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
             <span class="c1"># Harvest</span>
             <span class="n">harvested_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openi_block_harvest</span><span class="p">(</span><span class="n">joined_url</span><span class="p">,</span> <span class="n">bound</span><span class="p">,</span> <span class="n">to_harvest</span><span class="p">)</span>
 
-            <span class="c1"># Update counter</span>
-            <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="c1"># Return</span>
         <span class="k">return</span> <span class="n">harvested_data</span>
 
     <span class="k">def</span> <span class="nf">_df_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">):</span>
@@ -1289,8 +1280,8 @@
 
 <span class="sd">                If passing a single option to ``image_type``, ``rankby``, ``article_type``, ``subset``,</span>
 <span class="sd">                ``collection``, ``fields``, ``specialties`` or ``video``, a string can be used, e.g.,</span>
-<span class="sd">                ``...image_type=&#39;ultrasound&#39;)``. For multiple values, a list or tuple must be used,</span>
-<span class="sd">                e.g., ``...image_type=(&#39;ct&#39;, &#39;mri&#39;)``.</span>
+<span class="sd">                ``...image_type=&#39;ct&#39;)``. For multiple values, a list or tuple must be used, e.g.,</span>
+<span class="sd">                ``...image_type=(&#39;ct&#39;, &#39;mri&#39;)``.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Note this simply wraps ``_OpeniSearch().search()``.</span>
