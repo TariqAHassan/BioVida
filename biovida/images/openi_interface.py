@@ -282,25 +282,22 @@ class _OpeniSearch(object):
         :param query: a search term. ``None`` will be converted to an empty string.
         :type query: ``str`` or ``None``
         :param image_type: see ``OpeniInterface().options('image_type')`` for valid values.
-        :type image_type: ``list``, ``tuple`` or ``None``.
+        :type image_type: ``str``, ``list``, ``tuple`` or ``None``
         :param rankby: see ``OpeniInterface().options('rankby')`` for valid values.
-        :type rankby: ``list``, ``tuple`` or ``None``.
+        :type rankby: ``str``, ``list``, ``tuple`` or ``None``
         :param article_type: see ``OpeniInterface().options('article_type')`` for valid values.
-        :type article_type: ``list``, ``tuple`` or ``None``.
+        :type article_type: ``str``, ``list``, ``tuple`` or ``None``
         :param subset: see ``OpeniInterface().options('subset')`` for valid values.
-        :type subset: ``list``, ``tuple`` or ``None``.
+        :type subset: ``str``, ``list``, ``tuple`` or ``None``
         :param collection: see ``OpeniInterface().options('collection')`` for valid values.
-        :type collection: ``list``, ``tuple`` or ``None``.
+        :type collection: ``str``, ``list``, ``tuple`` or ``None``
         :param fields: see ``OpeniInterface().options('fields')`` for valid values.
-        :type fields: ``list``, ``tuple`` or ``None``.
+        :type fields: ``str``, ``list``, ``tuple`` or ``None``
         :param specialties: see ``OpeniInterface().options('specialties')`` for valid values.
-        :type specialties: ``list``, ``tuple`` or ``None``.
+        :type specialties: ``str``, ``list``, ``tuple`` or ``None``
         :param video: see ``OpeniInterface().options('video')`` for valid values. Defaults to ``None``.
-        :type video: ``list``, ``tuple`` or ``None``.
-        :param exclusions: one or both of: 'graphics', 'multipanel'.
-                           Note: excluding 'multipanel' can result in images that ARE multipanel
-                           being returned from Open-i API. For this reason, including 'multipanel'
-                           is not currently recommended. Defaults to ['graphics'].
+        :type video: ``str``, ``list``, ``tuple`` or ``None``
+        :param exclusions: one or both of: 'graphics', 'multipanel'. See: ``OpeniInterface.search()``.
         :type exclusions: ``list``, ``tuple`` or ``None``
         :param print_results: if ``True``, print the number of search results.
         :type print_results: ``bool``
@@ -1111,8 +1108,8 @@ class OpeniInterface(object):
 
                 If passing a single option to ``image_type``, ``rankby``, ``article_type``, ``subset``,
                 ``collection``, ``fields``, ``specialties`` or ``video``, a string can be used, e.g.,
-                ``...image_type='ultrasound')``. For multiple values, a list or tuple must be used,
-                e.g., ``...image_type=('ct', 'mri')``.
+                ``...image_type='ct')``. For multiple values, a list or tuple must be used, e.g.,
+                ``...image_type=('ct', 'mri')``.
 
         """
         # Note this simply wraps ``_OpeniSearch().search()``.
