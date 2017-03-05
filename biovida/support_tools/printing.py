@@ -129,6 +129,24 @@ def dict_pprint(d, max_value_length=70):
                             line breaks where there are already spaces and will not insert line breaks
                             between braces.
     :type max_value_length: ``int``
+
+    :Example:
+
+    >>> d = {
+    'part_2': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dictum nisi sed euismod consequat.'
+              'Donec tempus enim nec lorem ornare, non sagittis dolor consequat. Sed facilisis tortor vel enim mattis, '
+              'et fermentum mi posuere.',
+    'part_1': 'Duis sit amet nulla fermentum, vestibulum mauris at, porttitor massa. '
+              'Vestibulum luctus interdum mattis.'
+    }
+    >>> dict_pprint(d)
+     - Part 2:  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dictum nisi
+                sed euismod consequat.Donec tempus enim nec lorem ornare, non sagittis
+                dolor consequat. Sed facilisis tortor vel enim mattis, et fermentum
+                mi posuere.
+     - Part 1:  Duis sit amet nulla fermentum, vestibulum mauris at, porttitor massa.
+                Vestibulum luctus interdum mattis.
+
     """
     print_mold = " - {0} "
 
