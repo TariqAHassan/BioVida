@@ -85,9 +85,9 @@ def _df_fill_nan(data_frame):
     """
     to_nan = ('[nN]ot [aA]vailable.?', '[Nn]one.?', '[Nn]/[Aa]', '[Nn][Aa]',
               '[Ii][Nn] [Pp][Rr][Oo][Gg][Rr][Ee][Ss][Ss].?')
-    # Anchor (i.e., extract matches required; 'NA' = allowed; 'here we see NA' = blocked.
-    formatted_to_nan = map(lambda x: "^{0}$".format(x), to_nan)
-    data_frame = data_frame.replace(dict.fromkeys(formatted_to_nan, np.NaN), regex=True)
+    # Anchor (i.e., exact matches are required, e.g., "NA" --> NaN, but "here we see NA" will not be converted).
+    anchored_to_nan = map(lambda x: "^{0}$".format(x), to_nan)
+    data_frame = data_frame.replace(dict.fromkeys(anchored_to_nan, np.NaN), regex=True)
 
     # Replace the 'replace this - ' placeholder with NaN
     data_frame['image_caption'] = data_frame['image_caption'].map(
