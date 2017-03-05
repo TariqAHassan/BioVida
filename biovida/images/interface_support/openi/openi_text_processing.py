@@ -618,7 +618,7 @@ def _extract_enumerations(input_str):
 
     # Markers which denote the possible presence of an enumeration.
     markers_left = ("(", "[")
-    markers_right = ('.', ")", "]")
+    markers_right = (".", ",", ")", "]")
 
     # Add a marker to the end of `cleaned_input`
     cleaned_input = cleaned_input + ")" if cleaned_input[-1] not in markers_right else cleaned_input
@@ -709,6 +709,41 @@ def _enumerations_guess(image_caption, enumerations_grid_threshold):
 
 
 # ----------------------------------------------------------------------------------------------------------
+# Markers (inferred from the text)
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _markers_guess(image_caption):
+    """
+
+    Currently detects the mention of 'arrows' and 'asterisks' in the image,
+    based on the text.
+
+    :param image_caption: an element from the 'image_caption' column.
+    :type image_caption: ``str``
+    :return: whether or not the image contains markers, based on the text.
+    :rtype: ``bool``
+    """
+    features = set()
+
+    image_caption_clean = cln(image_caption).lower()
+    for term in ('arrow', 'asterisk'):
+        # Look for arrows or asterisk.
+        match_on = tuple(map(lambda x: x.format(term), (' {0} ', ' {0}', ' {0}s ', ' {0}s')))
+        # Example: '...which are indiciated by the asterisks...'
+        if any(i in image_caption_clean for i in match_on):
+            features.add("{0}s".format(term))
+        # Example: '...along the left side (arrows)...'
+        elif len(re.findall(r'[(|\[]' + term + 's?[)|\]]', image_caption_clean)):
+            features.add("{0}s".format(term))
+        # Example: '...to the left (red arrows)...'
+        elif len(re.findall(r'[(|\[].*? ' + term + 's?[)|\]]', image_caption_clean)):
+            features.add("{0}s".format(term))
+
+    return list(features)
+
+
+# ----------------------------------------------------------------------------------------------------------
 # Image Problems (Detected by Analysing their Associated Text)
 # ----------------------------------------------------------------------------------------------------------
 
@@ -727,22 +762,23 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
     :type enumerations_grid_threshold: ``int``
     :return: information on the presence of problematic image features.
     :rtype: ``tuple``
+
+    :Example:
+
+    >>> _problematic_image_features(image_caption='1. left (green asterisk). 2. On the left (red arrow) we see...')
+    ...
+    ('arrows', 'asterisks', 'grids')
     """
     # Initialize
     features = []
-    molds = (' {0} ', ' {0}', ' {0}s ', ' {0}s', '({0})', '({0}s)', '[{0}]', '[{0}s]')
 
-    image_caption_clean = cln(image_caption).lower()
-    for term in ('arrow', 'asterisk'):
-        # Look for arrows or asterisk
-        match_on = tuple(map(lambda x: x.format(term), molds))
-        if any(i in image_caption_clean for i in match_on):
-            features.append("{0}s".format(term))
+    # Look for markers
+    features += _markers_guess(image_caption)
 
     if _enumerations_guess(image_caption, enumerations_grid_threshold):
         features.append('grids')
     
-    return tuple(features) if len(features) else None
+    return tuple(sorted(features)) if len(features) else None
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -825,8 +861,6 @@ def feature_extract(x, list_of_diseases):
 
     # Lower keys and return
     return {k.lower(): v for k, v in d.items()}
-
-
 
 
 
