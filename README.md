@@ -188,10 +188,10 @@ Diagnostics
    
       * Kibbe, Warren A., Cesar Arze, Victor Felix, Elvira Mitraka, Evan Bolton, Gang Fu, Christopher J. Mungall et al.
         Disease Ontology 2015 update: an expanded and updated database of human diseases for linking biomedical
-        knowledge through disease data. Nucleic acids research (2014). doi:[10.1093/nar/gku1011].
+        knowledge through disease data. Nucl. Acids Res. (2014). doi:[10.1093/nar/gku1011].
         
       * Schriml, Lynn Marie, Cesar Arze, Suvarna Nadendla, Yu-Wei Wayne Chang, Mark Mazaitis, Victor Felix, Gang Feng,
-        and Warren Alden Kibbe. Disease Ontology: a backbone for disease semantic integration. Nucleic acids research.
+        and Warren Alden Kibbe. Disease Ontology: a backbone for disease semantic integration. Nucl. Acids Res. (2012).
         doi:[10.1093/nar/gkr972].
     
    - Human Symptoms Disease Network
