@@ -19,6 +19,11 @@ from biovida.support_tools.support_tools import items_null
 non_decimal = re.compile(r'[^\d.]+')
 
 
+# ----------------------------------------------------------------------------------------------------------
+# General Support Tools
+# ----------------------------------------------------------------------------------------------------------
+
+
 class ImageProblemBasedOnText(Exception):
     pass
 
@@ -185,7 +190,7 @@ def _mesh_cleaner(mesh):
         return mesh
 
 
-def ensure_hashable(data_frame):
+def ensure_records_db_hashable(data_frame):
     """
 
     Ensure the records dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).

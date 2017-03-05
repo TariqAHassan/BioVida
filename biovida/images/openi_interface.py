@@ -32,7 +32,7 @@ from biovida.images._image_tools import record_update_dbs_joiner
 from biovida.images.interface_support.openi._openi_support_tools import iter_join
 from biovida.images.interface_support.openi._openi_support_tools import url_combine
 from biovida.images.interface_support.openi._openi_support_tools import null_convert
-from biovida.images.interface_support.openi._openi_support_tools import ensure_hashable
+from biovida.images.interface_support.openi._openi_support_tools import ensure_records_db_hashable
 from biovida.images.interface_support.openi._openi_support_tools import ImageProblemBasedOnText
 
 # Open-i API Parameters Information
@@ -374,7 +374,7 @@ class _OpeniRecords(object):
         self.download_limit = 60  # set to reasonable default.
 
         # Obtain a list of disease names
-        self.list_of_diseases = DiseaseOntInterface(cache_path=cache_path).pull()['name'].tolist()
+        self._list_of_diseases = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()['name'].tolist()
 
         # Sleep Time
         self.records_sleep_time = None
@@ -555,30 +555,13 @@ class _OpeniRecords(object):
 
         return harvested_data
 
-    def _df_processing(self, data_frame):
+    def _df_clean(self, data_frame):
         """
-
-        Clean and Extract features from ``data_frame``.
 
         :param data_frame:
         :rtype data_frame: ``Pandas DataFrame``
         :return:
         """
-        # Convert column names to snake_case
-        data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
-
-        # Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
-        data_frame = ensure_hashable(data_frame)
-
-        # Run Feature Extracting Tool and Join with `data_frame`.
-        if self._verbose:
-            print("\nExtracting Text Features...\n")
-        pp = pd.DataFrame(data_frame.progress_apply(
-            lambda x: feature_extract(x, list_of_diseases=self.list_of_diseases), axis=1).tolist()).fillna(np.NaN)
-        data_frame = data_frame.join(pp, how='left')
-
-        if self._verbose:
-            print("\nCleaning Text Information...\n")
         # Clean the abstract
         data_frame['abstract'] = data_frame.apply(
             lambda x: _html_text_clean(x['abstract'], 'both', parse_medpix='medpix' in str(x['journal_title']).lower()),
@@ -607,6 +590,35 @@ class _OpeniRecords(object):
         data_frame['image_caption'] = data_frame['image_caption'].map(
             lambda x: np.NaN if isinstance(x, str) and cln(x).lower().startswith('replace this - ') else x,
             na_action='ignore')
+
+        return data_frame
+
+    def _df_processing(self, data_frame):
+        """
+
+        Clean and Extract features from ``data_frame``.
+
+        :param data_frame:
+        :rtype data_frame: ``Pandas DataFrame``
+        :return:
+        """
+        # Convert column names to snake_case
+        data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
+
+        # Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
+        data_frame = ensure_records_db_hashable(data_frame)
+
+        # Run Feature Extracting Tool and Join with `data_frame`.
+        if self._verbose:
+            print("\nExtracting Text Features...\n")
+        pp = pd.DataFrame(data_frame.progress_apply(
+            lambda x: feature_extract(x, list_of_diseases=self._list_of_diseases), axis=1).tolist()).fillna(np.NaN)
+        data_frame = data_frame.join(pp, how='left')
+
+        if self._verbose:
+            print("\nCleaning Text Information...\n")
+        # Clean the abstract
+        data_frame = self._df_clean(data_frame)
 
         return data_frame
 
