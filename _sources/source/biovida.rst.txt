@@ -21,7 +21,7 @@ biovida.images.openi_interface module
 biovida.images.interface_support.openi.openi_text_processing module
 -------------------------------------------------------------------
 
-.. automodule:: biovida.images.interface_support.openi.openi_text_processing
+.. automodule:: biovida.images.interface_support.openi.openi_text_feature_extraction
     :members:
     :undoc-members:
     :show-inheritance:

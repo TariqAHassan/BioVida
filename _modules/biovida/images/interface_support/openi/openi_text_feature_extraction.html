@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>biovida.images.interface_support.openi.openi_text_processing &#8212; BioVida 0.1.0 documentation</title>
+    <title>biovida.images.interface_support.openi.openi_text_feature_extraction &#8212; BioVida 0.1.0 documentation</title>
     
     <link rel="stylesheet" href="../../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
@@ -166,7 +166,7 @@
       </div>
     <div class="col-md-9 content">
       
-  <h1>Source code for biovida.images.interface_support.openi.openi_text_processing</h1><div class="highlight"><pre>
+  <h1>Source code for biovida.images.interface_support.openi.openi_text_feature_extraction</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Open-i Text Processing</span>
@@ -191,10 +191,10 @@
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">items_null</span>
 
 <span class="c1"># Data</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._imaging_modality_information</span> <span class="k">import</span> <span class="p">(</span><span class="n">terms_dict</span><span class="p">,</span>
-                                                                                  <span class="n">modality_subtypes</span><span class="p">,</span>
-                                                                                  <span class="n">contradictions</span><span class="p">,</span>
-                                                                                  <span class="n">modality_specific_subtypes</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_imaging_modality_information</span> <span class="k">import</span> <span class="p">(</span><span class="n">terms_dict</span><span class="p">,</span>
+                                                                                        <span class="n">modality_subtypes</span><span class="p">,</span>
+                                                                                        <span class="n">contradictions</span><span class="p">,</span>
+                                                                                        <span class="n">modality_specific_subtypes</span><span class="p">)</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -649,7 +649,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
-<div class="viewcode-block" id="im_scan"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_processing.im_scan">[docs]</a><span class="k">def</span> <span class="nf">im_scan</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+<div class="viewcode-block" id="im_scan"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_feature_extraction.im_scan">[docs]</a><span class="k">def</span> <span class="nf">im_scan</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Scan a ``source`` for modality information.</span>
@@ -682,7 +682,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
 
 
-<div class="viewcode-block" id="im_drop_contradictions"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_processing.im_drop_contradictions">[docs]</a><span class="k">def</span> <span class="nf">im_drop_contradictions</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+<div class="viewcode-block" id="im_drop_contradictions"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_feature_extraction.im_drop_contradictions">[docs]</a><span class="k">def</span> <span class="nf">im_drop_contradictions</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Check for and eliminate contradictions.</span>
@@ -696,7 +696,7 @@
     <span class="k">return</span> <span class="n">values</span></div>
 
 
-<div class="viewcode-block" id="im_formatter"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_processing.im_formatter">[docs]</a><span class="k">def</span> <span class="nf">im_formatter</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+<div class="viewcode-block" id="im_formatter"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_feature_extraction.im_formatter">[docs]</a><span class="k">def</span> <span class="nf">im_formatter</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Format the output; form: &#39;formal modality name: subtype1; subtype2; ...&#39;.</span>
@@ -960,7 +960,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
-<div class="viewcode-block" id="feature_extract"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_processing.feature_extract">[docs]</a><span class="k">def</span> <span class="nf">feature_extract</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">list_of_diseases</span><span class="p">):</span>
+<div class="viewcode-block" id="feature_extract"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_feature_extraction.feature_extract">[docs]</a><span class="k">def</span> <span class="nf">feature_extract</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">list_of_diseases</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Tool to extract text features from patient summaries.</span>
