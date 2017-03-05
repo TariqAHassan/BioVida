@@ -398,6 +398,7 @@ def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseas
     :return:
     :rtype: ``str`` or ``None``
     """
+    # ToDo: use the first disease that appears. E.g., 'Pancreatitis in patients with diabetes' -- want 'Pancreatitis'.
     possible_diseases = list()
     for source in (title, image_caption, image_mention, abstract):
         if isinstance(source, str):
@@ -610,8 +611,12 @@ def _extract_enumerations(input_str):
     ...
     ['1a', '2']
     """
-    # Clean the input
-    cleaned_input = cln(input_str, extent=2).replace("-", "").lower()
+    # Block floating point numbers, e.g., '...there are peaks at 2.3 and 3.28.'
+    # See: http://stackoverflow.com/a/4703409/4898004. (Droped second * to ignore '2.', but still catch (2.3).
+    floating_point_numbers_removed = cln(re.sub(r"[-+]?\d*\.\d+", " ", input_str))
+
+    # Futher clean the input
+    cleaned_input = cln(floating_point_numbers_removed, extent=2).replace("-", "").lower()
 
     # Define a list to populate
     enumerations = list()
