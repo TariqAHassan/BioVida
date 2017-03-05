@@ -91,7 +91,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-text-processing">Open-i Text Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-classification">Image Classification</a></li>
@@ -133,7 +132,6 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">Images</a><ul>
 <li><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
-<li><a class="reference internal" href="#open-i-text-processing">Open-i Text Processing</a></li>
 <li><a class="reference internal" href="#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li><a class="reference internal" href="#image-processing">Image Processing</a></li>
 <li><a class="reference internal" href="#image-classification">Image Classification</a></li>
@@ -176,7 +174,6 @@
         <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
 <li><a class="reference internal" href="#">Images</a><ul>
 <li><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
-<li><a class="reference internal" href="#open-i-text-processing">Open-i Text Processing</a></li>
 <li><a class="reference internal" href="#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li><a class="reference internal" href="#image-processing">Image Processing</a></li>
 <li><a class="reference internal" href="#image-classification">Image Classification</a></li>
@@ -324,115 +321,6 @@ is not currently recommended.</p>
 </div>
 </dd></dl>
 
-</dd></dl>
-
-</div>
-<span class="target" id="module-biovida.images.interface_support.openi.openi_text_processing"></span><div class="section" id="open-i-text-processing">
-<h2>Open-i Text Processing<a class="headerlink" href="#open-i-text-processing" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="biovida.images.interface_support.openi.openi_text_processing.feature_extract">
-<code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">feature_extract</code><span class="sig-paren">(</span><em>x</em>, <em>list_of_diseases</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_processing.html#feature_extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.feature_extract" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tool to extract text features from patient summaries.</p>
-<p>This function automatically generates the following columns when <code class="docutils literal"><span class="pre">OpeniInterface().pull()</span></code> is called:</p>
-<dl class="docutils">
-<dt>Exclusive to MedPix® Images:</dt>
-<dd><ul class="first last simple">
-<li>&#8216;history&#8217;</li>
-<li>&#8216;finding&#8217;</li>
-<li>&#8216;ddx&#8217; (differential diagnosis)</li>
-<li>&#8216;dxhow&#8217;</li>
-</ul>
-</dd>
-<dt>For images from all sources:</dt>
-<dd><ul class="first last simple">
-<li>&#8216;age&#8217;</li>
-<li>&#8216;sex&#8217;</li>
-<li>&#8216;ethnicity&#8217;</li>
-<li>&#8216;diagnosis&#8217;</li>
-<li>duration of illness (&#8216;illness_duration_years&#8217;)</li>
-<li>the imaging modality (e.g., MRI) used, based on the text associated with the image (&#8216;imaging_modality_from_text&#8217;)</li>
-<li>the plane of the image (&#8216;image_plane&#8217;)</li>
-<li>image problems (&#8216;arrows&#8217;, &#8216;asterisks&#8217; and &#8216;grids&#8217;) inferred from the image caption (&#8216;image_problems_from_text&#8217;)</li>
-</ul>
-</dd>
-</dl>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">For images from sources other than <em>MedPix</em>, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code> column may be inaccurate.</p>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code>) &#8211; <p>series passed though Pandas&#8217; <code class="docutils literal"><span class="pre">DataFrame().apply()</span></code> method, e.g.,
-<code class="docutils literal"><span class="pre">df.apply(lambda</span> <span class="pre">x:</span> <span class="pre">feature_extract(x,</span> <span class="pre">list_of_diseases),</span> <span class="pre">axis=1)</span></code>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The dataframe must contain &#8216;title&#8217;, &#8216;abstract&#8217;, &#8216;image_caption&#8217;, &#8216;image_mention&#8217;
-and &#8216;journal_title&#8217; columns.</p>
-</div>
-</li>
-<li><strong>list_of_diseases</strong> (<code class="docutils literal"><span class="pre">list</span></code>) &#8211; a list of diseases (e.g., via <code class="docutils literal"><span class="pre">DiseaseOntInterface().pull()['name'].tolist()</span></code>)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary with the keys listed in the description.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">dict</span></code></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="biovida.images.interface_support.openi.openi_text_processing.im_drop_contradictions">
-<code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">im_drop_contradictions</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_processing.html#im_drop_contradictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.im_drop_contradictions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check for and eliminate contradictions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>values</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="biovida.images.interface_support.openi.openi_text_processing.im_formatter">
-<code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">im_formatter</code><span class="sig-paren">(</span><em>dictionary</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_processing.html#im_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.im_formatter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Format the output; form: &#8216;formal modality name: subtype1; subtype2; ...&#8217;.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dictionary</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="biovida.images.interface_support.openi.openi_text_processing.im_scan">
-<code class="descclassname">biovida.images.interface_support.openi.openi_text_processing.</code><code class="descname">im_scan</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_processing.html#im_scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_processing.im_scan" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scan a <code class="docutils literal"><span class="pre">source</span></code> for modality information.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>source</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </div>
