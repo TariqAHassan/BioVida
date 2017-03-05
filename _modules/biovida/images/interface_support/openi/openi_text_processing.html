@@ -567,6 +567,7 @@
 <span class="sd">    :return:</span>
 <span class="sd">    :rtype: ``str`` or ``None``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ToDo: use the first disease that appears. E.g., &#39;Pancreatitis in patients with diabetes&#39; -- want &#39;Pancreatitis&#39;.</span>
     <span class="n">possible_diseases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">,</span> <span class="n">abstract</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -779,15 +780,19 @@
 <span class="sd">    ...</span>
 <span class="sd">    [&#39;1a&#39;, &#39;2&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Clean the input</span>
-    <span class="n">cleaned_input</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">input_str</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="c1"># Block floating point numbers, e.g., &#39;...there are peaks at 2.3 and 3.28.&#39;</span>
+    <span class="c1"># See: http://stackoverflow.com/a/4703409/4898004. (Droped second * to ignore &#39;2.&#39;, but still catch (2.3).</span>
+    <span class="n">floating_point_numbers_removed</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-+]?\d*\.\d+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">input_str</span><span class="p">))</span>
+
+    <span class="c1"># Futher clean the input</span>
+    <span class="n">cleaned_input</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">floating_point_numbers_removed</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
     <span class="c1"># Define a list to populate</span>
     <span class="n">enumerations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
     <span class="c1"># Markers which denote the possible presence of an enumeration.</span>
     <span class="n">markers_left</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">)</span>
-    <span class="n">markers_right</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">)</span>
+    <span class="n">markers_right</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">)</span>
 
     <span class="c1"># Add a marker to the end of `cleaned_input`</span>
     <span class="n">cleaned_input</span> <span class="o">=</span> <span class="n">cleaned_input</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span> <span class="k">if</span> <span class="n">cleaned_input</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">markers_right</span> <span class="k">else</span> <span class="n">cleaned_input</span>
@@ -878,6 +883,41 @@
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Markers (inferred from the text)</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span> <span class="nf">_markers_guess</span><span class="p">(</span><span class="n">image_caption</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Currently detects the mention of &#39;arrows&#39; and &#39;asterisks&#39; in the image,</span>
+<span class="sd">    based on the text.</span>
+
+<span class="sd">    :param image_caption: an element from the &#39;image_caption&#39; column.</span>
+<span class="sd">    :type image_caption: ``str``</span>
+<span class="sd">    :return: whether or not the image contains markers, based on the text.</span>
+<span class="sd">    :rtype: ``bool``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">image_caption_clean</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">image_caption</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;arrow&#39;</span><span class="p">,</span> <span class="s1">&#39;asterisk&#39;</span><span class="p">):</span>
+        <span class="c1"># Look for arrows or asterisk.</span>
+        <span class="n">match_on</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39; </span><span class="si">{0}</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="s1">&#39; </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39; </span><span class="si">{0}</span><span class="s1">s &#39;</span><span class="p">,</span> <span class="s1">&#39; </span><span class="si">{0}</span><span class="s1">s&#39;</span><span class="p">)))</span>
+        <span class="c1"># Example: &#39;...which are indiciated by the asterisks...&#39;</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">image_caption_clean</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">match_on</span><span class="p">):</span>
+            <span class="n">features</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term</span><span class="p">))</span>
+        <span class="c1"># Example: &#39;...along the left side (arrows)...&#39;</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[(|\[]&#39;</span> <span class="o">+</span> <span class="n">term</span> <span class="o">+</span> <span class="s1">&#39;s?[)|\]]&#39;</span><span class="p">,</span> <span class="n">image_caption_clean</span><span class="p">)):</span>
+            <span class="n">features</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term</span><span class="p">))</span>
+        <span class="c1"># Example: &#39;...to the left (red arrows)...&#39;</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[(|\[].*? &#39;</span> <span class="o">+</span> <span class="n">term</span> <span class="o">+</span> <span class="s1">&#39;s?[)|\]]&#39;</span><span class="p">,</span> <span class="n">image_caption_clean</span><span class="p">)):</span>
+            <span class="n">features</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Image Problems (Detected by Analysing their Associated Text)</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
@@ -896,22 +936,23 @@
 <span class="sd">    :type enumerations_grid_threshold: ``int``</span>
 <span class="sd">    :return: information on the presence of problematic image features.</span>
 <span class="sd">    :rtype: ``tuple``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; _problematic_image_features(image_caption=&#39;1. left (green asterisk). 2. On the left (red arrow) we see...&#39;)</span>
+<span class="sd">    ...</span>
+<span class="sd">    (&#39;arrows&#39;, &#39;asterisks&#39;, &#39;grids&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Initialize</span>
     <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">molds</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39; </span><span class="si">{0}</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="s1">&#39; </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39; </span><span class="si">{0}</span><span class="s1">s &#39;</span><span class="p">,</span> <span class="s1">&#39; </span><span class="si">{0}</span><span class="s1">s&#39;</span><span class="p">,</span> <span class="s1">&#39;(</span><span class="si">{0}</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="s1">&#39;(</span><span class="si">{0}</span><span class="s1">s)&#39;</span><span class="p">,</span> <span class="s1">&#39;[</span><span class="si">{0}</span><span class="s1">]&#39;</span><span class="p">,</span> <span class="s1">&#39;[</span><span class="si">{0}</span><span class="s1">s]&#39;</span><span class="p">)</span>
 
-    <span class="n">image_caption_clean</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">image_caption</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;arrow&#39;</span><span class="p">,</span> <span class="s1">&#39;asterisk&#39;</span><span class="p">):</span>
-        <span class="c1"># Look for arrows or asterisk</span>
-        <span class="n">match_on</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term</span><span class="p">),</span> <span class="n">molds</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">image_caption_clean</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">match_on</span><span class="p">):</span>
-            <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term</span><span class="p">))</span>
+    <span class="c1"># Look for markers</span>
+    <span class="n">features</span> <span class="o">+=</span> <span class="n">_markers_guess</span><span class="p">(</span><span class="n">image_caption</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">_enumerations_guess</span><span class="p">(</span><span class="n">image_caption</span><span class="p">,</span> <span class="n">enumerations_grid_threshold</span><span class="p">):</span>
         <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;grids&#39;</span><span class="p">)</span>
     
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">features</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -994,8 +1035,6 @@
 
     <span class="c1"># Lower keys and return</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
-
-
 
 
 

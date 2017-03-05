@@ -201,18 +201,13 @@
 <span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">iter_join</span>
 <span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">url_combine</span>
 <span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">null_convert</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">ensure_hashable</span>
 <span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">ImageProblemBasedOnText</span>
 
 <span class="c1"># Open-i API Parameters Information</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_parameters</span> <span class="k">import</span> <span class="n">openi_image_type_params</span>
 <span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_parameters</span> <span class="k">import</span> <span class="n">openi_search_information</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_parameters</span> <span class="k">import</span> <span class="n">openi_article_type_params</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_parameters</span> <span class="k">import</span> <span class="n">openi_image_type_modality_full</span>
 
-<span class="c1"># Tools for Text Feature Extraction</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi.openi_text_processing</span> <span class="k">import</span> <span class="n">feature_extract</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi.openi_text_processing</span> <span class="k">import</span> <span class="n">_html_text_clean</span>
+<span class="c1"># Oeni-i Raw Text Processing</span>
+<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._clean_raw_text_data</span> <span class="k">import</span> <span class="n">openi_raw_extract_and_clean</span>
 
 <span class="c1"># Cache Managment</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
@@ -529,21 +524,25 @@
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        :param root_url: suggested: &#39;https://openi.nlm.nih.gov&#39;</span>
+<span class="sd">        :type root_url: ``str``</span>
 <span class="sd">        :param date_format: suggested: &quot;%d/%m/%Y&quot; (consider leaving as datetime)</span>
+<span class="sd">        :type date_format: ``str``</span>
 <span class="sd">        :param verbose: print additional details.</span>
-<span class="sd">        :param cache_path:</span>
+<span class="sd">        :type verbose: ``bool``</span>
+<span class="sd">        :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,</span>
+<span class="sd">                       one will created. Default to ``None``, which will generate a cache in the home folder.</span>
+<span class="sd">        :type cache_path: ``str``</span>
 <span class="sd">        :param req_limit: Defaults to 30 (max allowed by Open-i; see: https://openi.nlm.nih.gov/services.php?it=xg).</span>
+<span class="sd">        :type req_limit: ``int``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_url</span> <span class="o">=</span> <span class="n">root_url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">date_format</span> <span class="o">=</span> <span class="n">date_format</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="o">=</span> <span class="n">cache_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span> <span class="o">=</span> <span class="n">req_limit</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">records_df</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># set to reasonable default.</span>
-
-        <span class="c1"># Obtain a list of disease names</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">list_of_diseases</span> <span class="o">=</span> <span class="n">DiseaseOntInterface</span><span class="p">(</span><span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span><span class="o">.</span><span class="n">pull</span><span class="p">()[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
         <span class="c1"># Sleep Time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_sleep_time</span> <span class="o">=</span> <span class="kc">None</span>
@@ -724,61 +723,6 @@
 
         <span class="k">return</span> <span class="n">harvested_data</span>
 
-    <span class="k">def</span> <span class="nf">_df_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Clean and Extract features from ``data_frame``.</span>
-
-<span class="sd">        :param data_frame:</span>
-<span class="sd">        :rtype data_frame: ``Pandas DataFrame``</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Convert column names to snake_case</span>
-        <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">camel_to_snake_case</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;me_sh&quot;</span><span class="p">,</span> <span class="s2">&quot;mesh&quot;</span><span class="p">),</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
-
-        <span class="c1"># Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).</span>
-        <span class="n">data_frame</span> <span class="o">=</span> <span class="n">ensure_hashable</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span>
-
-        <span class="c1"># Run Feature Extracting Tool and Join with `data_frame`.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Extracting Text Features...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">pp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_frame</span><span class="o">.</span><span class="n">progress_apply</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">feature_extract</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">list_of_diseases</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">list_of_diseases</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
-        <span class="n">data_frame</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pp</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Cleaning Text Information...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="c1"># Clean the abstract</span>
-        <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_html_text_clean</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">parse_medpix</span><span class="o">=</span><span class="s1">&#39;medpix&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;journal_title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()),</span>
-            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="c1"># Add the full name for modalities (before the &#39;image_modality_major&#39; values are altered below).</span>
-        <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;modality_full&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">openi_image_type_modality_full</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">x</span><span class="p">),</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.</span>
-        <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">openi_image_type_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">x</span><span class="p">),</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Look up the article type</span>
-        <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;article_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;article_type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">openi_article_type_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">x</span><span class="p">),</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Label the number of instance of repeating &#39;uid&#39;s.</span>
-        <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;uid_instance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resetting_label</span><span class="p">(</span><span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-
-        <span class="c1"># Replace &#39;Not Available&#39; and &#39;IN PROGRESS&#39; with NaN</span>
-        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;[nN]ot [aA]vailable.?&#39;</span><span class="p">,</span> <span class="s1">&#39;[Nn]one.?&#39;</span><span class="p">,</span> <span class="s1">&#39;[Ii][Nn] [Pp][Rr][Oo][Gg][Rr][Ee][Ss][Ss].?&#39;</span><span class="p">):</span>
-            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="n">r</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">},</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="c1"># Replace the &#39;Replace this - &#39; placeholder with NaN</span>
-        <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;image_caption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;image_caption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;replace this - &#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span>
-            <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">data_frame</span>
-
     <span class="k">def</span> <span class="nf">records_pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                      <span class="n">search_url</span><span class="p">,</span>
                      <span class="n">to_harvest</span><span class="p">,</span>
@@ -822,8 +766,10 @@
         <span class="c1"># Convert to a DataFrame</span>
         <span class="n">records_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">harvest</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
 
-        <span class="c1"># Clean and Extract Features</span>
-        <span class="n">records_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df_processing</span><span class="p">(</span><span class="n">records_df</span><span class="p">)</span>
+        <span class="c1"># Process Text</span>
+        <span class="n">records_df</span> <span class="o">=</span> <span class="n">openi_raw_extract_and_clean</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">records_df</span><span class="p">,</span>
+                                                 <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">,</span>
+                                                 <span class="n">cache_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span><span class="p">)</span>
 
         <span class="c1"># Add the query</span>
         <span class="n">records_df</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">query</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
