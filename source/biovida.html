@@ -1446,7 +1446,7 @@ are automatically broken and aligned with the line(s) above.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>d</strong> (<code class="docutils literal"><span class="pre">dict</span></code>) &#8211; a dictionary</li>
 <li><strong>max_value_length</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of characters in a string before a line break.
 This is a fuzzy threshold because the algorithm will only insert
@@ -1455,8 +1455,26 @@ between braces.</li>
 </ul>
 </td>
 </tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
 </tbody>
 </table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">&#39;part_2&#39;: &#39;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dictum nisi sed euismod consequat.&#39;</span>
+<span class="go">          &#39;Donec tempus enim nec lorem ornare, non sagittis dolor consequat. Sed facilisis tortor vel enim mattis, &#39;</span>
+<span class="go">          &#39;et fermentum mi posuere.&#39;,</span>
+<span class="go">&#39;part_1&#39;: &#39;Duis sit amet nulla fermentum, vestibulum mauris at, porttitor massa. &#39;</span>
+<span class="go">          &#39;Vestibulum luctus interdum mattis.&#39;</span>
+<span class="go">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dict_pprint</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="go"> - Part 2:  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dictum nisi</span>
+<span class="go">            sed euismod consequat.Donec tempus enim nec lorem ornare, non sagittis</span>
+<span class="go">            dolor consequat. Sed facilisis tortor vel enim mattis, et fermentum</span>
+<span class="go">            mi posuere.</span>
+<span class="go"> - Part 1:  Duis sit amet nulla fermentum, vestibulum mauris at, porttitor massa.</span>
+<span class="go">            Vestibulum luctus interdum mattis.</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">

@@ -298,6 +298,24 @@
 <span class="sd">                            line breaks where there are already spaces and will not insert line breaks</span>
 <span class="sd">                            between braces.</span>
 <span class="sd">    :type max_value_length: ``int``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; d = {</span>
+<span class="sd">    &#39;part_2&#39;: &#39;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dictum nisi sed euismod consequat.&#39;</span>
+<span class="sd">              &#39;Donec tempus enim nec lorem ornare, non sagittis dolor consequat. Sed facilisis tortor vel enim mattis, &#39;</span>
+<span class="sd">              &#39;et fermentum mi posuere.&#39;,</span>
+<span class="sd">    &#39;part_1&#39;: &#39;Duis sit amet nulla fermentum, vestibulum mauris at, porttitor massa. &#39;</span>
+<span class="sd">              &#39;Vestibulum luctus interdum mattis.&#39;</span>
+<span class="sd">    }</span>
+<span class="sd">    &gt;&gt;&gt; dict_pprint(d)</span>
+<span class="sd">     - Part 2:  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dictum nisi</span>
+<span class="sd">                sed euismod consequat.Donec tempus enim nec lorem ornare, non sagittis</span>
+<span class="sd">                dolor consequat. Sed facilisis tortor vel enim mattis, et fermentum</span>
+<span class="sd">                mi posuere.</span>
+<span class="sd">     - Part 1:  Duis sit amet nulla fermentum, vestibulum mauris at, porttitor massa.</span>
+<span class="sd">                Vestibulum luctus interdum mattis.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">print_mold</span> <span class="o">=</span> <span class="s2">&quot; - </span><span class="si">{0}</span><span class="s2"> &quot;</span>
 
