@@ -199,7 +199,7 @@ def openi_raw_extract_and_clean(data_frame, verbose, cache_path):
 
     # Run Feature Extracting Tool and Join with `data_frame`.
     if verbose:
-        print("\n\nExtracting Text Features...\n")
+        print("\n\nExtracting Features from Text...\n")
     pp = pd.DataFrame(data_frame.progress_apply(
         lambda x: feature_extract(x, list_of_diseases=list_of_diseases), axis=1).tolist()).fillna(np.NaN)
     data_frame = data_frame.join(pp, how='left')

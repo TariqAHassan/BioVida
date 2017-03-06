@@ -1,7 +1,7 @@
 """
 
-    Open-i Text Processing
-    ~~~~~~~~~~~~~~~~~~~~~~
+    Open-i Text Feature Extraction
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
 # Imports
@@ -108,7 +108,7 @@ def _abstract_parser(abstract):
 
     >>> _abstract_parser(abstract='<p><p><b>History: </b>The patient presented with xyz.</p></p>')
     ...
-    {'history': 'The patient Presented with xyz.'}
+    {'history': 'The patient presented with xyz.'}
 
     """
     if not isinstance(abstract, str):
@@ -882,6 +882,7 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
 # ----------------------------------------------------------------------------------------------------------
 # Outward Facing Tool
 # ----------------------------------------------------------------------------------------------------------
+
 
 def _background_extract(d):
     """
