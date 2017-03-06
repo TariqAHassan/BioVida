@@ -91,7 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
@@ -186,16 +186,18 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
 
-<span class="c1"># Other BioVida APIs</span>
-<span class="kn">from</span> <span class="nn">biovida.diagnostics.disease_ont_interface</span> <span class="k">import</span> <span class="n">DiseaseOntInterface</span>
+<span class="kn">from</span> <span class="nn">biovida</span> <span class="k">import</span> <span class="n">__version__</span>
 
 <span class="c1"># General Image Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_temp_dbs</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">NoResultsFound</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">record_db_merge</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">resetting_label</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">sleep_with_noise</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">record_update_dbs_joiner</span>
+
+<span class="c1"># Database Management</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">load_temp_dbs</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">records_db_merge</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">record_update_dbs_joiner</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">prune_rows_with_deleted_images</span>
 
 <span class="c1"># Open-i Support tools</span>
 <span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">iter_join</span>
@@ -209,13 +211,12 @@
 <span class="c1"># Oeni-i Raw Text Processing</span>
 <span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_text_processing</span> <span class="k">import</span> <span class="n">openi_raw_extract_and_clean</span>
 
-<span class="c1"># Cache Managment</span>
+<span class="c1"># Cache Management</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
 
 <span class="c1"># General Support Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">header</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">unescape</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">camel_to_snake_case</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
 
@@ -349,7 +350,7 @@
 
         <span class="c1"># Block progress if no results found</span>
         <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">NoResultsFound</span><span class="p">(</span><span class="s2">&quot;Please Try Refining Your Search.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">NoResultsFound</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Please Try Refining Your Search.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Print number of results found</span>
         <span class="k">if</span> <span class="n">print_results</span><span class="p">:</span>
@@ -541,7 +542,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="o">=</span> <span class="n">cache_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span> <span class="o">=</span> <span class="n">req_limit</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">records_df</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># set to reasonable default.</span>
 
         <span class="c1"># Sleep Time</span>
@@ -723,6 +724,31 @@
 
         <span class="k">return</span> <span class="n">harvested_data</span>
 
+    <span class="k">def</span> <span class="nf">_apply_clinical_case_only</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_db</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Remove records (dataframe rows) which are not of clinical encounters.</span>
+
+<span class="sd">        Note: this is here, and not in ``_OpeniImages().pull_images()`` b/c the</span>
+<span class="sd">        Open-i API does not have an &#39;encounter&#39; param (which it probably should).</span>
+
+<span class="sd">        :param records_db: the ``records_db`` as evolved in ``records_pull()``.</span>
+<span class="sd">        :type records_db: ``Pandas DataFrame``</span>
+<span class="sd">        :return: see description.</span>
+<span class="sd">        :rtype: ``Pandas DataFrame``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">clinical_article_types</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;encounter&#39;</span><span class="p">,</span> <span class="s1">&#39;case_report&#39;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">article_type</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">article_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">article_type</span> <span class="ow">in</span> <span class="n">clinical_article_types</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span><span class="p">[</span><span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;article_type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">test</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoResultsFound</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No results remained after the `clinical_cases_only` restriction was applied.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">records_db</span>
+
     <span class="k">def</span> <span class="nf">records_pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                      <span class="n">search_url</span><span class="p">,</span>
                      <span class="n">to_harvest</span><span class="p">,</span>
@@ -730,6 +756,7 @@
                      <span class="n">query</span><span class="p">,</span>
                      <span class="n">pull_time</span><span class="p">,</span>
                      <span class="n">records_sleep_time</span><span class="p">,</span>
+                     <span class="n">clinical_cases_only</span><span class="p">,</span>
                      <span class="n">download_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -741,6 +768,8 @@
 <span class="sd">        :param query:</span>
 <span class="sd">        :param pull_time:</span>
 <span class="sd">        :param records_sleep_time: (every x downloads, period of time [seconds])</span>
+<span class="sd">        :param clinical_cases_only: see ``OpeniInterface().pull()``.</span>
+<span class="sd">        :type clinical_cases_only: ``bool``</span>
 <span class="sd">        :param download_limit:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -764,21 +793,27 @@
                                      <span class="n">download_no</span><span class="o">=</span><span class="n">download_no</span><span class="p">)</span>
 
         <span class="c1"># Convert to a DataFrame</span>
-        <span class="n">records_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">harvest</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
+        <span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">harvest</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
 
         <span class="c1"># Process Text</span>
-        <span class="n">records_df</span> <span class="o">=</span> <span class="n">openi_raw_extract_and_clean</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">records_df</span><span class="p">,</span>
+        <span class="n">records_db</span> <span class="o">=</span> <span class="n">openi_raw_extract_and_clean</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">records_db</span><span class="p">,</span>
                                                  <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">,</span>
                                                  <span class="n">cache_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span><span class="p">)</span>
 
         <span class="c1"># Add the query</span>
-        <span class="n">records_df</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">query</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">records_df</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">pull_time</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">query</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">pull_time</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Add the Version of BioVida which generated the DataFrame</span>
+        <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">__version__</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">clinical_cases_only</span><span class="p">:</span>
+            <span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_clinical_case_only</span><span class="p">(</span><span class="n">records_db</span><span class="p">)</span>
 
         <span class="c1"># Add to attrs.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">records_df</span> <span class="o">=</span> <span class="n">records_df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_df</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -799,7 +834,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
 
         <span class="c1"># Database</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">record_db_images</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db_path</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -819,7 +854,7 @@
 
 <span class="sd">        Create the ``real_time_update_db`` and define the path to the location where it will be saved.</span>
 
-<span class="sd">        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``record_db``).</span>
+<span class="sd">        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``records_db``).</span>
 <span class="sd">        :type db_index: ``Pandas Series``</span>
 <span class="sd">        :param pull_time: see ``pull_images()``</span>
 <span class="sd">        :type pull_time: ``str``</span>
@@ -947,13 +982,13 @@
                 <span class="n">sleep_with_noise</span><span class="p">(</span><span class="n">amount_of_time</span><span class="o">=</span><span class="n">images_sleep_time</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">download_count</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># reset</span>
 
-    <span class="k">def</span> <span class="nf">pull_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_df</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">pull_time</span><span class="p">,</span> <span class="n">images_sleep_time</span><span class="p">,</span> <span class="n">use_image_caption</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">pull_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_db</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">pull_time</span><span class="p">,</span> <span class="n">images_sleep_time</span><span class="p">,</span> <span class="n">use_image_caption</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Pull images based in ``records_df``.</span>
+<span class="sd">        Pull images based in ``records_db``.</span>
 
-<span class="sd">        :param records_df: yeild of ``_OpeniRecords().records_pull()``</span>
-<span class="sd">        :type records_df: ``Pandas DataFrame``</span>
+<span class="sd">        :param records_db: yeild of ``_OpeniRecords().records_pull()``</span>
+<span class="sd">        :type records_db: ``Pandas DataFrame``</span>
 <span class="sd">        :param image_size: one of &#39;grid150&#39;, &#39;large&#39;, &#39;thumb&#39; or &#39;thumb_large&#39;.</span>
 <span class="sd">        :type image_size: ``str``</span>
 <span class="sd">        :param pull_time: the time the query was made by ``OpeniInterface.search()``.</span>
@@ -966,26 +1001,26 @@
 <span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt</span>
 <span class="sd">                                  a dataset intended for machine learning. Defaults to ``False``.</span>
 <span class="sd">        :type use_image_caption: ``bool``</span>
-<span class="sd">        :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.</span>
+<span class="sd">        :return: `records_db` with the addition of `cached_images_path` and `download_success` columns.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_temp_folder</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">record_db_images</span> <span class="o">=</span> <span class="n">records_df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span> <span class="o">=</span> <span class="n">records_db</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         
-        <span class="c1"># Save `record_db_images` to the __temp__ folder</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">record_db_images</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_folder</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">__record_db.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pull_time</span><span class="p">)))</span>
+        <span class="c1"># Save `records_db_images` to the __temp__ folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_folder</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">__records_db.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pull_time</span><span class="p">)))</span>
 
         <span class="c1"># Instantiate `self.real_time_update_db`</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_real_time_update_db</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">record_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_time</span><span class="o">=</span><span class="n">pull_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_real_time_update_db</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_time</span><span class="o">=</span><span class="n">pull_time</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">image_size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;grid150&#39;</span><span class="p">,</span> <span class="s1">&#39;large&#39;</span><span class="p">,</span> <span class="s1">&#39;thumb&#39;</span><span class="p">,</span> <span class="s1">&#39;thumb_large&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`image_size` must be one of: &#39;grid150&#39;, &#39;large&#39;, &#39;thumb&#39; or &#39;thumb_large&#39;.&quot;</span><span class="p">)</span>
         <span class="n">image_column</span> <span class="o">=</span> <span class="s2">&quot;img_</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_size</span><span class="p">)</span>
 
-        <span class="c1"># Extract needed information from the `record_db_images` dataframe to loop over.</span>
-        <span class="n">harvesting_information</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">record_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">record_db_images</span><span class="p">[</span><span class="n">image_column</span><span class="p">],</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">record_db_images</span><span class="p">[</span><span class="s1">&#39;image_problems_from_text&#39;</span><span class="p">]]))</span>
+        <span class="c1"># Extract needed information from the `records_db_images` dataframe to loop over.</span>
+        <span class="n">harvesting_information</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">[</span><span class="n">image_column</span><span class="p">],</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">[</span><span class="s1">&#39;image_problems_from_text&#39;</span><span class="p">]]))</span>
 
         <span class="c1"># Harvest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_images_engine</span><span class="p">(</span><span class="n">harvesting_information</span><span class="o">=</span><span class="n">harvesting_information</span><span class="p">,</span>
@@ -993,7 +1028,7 @@
                                  <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">,</span>
                                  <span class="n">use_image_caption</span><span class="o">=</span><span class="n">use_image_caption</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">record_update_dbs_joiner</span><span class="p">(</span><span class="n">record_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">record_db_images</span><span class="p">,</span> <span class="n">update_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">record_update_dbs_joiner</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">,</span> <span class="n">update_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="p">)</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -1033,7 +1068,7 @@
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
 
     <span class="c1"># Apply `relate()`</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;shared_img_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">related</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;shared_image_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">related</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
 
     <span class="k">return</span> <span class="n">df</span>
 
@@ -1058,52 +1093,52 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Load the latent database(s).</span>
-        <span class="n">record_db_update</span> <span class="o">=</span> <span class="n">load_temp_dbs</span><span class="p">(</span><span class="n">temp_db_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_folder</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">record_db_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Update `self.current_record_db`.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_record_db_handler</span><span class="p">(</span><span class="n">current_record_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_record_db</span><span class="p">,</span>
-                                                <span class="n">record_db_update</span><span class="o">=</span><span class="n">record_db_update</span><span class="p">)</span>
+        <span class="n">records_db_update</span> <span class="o">=</span> <span class="n">load_temp_dbs</span><span class="p">(</span><span class="n">temp_db_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_folder</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Update `self.current_records_db`.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_handler</span><span class="p">(</span><span class="n">current_records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
+                                                 <span class="n">records_db_update</span><span class="o">=</span><span class="n">records_db_update</span><span class="p">)</span>
             <span class="c1"># Delete the latent &#39;databases/__temp__&#39; folder.</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_record_db_save_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_openi_cache_record_db_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_record_db</span><span class="p">,</span> <span class="n">record_db_update</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_openi_cache_records_db_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_records_db</span><span class="p">,</span> <span class="n">records_db_update</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        1. if cache_record_db.p doesn&#39;t exist, simply dump ``record_db_update``</span>
-<span class="sd">        2. if cache_record_db.p does exist, merge with ``record_db_update``</span>
+<span class="sd">        1. if cache_records_db.p doesn&#39;t exist, simply dump ``records_db_update``</span>
+<span class="sd">        2. if cache_records_db.p does exist, merge with ``records_db_update``</span>
 
-<span class="sd">        :param current_record_db:</span>
-<span class="sd">        :type current_record_db:</span>
-<span class="sd">        :param record_db_update:</span>
-<span class="sd">        :type record_db_update:</span>
+<span class="sd">        :param current_records_db:</span>
+<span class="sd">        :type current_records_db:</span>
+<span class="sd">        :param records_db_update:</span>
+<span class="sd">        :type records_db_update:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">rows_to_conserve_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;download_success&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">current_record_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">record_db_update</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`current_record_db` and `record_db_update` cannot both be None.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">current_record_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">record_db_update</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">to_return</span> <span class="o">=</span> <span class="n">current_record_db</span>
+        <span class="k">if</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`current_records_db` and `records_db_update` cannot both be None.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">to_return</span> <span class="o">=</span> <span class="n">current_records_db</span>
             <span class="n">to_return</span> <span class="o">=</span> <span class="n">to_return</span><span class="p">[</span><span class="n">to_return</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">current_record_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">record_db_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">to_return</span> <span class="o">=</span> <span class="n">_img_relation_map</span><span class="p">(</span><span class="n">record_db_update</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">to_return</span> <span class="o">=</span> <span class="n">_img_relation_map</span><span class="p">(</span><span class="n">records_db_update</span><span class="p">)</span>
             <span class="n">to_return</span> <span class="o">=</span> <span class="n">to_return</span><span class="p">[</span><span class="n">to_return</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">duplicates_subset_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">current_record_db</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39;pull_time&#39;</span><span class="p">]</span>
-            <span class="n">to_return</span> <span class="o">=</span> <span class="n">record_db_merge</span><span class="p">(</span><span class="n">current_record_db</span><span class="o">=</span><span class="n">current_record_db</span><span class="p">,</span>
-                                        <span class="n">record_db_update</span><span class="o">=</span><span class="n">record_db_update</span><span class="p">,</span>
-                                        <span class="n">query_column_name</span><span class="o">=</span><span class="s1">&#39;query&#39;</span><span class="p">,</span>
-                                        <span class="n">pull_time_column_name</span><span class="o">=</span><span class="s1">&#39;pull_time&#39;</span><span class="p">,</span>
-                                        <span class="n">duplicates_subset_columns</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span>
-                                        <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="n">rows_to_conserve_func</span><span class="p">,</span>
-                                        <span class="n">post_concat_mapping</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;uid_instance&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">,</span> <span class="n">resetting_label</span><span class="p">),</span>
-                                        <span class="n">relationship_mapping_func</span><span class="o">=</span><span class="n">_img_relation_map</span><span class="p">)</span>
+            <span class="n">duplicates_subset_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;img_grid150&#39;</span><span class="p">,</span> <span class="s1">&#39;img_large&#39;</span><span class="p">,</span> <span class="s1">&#39;img_thumb&#39;</span><span class="p">,</span> <span class="s1">&#39;img_thumb_large&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;download_success&#39;</span><span class="p">]</span>
+            <span class="n">to_return</span> <span class="o">=</span> <span class="n">records_db_merge</span><span class="p">(</span><span class="n">current_records_db</span><span class="o">=</span><span class="n">current_records_db</span><span class="p">,</span>
+                                         <span class="n">records_db_update</span><span class="o">=</span><span class="n">records_db_update</span><span class="p">,</span>
+                                         <span class="n">columns_with_dicts</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;parsed_abstract&#39;</span><span class="p">),</span>
+                                         <span class="n">duplicates_subset_columns</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span>
+                                         <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="n">rows_to_conserve_func</span><span class="p">,</span>
+                                         <span class="n">post_concat_mapping</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;uid_instance&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">,</span> <span class="n">resetting_label</span><span class="p">),</span>
+                                         <span class="n">relationship_mapping_func</span><span class="o">=</span><span class="n">_img_relation_map</span><span class="p">)</span>
 
         <span class="c1"># Save to disk</span>
-        <span class="n">to_return</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_record_db_save_path</span><span class="p">)</span>
+        <span class="n">to_return</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">)</span>
 
         <span class="c1"># Save to class instance</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_record_db</span> <span class="o">=</span> <span class="n">to_return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">to_return</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1141,16 +1176,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_search_to_harvest</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Path to cache record db</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_record_db_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span> <span class="s1">&#39;openi_cache_record_db.p&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span> <span class="s1">&#39;openi_cache_records_db.p&#39;</span><span class="p">)</span>
 
         <span class="c1"># Databases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Load the cache record database, if it exists</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_record_db_save_path</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache_record_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_record_db_save_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">):</span>
+            <span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">prune_rows_with_deleted_images</span><span class="p">(</span><span class="n">cache_data_frame</span><span class="o">=</span><span class="n">cache_records_db</span><span class="p">,</span>
+                                                                   <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span>
+                                                                   <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache_record_db</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Load in databases in &#39;databases/__temp__&#39;, if they exist</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_folder</span><span class="p">):</span>
@@ -1195,7 +1233,7 @@
 <span class="sd">        :type image_type: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param rankby: see ``OpeniInterface().options(&#39;rankby&#39;)`` for valid values.</span>
 <span class="sd">        :type rankby: ``str``, ``list``, ``tuple`` or ``None``</span>
-<span class="sd">        :param article_type: see ``OpeniInterface().options(&#39;article_type&#39;)`` for valid values.</span>
+<span class="sd">        :param article_type: see ``OpeniInterface().options(&#39;article_type&#39;)`` for valid values. Defaults to &#39;case_report&#39;.</span>
 <span class="sd">        :type article_type: ``str``, ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :param subset: see ``OpeniInterface().options(&#39;subset&#39;)`` for valid values.</span>
 <span class="sd">        :type subset: ``str``, ``list``, ``tuple`` or ``None``</span>
@@ -1252,6 +1290,7 @@
              <span class="n">records_sleep_time</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
              <span class="n">images_sleep_time</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
              <span class="n">download_limit</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+             <span class="n">clinical_cases_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
              <span class="n">use_image_caption</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1280,6 +1319,10 @@
 <span class="sd">        :param download_limit: max. number of results to download. If ``None``, no limit will be imposed</span>
 <span class="sd">                              (not recommended). Defaults to 60.</span>
 <span class="sd">        :type download_limit: ``int``</span>
+<span class="sd">        :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,</span>
+<span class="sd">                                    This parameter requies that &#39;article_type&#39; is one of: &#39;encounter&#39;, &#39;case_report&#39;.</span>
+<span class="sd">                                    Defaults to ``True``.</span>
+<span class="sd">        :type clinical_cases_only: ``bool``</span>
 <span class="sd">        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence</span>
 <span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt</span>
 <span class="sd">                                  a dataset intended for machine learning. Defaults to ``False``.</span>
@@ -1303,27 +1346,26 @@
                                                          <span class="n">query</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_query</span><span class="p">,</span>
                                                          <span class="n">pull_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span><span class="p">,</span>
                                                          <span class="n">records_sleep_time</span><span class="o">=</span><span class="n">records_sleep_time</span><span class="p">,</span>
+                                                         <span class="n">clinical_cases_only</span><span class="o">=</span><span class="n">clinical_cases_only</span><span class="p">,</span>
                                                          <span class="n">download_limit</span><span class="o">=</span><span class="n">download_limit</span><span class="p">)</span>
 
         <span class="c1"># Pull Images</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="c1"># Pull the images.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">pull_images</span><span class="p">(</span><span class="n">records_df</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">pull_images</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span>
                                                        <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">,</span>
                                                        <span class="n">pull_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_format</span><span class="p">),</span>
                                                        <span class="n">images_sleep_time</span><span class="o">=</span><span class="n">images_sleep_time</span><span class="p">,</span>
                                                        <span class="n">use_image_caption</span><span class="o">=</span><span class="n">use_image_caption</span><span class="p">)</span>
 
-            <span class="c1"># Add the new records_db datafame with the existing `cache_record_db`.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_record_db_handler</span><span class="p">(</span><span class="n">current_record_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_record_db</span><span class="p">,</span>
-                                                <span class="n">record_db_update</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span>
+            <span class="c1"># Add the new records_db datafame with the existing `cache_records_db`.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_handler</span><span class="p">(</span><span class="n">current_records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
+                                                 <span class="n">records_db_update</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span>
 
             <span class="c1"># Delete the &#39;databases/__temp__&#39; folder.</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_folder</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span></div></div>
-
-
 
 
 

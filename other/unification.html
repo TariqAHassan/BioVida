@@ -91,7 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-classification">Image Classification</a></li>
@@ -185,8 +185,9 @@
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
 <code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>cache_path=None</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tool to unify image interfaces (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> and <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
+<dd><p>Tool to unify image interfaces (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
 with Diagnostic and Genomic Data.</p>
+<p>Note: this tool extracts the <code class="docutils literal"><span class="pre">cache_records_db</span></code> attribute from these classes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -199,8 +200,8 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <li><strong>fuzzy_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">bool</span></code>, <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>an integer on <code class="docutils literal"><span class="pre">(0,</span> <span class="pre">100]</span></code>. If <code class="docutils literal"><span class="pre">True</span></code> a threshold of <cite>95</cite> will be used. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Fuzzy searching with large databases, such as those this function integrates, is very
-computationally expensive.</p>
+<p class="last">While this parameter will likely increase the number of matches, fuzzy searching with
+large databases, such as those this function integrates, is very computationally expensive.</p>
 </div>
 </li>
 </ul>

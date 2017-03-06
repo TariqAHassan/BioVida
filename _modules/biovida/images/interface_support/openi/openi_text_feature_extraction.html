@@ -91,7 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../API.html#image-classification">Image Classification</a></li>
@@ -169,14 +169,15 @@
   <h1>Source code for biovida.images.interface_support.openi.openi_text_feature_extraction</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Open-i Text Processing</span>
-<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    Open-i Text Feature Extraction</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="k">import</span> <span class="n">BeautifulSoup</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 
 <span class="c1"># Image Support Tools</span>
@@ -189,12 +190,115 @@
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">unescape</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">items_null</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">multi_replace</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">remove_line_breaks</span>
 
 <span class="c1"># Data</span>
 <span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_imaging_modality_information</span> <span class="k">import</span> <span class="p">(</span><span class="n">terms_dict</span><span class="p">,</span>
                                                                                         <span class="n">modality_subtypes</span><span class="p">,</span>
                                                                                         <span class="n">contradictions</span><span class="p">,</span>
                                                                                         <span class="n">modality_specific_subtypes</span><span class="p">)</span>
+
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Abstract Processing</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span> <span class="nf">_raw_abstract_clean</span><span class="p">(</span><span class="n">abstract</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Cleans ``abstract`` by removing any bullent points (html entities)</span>
+<span class="sd">    and replacing them with semi-colons.</span>
+
+<span class="sd">    :param abstract: a text abstract.</span>
+<span class="sd">    :type abstract: ``str``</span>
+<span class="sd">    :return: see description.</span>
+<span class="sd">    :rtype: ``str``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">no_points</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">abstract</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&amp;bull; &#39;</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&amp;bull; &#39;</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cln</span><span class="p">(</span><span class="n">remove_line_breaks</span><span class="p">(</span><span class="n">no_points</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ;&quot;</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_key_clean</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Cleans the key for the ``parsed_abstract`` dictionary inside ``_abstract_parser()``.</span>
+
+<span class="sd">    :param key: ``key`` as evolved inside ``_abstract_parser()``.</span>
+<span class="sd">    :type key: ``str``</span>
+<span class="sd">    :return: see description.</span>
+<span class="sd">    :rtype: ``str``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">key_lowered</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s1">&#39;history&#39;</span> <span class="ow">in</span> <span class="n">key_lowered</span> <span class="ow">or</span> <span class="s1">&#39;background&#39;</span> <span class="ow">in</span> <span class="n">key_lowered</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;background&#39;</span>
+    <span class="k">if</span> <span class="s1">&#39;material&#39;</span> <span class="ow">in</span> <span class="n">key_lowered</span> <span class="ow">or</span> <span class="s1">&#39;method&#39;</span> <span class="ow">in</span> <span class="n">key_lowered</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;methods&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;finding&#39;</span> <span class="ow">in</span> <span class="n">key_lowered</span> <span class="ow">or</span> <span class="s1">&#39;result&#39;</span> <span class="ow">in</span> <span class="n">key_lowered</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;results&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cln</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_value_clean</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Cleans the value for the ``parsed_abstract`` dictionary inside ``_abstract_parser()``.</span>
+
+<span class="sd">    :param key: ``value`` as evolved inside ``_abstract_parser()``.</span>
+<span class="sd">    :type key: ``str``</span>
+<span class="sd">    :return: see description.</span>
+<span class="sd">    :rtype: ``str``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">):</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">):</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">cln</span><span class="p">(</span><span class="n">cleaned</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_abstract_parser</span><span class="p">(</span><span class="n">abstract</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Take a raw HTML abstract and generate dicitionary</span>
+<span class="sd">    using the items in bold (e.g., &#39;&lt;b&gt;History: &lt;/b&gt;&#39;) as the keys</span>
+<span class="sd">    and the result of the information inside the &lt;p&gt;...&lt;/p&gt; tags as the value.</span>
+
+<span class="sd">    :param abstract: a text abstract.</span>
+<span class="sd">    :type abstract: ``str``</span>
+<span class="sd">    :return: a dicitionary of the form described above.</span>
+<span class="sd">    :rtype: ``None`` or ``dict``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; _abstract_parser(abstract=&#39;&lt;p&gt;&lt;b&gt;History: &lt;/b&gt;The patient presented with xyz.&lt;/p&gt;&#39;)</span>
+<span class="sd">    ...</span>
+<span class="sd">    {&#39;history&#39;: &#39;The patient presented with xyz.&#39;}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">abstract</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">_raw_abstract_clean</span><span class="p">(</span><span class="n">abstract</span><span class="p">),</span> <span class="s1">&#39;lxml&#39;</span><span class="p">)</span>
+
+    <span class="n">parsed_abstract</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">):</span>
+        <span class="c1"># Look for Key</span>
+        <span class="n">key_candidiate</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_candidiate</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">_key_clean</span><span class="p">(</span><span class="n">key_candidiate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="c1"># Look for Value</span>
+                <span class="n">contents</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">contents</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">_value_clean</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                        <span class="n">parsed_abstract</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">parsed_abstract</span> <span class="k">if</span> <span class="n">parsed_abstract</span> <span class="k">else</span> <span class="kc">None</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -248,36 +352,6 @@
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
-<span class="c1"># MedPix</span>
-<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
-
-
-<span class="k">def</span> <span class="nf">_mexpix_info_extract</span><span class="p">(</span><span class="n">abstract</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">    Handles information extraction for MedPix Images</span>
-
-<span class="sd">    :param abstract: a text abstract.</span>
-<span class="sd">    :type abstract: ``str``</span>
-<span class="sd">    :return: a dictionary with the following keys: &#39;Diagnosis&#39;, &#39;History&#39;, &#39;Findings&#39;, &#39;Ddx&#39; and &#39;Dxhow&#39;.</span>
-<span class="sd">    :rtype: ``dict``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Diagnosis&#39;</span><span class="p">,</span> <span class="s1">&#39;History&#39;</span><span class="p">,</span> <span class="s1">&#39;Findings&#39;</span><span class="p">,</span> <span class="s1">&#39;Ddx&#39;</span><span class="p">,</span> <span class="s1">&#39;Dxhow&#39;</span><span class="p">)</span>
-    <span class="n">features_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">cln_abstract</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">abstract</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">features_dict</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">raw_extract</span> <span class="o">=</span> <span class="n">item_extract</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;&lt;p&gt;&lt;b&gt;&#39;</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s1">&#39;: &lt;/b&gt;(.*?)&lt;/p&gt;&lt;p&gt;&#39;</span><span class="p">,</span> <span class="n">cln_abstract</span><span class="p">))</span>
-            <span class="n">cleaned_extract</span> <span class="o">=</span> <span class="n">_html_text_clean</span><span class="p">(</span><span class="n">html_text</span><span class="o">=</span><span class="n">raw_extract</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;entities&#39;</span><span class="p">)</span>
-            <span class="n">features_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">cleaned_extract</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;Diagnosis&#39;</span> <span class="k">else</span> <span class="n">cleaned_extract</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span>
-
-    <span class="k">return</span> <span class="n">features_dict</span>
-
-
-<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Patient&#39;s Sex</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
@@ -309,13 +383,13 @@
         <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">_patient_sex_guess</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_patient_sex_guess</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Tool to extract the sex of the patient (female or male).</span>
 
-<span class="sd">    :param history: the history of the patient.</span>
-<span class="sd">    :type history: ``str``</span>
+<span class="sd">    :param background: the background of the patient/study.</span>
+<span class="sd">    :type background: ``str``</span>
 <span class="sd">    :param abstract: a text abstract.</span>
 <span class="sd">    :type abstract: ``str``</span>
 <span class="sd">    :param image_caption: an element from the &#39;image_caption&#39; column.</span>
@@ -325,7 +399,7 @@
 <span class="sd">    :return: the sex of the patent.</span>
 <span class="sd">    :rtype: ``str`` or ``None``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">extract</span> <span class="o">=</span> <span class="n">_patient_sex_extract</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extract</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -409,7 +483,7 @@
 
 <span class="sd">    Extract age from a string based on it being followed by one of:</span>
 
-<span class="sd">    &quot; y&quot;, &quot;yo &quot;, &quot;y.o.&quot;, &quot;y/o&quot;, &quot;year&quot;, &quot;-year&quot;, &quot; - year&quot;, &quot; -year&quot;, &quot;month old&quot;, &quot; month old&quot;, &quot;-month old&quot;,</span>
+<span class="sd">    &quot; y&quot;, &quot;yo &quot;, &quot;y.o.&quot;, &quot;y/o&quot;, &quot;year&quot;, &quot;-year&quot;, &quot; - year&quot;, &quot; -year&quot;, &quot; ans &quot;, &quot;month old&quot;, &quot; month old&quot;, &quot;-month old&quot;,</span>
 <span class="sd">    &quot;months old&quot;, &quot; months old&quot; or &quot;-months old&quot;.</span>
 
 <span class="sd">    :param image_summary_info: some summary text of the image, e.g., &#39;history&#39;, &#39;abstract&#39;, &#39;image_caption&#39;</span>
@@ -418,7 +492,7 @@
 <span class="sd">    :return: patient age.</span>
 <span class="sd">    :rtype: ``str`` or ``None``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">age_markers</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot; y&quot;</span><span class="p">,</span> <span class="s2">&quot;yo &quot;</span><span class="p">,</span> <span class="s2">&quot; yo &quot;</span><span class="p">,</span> <span class="s2">&quot;y.o.&quot;</span><span class="p">,</span> <span class="s2">&quot;y/o&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;-year&quot;</span><span class="p">,</span> <span class="s2">&quot; - year&quot;</span><span class="p">,</span> <span class="s2">&quot; -year&quot;</span><span class="p">,</span>
+    <span class="n">age_markers</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot; y&quot;</span><span class="p">,</span> <span class="s2">&quot;yo &quot;</span><span class="p">,</span> <span class="s2">&quot; yo &quot;</span><span class="p">,</span> <span class="s2">&quot;y.o.&quot;</span><span class="p">,</span> <span class="s2">&quot;y/o&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;-year&quot;</span><span class="p">,</span> <span class="s2">&quot; - year&quot;</span><span class="p">,</span> <span class="s2">&quot; -year&quot;</span><span class="p">,</span> <span class="s2">&quot; ans &quot;</span>
                    <span class="s2">&quot;month old&quot;</span><span class="p">,</span> <span class="s2">&quot; month old&quot;</span><span class="p">,</span> <span class="s2">&quot;-month old&quot;</span><span class="p">,</span> <span class="s2">&quot;months old&quot;</span><span class="p">,</span> <span class="s2">&quot; months old&quot;</span><span class="p">,</span> <span class="s2">&quot;-months old&quot;</span><span class="p">)</span>
 
     <span class="c1"># Clean the input text</span>
@@ -431,13 +505,13 @@
         <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">_patient_age_guess</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_patient_age_guess</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Guess the age of the patient.</span>
 
-<span class="sd">    :param history: history extract from the abstract of a MedPix image.</span>
-<span class="sd">    :type history: ``str``</span>
+<span class="sd">    :param background: the background of the patient/study.</span>
+<span class="sd">    :type background: ``str``</span>
 <span class="sd">    :param abstract: a text abstract.</span>
 <span class="sd">    :type abstract: ``str``</span>
 <span class="sd">    :param image_caption: an element from the &#39;image_caption&#39; column.</span>
@@ -448,7 +522,7 @@
 <span class="sd">    :rtype: ``float`` or ``None``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Loop through the inputs, search all of them for age matches</span>
-    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">matches</span> <span class="o">=</span> <span class="n">_age_marker_match</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">):</span>
@@ -512,13 +586,13 @@
     <span class="k">return</span> <span class="n">patient_ethnicity</span><span class="p">,</span> <span class="n">patient_sex</span>
 
 
-<span class="k">def</span> <span class="nf">_ethnicity_guess</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_ethnicity_guess</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Guess the ethnicity of the patient.</span>
 
-<span class="sd">    :param history: history extract from the abstract of a MedPix image.</span>
-<span class="sd">    :type history: ``str``</span>
+<span class="sd">    :param background: the background of the patient/study.</span>
+<span class="sd">    :type background: ``str``</span>
 <span class="sd">    :param abstract: a text abstract.</span>
 <span class="sd">    :type abstract: ``str``</span>
 <span class="sd">    :param image_caption: an element from the &#39;image_caption&#39; column.</span>
@@ -529,7 +603,7 @@
 <span class="sd">    :rtype: ``tuple``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">matches</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ethnicity_guess_engine</span><span class="p">(</span><span class="n">source</span><span class="p">))</span>
 
@@ -551,14 +625,59 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
-<span class="k">def</span> <span class="nf">_disease_guess</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">,</span> <span class="n">list_of_diseases</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_remove_substrings</span><span class="p">(</span><span class="n">list_of_terms</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Search `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`</span>
+<span class="sd">    Remove list elements that are substrings of other list elements.</span>
 
-<span class="sd">    Warning: this is likely to be confused by multiple disease names appearing in, say, ``abstract``.</span>
+<span class="sd">    :param list_of_terms: any list of strings and their starting position in the source string.</span>
+<span class="sd">    :type list_of_terms: ``iterable``</span>
+<span class="sd">    :return: see description.</span>
+<span class="sd">    :type: ``list_of_terms`` with any substrings of other terms removed.</span>
 
+<span class="sd">    :Example:</span>
+
+<span class="sd">    # Source string: &quot;The patient presented with congenital heart disease&quot;.</span>
+<span class="sd">    &gt;&gt;&gt; remove_substrings(list_of_terms=[[38, &#39;heart disease&#39;], [27, &#39;congenital heart disease&#39;], [44, &#39;disease&#39;]])</span>
+<span class="sd">    ...</span>
+<span class="sd">    [0, &#39;congenital heart disease&#39;]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_terms</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">list_of_terms</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rslt</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_of_terms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">j</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">list_of_terms</span> <span class="k">if</span> <span class="n">j</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">rslt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rslt</span>
+
+
+<span class="k">def</span> <span class="nf">_disease_guess</span><span class="p">(</span><span class="n">problems</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">,</span> <span class="n">list_of_diseases</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Search `problems`, `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`</span>
+
+<span class="sd">    Note: this function favors the first disease to occur in a source.</span>
+<span class="sd">    Another method would be to count the number of times the disease is mentioned in all sources...</span>
+<span class="sd">    Though, it is not obvious that -- rather more complex solution -- would be any less fallible.</span>
+
+<span class="sd">    Future Directions:</span>
+
+<span class="sd">        Shift to more advanced approaches and consider using one or all of:</span>
+
+<span class="sd">        - the NegEx Algorithm (https://healthinformatics.wikispaces.com/NegEx+Algorithm).</span>
+<span class="sd">        - pyConTextNLP library (https://github.com/chapmanbe/pyConTextNLP) -- more recent tool than NegEx.</span>
+<span class="sd">        - consider using the &#39;image_caption_concepts&#39; and mesh column.</span>
+
+<span class="sd">    Also see:</span>
+<span class="sd">        - Interleaved Text/Image Deep Mining on a Large-Scale Radiology Database for Automated Image Interpretation</span>
+<span class="sd">          (https://arxiv.org/abs/1505.00670).</span>
+<span class="sd">        - https://irp.nih.gov/blog/post/2016/11/challenges-to-training-artificial-intelligence-with-medical-imaging-data</span>
+
+<span class="sd">    :param problems:</span>
 <span class="sd">    :param title:</span>
+<span class="sd">    :param background:</span>
 <span class="sd">    :param abstract:</span>
 <span class="sd">    :param image_caption:</span>
 <span class="sd">    :param image_mention:</span>
@@ -566,18 +685,39 @@
 <span class="sd">    :type list_of_diseases: ``list``</span>
 <span class="sd">    :return:</span>
 <span class="sd">    :rtype: ``str`` or ``None``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; _disease_guess(None, None, None, &#39;...a patient with pancreatitis, not Macrolipasemia&#39;, None, list_of_diseases)</span>
+<span class="sd">    ...</span>
+<span class="sd">    &#39;pancreatitis&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># ToDo: use the first disease that appears. E.g., &#39;Pancreatitis in patients with diabetes&#39; -- want &#39;Pancreatitis&#39;.</span>
     <span class="n">possible_diseases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">,</span> <span class="n">abstract</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">source</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="n">problems</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">,</span> <span class="n">abstract</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
             <span class="n">source_clean</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">list_of_diseases</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">source_clean</span><span class="p">:</span>
-                    <span class="n">possible_diseases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_diseases</span><span class="p">):</span>  <span class="c1"># break to prevent a later source contradicting a former one.</span>
+                    <span class="n">possible_diseases</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">source_clean</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">d</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_diseases</span><span class="p">):</span>  <span class="c1"># break to prevent a later source contradicting an earlier one.</span>
                 <span class="k">break</span>
-    <span class="k">return</span> <span class="n">possible_diseases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_diseases</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Drop substrings</span>
+    <span class="n">to_return</span> <span class="o">=</span> <span class="n">_remove_substrings</span><span class="p">(</span><span class="n">possible_diseases</span><span class="p">)</span>
+
+    <span class="c1"># Allow multiple matches for &#39;problems&#39;.</span>
+    <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_return</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">to_return</span><span class="p">]))</span>
+    <span class="c1"># Otherwise, use the first match</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_return</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">to_return</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># Try to fall back to `problems`.</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_return</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">problems</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">parsed_problems</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">problems</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">parsed_problems</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -619,13 +759,13 @@
     <span class="k">return</span> <span class="n">durations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">durations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">_illness_duration_guess</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_illness_duration_guess</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Guess the duration of an illness. Unit: years.</span>
 
-<span class="sd">    :param history: history extract from the abstract of a MedPix image.</span>
-<span class="sd">    :type history: ``str``</span>
+<span class="sd">    :param background: the background of the patient/study.</span>
+<span class="sd">    :type background: ``str``</span>
 <span class="sd">    :param abstract: a text abstract.</span>
 <span class="sd">    :type abstract: ``str``</span>
 <span class="sd">    :param image_caption: an element from the &#39;image_caption&#39; column.</span>
@@ -635,7 +775,7 @@
 <span class="sd">    :return:</span>
 <span class="sd">    :rtype: ``float`` or ``None``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">duration_guess</span> <span class="o">=</span> <span class="n">_illness_duration_guess_engine</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">duration_guess</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
@@ -649,7 +789,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
-<div class="viewcode-block" id="im_scan"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_feature_extraction.im_scan">[docs]</a><span class="k">def</span> <span class="nf">im_scan</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_im_scan</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Scan a ``source`` for modality information.</span>
@@ -679,10 +819,10 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 
-<div class="viewcode-block" id="im_drop_contradictions"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_feature_extraction.im_drop_contradictions">[docs]</a><span class="k">def</span> <span class="nf">im_drop_contradictions</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_im_drop_contradictions</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Check for and eliminate contradictions.</span>
@@ -693,10 +833,10 @@
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contradictions</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c</span><span class="p">):</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">values</span></div>
+    <span class="k">return</span> <span class="n">values</span>
 
 
-<div class="viewcode-block" id="im_formatter"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_feature_extraction.im_formatter">[docs]</a><span class="k">def</span> <span class="nf">im_formatter</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_im_formatter</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Format the output; form: &#39;formal modality name: subtype1; subtype2; ...&#39;.</span>
@@ -706,11 +846,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">modality</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">modality_formal_name</span> <span class="o">=</span> <span class="n">terms_dict</span><span class="p">[</span><span class="n">modality</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">values</span> <span class="o">=</span> <span class="n">im_drop_contradictions</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dictionary</span><span class="p">[</span><span class="n">modality</span><span class="p">]))</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">_im_drop_contradictions</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dictionary</span><span class="p">[</span><span class="n">modality</span><span class="p">]))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">modality_formal_name</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">modality_formal_name</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">modality_formal_name</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span>
 
 
 <span class="k">def</span> <span class="nf">_imaging_modality_guess</span><span class="p">(</span><span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">):</span>
@@ -731,9 +871,9 @@
     <span class="c1"># Try to return by scanning `image_caption`, `image_mention` and `abstract`</span>
     <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">,</span> <span class="n">abstract</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">scan_rslt</span> <span class="o">=</span> <span class="n">im_scan</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">cln</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="n">scan_rslt</span> <span class="o">=</span> <span class="n">_im_scan</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">cln</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scan_rslt</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">scan_rslt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">im_formatter</span><span class="p">(</span><span class="n">scan_rslt</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">_im_formatter</span><span class="p">(</span><span class="n">scan_rslt</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># capitulate</span>
 
@@ -867,7 +1007,10 @@
 <span class="sd">    :return: true if ``image_caption`` contains markers that indicate image enumeration.</span>
 <span class="sd">    :rtype: ``bool``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">image_caption_clean_lower</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">image_caption</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="c1"># Clean the input</span>
+    <span class="n">image_caption_reduced_confusion</span> <span class="o">=</span> <span class="n">multi_replace</span><span class="p">(</span><span class="n">image_caption</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;i.e.,&#39;</span><span class="p">,</span> <span class="s1">&#39;i.e.&#39;</span><span class="p">,</span> <span class="s1">&#39;e.g.,&#39;</span><span class="p">,</span> <span class="s1">&#39;e.g.&#39;</span><span class="p">,</span> <span class="s1">&#39;e.x.,&#39;</span><span class="p">,</span> <span class="s1">&#39;e.x.&#39;</span><span class="p">])</span>
+    <span class="n">image_caption_clean_lower</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">image_caption_reduced_confusion</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
     <span class="c1"># Check for markers of enumeration like &#39;(a-e)&#39;, &#39;(a,e)&#39;, &#39;(b and c)&#39;.</span>
     <span class="n">match_on</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[(|\[][a-z]&quot;</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="s2">&quot;[a-z][)|\]]&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;and&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;[a-z]~[a-z]&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">regex</span> <span class="ow">in</span> <span class="n">match_on</span><span class="p">:</span>
@@ -875,7 +1018,7 @@
             <span class="k">return</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Fall back to standard enumerations</span>
-        <span class="n">enums</span> <span class="o">=</span> <span class="n">_extract_enumerations</span><span class="p">(</span><span class="n">image_caption</span><span class="p">)</span>
+        <span class="n">enums</span> <span class="o">=</span> <span class="n">_extract_enumerations</span><span class="p">(</span><span class="n">image_caption_reduced_confusion</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">_enumerations_test</span><span class="p">(</span><span class="n">enums</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">enums</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">enumerations_grid_threshold</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
@@ -899,7 +1042,6 @@
 <span class="sd">    :rtype: ``bool``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">features</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-
     <span class="n">image_caption_clean</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">image_caption</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;arrow&#39;</span><span class="p">,</span> <span class="s1">&#39;asterisk&#39;</span><span class="p">):</span>
         <span class="c1"># Look for arrows or asterisk.</span>
@@ -960,6 +1102,30 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
+<span class="k">def</span> <span class="nf">_background_extract</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Extract background information for a parsed abstract.</span>
+
+<span class="sd">    :param d: the ``d`` dictionary as evolved inside ``feature_extract()``.</span>
+<span class="sd">    :type d: ``dict``</span>
+<span class="sd">    :return: the study background/history (or case information, e.g., &#39;case report&#39;).</span>
+<span class="sd">    :rtype: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract the background/history</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;parsed_abstract&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">background</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;parsed_abstract&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">background</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Try to use &#39;case&#39; information instead.</span>
+            <span class="n">case_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;parsed_abstract&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;case&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">case_keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">background</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;parsed_abstract&#39;</span><span class="p">][</span><span class="n">case_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">background</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">background</span>
+
+
 <div class="viewcode-block" id="feature_extract"><a class="viewcode-back" href="../../../../../source/biovida.html#biovida.images.interface_support.openi.openi_text_feature_extraction.feature_extract">[docs]</a><span class="k">def</span> <span class="nf">feature_extract</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">list_of_diseases</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -967,26 +1133,26 @@
 
 <span class="sd">    This function automatically generates the following columns when ``OpeniInterface().pull()`` is called:</span>
 
-<span class="sd">    Exclusive to MedPix® Images:</span>
-<span class="sd">        - &#39;history&#39;</span>
-<span class="sd">        - &#39;finding&#39;</span>
-<span class="sd">        - &#39;ddx&#39; (differential diagnosis)</span>
-<span class="sd">        - &#39;dxhow&#39;</span>
+<span class="sd">    - &#39;age&#39;</span>
+<span class="sd">    - &#39;sex&#39;</span>
+<span class="sd">    - &#39;ethnicity&#39;</span>
+<span class="sd">    - &#39;diagnosis&#39;</span>
+<span class="sd">    - &#39;parsed_abstract&#39;</span>
+<span class="sd">    - duration of illness (&#39;illness_duration_years&#39;)</span>
+<span class="sd">    - the imaging modality (e.g., MRI) used, based on the text associated with the image (&#39;imaging_modality_from_text&#39;)</span>
+<span class="sd">    - the plane of the image (&#39;image_plane&#39;)</span>
+<span class="sd">    - image problems (&#39;arrows&#39;, &#39;asterisks&#39; and &#39;grids&#39;) inferred from the image caption (&#39;image_problems_from_text&#39;)</span>
 
-<span class="sd">    For images from all sources:</span>
-<span class="sd">        - &#39;age&#39;</span>
-<span class="sd">        - &#39;sex&#39;</span>
-<span class="sd">        - &#39;ethnicity&#39;</span>
-<span class="sd">        - &#39;diagnosis&#39;</span>
-<span class="sd">        - duration of illness (&#39;illness_duration_years&#39;)</span>
-<span class="sd">        - the imaging modality (e.g., MRI) used, based on the text associated with the image (&#39;imaging_modality_from_text&#39;)</span>
-<span class="sd">        - the plane of the image (&#39;image_plane&#39;)</span>
-<span class="sd">        - image problems (&#39;arrows&#39;, &#39;asterisks&#39; and &#39;grids&#39;) inferred from the image caption (&#39;image_problems_from_text&#39;)</span>
+<span class="sd">    .. note::</span>
+
+<span class="sd">        In the &#39;parsed_abstract&#39; abstracts have been converted into dictionaries where the subheadings of the abstract</span>
+<span class="sd">        form the keys and their associated information are the values. For example, a *MedPix* image will typically yield</span>
+<span class="sd">        a dictionary with the following keys: &#39;history&#39;, &#39;finding&#39;, &#39;ddx&#39; (differential diagnosis), &#39;dxhow&#39; and &#39;exam&#39;.</span>
 
 <span class="sd">    .. warning::</span>
 
-<span class="sd">        For images from sources other than *MedPix*, the ``&#39;diagnosis&#39;`` column may be inaccurate.</span>
-
+<span class="sd">        *MedPix* images include a diagnosis made by a physician. For images from other sources, the ``&#39;diagnosis&#39;``</span>
+<span class="sd">        column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.</span>
 
 <span class="sd">    :param x: series passed though Pandas&#39; ``DataFrame().apply()`` method, e.g.,</span>
 <span class="sd">              ``df.apply(lambda x: feature_extract(x, list_of_diseases), axis=1)``.</span>
@@ -1003,31 +1169,39 @@
 <span class="sd">    :return: dictionary with the keys listed in the description.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Initialize</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="s1">&#39;Diagnosis&#39;</span><span class="p">,</span> <span class="s1">&#39;History&#39;</span><span class="p">,</span> <span class="s1">&#39;Findings&#39;</span><span class="p">,</span> <span class="s1">&#39;Ddx&#39;</span><span class="p">,</span> <span class="s1">&#39;Dxhow&#39;</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">unpacked_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;abstract&#39;</span><span class="p">,</span> <span class="s1">&#39;problems&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;image_caption&#39;</span><span class="p">,</span> <span class="s1">&#39;image_mention&#39;</span><span class="p">)]</span>
+    <span class="n">abstract</span><span class="p">,</span> <span class="n">problems</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span> <span class="o">=</span> <span class="n">unpacked_values</span>
 
-    <span class="k">if</span> <span class="s1">&#39;medpix&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;journal_title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">_mexpix_info_extract</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Diagnosis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_disease_guess</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_caption&#39;</span><span class="p">],</span>
-                                        <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_mention&#39;</span><span class="p">],</span> <span class="n">list_of_diseases</span><span class="p">)</span>
+    <span class="c1"># Initialize by converting the abstract into a dictionary</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;parsed_abstract&#39;</span><span class="p">:</span> <span class="n">_abstract_parser</span><span class="p">(</span><span class="n">abstract</span><span class="p">)}</span>
+
+    <span class="c1"># Extract the background/history</span>
+    <span class="n">background</span> <span class="o">=</span> <span class="n">_background_extract</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="c1"># Extract diagnosis -- will typically only work for MedPix images</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;diagnosis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;parsed_abstract&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;diagnosis&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;parsed_abstract&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Fall back</span>
+    <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;diagnosis&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;diagnosis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_disease_guess</span><span class="p">(</span><span class="n">problems</span><span class="o">=</span><span class="n">problems</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="o">=</span><span class="n">abstract</span><span class="p">,</span>
+                                        <span class="n">image_caption</span><span class="o">=</span><span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="o">=</span><span class="n">image_mention</span><span class="p">,</span>
+                                        <span class="n">list_of_diseases</span><span class="o">=</span><span class="n">list_of_diseases</span><span class="p">)</span>
 
     <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="n">_patient_age_guess</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="n">_patient_sex_guess</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;illness_duration_years&#39;</span><span class="p">,</span> <span class="n">_illness_duration_guess</span><span class="p">)]</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
-        <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;History&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_caption&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_mention&#39;</span><span class="p">])</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">)</span>
 
     <span class="c1"># Guess the imaging technology used by using the text</span>
-    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;imaging_modality_from_text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_imaging_modality_guess</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_caption&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_mention&#39;</span><span class="p">])</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;imaging_modality_from_text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_imaging_modality_guess</span><span class="p">(</span><span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">)</span>
 
     <span class="c1"># Guess image plane</span>
-    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;image_plane&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_image_plane_guess</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_caption&#39;</span><span class="p">])</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;image_plane&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_image_plane_guess</span><span class="p">(</span><span class="n">image_caption</span><span class="p">)</span>
 
     <span class="c1"># Use the image caption to detect problems in the image</span>
-    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;image_problems_from_text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_problematic_image_features</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_caption&#39;</span><span class="p">])</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;image_problems_from_text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_problematic_image_features</span><span class="p">(</span><span class="n">image_caption</span><span class="p">)</span>
 
     <span class="c1"># Guess Ethnicity</span>
-    <span class="n">ethnicity</span><span class="p">,</span> <span class="n">eth_sex</span> <span class="o">=</span> <span class="n">_ethnicity_guess</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;History&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_caption&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_mention&#39;</span><span class="p">])</span>
-    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ethnicity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ethnicity</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ethnicity&#39;</span><span class="p">],</span> <span class="n">eth_sex</span> <span class="o">=</span> <span class="n">_ethnicity_guess</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">abstract</span><span class="p">,</span> <span class="n">image_caption</span><span class="p">,</span> <span class="n">image_mention</span><span class="p">)</span>
 
     <span class="c1"># Try to Extract Age from Ethnicity analysis</span>
     <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;sex&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">eth_sex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

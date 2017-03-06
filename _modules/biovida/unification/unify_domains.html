@@ -91,7 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
@@ -185,8 +185,10 @@
 <div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../API.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Tool to unify image interfaces (``OpeniInterface`` and ``CancerImageInterface``)</span>
+<span class="sd">    Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)</span>
 <span class="sd">    with Diagnostic and Genomic Data.</span>
+
+<span class="sd">    Note: this tool extracts the ``cache_records_db`` attribute from these classes.</span>
 
 <span class="sd">    :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a list.</span>
 <span class="sd">    :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``</span>
@@ -199,8 +201,8 @@
 <span class="sd">    </span>
 <span class="sd">                .. warning::</span>
 
-<span class="sd">                        Fuzzy searching with large databases, such as those this function integrates, is very</span>
-<span class="sd">                        computationally expensive.</span>
+<span class="sd">                        While this parameter will likely increase the number of matches, fuzzy searching with</span>
+<span class="sd">                        large databases, such as those this function integrates, is very computationally expensive.</span>
 <span class="sd">    </span>
 <span class="sd">    :type fuzzy_threshold: ``int``, ``bool``, ``None``</span>
 <span class="sd">    :return: a dataframe which unifies image interfaces with  genomic and diagnostics data.</span>
@@ -259,10 +261,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Note: this simply wraps ``biovida.images._unify_images_against_other_biovida_apis._images_unify``</span>
     <span class="k">return</span> <span class="n">_images_unify</span><span class="p">(</span><span class="n">interfaces</span><span class="o">=</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="n">fuzzy_threshold</span><span class="p">)</span></div>
-
-
-
-
 
 
 

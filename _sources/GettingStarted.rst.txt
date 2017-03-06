@@ -159,7 +159,7 @@ Data Harvesting
     # 2. Create an Instance of the Tool
     dna = DisgenetInterface()
 
-    # 3. Pull the data
+    # 3. Pull a Database
     df = dna.pull('curated')
 
 

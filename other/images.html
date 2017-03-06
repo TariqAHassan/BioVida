@@ -91,7 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-text-processing">Open-i Text Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-classification">Image Classification</a></li>
@@ -236,7 +236,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=60</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=60</em>, <em>clinical_cases_only=True</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -260,6 +260,9 @@ Note: noise is randomly added to the sleep time by sampling from a normal distri
 (with mean = 0, sd = 0.75).</li>
 <li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
 (not recommended). Defaults to 60.</li>
+<li><strong>clinical_cases_only</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> require that the data harvested is of a clinical case. Specifically,
+This parameter requies that &#8216;article_type&#8217; is one of: &#8216;encounter&#8217;, &#8216;case_report&#8217;.
+Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>use_image_caption</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> block downloading of an image if its caption suggests the presence
 of problematic image properties (e.g., &#8216;arrows&#8217;) likely to corrupt
 a dataset intended for machine learning. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
@@ -293,7 +296,7 @@ The computed term is stored as a class attribute (<code class="docutils literal"
 <li><strong>query</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a search term. <code class="docutils literal"><span class="pre">None</span></code> will be converted to an empty string.</li>
 <li><strong>image_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('image_type')</span></code> for valid values.</li>
 <li><strong>rankby</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('rankby')</span></code> for valid values.</li>
-<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values.</li>
+<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values. Defaults to &#8216;case_report&#8217;.</li>
 <li><strong>subset</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('subset')</span></code> for valid values.</li>
 <li><strong>collection</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('collection')</span></code> for valid values.</li>
 <li><strong>fields</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('fields')</span></code> for valid values.</li>
@@ -352,16 +355,16 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 </table>
 <dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data">
-<code class="descname">extract_dicom_data</code><span class="sig-paren">(</span><em>database='record_db'</em>, <em>make_hashable=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.extract_dicom_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract data from all dicom files referenced in <code class="docutils literal"><span class="pre">record_db</span></code> or <code class="docutils literal"><span class="pre">cache_record_db</span></code>.
+<code class="descname">extract_dicom_data</code><span class="sig-paren">(</span><em>database='records_db'</em>, <em>make_hashable=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.extract_dicom_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract data from all dicom files referenced in <code class="docutils literal"><span class="pre">records_db</span></code> or <code class="docutils literal"><span class="pre">cache_records_db</span></code>.
 Note: this requires that <code class="docutils literal"><span class="pre">save_dicoms</span></code> is <code class="docutils literal"><span class="pre">True</span></code> when <code class="docutils literal"><span class="pre">pull()</span></code> is called.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the name of the database to use. Must be one of: &#8216;record_db&#8217;, &#8216;cache_record_db&#8217;.
-Defaults to &#8216;record_db&#8217;.</li>
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the name of the database to use. Must be one of: &#8216;records_db&#8217;, &#8216;cache_records_db&#8217;.
+Defaults to &#8216;records_db&#8217;.</li>
 <li><strong>make_hashable</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code> convert the data extracted to nested tuples.
 If <code class="docutils literal"><span class="pre">False</span></code> generate nested dictionaries. Defaults to <code class="docutils literal"><span class="pre">False</span></code></li>
 </ul>
@@ -511,7 +514,7 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <li><strong>model_location</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the location of the model for Convnet.
 If <cite>None</cite>, the default model will be used. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 <li><strong>database_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; &#8216;current&#8217; to extract the <code class="docutils literal"><span class="pre">records_db</span></code> from <code class="docutils literal"><span class="pre">search_class</span></code> or
-&#8216;cache&#8217; to extract <code class="docutils literal"><span class="pre">cache_record_db</span></code>. Defaults to &#8216;current&#8217;.</li>
+&#8216;cache&#8217; to extract <code class="docutils literal"><span class="pre">cache_records_db</span></code>. Defaults to &#8216;current&#8217;.</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional details. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
