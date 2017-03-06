@@ -32,7 +32,7 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
     
                 .. warning::
 
-                        While this paramter will likely increase the number of matches, fuzzy searching with
+                        While this parameter will likely increase the number of matches, fuzzy searching with
                         large databases, such as those this function integrates, is very computationally expensive.
     
     :type fuzzy_threshold: ``int``, ``bool``, ``None``
