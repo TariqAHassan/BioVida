@@ -182,7 +182,7 @@ class _OpeniSearch(object):
 
         # Block progress if no results found
         if total < 1:
-            raise NoResultsFound("Please Try Refining Your Search.")
+            raise NoResultsFound("\n\nPlease Try Refining Your Search.")
 
         # Print number of results found
         if print_results:
@@ -556,6 +556,31 @@ class _OpeniRecords(object):
 
         return harvested_data
 
+    def _apply_clinical_case_only(self, records_db):
+        """
+
+        Remove records (dataframe rows) which are not of clinical encounters.
+
+        Note: this is here, and not in ``_OpeniImages().pull_images()`` b/c the
+        Open-i API does not have an 'encounter' param (which it probably should).
+
+        :param records_db: the ``records_db`` as evolved in ``records_pull()``.
+        :type records_db: ``Pandas DataFrame``
+        :return: see description.
+        :rtype: ``Pandas DataFrame``
+        """
+        clinical_article_types = ('encounter', 'case_report')
+        def test(article_type):
+            if isinstance(article_type, str) and article_type in clinical_article_types:
+                return True
+            else:
+                return False
+
+        records_db = records_db[records_db['article_type'].map(test)].reset_index(drop=True)
+        if records_db.shape[0] == 0:
+            raise NoResultsFound("\nNo results remained after the `clinical_cases_only` restriction was applied.")
+        return records_db
+
     def records_pull(self,
                      search_url,
                      to_harvest,
@@ -563,6 +588,7 @@ class _OpeniRecords(object):
                      query,
                      pull_time,
                      records_sleep_time,
+                     clinical_cases_only,
                      download_limit=None):
         """
 
@@ -574,6 +600,8 @@ class _OpeniRecords(object):
         :param query:
         :param pull_time:
         :param records_sleep_time: (every x downloads, period of time [seconds])
+        :param clinical_cases_only: see ``OpeniInterface().pull()``.
+        :type clinical_cases_only: ``bool``
         :param download_limit:
         :return:
         """
@@ -610,6 +638,9 @@ class _OpeniRecords(object):
 
         # Add the Version of BioVida which generated the DataFrame
         records_db['biovida_version'] = [__version__] * records_db.shape[0]
+
+        if clinical_cases_only:
+            records_db = self._apply_clinical_case_only(records_db)
 
         # Add to attrs.
         self.records_db = records_db
@@ -1012,7 +1043,7 @@ class OpeniInterface(object):
                query=None,
                image_type=None,
                rankby=None,
-               article_type='case_report',
+               article_type=None,
                subset=None,
                collection=None,
                fields=None,
@@ -1088,6 +1119,7 @@ class OpeniInterface(object):
              records_sleep_time=(10, 1.5),
              images_sleep_time=(10, 1.5),
              download_limit=60,
+             clinical_cases_only=True,
              use_image_caption=False):
         """
 
@@ -1116,6 +1148,10 @@ class OpeniInterface(object):
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 60.
         :type download_limit: ``int``
+        :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,
+                                    This parameter requies that 'article_type' is one of: 'encounter', 'case_report'.
+                                    Defaults to ``True``.
+        :type clinical_cases_only: ``bool``
         :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
                                   a dataset intended for machine learning. Defaults to ``False``.
@@ -1139,6 +1175,7 @@ class OpeniInterface(object):
                                                          query=self.current_query,
                                                          pull_time=self._pull_time,
                                                          records_sleep_time=records_sleep_time,
+                                                         clinical_cases_only=clinical_cases_only,
                                                          download_limit=download_limit)
 
         # Pull Images
@@ -1158,8 +1195,6 @@ class OpeniInterface(object):
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
 
         return self.records_db
-
-
 
 
 
