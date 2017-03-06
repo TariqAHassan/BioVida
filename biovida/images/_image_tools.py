@@ -312,7 +312,7 @@ def records_db_merge(current_records_db,
     combined_dbs = pd.concat([current_records_db, records_db_update], ignore_index=True)
 
     # Mark each row to conserve order following ``pandas.drop_duplicates()``.
-    combined_dbs['temp_order'] = range(combined_dbs.shape[0])
+    combined_dbs['__temp_order__'] = range(combined_dbs.shape[0])
 
     # Analyze which rows to drop
     if rows_to_conserve_func is not None:
@@ -330,7 +330,7 @@ def records_db_merge(current_records_db,
     # (making them hashable, as required by ``pandas.drop_duplicates()``).
     combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict_to_tot)
 
-    # Sort columns with iterables
+    # Sort iterables in columns with iterables
     combined_dbs = multimap(combined_dbs, columns=columns_with_iterables_to_sort, func=lambda x: tuple(sorted(x)))
 
     # Drop Duplicates (keeping the most recent).
@@ -340,14 +340,14 @@ def records_db_merge(current_records_db,
     combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict)
 
     # Sort
-    combined_dbs = combined_dbs.sort_values('temp_order')
-    del combined_dbs['temp_order']
+    combined_dbs = combined_dbs.sort_values('__temp_order__')
 
     # Map relationships in the dataframe.
     if relationship_mapping_func is not None:
         combined_dbs = relationship_mapping_func(combined_dbs)
 
-    return combined_dbs.reset_index(drop=True)
+    return combined_dbs.drop('__temp_order__', axis=1).reset_index(drop=True)
+
 
 
 
