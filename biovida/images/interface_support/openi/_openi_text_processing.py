@@ -31,20 +31,49 @@ from biovida.images.interface_support.openi.openi_text_feature_extraction import
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 
 
-def _mesh_cleaner(mesh):
+# ----------------------------------------------------------------------------------------------------------
+# Handle Missing Columns
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _df_add_missing_columns(data_frame):
     """
 
-    Clean mesh terms by cleaning them.
+    Add 'license_type', 'license_url' and 'image_caption_concepts' columns
+    if they do not exist in ``data_frame``
 
-    :param mesh: a list of mesh terms.
-    :type mesh: ``tuple`` or ``list``
-    :return: a cleaned tuple of mesh terms.
-    :rtype: ``tuple`` or ``type(mesh)``
+    :param data_frame: the dataframe evolved inside ``openi_raw_extract_and_clean``.
+    :type data_frame: ``Pandas DataFrame``
+    :return: see description.
+    :rtype: ``Pandas DataFrame``
     """
-    if isinstance(mesh, (list, tuple)):
-        return tuple([cln(unescape(i)) if isinstance(i, str) else i for i in mesh])
+    # Handle cases where some searches (e.g., collection='pubmed')
+    # Open-i does not return these columns (not clear why...).
+    for c in ('license_type', 'license_url', 'image_caption_concepts'):
+        if c not in data_frame.columns:
+            data_frame[c] = [np.NaN] * data_frame.shape[0]
+    return data_frame
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Make Hashable
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _iterable_cleaner(iterable):
+    """
+
+    Clean terms in an iterable and return as a tuple.
+
+    :param iterable: a list of terms.
+    :type iterable: ``tuple`` or ``list``
+    :return: a cleaned tuple of strings.
+    :rtype: ``tuple`` or ``type(iterable)``
+    """
+    if isinstance(iterable, (list, tuple)):
+        return tuple([cln(unescape(i)) if isinstance(i, str) else i for i in iterable])
     else:
-        return mesh
+        return iterable
 
 
 def _df_make_hashable(data_frame):
@@ -62,20 +91,20 @@ def _df_make_hashable(data_frame):
         data_frame[c] = data_frame[c].map(lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
 
     # Clean mesh terms
-    for c in ('mesh_major', 'mesh_minor'):
-        data_frame[c] = data_frame[c].map(_mesh_cleaner, na_action='ignore')
+    for c in ('mesh_major', 'mesh_minor', 'image_caption_concepts'):
+        data_frame[c] = data_frame[c].map(_iterable_cleaner, na_action='ignore')
 
     # Convert all elements in the 'license_type' and 'license_url' columns to string.
     for c in ('license_type', 'license_url'):
-        if c in data_frame.columns:
-            data_frame[c] = data_frame[c].map(lambda x: "; ".join(map(str, x)) if isinstance(x, (list, tuple)) else x,
-                                              na_action='ignore')
-        else:
-            # Handle cases where some searches (e.g., collection='pubmed')
-            # Open-i does not return these columns (not clear why...).
-            data_frame[c] = [np.NaN] * data_frame.shape[0]
+        data_frame[c] = data_frame[c].map(lambda x: "; ".join(map(str, x)) if isinstance(x, (list, tuple)) else x,
+                                          na_action='ignore')
 
     return data_frame
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Cleaning
+# ----------------------------------------------------------------------------------------------------------
 
 
 def _df_fill_nan(data_frame):
@@ -127,13 +156,18 @@ def _df_clean(data_frame):
 
     # Look up the article type
     data_frame['article_type'] = data_frame['article_type'].map(
-        lambda x: openi_article_type_params.get(cln(x).lower(), x), na_action='ignore')
+        lambda x: openi_article_type_params.get(cln(x).replace("_", " ").lower(), x), na_action='ignore')
 
     # Label the number of instance of repeating 'uid's.
     data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
 
     # Replace missing Values with with NaN and Return
     return _df_fill_nan(data_frame)
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Outward Facing Tool
+# ----------------------------------------------------------------------------------------------------------
 
 
 def openi_raw_extract_and_clean(data_frame, verbose, cache_path):
@@ -154,6 +188,9 @@ def openi_raw_extract_and_clean(data_frame, verbose, cache_path):
     # Convert column names to snake_case
     data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
 
+    # Add potentially missing columns
+    data_frame = _df_add_missing_columns(data_frame)
+
     # Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
     data_frame = _df_make_hashable(data_frame)
 
@@ -173,8 +210,6 @@ def openi_raw_extract_and_clean(data_frame, verbose, cache_path):
     data_frame = _df_clean(data_frame)
 
     return data_frame
-
-
 
 
 

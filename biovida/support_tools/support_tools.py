@@ -60,6 +60,19 @@ def multi_replace(s, to_replace):
     return s
 
 
+def remove_line_breaks(s):
+    """
+
+    Removes all line breaks.
+
+    :param s: any string
+    :type s: ``str``
+    :return: ``s`` without line breaks.
+    :rtype: ``str``
+    """
+    return re.sub(r'[\t\r\n]', ' ', s)
+
+
 def n_sub_dirs(dir):
     """
 

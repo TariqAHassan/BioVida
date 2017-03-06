@@ -8,24 +8,129 @@
 import re
 import string
 from itertools import chain
+from bs4 import BeautifulSoup
 from collections import defaultdict
 
 # Image Support Tools
 from biovida.images.interface_support.openi._openi_support_tools import item_extract
 from biovida.images.interface_support.openi._openi_support_tools import filter_unnest
 from biovida.images.interface_support.openi._openi_support_tools import num_word_to_int
+from biovida.images.interface_support.openi._openi_support_tools import remove_substrings
 from biovida.images.interface_support.openi._openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import items_null
+from biovida.support_tools.support_tools import multi_replace
+from biovida.support_tools.support_tools import remove_line_breaks
 
 # Data
 from biovida.images.interface_support.openi._openi_imaging_modality_information import (terms_dict,
                                                                                         modality_subtypes,
                                                                                         contradictions,
                                                                                         modality_specific_subtypes)
+
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Abstract Processing
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _raw_abstract_clean(abstract):
+    """
+
+    Cleans ``abstract`` by removing any bullent points (html entities)
+    and replacing them with semi-colons.
+
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :return: see description.
+    :rtype: ``str``
+    """
+    no_points = cln(abstract).replace('\n&bull; ', "; ").replace('&bull; ', "; ")
+    return cln(remove_line_breaks(no_points).replace(" ;", "; "))
+
+
+def _key_clean(key):
+    """
+
+    Cleans the key for the ``parsed_abstract`` dictionary inside ``_abstract_parser()``.
+
+    :param key: ``key`` as evolved inside ``_abstract_parser()``.
+    :type key: ``str``
+    :return: see description.
+    :rtype: ``str``
+    """
+    key_lowered = key.lower()
+    if 'history' in key_lowered or 'background' in key_lowered:
+        return 'background'
+    if 'material' in key_lowered or 'method' in key_lowered:
+        return "methods"
+    if 'finding' in key_lowered or 'result' in key_lowered:
+        return 'results'
+    else:
+        return cln(cln(key).replace(":", "")).replace("/", "_").replace(" ", "_").lower()
+
+
+def _value_clean(value):
+    """
+
+    Cleans the value for the ``parsed_abstract`` dictionary inside ``_abstract_parser()``.
+
+    :param key: ``value`` as evolved inside ``_abstract_parser()``.
+    :type key: ``str``
+    :return: see description.
+    :rtype: ``str``
+    """
+    cleaned = cln(value)
+    if cleaned.startswith(";"):
+        cleaned = cleaned[1:]
+    if cleaned.endswith(";"):
+        cleaned = cleaned[:-1]
+    return cln(cleaned)
+
+
+def _abstract_parser(abstract):
+    """
+
+    Take a raw HTML abstract and generate dicitionary
+    using the items in bold (e.g., '<b>History: </b>') as the keys
+    and the result of the information inside the <p>...</p> tags as the value.
+
+    :param abstract: a text abstract.
+    :type abstract: ``str``
+    :return: a dicitionary of the form described above.
+    :rtype: ``None`` or ``dict``
+
+    :Example:
+
+    >>> _abstract_parser(abstract='<p><p><b>History: </b>The patient presented with xyz.</p></p>')
+    ...
+    {'history': 'The patient Presented with xyz.'}
+
+    """
+    if not isinstance(abstract, str):
+        return None
+
+    soup = BeautifulSoup(_raw_abstract_clean(abstract), 'lxml')
+
+    parsed_abstract = dict()
+    for p in soup.find_all('p'):
+        # Look for Key
+        key_candidiate = p.find_all('b')
+        if len(key_candidiate) == 1:
+            key = _key_clean(key_candidiate[0].text)
+            if len(key):
+                # Look for Value
+                contents = p.contents
+                if len(contents) == 2:
+                    value = _value_clean(contents[-1])
+                    if isinstance(value, str) and len(value):
+                        parsed_abstract[key] = value
+
+    return parsed_abstract if parsed_abstract else None
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -79,36 +184,6 @@ def _html_text_clean(html_text, action, parse_medpix=False):
 
 
 # ----------------------------------------------------------------------------------------------------------
-# MedPix
-# ----------------------------------------------------------------------------------------------------------
-
-
-def _mexpix_info_extract(abstract):
-    """
-
-    Handles information extraction for MedPix Images
-
-    :param abstract: a text abstract.
-    :type abstract: ``str``
-    :return: a dictionary with the following keys: 'Diagnosis', 'History', 'Findings', 'Ddx' and 'Dxhow'.
-    :rtype: ``dict``
-    """
-    features = ('Diagnosis', 'History', 'Findings', 'Ddx', 'Dxhow')
-    features_dict = dict.fromkeys(features, None)
-    cln_abstract = cln(abstract)
-
-    for k in features_dict:
-        try:
-            raw_extract = item_extract(re.findall('<p><b>' + k + ': </b>(.*?)</p><p>', cln_abstract))
-            cleaned_extract = _html_text_clean(html_text=raw_extract, action='entities')
-            features_dict[k] = cleaned_extract.lower() if k == 'Diagnosis' else cleaned_extract
-        except:
-            pass
-
-    return features_dict
-
-
-# ----------------------------------------------------------------------------------------------------------
 # Patient's Sex
 # ----------------------------------------------------------------------------------------------------------
 
@@ -140,13 +215,13 @@ def _patient_sex_extract(image_summary_info):
         return None
 
 
-def _patient_sex_guess(history, abstract, image_caption, image_mention):
+def _patient_sex_guess(background, abstract, image_caption, image_mention):
     """
 
     Tool to extract the sex of the patient (female or male).
 
-    :param history: the history of the patient.
-    :type history: ``str``
+    :param background: the background of the patient/study.
+    :type background: ``str``
     :param abstract: a text abstract.
     :type abstract: ``str``
     :param image_caption: an element from the 'image_caption' column.
@@ -156,7 +231,7 @@ def _patient_sex_guess(history, abstract, image_caption, image_mention):
     :return: the sex of the patent.
     :rtype: ``str`` or ``None``
     """
-    for source in (history, abstract, image_caption, image_mention):
+    for source in (background, abstract, image_caption, image_mention):
         if isinstance(source, str):
             extract = _patient_sex_extract(source.lower())
             if isinstance(extract, str):
@@ -240,7 +315,7 @@ def _age_marker_match(image_summary_info):
 
     Extract age from a string based on it being followed by one of:
 
-    " y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year", "month old", " month old", "-month old",
+    " y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year", " ans ", "month old", " month old", "-month old",
     "months old", " months old" or "-months old".
 
     :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
@@ -249,7 +324,7 @@ def _age_marker_match(image_summary_info):
     :return: patient age.
     :rtype: ``str`` or ``None``
     """
-    age_markers = (" y", "yo ", " yo ", "y.o.", "y/o", "year", "-year", " - year", " -year",
+    age_markers = (" y", "yo ", " yo ", "y.o.", "y/o", "year", "-year", " - year", " -year", " ans "
                    "month old", " month old", "-month old", "months old", " months old", "-months old")
 
     # Clean the input text
@@ -262,13 +337,13 @@ def _age_marker_match(image_summary_info):
         return None
 
 
-def _patient_age_guess(history, abstract, image_caption, image_mention):
+def _patient_age_guess(background, abstract, image_caption, image_mention):
     """
 
     Guess the age of the patient.
 
-    :param history: history extract from the abstract of a MedPix image.
-    :type history: ``str``
+    :param background: the background of the patient/study.
+    :type background: ``str``
     :param abstract: a text abstract.
     :type abstract: ``str``
     :param image_caption: an element from the 'image_caption' column.
@@ -279,7 +354,7 @@ def _patient_age_guess(history, abstract, image_caption, image_mention):
     :rtype: ``float`` or ``None``
     """
     # Loop through the inputs, search all of them for age matches
-    for source in (history, abstract, image_caption, image_caption, image_mention):
+    for source in (background, abstract, image_caption, image_caption, image_mention):
         if isinstance(source, str):
             matches = _age_marker_match(source)
             if isinstance(matches, list) and len(matches):
@@ -343,13 +418,13 @@ def _ethnicity_guess_engine(image_summary_info):
     return patient_ethnicity, patient_sex
 
 
-def _ethnicity_guess(history, abstract, image_caption, image_mention):
+def _ethnicity_guess(background, abstract, image_caption, image_mention):
     """
 
     Guess the ethnicity of the patient.
 
-    :param history: history extract from the abstract of a MedPix image.
-    :type history: ``str``
+    :param background: the background of the patient/study.
+    :type background: ``str``
     :param abstract: a text abstract.
     :type abstract: ``str``
     :param image_caption: an element from the 'image_caption' column.
@@ -360,7 +435,7 @@ def _ethnicity_guess(history, abstract, image_caption, image_mention):
     :rtype: ``tuple``
     """
     matches = list()
-    for source in (history, abstract, image_caption, image_mention):
+    for source in (background, abstract, image_caption, image_mention):
         if isinstance(source, str):
             matches.append(_ethnicity_guess_engine(source))
 
@@ -382,13 +457,14 @@ def _ethnicity_guess(history, abstract, image_caption, image_mention):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseases):
+def _disease_guess(problems, title, abstract, image_caption, image_mention, list_of_diseases):
     """
 
     Search `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
 
     Warning: this is likely to be confused by multiple disease names appearing in, say, ``abstract``.
 
+    :param problems:
     :param title:
     :param abstract:
     :param image_caption:
@@ -400,7 +476,7 @@ def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseas
     """
     # ToDo: use the first disease that appears. E.g., 'Pancreatitis in patients with diabetes' -- want 'Pancreatitis'.
     possible_diseases = list()
-    for source in (title, image_caption, image_mention, abstract):
+    for e, source in enumerate((problems, title, image_caption, image_mention, abstract)):
         if isinstance(source, str):
             source_clean = cln(source).lower()
             for d in list_of_diseases:
@@ -408,7 +484,21 @@ def _disease_guess(title, abstract, image_caption, image_mention, list_of_diseas
                     possible_diseases.append(d)
             if len(possible_diseases):  # break to prevent a later source contradicting a former one.
                 break
-    return possible_diseases[0] if len(possible_diseases) == 1 else None
+
+    # Drop substrings
+    to_return = sorted(remove_substrings(possible_diseases))
+
+    # Allow multiple matches for 'problems'.
+    if e == 0 and len(to_return):
+        return "; ".join(to_return)
+    # Otherwise, require a single match.
+    elif len(to_return) == 1:
+        return to_return[0]
+    # Try to fall back to `problems`.
+    elif not len(to_return) and isinstance(problems, str):
+        return "; ".join(cln(problems).split(";")).lower()
+    else:
+        return None
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -450,13 +540,13 @@ def _illness_duration_guess_engine(image_summary_info):
     return durations[0] if len(durations) == 1 else None
 
 
-def _illness_duration_guess(history, abstract, image_caption, image_mention):
+def _illness_duration_guess(background, abstract, image_caption, image_mention):
     """
 
     Guess the duration of an illness. Unit: years.
 
-    :param history: history extract from the abstract of a MedPix image.
-    :type history: ``str``
+    :param background: the background of the patient/study.
+    :type background: ``str``
     :param abstract: a text abstract.
     :type abstract: ``str``
     :param image_caption: an element from the 'image_caption' column.
@@ -466,7 +556,7 @@ def _illness_duration_guess(history, abstract, image_caption, image_mention):
     :return:
     :rtype: ``float`` or ``None``
     """
-    for source in (history, abstract, image_caption, image_mention):
+    for source in (background, abstract, image_caption, image_mention):
         if isinstance(source, str):
             duration_guess = _illness_duration_guess_engine(source.lower())
             if isinstance(duration_guess, float):
@@ -480,7 +570,7 @@ def _illness_duration_guess(history, abstract, image_caption, image_mention):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def im_scan(source):
+def _im_scan(source):
     """
 
     Scan a ``source`` for modality information.
@@ -513,7 +603,7 @@ def im_scan(source):
         return {k: list(filter(None, v)) for k, v in matches.items()}
 
 
-def im_drop_contradictions(values):
+def _im_drop_contradictions(values):
     """
 
     Check for and eliminate contradictions.
@@ -527,7 +617,7 @@ def im_drop_contradictions(values):
     return values
 
 
-def im_formatter(dictionary):
+def _im_formatter(dictionary):
     """
 
     Format the output; form: 'formal modality name: subtype1; subtype2; ...'.
@@ -537,7 +627,7 @@ def im_formatter(dictionary):
     """
     modality = list(dictionary.keys())[0]
     modality_formal_name = terms_dict[modality][-1]
-    values = im_drop_contradictions(set(dictionary[modality]))
+    values = _im_drop_contradictions(set(dictionary[modality]))
     if not len(values):
         return modality_formal_name
     else:
@@ -562,9 +652,9 @@ def _imaging_modality_guess(abstract, image_caption, image_mention):
     # Try to return by scanning `image_caption`, `image_mention` and `abstract`
     for source in (image_caption, image_mention, abstract):
         if isinstance(source, str):
-            scan_rslt = im_scan(source=cln(source).lower())
+            scan_rslt = _im_scan(source=cln(source).lower())
             if isinstance(scan_rslt, dict) and len(scan_rslt.keys()) == 1:
-                return im_formatter(scan_rslt)
+                return _im_formatter(scan_rslt)
     else:
         return None  # capitulate
 
@@ -698,7 +788,10 @@ def _enumerations_guess(image_caption, enumerations_grid_threshold):
     :return: true if ``image_caption`` contains markers that indicate image enumeration.
     :rtype: ``bool``
     """
-    image_caption_clean_lower = cln(image_caption, extent=2).lower()
+    # Clean the input
+    image_caption_reduced_confusion = multi_replace(image_caption, ['i.e.,', 'i.e.', 'e.g.,', 'e.g.', 'e.x.,', 'e.x.'])
+    image_caption_clean_lower = cln(image_caption_reduced_confusion, extent=2).lower()
+
     # Check for markers of enumeration like '(a-e)', '(a,e)', '(b and c)'.
     match_on = ["[(|\[][a-z]" + i + "[a-z][)|\]]" for i in ("-", ",", "and")] + ["[a-z]~[a-z]"]
     for regex in match_on:
@@ -706,7 +799,7 @@ def _enumerations_guess(image_caption, enumerations_grid_threshold):
             return True
     else:
         # Fall back to standard enumerations
-        enums = _extract_enumerations(image_caption)
+        enums = _extract_enumerations(image_caption_reduced_confusion)
         if _enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
             return True
         else:
@@ -834,18 +927,31 @@ def feature_extract(x, list_of_diseases):
     :return: dictionary with the keys listed in the description.
     :rtype: ``dict``
     """
-    # Initialize
-    d = dict.fromkeys(['Diagnosis', 'History', 'Findings', 'Ddx', 'Dxhow'], None)
+    # Initialize by converting the abstract into a dictionary
+    d = {'parsed_abstract': _abstract_parser(x['abstract'])}
 
-    if 'medpix' in x['journal_title'].lower():
-        d = _mexpix_info_extract(x['abstract'])
+    # Extract the background/history
+    if isinstance(d['parsed_abstract'], dict):
+        background = d['parsed_abstract'].get('background', None)
+        if background is None:
+            # Try to use 'case' information instead.
+            case_keys = [k for k in d['parsed_abstract'] if 'case' in k]
+            if len(case_keys) == 1:
+                background = d['parsed_abstract'][case_keys[0]]
     else:
-        d['Diagnosis'] = _disease_guess(x['title'], x['abstract'], x['image_caption'],
+        background = None
+
+    # Extract diagnosis -- will typically only work for MedPix Images
+    d['diagnosis'] = d['parsed_abstract'].get('diagnosis', None) if isinstance(d['parsed_abstract'], dict) else None
+
+    # Fall back
+    if d['diagnosis'] is None:
+        d['diagnosis'] = _disease_guess(x['problems'], x['title'], x['abstract'], x['image_caption'],
                                         x['image_mention'], list_of_diseases)
 
     pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration_years', _illness_duration_guess)]
     for (k, func) in pairs:
-        d[k] = func(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
+        d[k] = func(background, x['abstract'], x['image_caption'], x['image_mention'])
 
     # Guess the imaging technology used by using the text
     d['imaging_modality_from_text'] = _imaging_modality_guess(x['abstract'], x['image_caption'], x['image_mention'])
@@ -857,8 +963,7 @@ def feature_extract(x, list_of_diseases):
     d['image_problems_from_text'] = _problematic_image_features(x['image_caption'])
 
     # Guess Ethnicity
-    ethnicity, eth_sex = _ethnicity_guess(d['History'], x['abstract'], x['image_caption'], x['image_mention'])
-    d['ethnicity'] = ethnicity
+    d['ethnicity'], eth_sex = _ethnicity_guess(background, x['abstract'], x['image_caption'], x['image_mention'])
 
     # Try to Extract Age from Ethnicity analysis
     if d['sex'] is None and eth_sex is not None:
