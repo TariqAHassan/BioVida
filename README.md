@@ -158,11 +158,12 @@ and API documentation [here].
 
 ###Resources
 
-[This] document provides a list of resources used by BioVida.
+The [resources document] provides an account of all data sources and
+scholarly work used by BioVida.
    
    
 [click here]: https://tariqahassan.github.io/BioVida/index.html
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
-[This]: https://github.com/TariqAHassan/BioVida/blob/master/RESOURCES.md
+[resources document]: https://github.com/TariqAHassan/BioVida/blob/master/RESOURCES.md
 
