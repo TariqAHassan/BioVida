@@ -883,6 +883,29 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
 # Outward Facing Tool
 # ----------------------------------------------------------------------------------------------------------
 
+def _background_extract(d):
+    """
+
+    Extract background information for a parsed abstract.
+
+    :param d: the ``d`` dictionary as evolved inside ``feature_extract()``.
+    :type d: ``dict``
+    :return: the study background/history (or case information, e.g., 'case report').
+    :rtype: ``dict``
+    """
+    # Extract the background/history
+    if isinstance(d['parsed_abstract'], dict):
+        background = d['parsed_abstract'].get('background', None)
+        if background is None:
+            # Try to use 'case' information instead.
+            case_keys = [k for k in d['parsed_abstract'] if 'case' in k]
+            if len(case_keys) == 1:
+                background = d['parsed_abstract'][case_keys[0]]
+    else:
+        background = None
+
+    return background
+
 
 def feature_extract(x, list_of_diseases):
     """
@@ -927,43 +950,37 @@ def feature_extract(x, list_of_diseases):
     :return: dictionary with the keys listed in the description.
     :rtype: ``dict``
     """
+    unpacked_values = [x[c] for c in ('abstract', 'problems', 'title', 'image_caption', 'image_mention')]
+    abstract, problems, title, image_caption, image_mention = unpacked_values
+
     # Initialize by converting the abstract into a dictionary
-    d = {'parsed_abstract': _abstract_parser(x['abstract'])}
+    d = {'parsed_abstract': _abstract_parser(abstract)}
 
     # Extract the background/history
-    if isinstance(d['parsed_abstract'], dict):
-        background = d['parsed_abstract'].get('background', None)
-        if background is None:
-            # Try to use 'case' information instead.
-            case_keys = [k for k in d['parsed_abstract'] if 'case' in k]
-            if len(case_keys) == 1:
-                background = d['parsed_abstract'][case_keys[0]]
-    else:
-        background = None
+    background = _background_extract(d)
 
     # Extract diagnosis -- will typically only work for MedPix Images
     d['diagnosis'] = d['parsed_abstract'].get('diagnosis', None) if isinstance(d['parsed_abstract'], dict) else None
 
     # Fall back
     if d['diagnosis'] is None:
-        d['diagnosis'] = _disease_guess(x['problems'], x['title'], x['abstract'], x['image_caption'],
-                                        x['image_mention'], list_of_diseases)
+        d['diagnosis'] = _disease_guess(problems, title, abstract, image_caption, image_mention, list_of_diseases)
 
     pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration_years', _illness_duration_guess)]
     for (k, func) in pairs:
-        d[k] = func(background, x['abstract'], x['image_caption'], x['image_mention'])
+        d[k] = func(background, abstract, image_caption, image_mention)
 
     # Guess the imaging technology used by using the text
-    d['imaging_modality_from_text'] = _imaging_modality_guess(x['abstract'], x['image_caption'], x['image_mention'])
+    d['imaging_modality_from_text'] = _imaging_modality_guess(abstract, image_caption, image_mention)
 
     # Guess image plane
-    d['image_plane'] = _image_plane_guess(x['image_caption'])
+    d['image_plane'] = _image_plane_guess(image_caption)
 
     # Use the image caption to detect problems in the image
-    d['image_problems_from_text'] = _problematic_image_features(x['image_caption'])
+    d['image_problems_from_text'] = _problematic_image_features(image_caption)
 
     # Guess Ethnicity
-    d['ethnicity'], eth_sex = _ethnicity_guess(background, x['abstract'], x['image_caption'], x['image_mention'])
+    d['ethnicity'], eth_sex = _ethnicity_guess(background, abstract, image_caption, image_mention)
 
     # Try to Extract Age from Ethnicity analysis
     if d['sex'] is None and eth_sex is not None:
