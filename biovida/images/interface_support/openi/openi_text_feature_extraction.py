@@ -105,7 +105,7 @@ def _abstract_parser(abstract):
 
     :Example:
 
-    >>> _abstract_parser(abstract='<p><p><b>History: </b>The patient presented with xyz.</p></p>')
+    >>> _abstract_parser(abstract='<p><b>History: </b>The patient presented with xyz.</p>')
     ...
     {'history': 'The patient presented with xyz.'}
 
