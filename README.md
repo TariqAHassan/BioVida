@@ -23,12 +23,6 @@ $ pip install git+git://github.com/TariqAHassan/BioVida@master
 
 ------------------------------------------------------------------------
 
-###Dependencies
-
-BioVida requires: [pandas], [numpy], [requests], [tqdm], [pillow], [pydicom], [h5py], [scipy], [scikit-image] and [keras].
-
-------------------------------------------------------------------------
-
 ###API Overview
 
 ###Image Data
@@ -164,72 +158,11 @@ and API documentation [here].
 
 ###Resources
 
-Images
-
-   - The [Cancer Imaging Archive]
-
-   - The [Open-i] BioMedical Image Search Engine (NIH)
-   
-Genomics
-
-   - [DisGeNET]
-
-      * Janet Piñero, Àlex Bravo, Núria Queralt-Rosinach, Alba Gutiérrez-Sacristán, Jordi Deu-Pons, Emilio Centeno, 
-      Javier García-García, Ferran Sanz, and Laura I. Furlong. DisGeNET: a comprehensive platform integrating 
-      information on human disease-associated genes and variants. Nucl. Acids Res. (2016). doi:[10.1093/nar/gkw943].
-      
-      * Janet Piñero, Núria Queralt-Rosinach, Àlex Bravo, Jordi Deu-Pons, Anna Bauer-Mehren, Martin Baron, 
-      Ferran Sanz, Laura I. Furlong. DisGeNET: a discovery platform for the dynamical exploration of human 
-      diseases and their genes. Database (2015). doi:[10.1093/database/bav028].
-
-Diagnostics
-
-   - [DiseaseOntology]
-   
-      * Kibbe, Warren A., Cesar Arze, Victor Felix, Elvira Mitraka, Evan Bolton, Gang Fu, Christopher J. Mungall et al.
-        Disease Ontology 2015 update: an expanded and updated database of human diseases for linking biomedical
-        knowledge through disease data. Nucl. Acids Res. (2014). doi:[10.1093/nar/gku1011].
-        
-      * Schriml, Lynn Marie, Cesar Arze, Suvarna Nadendla, Yu-Wei Wayne Chang, Mark Mazaitis, Victor Felix, Gang Feng,
-        and Warren Alden Kibbe. Disease Ontology: a backbone for disease semantic integration. Nucl. Acids Res. (2012).
-        doi:[10.1093/nar/gkr972].
-    
-   - Human Symptoms Disease Network
-   
-      * Zhou, XueZhong, Jörg Menche, Albert-László Barabási, and Amitabh Sharma. Human symptoms–disease network.
-        Nature communications 5 (2014). doi:[10.1038/ncomms5212]. Online Repository: https://github.com/dhimmel/hsdn.
-   
-   - Rephetio - Medline
-   
-      * Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman, Sabrina Chen, Dexter Hadley, Ari Green,
-        Pouya Khankhanian, Sergio Baranzini. Rephetio: Repurposing drugs on a hetnet [report].
-        Thinklab (2016). doi:[10.15363/thinklab.a7]. Online Repository: https://github.com/dhimmel/medline.
-        
+[This] document provides a list of resources used by BioVida.
    
    
 [click here]: https://tariqahassan.github.io/BioVida/index.html
-[pandas]: http://pandas.pydata.org
-[numpy]: http://www.numpy.org
-[requests]: http://docs.python-requests.org/en/master/
-[tqdm]: https://github.com/tqdm/tqdm
-[pillow]: https://github.com/python-pillow/Pillow
-[pydicom]: https://github.com/darcymason/pydicom
-[h5py]: http://www.h5py.org
-[scipy]: https://www.scipy.org
-[scikit-image]: http://scikit-image.org
-[keras]: https://keras.io
-[Open-i]: https://openi.nlm.nih.gov
-[DisGeNET]: http://www.disgenet.org/web/DisGeNET/menu
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
-[DiseaseOntology]: http://disease-ontology.org
-[Cancer Imaging Archive]: http://www.cancerimagingarchive.net
+[This]: https://github.com/TariqAHassan/BioVida/blob/master/RESOURCES.md
 
-[10.1093/nar/gkw943]: https://doi.org/10.1093/nar/gkw943
-[10.1093/database/bav028]: https://doi.org/10.1093/database/bav028
-
-[10.1093/nar/gku1011]: https://doi.org/10.1093/nar/gku1011
-[10.1093/nar/gkr972]: https://doi.org/10.1093/nar/gkr972
-
-[10.15363/thinklab.a7]: http://www.thinklab.com/p/rephetio/report
-[10.1038/ncomms5212]: http://www.nature.com/articles/ncomms5212
