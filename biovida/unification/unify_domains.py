@@ -16,8 +16,10 @@ from biovida.images._unify_images_against_other_biovida_apis import _images_unif
 def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     """
 
-    Tool to unify image interfaces (``OpeniInterface`` and ``CancerImageInterface``)
+    Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)
     with Diagnostic and Genomic Data.
+
+    Note: this tool extracts the ``cache_records_db`` attribute from these classes.
 
     :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a list.
     :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
@@ -30,8 +32,8 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
     
                 .. warning::
 
-                        Fuzzy searching with large databases, such as those this function integrates, is very
-                        computationally expensive.
+                        While this paramter will likely increase the number of matches, fuzzy searching with
+                        large databases, such as those this function integrates, is very computationally expensive.
     
     :type fuzzy_threshold: ``int``, ``bool``, ``None``
     :return: a dataframe which unifies image interfaces with  genomic and diagnostics data.
@@ -90,10 +92,6 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
     """
     # Note: this simply wraps ``biovida.images._unify_images_against_other_biovida_apis._images_unify``
     return _images_unify(interfaces=interfaces, cache_path=cache_path, verbose=verbose, fuzzy_threshold=fuzzy_threshold)
-
-
-
-
 
 
 
