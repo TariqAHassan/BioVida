@@ -915,26 +915,26 @@ def feature_extract(x, list_of_diseases):
 
     This function automatically generates the following columns when ``OpeniInterface().pull()`` is called:
 
-    Exclusive to MedPix® Images:
-        - 'history'
-        - 'finding'
-        - 'ddx' (differential diagnosis)
-        - 'dxhow'
+    - 'age'
+    - 'sex'
+    - 'ethnicity'
+    - 'diagnosis'
+    - 'parsed_abstract'
+    - duration of illness ('illness_duration_years')
+    - the imaging modality (e.g., MRI) used, based on the text associated with the image ('imaging_modality_from_text')
+    - the plane of the image ('image_plane')
+    - image problems ('arrows', 'asterisks' and 'grids') inferred from the image caption ('image_problems_from_text')
 
-    For images from all sources:
-        - 'age'
-        - 'sex'
-        - 'ethnicity'
-        - 'diagnosis'
-        - duration of illness ('illness_duration_years')
-        - the imaging modality (e.g., MRI) used, based on the text associated with the image ('imaging_modality_from_text')
-        - the plane of the image ('image_plane')
-        - image problems ('arrows', 'asterisks' and 'grids') inferred from the image caption ('image_problems_from_text')
+    .. note::
+
+        In the 'parsed_abstract' abstracts have been converted into dictionaries where the subheadings of the abstract
+        form the keys and their associated information are the values. For example, a *MedPix* image will typically yield
+        a dictionary with the following keys: 'history', 'finding', 'ddx' (differential diagnosis), 'dxhow' and 'exam'.
 
     .. warning::
 
-        For images from sources other than *MedPix*, the ``'diagnosis'`` column may be inaccurate.
-
+        *MedPix* images include a diagnosis made by a physician. For images from other sources, the ``'diagnosis'``
+        column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.
 
     :param x: series passed though Pandas' ``DataFrame().apply()`` method, e.g.,
               ``df.apply(lambda x: feature_extract(x, list_of_diseases), axis=1)``.
