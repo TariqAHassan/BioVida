@@ -87,7 +87,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#resources">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
@@ -1582,7 +1581,7 @@
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_search</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;`current_search` is empty. A search must be performed before `pull()` is called.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`current_search` is `None`: `search()` must be called before `pull()`.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Note the time the pull request was made</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>

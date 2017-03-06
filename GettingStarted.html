@@ -89,7 +89,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#id1">Data Harvesting</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#resources">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="API.html#open-i-interface">Open-i Interface</a></li>
@@ -151,7 +150,6 @@
 <li><a class="reference internal" href="#id1">Data Harvesting</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#resources">Resources</a></li>
 </ul>
 </ul>
 </li>
@@ -211,7 +209,6 @@
 <li><a class="reference internal" href="#id1">Data Harvesting</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#resources">Resources</a></li>
 </ul>
 
         </div>
@@ -241,25 +238,27 @@ in machine learning, namely convolutional neural networks.</p>
 <hr class="docutils" />
 <div class="section" id="dependencies">
 <h1>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h1>
-<p>BioVida requires: <a class="reference external" href="http://pandas.pydata.org">pandas</a>,
+<p>BioVida requires: <a class="reference external" href="https://www.crummy.com/software/BeautifulSoup/">beautiful soup</a>,
+<a class="reference external" href="http://www.h5py.org">h5py</a>,
+<a class="reference external" href="https://keras.io">keras</a>,
+<a class="reference external" href="https://github.com/lxml/lxml">lxml</a>,
 <a class="reference external" href="http://www.numpy.org">numpy</a>,
-<a class="reference external" href="http://docs.python-requests.org/en/master/">requests</a>,
-<a class="reference external" href="https://github.com/tqdm/tqdm">tqdm</a>,
+<a class="reference external" href="http://pandas.pydata.org">pandas</a>,
 <a class="reference external" href="https://github.com/python-pillow/Pillow">pillow</a>,
 <a class="reference external" href="https://github.com/darcymason/pydicom">pydicom</a>,
-<a class="reference external" href="http://www.h5py.org">h5py</a>,
-<a class="reference external" href="https://www.scipy.org">scipy</a>,
-<a class="reference external" href="http://scikit-image.org">scikit-image</a> and
-<a class="reference external" href="https://keras.io">keras</a></p>
-<p>All of these dependencies should be installed automatically when installing BioVida.</p>
+<a class="reference external" href="http://docs.python-requests.org/en/master/">requests</a>,
+<a class="reference external" href="http://scikit-image.org">scikit-image</a>,
+<a class="reference external" href="https://www.scipy.org">scipy</a> and
+<a class="reference external" href="https://github.com/tqdm/tqdm">tqdm</a>.</p>
+<p>The BioVida installer will automatically install all of these packages.</p>
 <p><strong>Notes</strong>:</p>
 <p>1. Keras is used to power the convolutional neural networks in this project. This has the advantage of
 allowing either <a class="reference external" href="https://www.tensorflow.org">TensorFlow</a> or
 <a class="reference external" href="http://deeplearning.net/software/theano/">Theano</a> to be used as a computational backend.
 If neither is present at install time, BioVida will automatically install TensorFlow for you.</p>
-<p>2. To use <code class="docutils literal"><span class="pre">scipy</span></code> on macOS (formerly OSX) you will need <code class="docutils literal"><span class="pre">gcc</span></code>, which can be obtained with <code class="docutils literal"><span class="pre">$</span> <span class="pre">brew</span> <span class="pre">install</span> <span class="pre">gcc</span></code>.
-If you do not have <code class="docutils literal"><span class="pre">homebrew</span></code> installed (needed for <code class="docutils literal"><span class="pre">brew</span></code>), it can be installed by following the instructions
-found <a class="reference external" href="https://brew.sh">here</a>.</p>
+<p>2. To use <code class="docutils literal"><span class="pre">scipy</span></code> on macOS (formerly OSX) you will need <code class="docutils literal"><span class="pre">gcc</span></code>, which can be obtained with <code class="docutils literal"><span class="pre">homebrew</span></code> via.
+<code class="docutils literal"><span class="pre">$</span> <span class="pre">brew</span> <span class="pre">install</span> <span class="pre">gcc</span></code>. If you do not have <code class="docutils literal"><span class="pre">homebrew</span></code> installed, it can be installed by following the instructions
+provided <a class="reference external" href="https://brew.sh">here</a>.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="image-data">
@@ -311,6 +310,7 @@ reviewed:</p>
 <span class="c1"># 134113</span>
 </pre></div>
 </div>
+<p>By default, graphics are excluded. This can be changed with <code class="docutils literal"><span class="pre">search()</span></code>&#8216;s <code class="docutils literal"><span class="pre">exclusions</span></code> parameter.</p>
 <p><sup>†</sup> <em>Note:</em> by default, data harvesting is truncated after the first 60
 results.</p>
 </div>
@@ -368,7 +368,6 @@ fully automated approach should suffice in most cases.</p>
 <span class="c1">#                 ClinVar, Orphanet, and the GWAS Catalog.</span>
 </pre></div>
 </div>
-<p>This database will be cached to allow to fast access in the future.</p>
 <p>As with the <code class="docutils literal"><span class="pre">OpeniInterface()</span></code> class above, it is easy to gain access
 to the most recent <code class="docutils literal"><span class="pre">pull</span></code> and related information.</p>
 <p>The database itself:</p>
@@ -427,58 +426,6 @@ symptoms associated with numerous diseases can easily be obtained.</p>
 </pre></div>
 </div>
 </div>
-</div>
-<hr class="docutils" />
-<div class="section" id="resources">
-<h1>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h1>
-<p>Images</p>
-<ul class="simple">
-<li>The <a class="reference external" href="http://www.cancerimagingarchive.net">Cancer Imaging Archive</a></li>
-<li>The <a class="reference external" href="https://openi.nlm.nih.gov">Open-i</a> BioMedical Image Search Engine (NIH)</li>
-</ul>
-<p>Genomics</p>
-<ul class="simple">
-<li><a class="reference external" href="http://www.disgenet.org/web/DisGeNET/menu">DisGeNET</a><ul>
-<li>Janet Piñero, Àlex Bravo, Núria Queralt-Rosinach, Alba
-Gutiérrez-Sacristán, Jordi Deu-Pons, Emilio Centeno, Javier
-García-García, Ferran Sanz, and Laura I. Furlong. DisGeNET: a
-comprehensive platform integrating information on human
-disease-associated genes and variants. Nucl. Acids Res. (2016).
-doi:<a class="reference external" href="https://doi.org/10.1093/nar/gkw943">10.1093/nar/gkw943</a>.</li>
-<li>Janet Piñero, Núria Queralt-Rosinach, Àlex Bravo, Jordi Deu-Pons,
-Anna Bauer-Mehren, Martin Baron, Ferran Sanz, Laura I. Furlong.
-DisGeNET: a discovery platform for the dynamical exploration of
-human diseases and their genes. Database (2015).
-doi:<a class="reference external" href="https://doi.org/10.1093/database/bav028">10.1093/database/bav028</a>.</li>
-</ul>
-</li>
-</ul>
-<p>Diagnostics</p>
-<ul class="simple">
-<li><a class="reference external" href="http://disease-ontology.org/">DiseaseOntology</a><ul>
-<li>Kibbe, Warren A., Cesar Arze, Victor Felix, Elvira Mitraka, Evan Bolton, Gang Fu, Christopher J. Mungall et al.
-Disease Ontology 2015 update: an expanded and updated database of human diseases for linking biomedical
-knowledge through disease data. Nucl. Acids Res. (2014).
-doi:<a class="reference external" href="https://doi.org/10.1093/nar/gkw943">10.1093/nar/gku1011</a>.</li>
-<li>Schriml, Lynn Marie, Cesar Arze, Suvarna Nadendla, Yu-Wei Wayne Chang, Mark Mazaitis, Victor Felix, Gang Feng,
-and Warren Alden Kibbe. Disease Ontology: a backbone for disease semantic integration. Nucl. Acids Res. (2012).
-doi:<a class="reference external" href="https://doi.org/10.1093/nar/gkr972">10.1093/nar/gkr972</a>.</li>
-</ul>
-</li>
-<li>Human Symptoms Disease Network<ul>
-<li>Zhou, XueZhong, Jörg Menche, Albert-László Barabási, and Amitabh Sharma. Human symptoms–disease network.
-Nature communications 5 (2014). doi:<a class="reference external" href="http://www.nature.com/articles/ncomms5212">10.1038/ncomms5212</a>.
-Online Repository: <a class="reference external" href="https://github.com/dhimmel/hsdn">https://github.com/dhimmel/hsdn</a>.</li>
-</ul>
-</li>
-<li>Rephetio - Medline<ul>
-<li>Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman, Sabrina Chen, Dexter Hadley, Ari Green,
-Pouya Khankhanian, Sergio Baranzini. Rephetio: Repurposing drugs on a hetnet [report].
-Thinklab (2016). doi:<a class="reference external" href="http://www.thinklab.com/p/rephetio/report">10.15363/thinklab.a7</a>.
-Online Repository: <a class="reference external" href="https://github.com/dhimmel/medline">https://github.com/dhimmel/medline</a>.</li>
-</ul>
-</li>
-</ul>
 </div>
 
 
