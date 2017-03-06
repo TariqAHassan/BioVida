@@ -138,28 +138,6 @@ def filter_unnest(l, filter_for=None):
     return list(chain(*filter(filter_for, l)))
 
 
-def remove_substrings(list_of_strings):
-    """
-
-    Remove list elements that are substrings of other list elements.
-
-    :param list_of_strings: any list of strings
-    :type list_of_strings: ``iterable``
-    :return: see description.
-    :type: ``list_of_strings`` with any substrings of other terms removed.
-
-    :Example:
-    >>> remove_substrings(['heart disease', 'congenital heart disease', 'disease'])
-    ...
-    ['congenital heart disease']
-
-    """
-    if len(list_of_strings) <= 1:
-        return list_of_strings
-    else:
-        return [i for i in list_of_strings if not any(i in j for j in list_of_strings if j != i)]
-
-
 def num_word_to_int(input_str):
     """
 

@@ -15,7 +15,6 @@ from collections import defaultdict
 from biovida.images.interface_support.openi._openi_support_tools import item_extract
 from biovida.images.interface_support.openi._openi_support_tools import filter_unnest
 from biovida.images.interface_support.openi._openi_support_tools import num_word_to_int
-from biovida.images.interface_support.openi._openi_support_tools import remove_substrings
 from biovida.images.interface_support.openi._openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
@@ -457,15 +456,59 @@ def _ethnicity_guess(background, abstract, image_caption, image_mention):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _disease_guess(problems, title, abstract, image_caption, image_mention, list_of_diseases):
+def _remove_substrings(list_of_terms):
     """
 
-    Search `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
+    Remove list elements that are substrings of other list elements.
 
-    Warning: this is likely to be confused by multiple disease names appearing in, say, ``abstract``.
+    :param list_of_terms: any list of strings and their starting position in the source string.
+    :type list_of_terms: ``iterable``
+    :return: see description.
+    :type: ``list_of_terms`` with any substrings of other terms removed.
+
+    :Example:
+
+    # Source string: "The patient presented with congenital heart disease".
+    >>> remove_substrings(list_of_terms=[[38, 'heart disease'], [27, 'congenital heart disease'], [44, 'disease']])
+    ...
+    [0, 'congenital heart disease']
+
+    """
+    if len(list_of_terms) <= 1:
+        return list_of_terms
+    else:
+        rslt = list()
+        for i in list_of_terms:
+            if not any(i[-1] in j[-1] for j in list_of_terms if j[-1] != i[-1]):
+                rslt.append(i)
+        return rslt
+
+
+def _disease_guess(problems, title, background, abstract, image_caption, image_mention, list_of_diseases):
+    """
+
+    Search `problems`, `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
+
+    Note: this function favors the first disease to occur in a source.
+    Another method would be to count the number of times the disease is mentioned in all sources...
+    Though, it is not obvious that -- rather more complex solution -- would be any less fallible.
+
+    Future Directions:
+
+        Shift to more advanced approaches and consider using one or all of:
+
+        - the NegEx Algorithm (https://healthinformatics.wikispaces.com/NegEx+Algorithm).
+        - pyConTextNLP library (https://github.com/chapmanbe/pyConTextNLP) -- more recent tool than NegEx.
+        - consider using the 'image_caption_concepts' and mesh column.
+
+    Also see:
+        - Interleaved Text/Image Deep Mining on a Large-Scale Radiology Database for Automated Image Interpretation
+          (https://arxiv.org/abs/1505.00670).
+        - https://irp.nih.gov/blog/post/2016/11/challenges-to-training-artificial-intelligence-with-medical-imaging-data
 
     :param problems:
     :param title:
+    :param background:
     :param abstract:
     :param image_caption:
     :param image_mention:
@@ -473,30 +516,37 @@ def _disease_guess(problems, title, abstract, image_caption, image_mention, list
     :type list_of_diseases: ``list``
     :return:
     :rtype: ``str`` or ``None``
+
+    :Example:
+
+    >>> _disease_guess(None, None, None, '...a patient with pancreatitis, not Macrolipasemia', None, list_of_diseases)
+    ...
+    'pancreatitis'
+
     """
-    # ToDo: use the first disease that appears. E.g., 'Pancreatitis in patients with diabetes' -- want 'Pancreatitis'.
     possible_diseases = list()
-    for e, source in enumerate((problems, title, image_caption, image_mention, abstract)):
-        if isinstance(source, str):
+    for e, source in enumerate((problems, title, background, image_caption, image_mention, abstract)):
+        if isinstance(source, str) and len(source):
             source_clean = cln(source).lower()
             for d in list_of_diseases:
                 if d in source_clean:
-                    possible_diseases.append(d)
-            if len(possible_diseases):  # break to prevent a later source contradicting a former one.
+                    possible_diseases.append([source_clean.find(d), d])
+            if len(possible_diseases):  # break to prevent a later source contradicting an earlier one.
                 break
 
     # Drop substrings
-    to_return = sorted(remove_substrings(possible_diseases))
+    to_return = _remove_substrings(possible_diseases)
 
     # Allow multiple matches for 'problems'.
     if e == 0 and len(to_return):
-        return "; ".join(to_return)
-    # Otherwise, require a single match.
-    elif len(to_return) == 1:
-        return to_return[0]
+        return "; ".join(sorted([i[-1] for i in to_return]))
+    # Otherwise, use the first match
+    elif len(to_return):
+        return min(to_return, key=lambda x: x[0])[-1]
     # Try to fall back to `problems`.
     elif not len(to_return) and isinstance(problems, str):
-        return "; ".join(cln(problems).split(";")).lower()
+        parsed_problems = cln(problems).split(";")
+        return "; ".join(sorted(parsed_problems)).lower()
     else:
         return None
 
@@ -823,7 +873,6 @@ def _markers_guess(image_caption):
     :rtype: ``bool``
     """
     features = set()
-
     image_caption_clean = cln(image_caption).lower()
     for term in ('arrow', 'asterisk'):
         # Look for arrows or asterisk.
@@ -960,12 +1009,14 @@ def feature_extract(x, list_of_diseases):
     # Extract the background/history
     background = _background_extract(d)
 
-    # Extract diagnosis -- will typically only work for MedPix Images
+    # Extract diagnosis -- will typically only work for MedPix images
     d['diagnosis'] = d['parsed_abstract'].get('diagnosis', None) if isinstance(d['parsed_abstract'], dict) else None
 
     # Fall back
     if d['diagnosis'] is None:
-        d['diagnosis'] = _disease_guess(problems, title, abstract, image_caption, image_mention, list_of_diseases)
+        d['diagnosis'] = _disease_guess(problems=problems, title=title, background=background, abstract=abstract,
+                                        image_caption=image_caption, image_mention=image_mention,
+                                        list_of_diseases=list_of_diseases)
 
     pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration_years', _illness_duration_guess)]
     for (k, func) in pairs:
