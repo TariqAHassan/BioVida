@@ -198,19 +198,19 @@ def show_plt(img):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def record_update_dbs_joiner(record_db, update_db):
+def record_update_dbs_joiner(records_db, update_db):
     """
 
     Join and drop rows for which `update_db`'s columns exclusively contain NaNs.
 
-    :param record_db: permanent database/dataframe which keeps a record of files in the cache.
-    :type record_db: ``Pandas DataFrame``
-    :param update_db: database/dataframe to 'update' ``record_db``
+    :param records_db: permanent database/dataframe which keeps a record of files in the cache.
+    :type records_db: ``Pandas DataFrame``
+    :param update_db: database/dataframe to 'update' ``records_db``
     :type update_db: ``Pandas DataFrame``
-    :return: ``record_db`` with ``update_db`` left-joined.
+    :return: ``records_db`` with ``update_db`` left-joined.
     :rtype: ``Pandas DataFrame``
     """
-    joined_db = record_db.join(update_db, how='left').fillna(np.NaN).dropna(subset=list(update_db.columns), how='all')
+    joined_db = records_db.join(update_db, how='left').fillna(np.NaN).dropna(subset=list(update_db.columns), how='all')
     return joined_db.reset_index(drop=True)
 
 
@@ -238,10 +238,10 @@ def load_temp_dbs(temp_db_path):
         group = [p for p in db_paths if pull_time in p]
         if len(group) == 1:
             os.remove(group[0])
-            warn("FileNotFoundError: Either '{0}__record_db.p' or '{0}__update_db.p'"
+            warn("FileNotFoundError: Either '{0}__records_db.p' or '{0}__update_db.p'"
                  " is missing from\n {1}\nDeleting the file which is present...\n"
                  "As a result, images obtained from the last `pull()` will likely be missing"
-                 " from `cache_record_db`.\nFor this reason, it is recommended that you\n"
+                 " from `cache_records_db`.\nFor this reason, it is recommended that you\n"
                  "**precisely** repeat your last `search()` and `pull()`.".format(pull_time, temp_db_path))
         else:
             groupings.append(group)
@@ -252,31 +252,31 @@ def load_temp_dbs(temp_db_path):
     # Read the dataframes in the '__temp__' directory into memory
     frames = list()
     for group in groupings:
-        record_db = pd.read_pickle([i for i in group if "__record_db.p" in i][0])
+        records_db = pd.read_pickle([i for i in group if "__records_db.p" in i][0])
         update_db = pd.read_pickle([i for i in group if "__update_db.p" in i][0])
-        frames.append(record_update_dbs_joiner(record_db, update_db))
+        frames.append(record_update_dbs_joiner(records_db, update_db))
 
     # Concatenate all frames
     return pd.concat(frames, ignore_index=True)
 
 
-def record_db_merge(current_record_db,
-                    record_db_update,
-                    query_column_name,
-                    pull_time_column_name,
-                    duplicates_subset_columns,
-                    rows_to_conserve_func=None,
-                    post_concat_mapping=None,
-                    columns_with_iterables_to_sort=None,
-                    relationship_mapping_func=None):
+def records_db_merge(current_records_db,
+                     records_db_update,
+                     query_column_name,
+                     pull_time_column_name,
+                     duplicates_subset_columns,
+                     rows_to_conserve_func=None,
+                     post_concat_mapping=None,
+                     columns_with_iterables_to_sort=None,
+                     relationship_mapping_func=None):
     """
 
     Merge the existing record database with new additions.
 
-    :param current_record_db: the existing record database.
-    :type current_record_db: ``Pandas DataFrame``
-    :param record_db_update: the new records dataframe to be merged with the existing one (``current_record_db``).
-    :type record_db_update: ``Pandas DataFrame``
+    :param current_records_db: the existing record database.
+    :type current_records_db: ``Pandas DataFrame``
+    :param records_db_update: the new records dataframe to be merged with the existing one (``current_records_db``).
+    :type records_db_update: ``Pandas DataFrame``
     :param query_column_name: the column which contains the query responcible for the results. Note: this column
                               *should* contain only dictionaries.
     :type query_column_name: ``str``
@@ -294,11 +294,11 @@ def record_db_merge(current_record_db,
     :type columns_with_iterables_to_sort: ``list`` or ``tuple``
     :param relationship_mapping_func: function to map relationships in the dataframe. Defaults to ``None``.
     :type relationship_mapping_func: ``function``
-    :return: a dataframe which merges ``current_record_db`` and ``record_db_update``
+    :return: a dataframe which merges ``current_records_db`` and ``records_db_update``
     :rtype: ``Pandas DataFrame``
     """
-    # Load in the current database and combine with the `record_db_update` database
-    combined_dbs = pd.concat([current_record_db, record_db_update], ignore_index=True)
+    # Load in the current database and combine with the `records_db_update` database
+    combined_dbs = pd.concat([current_records_db, records_db_update], ignore_index=True)
 
     # Mark each row to conserve order following ``pandas.drop_duplicates()``.
     combined_dbs['temp_order'] = range(combined_dbs.shape[0])

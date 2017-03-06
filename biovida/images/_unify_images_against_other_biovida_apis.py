@@ -41,28 +41,28 @@ class _ImagesInterfaceIntegration(object):
 
     """
 
-    def _open_i_prep(self, cache_record_db):
+    def _open_i_prep(self, cache_records_db):
         """
 
         A tool to clean and standardize  an ``OpeniInterface`` instance's cache record database
 
-        :param cache_record_db: the cache record database from an ``OpeniInterface`` instance.
-        :type cache_record_db: ``Pandas DataFrame``
-        :return: a cleaned and standardize ``cache_record_db``
+        :param cache_records_db: the cache record database from an ``OpeniInterface`` instance.
+        :type cache_records_db: ``Pandas DataFrame``
+        :return: a cleaned and standardize ``cache_records_db``
         :rtype: ``Pandas DataFrame``
         """
         # Deep copy the input to prevent mutating the original in memory.
-        cache_record_db_cln = cache_record_db.copy(deep=True)
+        cache_records_db_cln = cache_records_db.copy(deep=True)
 
         # Column which provides a guess, based on the text, on which imaging modality created the image.
-        cache_record_db_cln['modality_best_guess'] = cache_record_db_cln.apply(
+        cache_records_db_cln['modality_best_guess'] = cache_records_db_cln.apply(
             lambda x: x['imaging_modality_from_text'] if isinstance(x['imaging_modality_from_text'], str) else x[
                 'modality_full'],
             axis=1
         )
 
         # Convert the 'cached_images_path' column from a series of string to a series of tuples.
-        cache_record_db_cln['cached_images_path'] = cache_record_db_cln['cached_images_path'].map(
+        cache_records_db_cln['cached_images_path'] = cache_records_db_cln['cached_images_path'].map(
             lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore'
         )
 
@@ -76,7 +76,7 @@ class _ImagesInterfaceIntegration(object):
                             'download_success': 'harvest_success'}
 
         # Define subsection based on `openi_columns`
-        openi_subsection = cache_record_db_cln[openi_columns]
+        openi_subsection = cache_records_db_cln[openi_columns]
 
         # Add a column to allow the user to identify the API which provided the data
         openi_subsection['source_api'] = ['openi'] * openi_subsection.shape[0]
@@ -84,14 +84,14 @@ class _ImagesInterfaceIntegration(object):
         # Apply rename and return
         return openi_subsection.rename(columns=openi_col_rename)
 
-    def _cancer_img_prep(self, cache_record_db):
+    def _cancer_img_prep(self, cache_records_db):
         """
 
         A tool to clean and standardize  an ``CancerImageInterface`` instance's cache record database
 
-        :param cache_record_db: the cache record database from an ``CancerImageInterface`` instance.
-        :type cache_record_db: ``Pandas DataFrame``
-        :return: a cleaned and standardize ``cache_record_db``
+        :param cache_records_db: the cache record database from an ``CancerImageInterface`` instance.
+        :type cache_records_db: ``Pandas DataFrame``
+        :return: a cleaned and standardize ``cache_records_db``
         :rtype: ``Pandas DataFrame``
         """
         # Define columns to keep
@@ -107,10 +107,10 @@ class _ImagesInterfaceIntegration(object):
                                  'cached_images_path': 'files_path'}
 
         # Deep copy the input to prevent mutating the original in memory.
-        cache_record_db_cln = cache_record_db.copy(deep=True)
+        cache_records_db_cln = cache_records_db.copy(deep=True)
 
         # Define subsection based on `cancer_img_columns`
-        cancer_img_subsection = cache_record_db_cln[cancer_img_columns]
+        cancer_img_subsection = cache_records_db_cln[cancer_img_columns]
 
         # Add an 'abstract' column
         cancer_img_subsection['abstract'] = np.NaN
@@ -136,7 +136,7 @@ class _ImagesInterfaceIntegration(object):
         """
 
         Standardize interfaces.
-        Note: classes are assumed to have a class attr called ``cache_record_db``.
+        Note: classes are assumed to have a class attr called ``cache_records_db``.
 
         yields a single dataframe with the following columns:
 
@@ -168,10 +168,10 @@ class _ImagesInterfaceIntegration(object):
         frames = list()
         for class_instance in interfaces:
             func = prep_class_dict[type(class_instance).__name__]
-            database = getattr(class_instance, 'cache_record_db')
+            database = getattr(class_instance, 'cache_records_db')
             if 'DataFrame' != type(database).__name__:
                 raise ValueError("The {0} instance's '{1}' database cannot be `None`.".format(
-                    type(class_instance).__name__, 'cache_record_db'))
+                    type(class_instance).__name__, 'cache_records_db'))
             frames.append(func(database))
 
         return pd.concat(frames, ignore_index=True)

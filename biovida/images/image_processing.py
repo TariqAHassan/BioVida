@@ -85,16 +85,16 @@ def _extract_search_class_db(database_to_extract, search_class):
         return deep_copy_dataframe(search_class.records_db)
     elif not is_dataframe(search_class.records_db):
         fall_back = True
-        warn("\n`records_db` is not a DataFrame. Falling back to `cache_record_db`.")
+        warn("\n`records_db` is not a DataFrame. Falling back to `cache_records_db`.")
 
     if database_to_extract == 'cache' or fall_back:
-        extracted_db = search_class.cache_record_db
+        extracted_db = search_class.cache_records_db
 
     if not is_dataframe(extracted_db):
         if fall_back is False:  # i.e., the user set ``database_to_extract='cache'``.
             raise TypeError("The '{0}' database provided is not a DataFrame. ".format(database_to_extract))
         else:
-            raise TypeError("Neither `records_db` nor `cache_record_db` are DataFrames.")
+            raise TypeError("Neither `records_db` nor `cache_records_db` are DataFrames.")
     else:
         return deep_copy_dataframe(extracted_db)
 
@@ -110,7 +110,7 @@ class ImageProcessing(object):
                           If `None`, the default model will be used. Defaults to ``None``.
     :type model_location: ``str``
     :param database_to_extract: 'current' to extract the ``records_db`` from ``search_class`` or
-                                 'cache' to extract ``cache_record_db``. Defaults to 'current'.
+                                 'cache' to extract ``cache_records_db``. Defaults to 'current'.
     :type database_to_extract: ``str``
     :param verbose: if ``True``, print additional details. Defaults to ``False``.
     :type verbose: ``bool``

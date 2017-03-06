@@ -25,7 +25,7 @@ from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 # General Image Support Tools
 from biovida.images._image_tools import load_temp_dbs
 from biovida.images._image_tools import NoResultsFound
-from biovida.images._image_tools import record_db_merge
+from biovida.images._image_tools import records_db_merge
 from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
 from biovida.images._image_tools import record_update_dbs_joiner
@@ -374,7 +374,7 @@ class _OpeniRecords(object):
         self._cache_path = cache_path
         self.req_limit = req_limit
 
-        self.records_df = None
+        self.records_db = None
         self.download_limit = 60  # set to reasonable default.
 
         # Sleep Time
@@ -597,24 +597,24 @@ class _OpeniRecords(object):
                                      download_no=download_no)
 
         # Convert to a DataFrame
-        records_df = pd.DataFrame(harvest).fillna(np.NaN)
+        records_db = pd.DataFrame(harvest).fillna(np.NaN)
 
         # Process Text
-        records_df = openi_raw_extract_and_clean(data_frame=records_df,
+        records_db = openi_raw_extract_and_clean(data_frame=records_db,
                                                  verbose=self._verbose,
                                                  cache_path=self._cache_path)
 
         # Add the query
-        records_df['query'] = [query] * records_df.shape[0]
-        records_df['pull_time'] = [pull_time] * records_df.shape[0]
+        records_db['query'] = [query] * records_db.shape[0]
+        records_db['pull_time'] = [pull_time] * records_db.shape[0]
 
         # Add the Version of BioVida which generated the DataFrame
-        records_df['biovida_version'] = [__version__] * records_df.shape[0]
+        records_db['biovida_version'] = [__version__] * records_db.shape[0]
 
         # Add to attrs.
-        self.records_df = records_df
+        self.records_db = records_db
 
-        return self.records_df
+        return self.records_db
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -635,7 +635,7 @@ class _OpeniImages(object):
         self._verbose = verbose
 
         # Database
-        self.record_db_images = None
+        self.records_db_images = None
         self.real_time_update_db = None
         self.real_time_update_db_path = None
 
@@ -655,7 +655,7 @@ class _OpeniImages(object):
 
         Create the ``real_time_update_db`` and define the path to the location where it will be saved.
 
-        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``record_db``).
+        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``records_db``).
         :type db_index: ``Pandas Series``
         :param pull_time: see ``pull_images()``
         :type pull_time: ``str``
@@ -783,13 +783,13 @@ class _OpeniImages(object):
                 sleep_with_noise(amount_of_time=images_sleep_time[1])
                 download_count = 0  # reset
 
-    def pull_images(self, records_df, image_size, pull_time, images_sleep_time, use_image_caption):
+    def pull_images(self, records_db, image_size, pull_time, images_sleep_time, use_image_caption):
         """
 
-        Pull images based in ``records_df``.
+        Pull images based in ``records_db``.
 
-        :param records_df: yeild of ``_OpeniRecords().records_pull()``
-        :type records_df: ``Pandas DataFrame``
+        :param records_db: yeild of ``_OpeniRecords().records_pull()``
+        :type records_db: ``Pandas DataFrame``
         :param image_size: one of 'grid150', 'large', 'thumb' or 'thumb_large'.
         :type image_size: ``str``
         :param pull_time: the time the query was made by ``OpeniInterface.search()``.
@@ -802,26 +802,26 @@ class _OpeniImages(object):
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
                                   a dataset intended for machine learning. Defaults to ``False``.
         :type use_image_caption: ``bool``
-        :return: `records_df` with the addition of `cached_images_path` and `download_success` columns.
+        :return: `records_db` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
         self._create_temp_folder()
-        self.record_db_images = records_df.copy(deep=True)
+        self.records_db_images = records_db.copy(deep=True)
         
-        # Save `record_db_images` to the __temp__ folder
-        self.record_db_images.to_pickle(os.path.join(self.temp_folder, "{0}__record_db.p".format(pull_time)))
+        # Save `records_db_images` to the __temp__ folder
+        self.records_db_images.to_pickle(os.path.join(self.temp_folder, "{0}__records_db.p".format(pull_time)))
 
         # Instantiate `self.real_time_update_db`
-        self._instantiate_real_time_update_db(db_index=self.record_db_images.index, pull_time=pull_time)
+        self._instantiate_real_time_update_db(db_index=self.records_db_images.index, pull_time=pull_time)
 
         if image_size not in ('grid150', 'large', 'thumb', 'thumb_large'):
             raise ValueError("`image_size` must be one of: 'grid150', 'large', 'thumb' or 'thumb_large'.")
         image_column = "img_{0}".format(image_size)
 
-        # Extract needed information from the `record_db_images` dataframe to loop over.
-        harvesting_information = list(zip(*[self.record_db_images.index,
-                                            self.record_db_images[image_column],
-                                            self.record_db_images['image_problems_from_text']]))
+        # Extract needed information from the `records_db_images` dataframe to loop over.
+        harvesting_information = list(zip(*[self.records_db_images.index,
+                                            self.records_db_images[image_column],
+                                            self.records_db_images['image_problems_from_text']]))
 
         # Harvest
         self._pull_images_engine(harvesting_information=harvesting_information,
@@ -829,7 +829,7 @@ class _OpeniImages(object):
                                  image_size=image_size,
                                  use_image_caption=use_image_caption)
 
-        return record_update_dbs_joiner(record_db=self.record_db_images, update_db=self.real_time_update_db)
+        return record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -894,52 +894,52 @@ class OpeniInterface(object):
 
         """
         # Load the latent database(s).
-        record_db_update = load_temp_dbs(temp_db_path=self._Images.temp_folder)
-        if record_db_update is not None:
-            # Update `self.current_record_db`.
-            self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
-                                                record_db_update=record_db_update)
+        records_db_update = load_temp_dbs(temp_db_path=self._Images.temp_folder)
+        if records_db_update is not None:
+            # Update `self.current_records_db`.
+            self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
+                                                records_db_update=records_db_update)
             # Delete the latent 'databases/__temp__' folder.
-            shutil.rmtree(self._openi_cache_record_db_save_path, ignore_errors=True)
+            shutil.rmtree(self._openi_cache_records_db_save_path, ignore_errors=True)
 
-    def _openi_cache_record_db_handler(self, current_record_db, record_db_update):
+    def _openi_cache_records_db_handler(self, current_records_db, records_db_update):
         """
 
-        1. if cache_record_db.p doesn't exist, simply dump ``record_db_update``
-        2. if cache_record_db.p does exist, merge with ``record_db_update``
+        1. if cache_records_db.p doesn't exist, simply dump ``records_db_update``
+        2. if cache_records_db.p does exist, merge with ``records_db_update``
 
-        :param current_record_db:
-        :type current_record_db:
-        :param record_db_update:
-        :type record_db_update:
+        :param current_records_db:
+        :type current_records_db:
+        :param records_db_update:
+        :type records_db_update:
         """
         def rows_to_conserve_func(x):
             return x['download_success'] == True
 
-        if current_record_db is None and record_db_update is None:
-            raise ValueError("`current_record_db` and `record_db_update` cannot both be None.")
-        elif current_record_db is not None and record_db_update is None:
-            to_return = current_record_db
+        if current_records_db is None and records_db_update is None:
+            raise ValueError("`current_records_db` and `records_db_update` cannot both be None.")
+        elif current_records_db is not None and records_db_update is None:
+            to_return = current_records_db
             to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
-        elif current_record_db is None and record_db_update is not None:
-            to_return = _img_relation_map(record_db_update)
+        elif current_records_db is None and records_db_update is not None:
+            to_return = _img_relation_map(records_db_update)
             to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         else:
-            duplicates_subset_columns = [c for c in current_record_db.columns if c != 'pull_time']
-            to_return = record_db_merge(current_record_db=current_record_db,
-                                        record_db_update=record_db_update,
-                                        query_column_name='query',
-                                        pull_time_column_name='pull_time',
-                                        duplicates_subset_columns=duplicates_subset_columns,
-                                        rows_to_conserve_func=rows_to_conserve_func,
-                                        post_concat_mapping=('uid_instance', 'uid', resetting_label),
-                                        relationship_mapping_func=_img_relation_map)
+            duplicates_subset_columns = [c for c in current_records_db.columns if c != 'pull_time']
+            to_return = records_db_merge(current_records_db=current_records_db,
+                                         records_db_update=records_db_update,
+                                         query_column_name='query',
+                                         pull_time_column_name='pull_time',
+                                         duplicates_subset_columns=duplicates_subset_columns,
+                                         rows_to_conserve_func=rows_to_conserve_func,
+                                         post_concat_mapping=('uid_instance', 'uid', resetting_label),
+                                         relationship_mapping_func=_img_relation_map)
 
         # Save to disk
-        to_return.to_pickle(self._openi_cache_record_db_save_path)
+        to_return.to_pickle(self._openi_cache_records_db_save_path)
 
         # Save to class instance
-        self.cache_record_db = to_return
+        self.cache_records_db = to_return
 
     def __init__(self,
                  cache_path=None,
@@ -977,16 +977,16 @@ class OpeniInterface(object):
         self._current_search_to_harvest = None
 
         # Path to cache record db
-        self._openi_cache_record_db_save_path = os.path.join(self._created_img_dirs['databases'], 'openi_cache_record_db.p')
+        self._openi_cache_records_db_save_path = os.path.join(self._created_img_dirs['databases'], 'openi_cache_records_db.p')
 
         # Databases
         self.records_db = None
 
         # Load the cache record database, if it exists
-        if os.path.isfile(self._openi_cache_record_db_save_path):
-            self.cache_record_db = pd.read_pickle(self._openi_cache_record_db_save_path)
+        if os.path.isfile(self._openi_cache_records_db_save_path):
+            self.cache_records_db = pd.read_pickle(self._openi_cache_records_db_save_path)
         else:
-            self.cache_record_db = None
+            self.cache_records_db = None
 
         # Load in databases in 'databases/__temp__', if they exist
         if os.path.isdir(self._Images.temp_folder):
@@ -1144,15 +1144,15 @@ class OpeniInterface(object):
         # Pull Images
         if isinstance(image_size, str):
             # Pull the images.
-            self.records_db = self._Images.pull_images(records_df=self.records_db,
+            self.records_db = self._Images.pull_images(records_db=self.records_db,
                                                        image_size=image_size,
                                                        pull_time=self._pull_time.strftime(self._time_format),
                                                        images_sleep_time=images_sleep_time,
                                                        use_image_caption=use_image_caption)
 
-            # Add the new records_db datafame with the existing `cache_record_db`.
-            self._openi_cache_record_db_handler(current_record_db=self.cache_record_db,
-                                                record_db_update=self.records_db)
+            # Add the new records_db datafame with the existing `cache_records_db`.
+            self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
+                                                 records_db_update=self.records_db)
 
             # Delete the 'databases/__temp__' folder.
             shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
