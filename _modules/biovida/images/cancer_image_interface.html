@@ -191,6 +191,7 @@
 <span class="kn">from</span> <span class="nn">biovida</span> <span class="k">import</span> <span class="n">__version__</span>
 
 <span class="c1"># General Image Support Tools</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">TIME_FORMAT</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">NoResultsFound</span>
 
 <span class="c1"># Database Management</span>
@@ -1245,9 +1246,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">current_search</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># The format for date information</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_time_format</span> <span class="o">=</span> <span class="s2">&quot;%Y_%h_</span><span class="si">%d</span><span class="s2">_%H_%M_%S_</span><span class="si">%f</span><span class="s2">&quot;</span>
-
         <span class="c1"># Path to the `cache_records_db`</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
                                                             <span class="s1">&#39;tcia_cache_records_db.p&#39;</span><span class="p">)</span>
@@ -1256,7 +1254,7 @@
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_save_path</span><span class="p">):</span>
             <span class="c1"># ToDO: refactor into seperate method.</span>
             <span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_save_path</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">prune_rows_with_deleted_images</span><span class="p">(</span><span class="n">cache_data_frame</span><span class="o">=</span><span class="n">cache_records_db</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">prune_rows_with_deleted_images</span><span class="p">(</span><span class="n">cache_records_db</span><span class="o">=</span><span class="n">cache_records_db</span><span class="p">,</span>
                                                                    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;raw_dicom_files_paths&#39;</span><span class="p">],</span>
                                                                    <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_save_path</span><span class="p">)</span>
 
@@ -1612,7 +1610,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Obtaining Images...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">pull_images</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="n">records_db</span><span class="p">,</span>
-                                                       <span class="n">pull_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_format</span><span class="p">),</span>
+                                                       <span class="n">pull_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">TIME_FORMAT</span><span class="p">),</span>
                                                        <span class="n">session_limit</span><span class="o">=</span><span class="n">session_limit</span><span class="p">,</span>
                                                        <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">,</span>
                                                        <span class="n">save_dicoms</span><span class="o">=</span><span class="n">save_dicoms</span><span class="p">,</span>
