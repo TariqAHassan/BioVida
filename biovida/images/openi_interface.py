@@ -17,6 +17,8 @@ from copy import deepcopy
 from datetime import datetime
 from collections import Counter
 
+from biovida import __version__
+
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 
@@ -605,6 +607,9 @@ class _OpeniRecords(object):
         # Add the query
         records_df['query'] = [query] * records_df.shape[0]
         records_df['pull_time'] = [pull_time] * records_df.shape[0]
+
+        # Add the Version of BioVida which generated the DataFrame
+        records_df['biovida_version'] = [__version__] * records_df.shape[0]
 
         # Add to attrs.
         self.records_df = records_df
