@@ -331,9 +331,7 @@ def records_db_merge(current_records_db,
     combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict_to_tot)
 
     # Sort columns with iterables
-    if isinstance(columns_with_iterables_to_sort, (list, tuple)):
-        for c in columns_with_iterables_to_sort:
-            combined_dbs[c] = combined_dbs[c].map(lambda x: tuple(sorted(x)), na_action='ignore')
+    combined_dbs = multimap(combined_dbs, columns=columns_with_iterables_to_sort, func=lambda x: tuple(sorted(x)))
 
     # Drop Duplicates (keeping the most recent).
     combined_dbs = combined_dbs.drop_duplicates(subset=duplicates_subset_columns, keep='last')
