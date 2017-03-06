@@ -961,7 +961,6 @@ class OpeniInterface(object):
             to_return = records_db_merge(current_records_db=current_records_db,
                                          records_db_update=records_db_update,
                                          columns_with_dicts=('query', 'parsed_abstract'),
-                                         pull_time_column_name='pull_time',
                                          duplicates_subset_columns=duplicates_subset_columns,
                                          rows_to_conserve_func=rows_to_conserve_func,
                                          post_concat_mapping=('uid_instance', 'uid', resetting_label),

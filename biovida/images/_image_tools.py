@@ -269,7 +269,6 @@ def load_temp_dbs(temp_db_path):
 def records_db_merge(current_records_db,
                      records_db_update,
                      columns_with_dicts,
-                     pull_time_column_name,
                      duplicates_subset_columns,
                      rows_to_conserve_func=None,
                      post_concat_mapping=None,
@@ -279,6 +278,10 @@ def records_db_merge(current_records_db,
 
     Merge the existing record database with new additions.
 
+    .. wanring::
+
+        Both ``current_records_db`` and ``records_db_update`` are expected to have 'pull_time' columns.
+
     :param current_records_db: the existing record database.
     :type current_records_db: ``Pandas DataFrame``
     :param records_db_update: the new records dataframe to be merged with the existing one (``current_records_db``).
@@ -286,8 +289,6 @@ def records_db_merge(current_records_db,
     :param columns_with_dicts: a list of columns which contain dictionaries. Note: this column *should* contain only
                                dictionaries or NaNs.
     :type columns_with_dicts: ``list``, ``tuple`` or ``None``.
-    :param pull_time_column_name: the name of the column with the time the pull request was issued.
-    :type pull_time_column_name: ``str``
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
 
                     .. warning::
@@ -323,8 +324,9 @@ def records_db_merge(current_records_db,
         column_name, column_to_extract, func = post_concat_mapping
         combined_dbs[column_name] = func(combined_dbs[column_to_extract].tolist())
 
-    # Sort by ``pull_time_column_name``
-    combined_dbs = combined_dbs.sort_values(pull_time_column_name)
+    # Note: Typically these will be 'in sync'. However, if they are not, preference is given
+    # to 'biovida_version' s.t. the data harvested with the latest version is given preference.
+    combined_dbs = combined_dbs.sort_values(['biovida_version', 'pull_time'])
 
     # Convert items in ``columns_with_dicts`` from dictionaries to tuple of tuples.
     # (making them hashable, as required by ``pandas.drop_duplicates()``).
@@ -347,8 +349,6 @@ def records_db_merge(current_records_db,
         combined_dbs = relationship_mapping_func(combined_dbs)
 
     return combined_dbs.drop('__temp_order__', axis=1).reset_index(drop=True)
-
-
 
 
 
