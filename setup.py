@@ -32,7 +32,7 @@ setup(
     description=('Automated BioMedical Information Curation for Machine Learning Applications.'),
     long_description=read('README.md'),
     license='BSD',
-    keywords='medicine, bioinformatics, biological sciences, machine learning, data science',
+    keywords='machine-learning, biomedical-informatics, data-science, bioinformatics, imaging-informatics',
     url='https://github.com/TariqAHassan/BioVida.git',
     packages=find_packages(),
     package_data={'biovida': ['images/resources/*.h5', 'images/resources/*.p'],},
