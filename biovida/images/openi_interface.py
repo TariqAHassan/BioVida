@@ -1149,7 +1149,7 @@ class OpeniInterface(object):
                               (not recommended). Defaults to 60.
         :type download_limit: ``int``
         :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,
-                                    This parameter requies that 'article_type' is one of: 'encounter', 'case_report'.
+                                    this parameter requies that 'article_type' is one of: 'encounter', 'case_report'.
                                     Defaults to ``True``.
         :type clinical_cases_only: ``bool``
         :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
