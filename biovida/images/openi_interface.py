@@ -1015,7 +1015,7 @@ class OpeniInterface(object):
         # Load the cache record database, if it exists
         if os.path.isfile(self._openi_cache_records_db_save_path):
             cache_records_db = pd.read_pickle(self._openi_cache_records_db_save_path)
-            self.cache_records_db = prune_rows_with_deleted_images(cache_data_frame=cache_records_db,
+            self.cache_records_db = prune_rows_with_deleted_images(cache_records_db=cache_records_db,
                                                                    columns=['cached_images_path'],
                                                                    save_path=self._openi_cache_records_db_save_path)
         else:

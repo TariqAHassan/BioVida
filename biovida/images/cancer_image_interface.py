@@ -1087,7 +1087,7 @@ class CancerImageInterface(object):
         if os.path.isfile(self._tcia_cache_records_db_save_path):
             # ToDO: refactor into seperate method.
             cache_records_db = pd.read_pickle(self._tcia_cache_records_db_save_path)
-            self.cache_records_db = prune_rows_with_deleted_images(cache_data_frame=cache_records_db,
+            self.cache_records_db = prune_rows_with_deleted_images(cache_records_db=cache_records_db,
                                                                    columns=['cached_images_path', 'raw_dicom_files_paths'],
                                                                    save_path=self._tcia_cache_records_db_save_path)
 

@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from warnings import warn
 
+# General Support Tools
 from biovida.support_tools.support_tools import multimap
 
 
@@ -191,54 +192,89 @@ def records_db_merge(current_records_db,
 def _files_existence_checker(to_check):
     """
 
-    to_check
+    Checks if ``to_check`` exists.
+    If not take the following action:
 
+    - If a ``str``, return ``to_check`` if it exists else ``None``.
 
-    :param to_check:
+    - If a ``list`` or ``tuple``, remove items that do not exist.
+      If resultant length is zero return ``None``.
+
+    :param to_check: file, or iterable of file, to check the existance of
     :type to_check: ``str``, ``list`` or ``tuple``
-    :return:
+    :return: ``to_check``, pruned ``to_check`` (if iterable) or ``None`` (all files removed).
+    :rtype: ``str``, ``list``, ``tuple``, ``None`` or ``type(to_check)``
     """
     if isinstance(to_check, str):
-        return to_check if os.path.isfile(to_check) else False
+        return to_check if os.path.isfile(to_check) else None
     elif isinstance(to_check, (list, tuple)):
         files_present = tuple([i for i in to_check if os.path.isfile(i)])
-        return files_present if len(files_present) else False
+        return files_present if len(files_present) else None
     else:
         return to_check
 
 
-def _df_pruner(data_frame, columns):
+def _df_pruner(cache_records_db, columns):
     """
 
-    :param data_frame:
-    :param columns:
-    :return:
+    Prune ``cache_records_db`` by reviewing ``columns``.
+
+    :param cache_records_db: see ``prune_rows_with_deleted_images()``.
+    :type cache_records_db: ``Pandas DataFrame``
+    :param columns: see ``prune_rows_with_deleted_images()``.
+    :type columns: ``list``
+    :return: a pruned ``cache_records_db``.
+    :rtype: ``Pandas DataFrame``
     """
     for c in columns:
-        data_frame[c] = data_frame[c].map(_files_existence_checker)
+        cache_records_db[c] = cache_records_db[c].map(_files_existence_checker)
 
     # Mark rows to remove
-    indices_to_drop = data_frame[columns].apply(lambda x: not all(x[i] == False for i in columns), axis=1)
+    indices_to_drop = cache_records_db[columns].apply(lambda x: not all(x[i] is None for i in columns), axis=1)
 
     # Drop and reset the index
-    return data_frame[indices_to_drop].reset_index(drop=True)
+    return cache_records_db[indices_to_drop].fillna(np.NaN).reset_index(drop=True)
 
 
-def prune_rows_with_deleted_images(cache_data_frame, columns, save_path):
+def prune_rows_with_deleted_images(cache_records_db, columns, save_path):
     """
 
-    :param cache_data_frame:
-    :type cache_data_frame:
-    :param columns:
+    Tool to remove reference to images that have been manually deleted from the cache.
+    After this pruning has occurred, ``cache_records_db`` is saved at ``save_path``.
+
+    If a column element is a string, it will be left 'as is' if the file exists,
+    otherwise it the entire row will be marked for deletion.
+
+    If a column element is a tuple, image paths in the tuple that do not exist will be removed from the
+    tuple. If the resultant tuple is of zero length (i.e., all images have been deleted), the entire row
+    will be marked for deletion.
+
+    If, for a given row, all entries for the columns in ``columns`` are ``None`` (i.e., the images
+    have been deleted), that row will be removed from ``cache_records_db``.
+    Note: if one column is marked for deletion and another is not, the row will be conserved.
+
+    .. note::
+
+        If no images have been deleted, the output of this function will be the same as the input.
+
+    :param cache_records_db: a cache_records_db from the ``OpeniInterface()`` or ``CancerImageInterface()``
+    :type cache_records_db: ``Pandas DataFrame``
+    :param columns: a ``list`` of columns with paths to cached images. These columns can be columns of
+                    strings or columns of tuples.
+
+        .. warning::
+
+            This parameter *must* be a ``list``.
+
     :type columns: ``list``
-    :param save_path:
-    :type save_path:
-    :return:
-    :rtype:
+    :param save_path: the location to save ``cache_records_db``.
+    :type save_path: ``str``
+    :return: a pruned ``cache_records_db``
+    :rtype: ``Pandas DataFrame``
     """
-    pruned_cache_data_frame = _df_pruner(cache_data_frame, columns)
-    pruned_cache_data_frame.to_pickle(save_path)
-    return pruned_cache_data_frame
+    pruned_cache_records_db = _df_pruner(cache_records_db, columns)
+    pruned_cache_records_db.to_pickle(save_path)
+    return pruned_cache_records_db
 
 
 
