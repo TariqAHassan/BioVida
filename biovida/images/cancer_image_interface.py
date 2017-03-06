@@ -1041,7 +1041,7 @@ class CancerImageInterface(object):
             columns_with_iterables_to_sort = ('cached_images_path', 'raw_dicom_files_paths')
             self.cache_records_db = records_db_merge(current_records_db=self.cache_records_db,
                                                      records_db_update=tcia_cache_records_db_update,
-                                                     query_column_name='query',
+                                                     columns_with_dicts=('query',),
                                                      pull_time_column_name='pull_time',
                                                      duplicates_subset_columns=duplicates_subset_columns,
                                                      rows_to_conserve_func=rows_to_conserve_func,
