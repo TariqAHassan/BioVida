@@ -35,12 +35,29 @@ def is_int(i):
     Checks if the input (``i``) is an intiger in a way which is robust against booleans.
 
     :param i: any input
-    :type i: any
+    :type i: ``any``
     :return: whether or not the input is an intiger.
     :rtype: ``bool``
     """
     # Note: ``isinstance(fuzzy_threshold, bool)`` blocks `False` being evaluated as 0 (an intiger).
     return isinstance(i, int) and not isinstance(i, bool)
+
+
+def multi_replace(s, to_replace):
+    """
+
+    Run a replace against ``s`` for every item in ``to_replace``.
+
+    :param s: any string
+    :type s: ``str``
+    :param to_replace: strings to replace in ``s``
+    :type to_replace: ``tuple`` or ``list``
+    :return: ``s`` with all items in ``to_replace`` replaced with "".
+    :type: ``str``
+    """
+    for tr in to_replace:
+        s = s.replace(tr, "")
+    return s
 
 
 def n_sub_dirs(dir):
