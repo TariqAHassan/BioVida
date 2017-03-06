@@ -29,18 +29,20 @@ Latest Build:
 Dependencies
 ------------
 
-BioVida requires: `pandas <http://pandas.pydata.org>`__,
+BioVida requires: `beautiful soup <https://www.crummy.com/software/BeautifulSoup/>`__,
+`h5py <http://www.h5py.org>`__,
+`keras <https://keras.io>`__,
+`lxml <https://github.com/lxml/lxml>`__,
 `numpy <http://www.numpy.org>`__,
-`requests <http://docs.python-requests.org/en/master/>`__,
-`tqdm <https://github.com/tqdm/tqdm>`__,
+`pandas <http://pandas.pydata.org>`__,
 `pillow <https://github.com/python-pillow/Pillow>`__,
 `pydicom <https://github.com/darcymason/pydicom>`__,
-`h5py <http://www.h5py.org>`__,
-`scipy <https://www.scipy.org>`__,
-`scikit-image <http://scikit-image.org>`__ and
-`keras <https://keras.io>`__
+`requests <http://docs.python-requests.org/en/master/>`__,
+`scikit-image <http://scikit-image.org>`__,
+`scipy <https://www.scipy.org>`__ and
+`tqdm <https://github.com/tqdm/tqdm>`__.
 
-All of these dependencies should be installed automatically when installing BioVida.
+The BioVida installer will automatically install all of these packages.
 
 **Notes**:
 
@@ -49,9 +51,9 @@ allowing either `TensorFlow <https://www.tensorflow.org>`__ or
 `Theano <http://deeplearning.net/software/theano/>`__ to be used as a computational backend.
 If neither is present at install time, BioVida will automatically install TensorFlow for you.
 
-2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc``, which can be obtained with ``$ brew install gcc``.
-If you do not have ``homebrew`` installed (needed for ``brew``), it can be installed by following the instructions
-found `here <https://brew.sh>`__.
+2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc``, which can be obtained with ``homebrew`` via.
+``$ brew install gcc``. If you do not have ``homebrew`` installed, it can be installed by following the instructions
+provided `here <https://brew.sh>`__.
 
 --------------
 
@@ -112,6 +114,8 @@ Additionally, searches can easily be reviewed:
 
     opi.current_search_total
     # 134113
+
+By default, graphics are excluded. This can be changed with ``search()``'s ``exclusions`` parameter.
 
 :superscript:`†` *Note:* by default, data harvesting is truncated after the first 60
 results.
@@ -178,8 +182,6 @@ Exploring Available Databases
     # - Full Name:    Curated Gene-Disease Associations
     # - Description:  The file contains gene-disease associations from UNIPROT, CTD (human subset),
     #                 ClinVar, Orphanet, and the GWAS Catalog.
-
-This database will be cached to allow to fast access in the future.
 
 As with the ``OpeniInterface()`` class above, it is easy to gain access
 to the most recent ``pull`` and related information.
@@ -250,60 +252,4 @@ symptoms associated with numerous diseases can easily be obtained.
 
     # 3. Pull the Database
     dsdf = doi.pull()
-
---------------
-
-Resources
----------
-
-Images
-
--  The `Cancer Imaging Archive <http://www.cancerimagingarchive.net>`__
-
--  The `Open-i <https://openi.nlm.nih.gov>`__ BioMedical Image Search Engine (NIH)
-
-Genomics
-
--  `DisGeNET <http://www.disgenet.org/web/DisGeNET/menu>`__
-
-   -  Janet Piñero, Àlex Bravo, Núria Queralt-Rosinach, Alba
-      Gutiérrez-Sacristán, Jordi Deu-Pons, Emilio Centeno, Javier
-      García-García, Ferran Sanz, and Laura I. Furlong. DisGeNET: a
-      comprehensive platform integrating information on human
-      disease-associated genes and variants. Nucl. Acids Res. (2016).
-      doi:`10.1093/nar/gkw943 <https://doi.org/10.1093/nar/gkw943>`__.
-
-   -  Janet Piñero, Núria Queralt-Rosinach, Àlex Bravo, Jordi Deu-Pons,
-      Anna Bauer-Mehren, Martin Baron, Ferran Sanz, Laura I. Furlong.
-      DisGeNET: a discovery platform for the dynamical exploration of
-      human diseases and their genes. Database (2015).
-      doi:`10.1093/database/bav028 <https://doi.org/10.1093/database/bav028>`__.
-
-Diagnostics
-
-- `DiseaseOntology <http://disease-ontology.org/>`__
-
-  - Kibbe, Warren A., Cesar Arze, Victor Felix, Elvira Mitraka, Evan Bolton, Gang Fu, Christopher J. Mungall et al.
-    Disease Ontology 2015 update: an expanded and updated database of human diseases for linking biomedical
-    knowledge through disease data. Nucl. Acids Res. (2014).
-    doi:`10.1093/nar/gku1011 <https://doi.org/10.1093/nar/gkw943>`__.
-
-  - Schriml, Lynn Marie, Cesar Arze, Suvarna Nadendla, Yu-Wei Wayne Chang, Mark Mazaitis, Victor Felix, Gang Feng,
-    and Warren Alden Kibbe. Disease Ontology: a backbone for disease semantic integration. Nucl. Acids Res. (2012).
-    doi:`10.1093/nar/gkr972 <https://doi.org/10.1093/nar/gkr972>`__.
-
-- Human Symptoms Disease Network
-
-  - Zhou, XueZhong, Jörg Menche, Albert-László Barabási, and Amitabh Sharma. Human symptoms–disease network.
-    Nature communications 5 (2014). doi:`10.1038/ncomms5212 <http://www.nature.com/articles/ncomms5212>`__.
-    Online Repository: https://github.com/dhimmel/hsdn.
-
-- Rephetio - Medline
-
-  - Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman, Sabrina Chen, Dexter Hadley, Ari Green,
-    Pouya Khankhanian, Sergio Baranzini. Rephetio: Repurposing drugs on a hetnet [report].
-    Thinklab (2016). doi:`10.15363/thinklab.a7 <http://www.thinklab.com/p/rephetio/report>`__.
-    Online Repository: https://github.com/dhimmel/medline.
-
-
 
