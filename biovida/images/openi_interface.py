@@ -28,6 +28,7 @@ from biovida.images._image_tools import sleep_with_noise
 from biovida.images._image_database_mgmt import load_temp_dbs
 from biovida.images._image_database_mgmt import records_db_merge
 from biovida.images._image_database_mgmt import record_update_dbs_joiner
+from biovida.images._image_database_mgmt import prune_rows_with_deleted_images
 
 # Open-i Support tools
 from biovida.images.interface_support.openi._openi_support_tools import iter_join
@@ -927,7 +928,7 @@ class OpeniInterface(object):
         if records_db_update is not None:
             # Update `self.current_records_db`.
             self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
-                                                records_db_update=records_db_update)
+                                                 records_db_update=records_db_update)
             # Delete the latent 'databases/__temp__' folder.
             shutil.rmtree(self._openi_cache_records_db_save_path, ignore_errors=True)
 
@@ -1013,7 +1014,10 @@ class OpeniInterface(object):
 
         # Load the cache record database, if it exists
         if os.path.isfile(self._openi_cache_records_db_save_path):
-            self.cache_records_db = pd.read_pickle(self._openi_cache_records_db_save_path)
+            cache_records_db = pd.read_pickle(self._openi_cache_records_db_save_path)
+            self.cache_records_db = prune_rows_with_deleted_images(cache_data_frame=cache_records_db,
+                                                                   columns=['cached_images_path'],
+                                                                   save_path=self._openi_cache_records_db_save_path)
         else:
             self.cache_records_db = None
 

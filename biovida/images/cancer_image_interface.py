@@ -28,6 +28,7 @@ from biovida.images._image_tools import NoResultsFound
 from biovida.images._image_database_mgmt import load_temp_dbs
 from biovida.images._image_database_mgmt import records_db_merge
 from biovida.images._image_database_mgmt import record_update_dbs_joiner
+from biovida.images._image_database_mgmt import prune_rows_with_deleted_images
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
@@ -1084,7 +1085,16 @@ class CancerImageInterface(object):
 
         # Load `cache_records_db` if it exists already, else set to None.
         if os.path.isfile(self._tcia_cache_records_db_save_path):
-            self.cache_records_db = pd.read_pickle(self._tcia_cache_records_db_save_path)
+            # ToDO: refactor into seperate method.
+            cache_records_db = pd.read_pickle(self._tcia_cache_records_db_save_path)
+            self.cache_records_db = prune_rows_with_deleted_images(cache_data_frame=cache_records_db,
+                                                                   columns=['cached_images_path', 'raw_dicom_files_paths'],
+                                                                   save_path=self._tcia_cache_records_db_save_path)
+
+            # Recompute the image_count_converted_cache column following the pruning procedure.
+            self.cache_records_db['image_count_converted_cache'] = self.cache_records_db['cached_images_path'].map(
+                lambda x: len(x) if isinstance(x, (list, tuple)) else np.NaN)
+
             # Merge any latent elements in the __temp__ folder, if such a folder exists (and if it is populated).
             if os.path.isdir(self._Images.temp_directory_path):
                 latent_temps = load_temp_dbs(self._Images.temp_directory_path)
@@ -1304,7 +1314,7 @@ class CancerImageInterface(object):
                  If ``make_hashable`` is ``True``, all dictionaries will be converted to ``tuples``.
         :rtype: ``Pandas Series``
         """
-        # ToDo: remove need for ``save_dicoms`` by calling upstream before the temporary dicom files are destroyed.
+        # ToDo: remove need for ``save_dicoms=True`` by calling upstream before the temporary dicom files are destroyed.
         if database == 'records_db':
             database_to_use = self.records_db
         elif database == 'cache_records_db':

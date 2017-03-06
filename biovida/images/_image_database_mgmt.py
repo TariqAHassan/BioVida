@@ -14,7 +14,7 @@ from biovida.support_tools.support_tools import multimap
 
 
 # ----------------------------------------------------------------------------------------------------------
-# General
+# Merging New Records with the Existing Cache
 # ----------------------------------------------------------------------------------------------------------
 
 
@@ -96,11 +96,6 @@ def load_temp_dbs(temp_db_path):
 
     # Concatenate all frames
     return pd.concat(frames, ignore_index=True)
-
-
-# ----------------------------------------------------------------------------------------------------------
-# Outward Facing Tool
-# ----------------------------------------------------------------------------------------------------------
 
 
 def records_db_merge(current_records_db,
@@ -188,7 +183,62 @@ def records_db_merge(current_records_db,
     return combined_dbs.drop('__temp_order__', axis=1).reset_index(drop=True)
 
 
+# ----------------------------------------------------------------------------------------------------------
+# Pruning the Cache of Deleted Files
+# ----------------------------------------------------------------------------------------------------------
 
+
+def _files_existence_checker(to_check):
+    """
+
+    to_check
+
+
+    :param to_check:
+    :type to_check: ``str``, ``list`` or ``tuple``
+    :return:
+    """
+    if isinstance(to_check, str):
+        return to_check if os.path.isfile(to_check) else False
+    elif isinstance(to_check, (list, tuple)):
+        files_present = tuple([i for i in to_check if os.path.isfile(i)])
+        return files_present if len(files_present) else False
+    else:
+        return to_check
+
+
+def _df_pruner(data_frame, columns):
+    """
+
+    :param data_frame:
+    :param columns:
+    :return:
+    """
+    for c in columns:
+        data_frame[c] = data_frame[c].map(_files_existence_checker)
+
+    # Mark rows to remove
+    indices_to_drop = data_frame[columns].apply(lambda x: not all(x[i] == False for i in columns), axis=1)
+
+    # Drop and reset the index
+    return data_frame[indices_to_drop].reset_index(drop=True)
+
+
+def prune_rows_with_deleted_images(cache_data_frame, columns, save_path):
+    """
+
+    :param cache_data_frame:
+    :type cache_data_frame:
+    :param columns:
+    :type columns: ``list``
+    :param save_path:
+    :type save_path:
+    :return:
+    :rtype:
+    """
+    pruned_cache_data_frame = _df_pruner(cache_data_frame, columns)
+    pruned_cache_data_frame.to_pickle(save_path)
+    return pruned_cache_data_frame
 
 
 
