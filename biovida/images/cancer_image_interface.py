@@ -22,6 +22,7 @@ from datetime import datetime
 from biovida import __version__
 
 # General Image Support Tools
+from biovida.images._image_tools import TIME_FORMAT
 from biovida.images._image_tools import NoResultsFound
 
 # Database Management
@@ -1076,9 +1077,6 @@ class CancerImageInterface(object):
         self.current_search = None
         self.records_db = None
 
-        # The format for date information
-        self._time_format = "%Y_%h_%d_%H_%M_%S_%f"
-
         # Path to the `cache_records_db`
         self._tcia_cache_records_db_save_path = os.path.join(self._Images._created_img_dirs['databases'],
                                                             'tcia_cache_records_db.p')
@@ -1443,7 +1441,7 @@ class CancerImageInterface(object):
             if self._verbose:
                 print("\nObtaining Images...")
             self.records_db = self._Images.pull_images(records_db=records_db,
-                                                       pull_time=self._pull_time.strftime(self._time_format),
+                                                       pull_time=self._pull_time.strftime(TIME_FORMAT),
                                                        session_limit=session_limit,
                                                        image_format=image_format,
                                                        save_dicoms=save_dicoms,

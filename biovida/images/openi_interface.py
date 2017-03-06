@@ -20,6 +20,7 @@ from collections import Counter
 from biovida import __version__
 
 # General Image Support Tools
+from biovida.images._image_tools import TIME_FORMAT
 from biovida.images._image_tools import NoResultsFound
 from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
@@ -976,7 +977,6 @@ class OpeniInterface(object):
                  verbose=True):
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
-        self._time_format = "%Y_%h_%d__%H_%M_%S_%f"
         self._date_format = '%d/%m/%Y',
 
         # Generate Required Caches
@@ -1185,7 +1185,7 @@ class OpeniInterface(object):
             # Pull the images.
             self.records_db = self._Images.pull_images(records_db=self.records_db,
                                                        image_size=image_size,
-                                                       pull_time=self._pull_time.strftime(self._time_format),
+                                                       pull_time=self._pull_time.strftime(TIME_FORMAT),
                                                        images_sleep_time=images_sleep_time,
                                                        use_image_caption=use_image_caption)
 
