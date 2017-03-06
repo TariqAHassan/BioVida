@@ -1413,7 +1413,7 @@ class CancerImageInterface(object):
         :rtype: ``Pandas DataFrame``
         """
         if self.current_search is None:
-            raise AttributeError("`current_search` is empty. A search must be performed before `pull()` is called.")
+            raise TypeError("`current_search` is `None`: `search()` must be called before `pull()`.")
 
         # Note the time the pull request was made
         self._pull_time = datetime.now()
