@@ -256,6 +256,27 @@ def only_numeric(s):
     return float(cleaned) if len(cleaned) else np.NaN
 
 
+def multimap(data_frame, columns, func):
+    """
+
+    Maps some function (``func``) over all columns in ``columns``.
+
+    :param data_frame: as evolved inside ``records_db_merge``.
+    :type data_frame: ``Pandas DataFrame``
+    :param columns: a 'list' of columns.
+    :type columns: ``list`` or ``tuple``
+    :param func: some function.
+    :type func: ``function``
+    :return: ``data_frame`` with ``func`` mapped over all ``columns``.
+    :rtype: ``Pandas DataFrame``
+    """
+    if not isinstance(columns, (list, tuple)):
+        return data_frame
+
+    for c in columns:
+        data_frame[c] = data_frame[c].map(func, na_action='ignore')
+
+    return data_frame
 
 
 
