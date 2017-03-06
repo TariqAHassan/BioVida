@@ -111,7 +111,7 @@ def records_db_merge(current_records_db,
 
     Merge the existing record database with new additions.
 
-    .. wanring::
+    .. warning::
 
         Both ``current_records_db`` and ``records_db_update`` are expected to have 'pull_time' columns.
 
@@ -200,7 +200,7 @@ def _files_existence_checker(to_check):
     - If a ``list`` or ``tuple``, remove items that do not exist.
       If resultant length is zero return ``None``.
 
-    :param to_check: file, or iterable of file, to check the existance of
+    :param to_check: file, or iterable of file, to check the existence of
     :type to_check: ``str``, ``list`` or ``tuple``
     :return: ``to_check``, pruned ``to_check`` (if iterable) or ``None`` (all files removed).
     :rtype: ``str``, ``list``, ``tuple``, ``None`` or ``type(to_check)``
