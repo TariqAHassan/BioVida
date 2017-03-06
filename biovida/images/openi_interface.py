@@ -972,9 +972,7 @@ class OpeniInterface(object):
         # Save to class instance
         self.cache_records_db = to_return
 
-    def __init__(self,
-                 cache_path=None,
-                 verbose=True):
+    def __init__(self, cache_path=None, verbose=True):
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
         self._date_format = '%d/%m/%Y',
