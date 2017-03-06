@@ -245,7 +245,7 @@ class CancerImgArchiveParams(object):
 
         if not os.path.isfile(save_path) or download_override:
             if self._verbose:
-                header("Downloading DICOM Modaility Table... ", flank=False)
+                header("Downloading DICOM Modality Table... ", flank=False)
             html = requests.get(modality_loc).text
             modality_df = pd.read_html(str(html), header=0)[0]
             modality_df.columns = modality_df.columns.str.lower()
