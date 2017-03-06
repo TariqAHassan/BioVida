@@ -956,7 +956,8 @@ class OpeniInterface(object):
             to_return = _img_relation_map(records_db_update)
             to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         else:
-            duplicates_subset_columns = [c for c in current_records_db.columns if c != 'pull_time']
+            duplicates_subset_columns = ['img_grid150', 'img_large', 'img_thumb', 'img_thumb_large',
+                                         'query', 'cached_images_path', 'download_success']
             to_return = records_db_merge(current_records_db=current_records_db,
                                          records_db_update=records_db_update,
                                          columns_with_dicts=('query', 'parsed_abstract'),

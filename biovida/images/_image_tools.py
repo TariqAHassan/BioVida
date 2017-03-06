@@ -289,6 +289,11 @@ def records_db_merge(current_records_db,
     :param pull_time_column_name: the name of the column with the time the pull request was issued.
     :type pull_time_column_name: ``str``
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
+
+                    .. warning::
+
+                            Do *not* include the 'shared_image_ref' column as this function will recompute it.
+
     :type duplicates_subset_columns: ``list`` or ``tuple``
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
                                   in fact, present in the cahce. If not, remove it from the database to be saved.
@@ -325,16 +330,13 @@ def records_db_merge(current_records_db,
     # (making them hashable, as required by ``pandas.drop_duplicates()``).
     combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict_to_tot)
 
-    # Remove the 'shared_image_ref' column from consideration
-    duplicates_subset_columns_cleaned = [c for c in duplicates_subset_columns if c != 'shared_image_ref']
-
     # Sort columns with iterables
     if isinstance(columns_with_iterables_to_sort, (list, tuple)):
         for c in columns_with_iterables_to_sort:
             combined_dbs[c] = combined_dbs[c].map(lambda x: tuple(sorted(x)), na_action='ignore')
 
     # Drop Duplicates (keeping the most recent).
-    combined_dbs = combined_dbs.drop_duplicates(subset=duplicates_subset_columns_cleaned, keep='last')
+    combined_dbs = combined_dbs.drop_duplicates(subset=duplicates_subset_columns, keep='last')
 
     # Convert the tuples back to dictionaries
     combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict)
