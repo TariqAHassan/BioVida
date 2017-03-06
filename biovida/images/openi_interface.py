@@ -869,7 +869,7 @@ def _img_relation_map(data_frame):
             return np.NaN
 
     # Apply `relate()`
-    df['shared_img_ref'] = [related(img, index) for img, index in zip(df['img_large'], df.index)]
+    df['shared_image_ref'] = [related(img, index) for img, index in zip(df['img_large'], df.index)]
 
     return df
 
@@ -928,7 +928,7 @@ class OpeniInterface(object):
             duplicates_subset_columns = [c for c in current_records_db.columns if c != 'pull_time']
             to_return = records_db_merge(current_records_db=current_records_db,
                                          records_db_update=records_db_update,
-                                         query_column_name='query',
+                                         columns_with_dicts=('query', 'parsed_abstract'),
                                          pull_time_column_name='pull_time',
                                          duplicates_subset_columns=duplicates_subset_columns,
                                          rows_to_conserve_func=rows_to_conserve_func,
@@ -1012,7 +1012,7 @@ class OpeniInterface(object):
                query=None,
                image_type=None,
                rankby=None,
-               article_type=None,
+               article_type='case_report',
                subset=None,
                collection=None,
                fields=None,
@@ -1031,7 +1031,7 @@ class OpeniInterface(object):
         :type image_type: ``str``, ``list``, ``tuple`` or ``None``
         :param rankby: see ``OpeniInterface().options('rankby')`` for valid values.
         :type rankby: ``str``, ``list``, ``tuple`` or ``None``
-        :param article_type: see ``OpeniInterface().options('article_type')`` for valid values.
+        :param article_type: see ``OpeniInterface().options('article_type')`` for valid values. Defaults to 'case_report'.
         :type article_type: ``str``, ``list``, ``tuple`` or ``None``
         :param subset: see ``OpeniInterface().options('subset')`` for valid values.
         :type subset: ``str``, ``list``, ``tuple`` or ``None``
