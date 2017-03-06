@@ -15,7 +15,13 @@ from scipy.misc import imread, imresize
 from skimage.color.colorconv import rgb2gray
 
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import multimap
 from biovida.support_tools.support_tools import items_null
+
+
+# ----------------------------------------------------------------------------------------------------------
+# General Tools
+# ----------------------------------------------------------------------------------------------------------
 
 
 class NoResultsFound(Exception):
@@ -262,7 +268,7 @@ def load_temp_dbs(temp_db_path):
 
 def records_db_merge(current_records_db,
                      records_db_update,
-                     query_column_name,
+                     columns_with_dicts,
                      pull_time_column_name,
                      duplicates_subset_columns,
                      rows_to_conserve_func=None,
@@ -277,9 +283,9 @@ def records_db_merge(current_records_db,
     :type current_records_db: ``Pandas DataFrame``
     :param records_db_update: the new records dataframe to be merged with the existing one (``current_records_db``).
     :type records_db_update: ``Pandas DataFrame``
-    :param query_column_name: the column which contains the query responcible for the results. Note: this column
-                              *should* contain only dictionaries.
-    :type query_column_name: ``str``
+    :param columns_with_dicts: a list of columns which contain dictionaries. Note: this column *should* contain only
+                               dictionaries or NaNs.
+    :type columns_with_dicts: ``list``, ``tuple`` or ``None``.
     :param pull_time_column_name: the name of the column with the time the pull request was issued.
     :type pull_time_column_name: ``str``
     :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
@@ -315,12 +321,12 @@ def records_db_merge(current_records_db,
     # Sort by ``pull_time_column_name``
     combined_dbs = combined_dbs.sort_values(pull_time_column_name)
 
-    # Convert 'query_column_name' to a tuple of tuples
+    # Convert items in ``columns_with_dicts`` from dictionaries to tuple of tuples.
     # (making them hashable, as required by ``pandas.drop_duplicates()``).
-    combined_dbs[query_column_name] = combined_dbs[query_column_name].map(dict_to_tot, na_action='ignore')
+    combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict_to_tot)
 
-    # Remove the 'shared_img_ref' column from consideration
-    duplicates_subset_columns_cleaned = [c for c in duplicates_subset_columns if c != 'shared_img_ref']
+    # Remove the 'shared_image_ref' column from consideration
+    duplicates_subset_columns_cleaned = [c for c in duplicates_subset_columns if c != 'shared_image_ref']
 
     # Sort columns with iterables
     if isinstance(columns_with_iterables_to_sort, (list, tuple)):
@@ -330,8 +336,8 @@ def records_db_merge(current_records_db,
     # Drop Duplicates (keeping the most recent).
     combined_dbs = combined_dbs.drop_duplicates(subset=duplicates_subset_columns_cleaned, keep='last')
 
-    # Convert the 'query_column_name' dicts back to dictionaries
-    combined_dbs[query_column_name] = combined_dbs[query_column_name].map(dict, na_action='ignore')
+    # Convert the tuples back to dictionaries
+    combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict)
 
     # Sort
     combined_dbs = combined_dbs.sort_values('temp_order')
