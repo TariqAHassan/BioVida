@@ -19,16 +19,15 @@ from collections import Counter
 
 from biovida import __version__
 
-# Other BioVida APIs
-from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
-
 # General Image Support Tools
-from biovida.images._image_tools import load_temp_dbs
 from biovida.images._image_tools import NoResultsFound
-from biovida.images._image_tools import records_db_merge
 from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
-from biovida.images._image_tools import record_update_dbs_joiner
+
+# Database Management
+from biovida.images._image_database_mgmt import load_temp_dbs
+from biovida.images._image_database_mgmt import records_db_merge
+from biovida.images._image_database_mgmt import record_update_dbs_joiner
 
 # Open-i Support tools
 from biovida.images.interface_support.openi._openi_support_tools import iter_join
@@ -42,13 +41,12 @@ from biovida.images.interface_support.openi._openi_parameters import openi_searc
 # Oeni-i Raw Text Processing
 from biovida.images.interface_support.openi._openi_text_processing import openi_raw_extract_and_clean
 
-# Cache Managment
+# Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
-from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import list_to_bulletpoints
 

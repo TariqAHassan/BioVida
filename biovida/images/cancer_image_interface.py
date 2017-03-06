@@ -17,22 +17,21 @@ from PIL import Image
 from tqdm import tqdm
 from time import sleep
 from warnings import warn
-from itertools import chain
 from datetime import datetime
 
 from biovida import __version__
 
 # General Image Support Tools
-from biovida.images._image_tools import dict_to_tot
-from biovida.images._image_tools import load_temp_dbs
 from biovida.images._image_tools import NoResultsFound
-from biovida.images._image_tools import records_db_merge
-from biovida.images._image_tools import record_update_dbs_joiner
+
+# Database Management
+from biovida.images._image_database_mgmt import load_temp_dbs
+from biovida.images._image_database_mgmt import records_db_merge
+from biovida.images._image_database_mgmt import record_update_dbs_joiner
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
-from biovida.support_tools.support_tools import items_null
 from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import combine_dicts
 from biovida.support_tools.support_tools import camel_to_snake_case
@@ -45,8 +44,8 @@ from biovida.support_tools.printing import pandas_pprint
 from biovida.support_tools._cache_management import package_cache_creator
 
 # Cancer Image Support tools
-from biovida.images.interface_support.cancer_image._cancer_image_parameters import CancerImgArchiveParams
 from biovida.images.interface_support._dicom_data_to_dict import dicom_to_dict
+from biovida.images.interface_support.cancer_image._cancer_image_parameters import CancerImgArchiveParams
 
 # Spin up tqdm
 tqdm.pandas("status")
