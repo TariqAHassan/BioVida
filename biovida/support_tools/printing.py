@@ -328,7 +328,7 @@ def pandas_pprint(data,
     :type lift_column_width_limit: ``bool``
     """
     if type(data).__name__ not in ('DataFrame', 'Series'):
-        raise TypeError("Invalid type for `data`.")
+        raise TypeError("`data` cannot be of type '{0}'; must be of type 'DataFrame' or 'Series'.".format(type(data).__name__))
 
     # Deep copy to prevent altering ``data`` in memory.
     data_copy = data.copy(deep=True)
