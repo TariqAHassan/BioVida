@@ -1236,6 +1236,8 @@ class CancerImageInterface(object):
                  "If you still wish to proceed, consider adjusting `pull()`'s\n"
                  "`patient_limit` and `session_limit` parameters.")
 
+        return None if pretty_print else self.current_search
+
     def _pull_records(self, patient_limit, collections_limit):
         """
 
