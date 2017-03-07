@@ -182,7 +182,6 @@
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
 
 <span class="kn">from</span> <span class="nn">biovida</span> <span class="k">import</span> <span class="n">__version__</span>
 
@@ -193,10 +192,11 @@
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">sleep_with_noise</span>
 
 <span class="c1"># Database Management</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">load_temp_dbs</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">records_db_merge</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">record_update_dbs_joiner</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">prune_rows_with_deleted_images</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_load_temp_dbs</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_records_db_merge</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_openi_image_relation_map</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_record_update_dbs_joiner</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_prune_rows_with_deleted_images</span>
 
 <span class="c1"># Open-i Support tools</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">iter_join</span>
@@ -473,8 +473,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">values</span><span class="p">()))):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No Search Criterion Detected. Please specify criterion to narrow your search.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Extract the function arguments</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">}</span>
+        <span class="c1"># Extract the function arguments and format values.</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">}</span>
 
         <span class="c1"># Merge `image_type` with `exclusions`</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclusions_img_type_merge</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclusions</span><span class="p">)</span>
@@ -1027,49 +1027,12 @@
                                  <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">,</span>
                                  <span class="n">use_image_caption</span><span class="o">=</span><span class="n">use_image_caption</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">record_update_dbs_joiner</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">,</span> <span class="n">update_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_record_update_dbs_joiner</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">,</span> <span class="n">update_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="p">)</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Construct Database</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
-
-
-<span class="k">def</span> <span class="nf">_img_relation_map</span><span class="p">(</span><span class="n">data_frame</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">    Algorithm to find the index of rows which reference</span>
-<span class="sd">    the same image in the cache (the image size can vary).</span>
-
-<span class="sd">    :param data_frame:</span>
-<span class="sd">    :type data_frame: ``Pandas DataFrame``</span>
-<span class="sd">    :return:</span>
-<span class="sd">    :rtype: ``Pandas DataFrame``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Copy the data_frame</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Reset the index</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Get duplicated img_large occurences. Use of &#39;img_large&#39; is arbitrary, could have used</span>
-    <span class="c1"># &#39;img_thumb&#39;, &#39;img_grid150&#39;, etc.</span>
-    <span class="n">duplicated_img_refs</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
-
-    <span class="c1"># Get the indices of duplicates</span>
-    <span class="n">dup_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">duplicated_img_refs</span><span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">related</span><span class="p">(</span><span class="n">img_large</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Function to look for references to the same image in the cache.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">img_large</span> <span class="ow">in</span> <span class="n">dup_index</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dup_index</span><span class="p">[</span><span class="n">img_large</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">index</span><span class="p">]))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
-
-    <span class="c1"># Apply `relate()`</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;shared_image_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">related</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
-
-    <span class="k">return</span> <span class="n">df</span>
 
 
 <div class="viewcode-block" id="OpeniInterface"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface">[docs]</a><span class="k">class</span> <span class="nc">OpeniInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1084,6 +1047,27 @@
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">_save_cache_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Save ``cache_records_db`` to &#39;disk&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_prune_cache_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Load and Prune the ``cache_records_db``.</span>
+
+<span class="sd">        :param load: if ``True`` load the ``cache_records_db`` dataframe in from disk.</span>
+<span class="sd">        :type load: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">load</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_prune_rows_with_deleted_images</span><span class="p">(</span><span class="n">cache_records_db</span><span class="o">=</span><span class="n">cache_records_db</span><span class="p">,</span>
+                                                                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span>
+                                                                <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_latent_temp_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1091,14 +1075,15 @@
 <span class="sd">        before python exited (the ``pull()`` method, specifically).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Load the latent database(s).</span>
-        <span class="n">records_db_update</span> <span class="o">=</span> <span class="n">load_temp_dbs</span><span class="p">(</span><span class="n">temp_db_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Update `self.current_records_db`.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_handler</span><span class="p">(</span><span class="n">current_records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
-                                                 <span class="n">records_db_update</span><span class="o">=</span><span class="n">records_db_update</span><span class="p">)</span>
-            <span class="c1"># Delete the latent &#39;databases/__temp__&#39; folder.</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">):</span>
+            <span class="c1"># Load the latent database(s).</span>
+            <span class="n">records_db_update</span> <span class="o">=</span> <span class="n">_load_temp_dbs</span><span class="p">(</span><span class="n">temp_db_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Update `self.current_records_db`.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_handler</span><span class="p">(</span><span class="n">current_records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
+                                                     <span class="n">records_db_update</span><span class="o">=</span><span class="n">records_db_update</span><span class="p">)</span>
+                <span class="c1"># Delete the latent &#39;databases/__temp__&#39; folder.</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_openi_cache_records_db_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_records_db</span><span class="p">,</span> <span class="n">records_db_update</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1117,27 +1102,24 @@
         <span class="k">if</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`current_records_db` and `records_db_update` cannot both be None.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">to_return</span> <span class="o">=</span> <span class="n">current_records_db</span>
-            <span class="n">to_return</span> <span class="o">=</span> <span class="n">to_return</span><span class="p">[</span><span class="n">to_return</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">current_records_db</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">to_return</span> <span class="o">=</span> <span class="n">_img_relation_map</span><span class="p">(</span><span class="n">records_db_update</span><span class="p">)</span>
-            <span class="n">to_return</span> <span class="o">=</span> <span class="n">to_return</span><span class="p">[</span><span class="n">to_return</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">_openi_image_relation_map</span><span class="p">(</span><span class="n">records_db_update</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">duplicates_subset_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;img_grid150&#39;</span><span class="p">,</span> <span class="s1">&#39;img_large&#39;</span><span class="p">,</span> <span class="s1">&#39;img_thumb&#39;</span><span class="p">,</span> <span class="s1">&#39;img_thumb_large&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;download_success&#39;</span><span class="p">]</span>
-            <span class="n">to_return</span> <span class="o">=</span> <span class="n">records_db_merge</span><span class="p">(</span><span class="n">current_records_db</span><span class="o">=</span><span class="n">current_records_db</span><span class="p">,</span>
-                                         <span class="n">records_db_update</span><span class="o">=</span><span class="n">records_db_update</span><span class="p">,</span>
-                                         <span class="n">columns_with_dicts</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;parsed_abstract&#39;</span><span class="p">),</span>
-                                         <span class="n">duplicates_subset_columns</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span>
-                                         <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="n">rows_to_conserve_func</span><span class="p">,</span>
-                                         <span class="n">post_concat_mapping</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;uid_instance&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">,</span> <span class="n">resetting_label</span><span class="p">),</span>
-                                         <span class="n">relationship_mapping_func</span><span class="o">=</span><span class="n">_img_relation_map</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_records_db_merge</span><span class="p">(</span><span class="n">interface_name</span><span class="o">=</span><span class="s1">&#39;OpeniInterface&#39;</span><span class="p">,</span>
+                                                      <span class="n">current_records_db</span><span class="o">=</span><span class="n">current_records_db</span><span class="p">,</span>
+                                                      <span class="n">records_db_update</span><span class="o">=</span><span class="n">records_db_update</span><span class="p">,</span>
+                                                      <span class="n">columns_with_dicts</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;parsed_abstract&#39;</span><span class="p">),</span>
+                                                      <span class="n">duplicates_subset_columns</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span>
+                                                      <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="n">rows_to_conserve_func</span><span class="p">,</span>
+                                                      <span class="n">post_concat_mapping</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;uid_instance&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">,</span> <span class="n">resetting_label</span><span class="p">))</span>
 
         <span class="c1"># Save to disk</span>
-        <span class="n">to_return</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">)</span>
-
-        <span class="c1"># Save to class instance</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">to_return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
@@ -1175,21 +1157,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Path to cache record db</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
-                                                              <span class="s1">&#39;openi_cache_records_db.p&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
+                                                        <span class="s1">&#39;openi_cache_records_db.p&#39;</span><span class="p">)</span>
 
         <span class="c1"># Load the cache record database, if it exists</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">):</span>
-            <span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">prune_rows_with_deleted_images</span><span class="p">(</span><span class="n">cache_records_db</span><span class="o">=</span><span class="n">cache_records_db</span><span class="p">,</span>
-                                                                   <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span>
-                                                                   <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_save_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_prune_cache_records_db</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Load in databases in &#39;databases/__temp__&#39;, if they exist</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_latent_temp_dir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_latent_temp_dir</span><span class="p">()</span>
 
 <div class="viewcode-block" id="OpeniInterface.options"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.options">[docs]</a>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_parameter</span><span class="p">,</span> <span class="n">print_options</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1204,7 +1182,6 @@
 <span class="sd">        :return: a list of valid values for a given search ``search_parameter``.</span>
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Note this simply wraps ``_OpeniSearch().options()``.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Search</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">,</span> <span class="n">print_options</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpeniInterface.search"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -1262,7 +1239,6 @@
 <span class="sd">                ``...image_type=(&#39;ct&#39;, &#39;mri&#39;)``.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Note this simply wraps ``_OpeniSearch().search()``.</span>
         <span class="n">search</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Search</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
                                      <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="p">,</span>
                                      <span class="n">rankby</span><span class="o">=</span><span class="n">rankby</span><span class="p">,</span>
