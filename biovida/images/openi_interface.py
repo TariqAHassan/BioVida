@@ -306,8 +306,8 @@ class _OpeniSearch(object):
         if not len(list(filter(None, args_cleaned.values()))):
             raise ValueError("No Search Criterion Detected. Please specify criterion to narrow your search.")
 
-        # Extract the function arguments
-        args = {k: [v] if isinstance(v, str) else v for k, v in args_cleaned.items() if k != 'exclusions'}
+        # Extract the function arguments and format values.
+        args = {k: [v] if isinstance(v, str) and k != 'query' else v for k, v in args_cleaned.items() if k != 'exclusions'}
 
         # Merge `image_type` with `exclusions`
         args = self._exclusions_img_type_merge(args, exclusions)
