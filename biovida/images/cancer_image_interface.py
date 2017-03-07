@@ -911,6 +911,7 @@ class _CancerImgArchiveImages(object):
                 dicom_files = self._download_zip(series_uid, temporary_folder=temporary_folder)
 
                 # Convert dicom files to `image_format`
+                # ToDo: Change 'conversion_success' to be true if *any* images were converted.
                 for e, f in enumerate(dicom_files, start=1):
                     self._save_dicom_as_img(f, index, pull_position=e, save_name=series_abbrev, image_format=image_format)
 
@@ -1015,6 +1016,22 @@ class CancerImageInterface(object):
     :type cache_path: ``str`` or ``None``
     """
 
+    def _load_and_prune_cache_records_db(self, load):
+        """
+
+
+        :param load: if ``True`` load the ``cache_records_db`` dataframe in from disk.
+        :type load: ``bool``
+        """
+        cache_records_db = pd.read_pickle(self._tcia_cache_records_db_save_path) if load else self.cache_records_db
+        self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
+                                                                columns=['cached_images_path', 'raw_dicom_files_paths'],
+                                                                save_path=self._tcia_cache_records_db_save_path)
+
+        # Recompute the image_count_converted_cache column following the pruning procedure.
+        self.cache_records_db['image_count_converted_cache'] = self.cache_records_db['cached_images_path'].map(
+            lambda x: len(x) if isinstance(x, (list, tuple)) else np.NaN)
+
     def _latent_temp_dir(self):
         """
 
@@ -1101,14 +1118,7 @@ class CancerImageInterface(object):
 
         # Load `cache_records_db` if it exists already, else set to None.
         if os.path.isfile(self._tcia_cache_records_db_save_path):
-            cache_records_db = pd.read_pickle(self._tcia_cache_records_db_save_path)
-            self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
-                                                                    columns=['cached_images_path', 'raw_dicom_files_paths'],
-                                                                    save_path=self._tcia_cache_records_db_save_path)
-
-            # Recompute the image_count_converted_cache column following the pruning procedure.
-            self.cache_records_db['image_count_converted_cache'] = self.cache_records_db['cached_images_path'].map(
-                lambda x: len(x) if isinstance(x, (list, tuple)) else np.NaN)
+            self._load_and_prune_cache_records_db(load=True)
         else:
             self.cache_records_db = None
 

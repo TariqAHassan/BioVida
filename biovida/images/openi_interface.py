@@ -917,6 +917,18 @@ class OpeniInterface(object):
     :type verbose: ``bool``
     """
 
+    def _load_and_prune_cache_records_db(self, load):
+        """
+
+
+        :param load: if ``True`` load the ``cache_records_db`` dataframe in from disk.
+        :type load: ``bool``
+        """
+        cache_records_db = pd.read_pickle(self._openi_cache_records_db_save_path) if load else self.cache_records_db
+        self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
+                                                                columns=['cached_images_path'],
+                                                                save_path=self._openi_cache_records_db_save_path)
+
     def _latent_temp_dir(self):
         """
 
@@ -1013,10 +1025,7 @@ class OpeniInterface(object):
 
         # Load the cache record database, if it exists
         if os.path.isfile(self._openi_cache_records_db_save_path):
-            cache_records_db = pd.read_pickle(self._openi_cache_records_db_save_path)
-            self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
-                                                                    columns=['cached_images_path'],
-                                                                    save_path=self._openi_cache_records_db_save_path)
+            self._load_and_prune_cache_records_db(load=True)
         else:
             self.cache_records_db = None
 
@@ -1037,7 +1046,6 @@ class OpeniInterface(object):
         :return: a list of valid values for a given search ``search_parameter``.
         :rtype: ``list``
         """
-        # Note this simply wraps ``_OpeniSearch().options()``.
         return self._Search.options(search_parameter, print_options)
 
     def search(self,
@@ -1095,7 +1103,6 @@ class OpeniInterface(object):
                 ``...image_type=('ct', 'mri')``.
 
         """
-        # Note this simply wraps ``_OpeniSearch().search()``.
         search = self._Search.search(query=query,
                                      image_type=image_type,
                                      rankby=rankby,
