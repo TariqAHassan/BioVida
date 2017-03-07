@@ -59,15 +59,15 @@ class ImageRecognitionCNN(object):
     :type batch_size: ``int``
     """
 
-    def __init__(self
-                 , data_path=None
-                 , img_shape=(150, 150)
-                 , rescale=1/255.0
-                 , shear_range=0.05
-                 , zoom_range=0.30
-                 , horizontal_flip=True
-                 , vertical_flip=False
-                 , batch_size=1):
+    def __init__(self,
+                 data_path=None,
+                 img_shape=(150, 150),
+                 rescale=1/255.0,
+                 shear_range=0.05,
+                 zoom_range=0.30,
+                 horizontal_flip=True,
+                 vertical_flip=False,
+                 batch_size=1):
         self._data_path = data_path
         self.img_shape = img_shape
         self.rescale = rescale
@@ -434,17 +434,17 @@ class ImageRecognitionCNN(object):
         self._model_existence_check("fit and validated", "convnet")
 
         if not isinstance(nb_epoch, int):
-            raise ValueError("`nb_epoch` must be an intiger.")
+            raise ValueError("`nb_epoch` must be an integer.")
 
         # Define callbacks
         early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=min_delta, patience=patience, verbose=1)
 
-        self.model.fit_generator(generator=self._train_generator
-                                 , samples_per_epoch=self._train_generator.nb_sample
-                                 , nb_epoch=nb_epoch
-                                 , validation_data=self._validation_generator
-                                 , nb_val_samples=self._validation_generator.nb_sample
-                                 , callbacks=[early_stop])
+        self.model.fit_generator(generator=self._train_generator,
+                                 samples_per_epoch=self._train_generator.nb_sample,
+                                 nb_epoch=nb_epoch,
+                                 validation_data=self._validation_generator,
+                                 nb_val_samples=self._validation_generator.nb_sample,
+                                 callbacks=[early_stop])
 
     def _support_save_data(self, save_name, save_path):
         """
@@ -560,11 +560,12 @@ class ImageRecognitionCNN(object):
         Generate Predictions for a list of images.
 
         :param list_of_images: a list of paths (strings) to images or ``ndarrays``.
+        :type list_of_images: ``list``
         :param status: True for a tqdm status bar; False for no status bar. Defaults to True.
         :type status: ``bool``
         :param verbose: if True, print updates. Defaults to False
         :type verbose: ``bool``
-        :return: a list of lists with tuples of the form (name, probabability). Defaults to False.
+        :return: a list of lists with tuples of the form (name, probability). Defaults to False.
         :rtype: ``list``
         """
         if self.model is None:
