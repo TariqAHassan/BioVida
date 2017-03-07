@@ -12,10 +12,9 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 
 # Image Support Tools
-from biovida.images._interface_support.openi._openi_support_tools import item_extract
-from biovida.images._interface_support.openi._openi_support_tools import filter_unnest
-from biovida.images._interface_support.openi._openi_support_tools import num_word_to_int
-from biovida.images._interface_support.openi._openi_support_tools import multiple_decimal_remove
+from biovida.images._interface_support.openi.openi_support_tools import filter_unnest
+from biovida.images._interface_support.openi.openi_support_tools import num_word_to_int
+from biovida.images._interface_support.openi.openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
@@ -25,11 +24,10 @@ from biovida.support_tools.support_tools import multi_replace
 from biovida.support_tools.support_tools import remove_line_breaks
 
 # Data
-from biovida.images._interface_support.openi._openi_imaging_modality_information import (terms_dict,
-                                                                                         modality_subtypes,
-                                                                                         contradictions,
-                                                                                         modality_specific_subtypes)
-
+from biovida.images._interface_support.openi.openi_imaging_modality_information import (terms_dict,
+                                                                                        modality_subtypes,
+                                                                                        contradictions,
+                                                                                        modality_specific_subtypes)
 
 
 # ----------------------------------------------------------------------------------------------------------

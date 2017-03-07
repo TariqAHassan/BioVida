@@ -19,13 +19,13 @@ from biovida.images._image_tools import resetting_label
 from biovida.support_tools.support_tools import camel_to_snake_case
 
 # Open-i API Parameters Information
-from biovida.images._interface_support.openi._openi_parameters import openi_image_type_params
-from biovida.images._interface_support.openi._openi_parameters import openi_article_type_params
-from biovida.images._interface_support.openi._openi_parameters import openi_image_type_modality_full
+from biovida.images._interface_support.openi.openi_parameters import openi_image_type_params
+from biovida.images._interface_support.openi.openi_parameters import openi_article_type_params
+from biovida.images._interface_support.openi.openi_parameters import openi_image_type_modality_full
 
 # Tools for Text Feature Extraction
-from biovida.images._interface_support.openi._openi_text_feature_extraction import feature_extract
-from biovida.images._interface_support.openi._openi_text_feature_extraction import _html_text_clean
+from biovida.images._interface_support.openi.openi_text_feature_extraction import feature_extract
+from biovida.images._interface_support.openi.openi_text_feature_extraction import _html_text_clean
 
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface

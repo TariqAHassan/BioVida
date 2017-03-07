@@ -32,16 +32,16 @@ from biovida.images._image_database_mgmt import record_update_dbs_joiner
 from biovida.images._image_database_mgmt import prune_rows_with_deleted_images
 
 # Open-i Support tools
-from biovida.images._interface_support.openi._openi_support_tools import iter_join
-from biovida.images._interface_support.openi._openi_support_tools import url_combine
-from biovida.images._interface_support.openi._openi_support_tools import null_convert
-from biovida.images._interface_support.openi._openi_support_tools import ImageProblemBasedOnText
+from biovida.images._interface_support.openi.openi_support_tools import iter_join
+from biovida.images._interface_support.openi.openi_support_tools import url_combine
+from biovida.images._interface_support.openi.openi_support_tools import null_convert
+from biovida.images._interface_support.openi.openi_support_tools import ImageProblemBasedOnText
 
 # Open-i API Parameters Information
-from biovida.images._interface_support.openi._openi_parameters import openi_search_information
+from biovida.images._interface_support.openi.openi_parameters import openi_search_information
 
-# Oeni-i Raw Text Processing
-from biovida.images._interface_support.openi._openi_text_processing import openi_raw_extract_and_clean
+# Open-i Raw Text Processing
+from biovida.images._interface_support.openi.openi_text_processing import openi_raw_extract_and_clean
 
 # Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
