@@ -3,9 +3,9 @@
     BioVida Cache Management Tools
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Contains the tools required to construct the caches needed by BioVida.
-
 """
+# Note: this module contains the tools required to construct the caches needed by BioVida.
+
 # Imports
 import os
 import requests
