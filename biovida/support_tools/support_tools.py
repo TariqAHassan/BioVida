@@ -296,7 +296,7 @@ def multimap(data_frame, columns, func):
 
     Maps some function (``func``) over all columns in ``columns``.
 
-    :param data_frame: as evolved inside ``records_db_merge``.
+    :param data_frame: any dataframe.
     :type data_frame: ``Pandas DataFrame``
     :param columns: a 'list' of columns.
     :type columns: ``list`` or ``tuple``
