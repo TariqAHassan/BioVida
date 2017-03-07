@@ -1400,9 +1400,8 @@ class CancerImageInterface(object):
 
                  .. warning::
 
-                        Manually deleting images from the cache is likely to interfere with this parameter.
-                        For instance, if a single frame of a 3D image is missing from the cache the entire image will
-                        be downloaded again.
+                        If a single frame of a 3D image is missing from the cache the entire image will be
+                        downloaded again.
 
         :type check_cache_first: ``bool``
         :return: a DataFrame with the record information.
