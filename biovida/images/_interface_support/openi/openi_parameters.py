@@ -50,7 +50,7 @@ openi_image_type_params = {
 
 openi_image_type_modality_full = {
     # Written to cohere with yield of `cancer_imaging_prameters.py`'s
-    # `CancerImgArchiveParams().dicom_modality_abbreviations()` method.
+    # `CancerImageArchiveParams().dicom_modality_abbreviations()` method.
     'c': 'Computed Tomography (CT)',
     'g': 'Graphic',
     'm': 'Magnetic Resonance Imaging (MRI)',
