@@ -90,7 +90,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
@@ -200,16 +199,16 @@
 <span class="kn">from</span> <span class="nn">biovida.images._image_database_mgmt</span> <span class="k">import</span> <span class="n">prune_rows_with_deleted_images</span>
 
 <span class="c1"># Open-i Support tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">iter_join</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">url_combine</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">null_convert</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">ImageProblemBasedOnText</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">iter_join</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">url_combine</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">null_convert</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi._openi_support_tools</span> <span class="k">import</span> <span class="n">ImageProblemBasedOnText</span>
 
 <span class="c1"># Open-i API Parameters Information</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_parameters</span> <span class="k">import</span> <span class="n">openi_search_information</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi._openi_parameters</span> <span class="k">import</span> <span class="n">openi_search_information</span>
 
 <span class="c1"># Oeni-i Raw Text Processing</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.openi._openi_text_processing</span> <span class="k">import</span> <span class="n">openi_raw_extract_and_clean</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi._openi_text_processing</span> <span class="k">import</span> <span class="n">openi_raw_extract_and_clean</span>
 
 <span class="c1"># Cache Management</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
@@ -1293,6 +1292,29 @@
 
 <span class="sd">        Pull (i.e., download) the current search.</span>
 
+<span class="sd">        In addition to the columns provided by Open-i, this method will automatically generate the</span>
+<span class="sd">        following columns by analyzing the pulled data:</span>
+
+<span class="sd">        - ``&#39;age&#39;``</span>
+<span class="sd">        - ``&#39;sex&#39;``</span>
+<span class="sd">        - ``&#39;ethnicity&#39;``</span>
+<span class="sd">        - ``&#39;diagnosis&#39;``</span>
+<span class="sd">        - ``&#39;parsed_abstract&#39;``</span>
+<span class="sd">        - duration of illness (``&#39;illness_duration_years&#39;``)</span>
+<span class="sd">        - the imaging modality (e.g., MRI) used, based on the text associated with the image (``&#39;imaging_modality_from_text&#39;``)</span>
+<span class="sd">        - the plane (&#39;axial&#39;, &#39;coronal&#39; or &#39;sagittal&#39;) of the image (``&#39;image_plane&#39;``)</span>
+<span class="sd">        - image problems (&#39;arrows&#39;, &#39;asterisks&#39; and &#39;grids&#39;) inferred from the image caption (``&#39;image_problems_from_text&#39;``)</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            The &#39;parsed_abstract&#39; column contains abstracts coerced into dictionaries where the subheadings of the abstract</span>
+<span class="sd">            form the keys and their associated information form the values. For example, a *MedPix* image will typically yield</span>
+<span class="sd">            a dictionary with the following keys: &#39;history&#39;, &#39;finding&#39;, &#39;ddx&#39; (differential diagnosis), &#39;dxhow&#39; and &#39;exam&#39;.</span>
+
+<span class="sd">        .. warning::</span>
+
+<span class="sd">            *MedPix* images include a diagnosis made by a physician. For images from other sources, the ``&#39;diagnosis&#39;``</span>
+<span class="sd">            column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.</span>
 
 <span class="sd">        :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.</span>
 

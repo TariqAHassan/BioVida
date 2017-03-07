@@ -90,7 +90,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
@@ -214,8 +213,8 @@
 <span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
 
 <span class="c1"># Cancer Image Support tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support._dicom_data_to_dict</span> <span class="k">import</span> <span class="n">dicom_to_dict</span>
-<span class="kn">from</span> <span class="nn">biovida.images.interface_support.cancer_image._cancer_image_parameters</span> <span class="k">import</span> <span class="n">CancerImgArchiveParams</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support._dicom_data_to_dict</span> <span class="k">import</span> <span class="n">dicom_to_dict</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.cancer_image._cancer_image_parameters</span> <span class="k">import</span> <span class="n">CancerImgArchiveParams</span>
 
 <span class="c1"># Spin up tqdm</span>
 <span class="n">tqdm</span><span class="o">.</span><span class="n">pandas</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>

@@ -90,7 +90,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-classification">Image Classification</a></li>
@@ -237,6 +236,30 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <dt id="biovida.images.openi_interface.OpeniInterface.pull">
 <code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=60</em>, <em>clinical_cases_only=True</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
+<p>In addition to the columns provided by Open-i, this method will automatically generate the
+following columns by analyzing the pulled data:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">'age'</span></code></li>
+<li><code class="docutils literal"><span class="pre">'sex'</span></code></li>
+<li><code class="docutils literal"><span class="pre">'ethnicity'</span></code></li>
+<li><code class="docutils literal"><span class="pre">'diagnosis'</span></code></li>
+<li><code class="docutils literal"><span class="pre">'parsed_abstract'</span></code></li>
+<li>duration of illness (<code class="docutils literal"><span class="pre">'illness_duration_years'</span></code>)</li>
+<li>the imaging modality (e.g., MRI) used, based on the text associated with the image (<code class="docutils literal"><span class="pre">'imaging_modality_from_text'</span></code>)</li>
+<li>the plane (&#8216;axial&#8217;, &#8216;coronal&#8217; or &#8216;sagittal&#8217;) of the image (<code class="docutils literal"><span class="pre">'image_plane'</span></code>)</li>
+<li>image problems (&#8216;arrows&#8217;, &#8216;asterisks&#8217; and &#8216;grids&#8217;) inferred from the image caption (<code class="docutils literal"><span class="pre">'image_problems_from_text'</span></code>)</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The &#8216;parsed_abstract&#8217; column contains abstracts coerced into dictionaries where the subheadings of the abstract
+form the keys and their associated information form the values. For example, a <em>MedPix</em> image will typically yield
+a dictionary with the following keys: &#8216;history&#8217;, &#8216;finding&#8217;, &#8216;ddx&#8217; (differential diagnosis), &#8216;dxhow&#8217; and &#8216;exam&#8217;.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><em>MedPix</em> images include a diagnosis made by a physician. For images from other sources, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code>
+column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

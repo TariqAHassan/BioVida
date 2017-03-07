@@ -90,7 +90,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-interface">Open-i Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-processing">Image Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-classification">Image Classification</a></li>
@@ -135,10 +134,6 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-biovida.images.openi_interface">biovida.images.openi_interface module</a><ul>
 <li><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-biovida.images.interface_support.openi.openi_text_feature_extraction">biovida.images.interface_support.openi.openi_text_processing module</a><ul>
-<li><a class="reference internal" href="#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-biovida.images.cancer_image_interface">biovida.images.cancer_image_interface module</a><ul>
@@ -216,10 +211,6 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-biovida.images.openi_interface">biovida.images.openi_interface module</a><ul>
 <li><a class="reference internal" href="#open-i-interface">Open-i Interface</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-biovida.images.interface_support.openi.openi_text_feature_extraction">biovida.images.interface_support.openi.openi_text_processing module</a><ul>
-<li><a class="reference internal" href="#open-i-text-feature-extraction">Open-i Text Feature Extraction</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-biovida.images.cancer_image_interface">biovida.images.cancer_image_interface module</a><ul>
@@ -326,6 +317,30 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <dt id="biovida.images.openi_interface.OpeniInterface.pull">
 <code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=60</em>, <em>clinical_cases_only=True</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
+<p>In addition to the columns provided by Open-i, this method will automatically generate the
+following columns by analyzing the pulled data:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">'age'</span></code></li>
+<li><code class="docutils literal"><span class="pre">'sex'</span></code></li>
+<li><code class="docutils literal"><span class="pre">'ethnicity'</span></code></li>
+<li><code class="docutils literal"><span class="pre">'diagnosis'</span></code></li>
+<li><code class="docutils literal"><span class="pre">'parsed_abstract'</span></code></li>
+<li>duration of illness (<code class="docutils literal"><span class="pre">'illness_duration_years'</span></code>)</li>
+<li>the imaging modality (e.g., MRI) used, based on the text associated with the image (<code class="docutils literal"><span class="pre">'imaging_modality_from_text'</span></code>)</li>
+<li>the plane (&#8216;axial&#8217;, &#8216;coronal&#8217; or &#8216;sagittal&#8217;) of the image (<code class="docutils literal"><span class="pre">'image_plane'</span></code>)</li>
+<li>image problems (&#8216;arrows&#8217;, &#8216;asterisks&#8217; and &#8216;grids&#8217;) inferred from the image caption (<code class="docutils literal"><span class="pre">'image_problems_from_text'</span></code>)</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The &#8216;parsed_abstract&#8217; column contains abstracts coerced into dictionaries where the subheadings of the abstract
+form the keys and their associated information form the values. For example, a <em>MedPix</em> image will typically yield
+a dictionary with the following keys: &#8216;history&#8217;, &#8216;finding&#8217;, &#8216;ddx&#8217; (differential diagnosis), &#8216;dxhow&#8217; and &#8216;exam&#8217;.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><em>MedPix</em> images include a diagnosis made by a physician. For images from other sources, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code>
+column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -413,66 +428,6 @@ is not currently recommended.</p>
 </div>
 </dd></dl>
 
-</dd></dl>
-
-</div>
-</div>
-<div class="section" id="module-biovida.images.interface_support.openi.openi_text_feature_extraction">
-<span id="biovida-images-interface-support-openi-openi-text-processing-module"></span><h2>biovida.images.interface_support.openi.openi_text_processing module<a class="headerlink" href="#module-biovida.images.interface_support.openi.openi_text_feature_extraction" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="open-i-text-feature-extraction">
-<h3>Open-i Text Feature Extraction<a class="headerlink" href="#open-i-text-feature-extraction" title="Permalink to this headline">¶</a></h3>
-<dl class="function">
-<dt id="biovida.images.interface_support.openi.openi_text_feature_extraction.feature_extract">
-<code class="descclassname">biovida.images.interface_support.openi.openi_text_feature_extraction.</code><code class="descname">feature_extract</code><span class="sig-paren">(</span><em>x</em>, <em>list_of_diseases</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/interface_support/openi/openi_text_feature_extraction.html#feature_extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.interface_support.openi.openi_text_feature_extraction.feature_extract" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tool to extract text features from patient summaries.</p>
-<p>This function automatically generates the following columns when <code class="docutils literal"><span class="pre">OpeniInterface().pull()</span></code> is called:</p>
-<ul class="simple">
-<li>&#8216;age&#8217;</li>
-<li>&#8216;sex&#8217;</li>
-<li>&#8216;ethnicity&#8217;</li>
-<li>&#8216;diagnosis&#8217;</li>
-<li>&#8216;parsed_abstract&#8217;</li>
-<li>duration of illness (&#8216;illness_duration_years&#8217;)</li>
-<li>the imaging modality (e.g., MRI) used, based on the text associated with the image (&#8216;imaging_modality_from_text&#8217;)</li>
-<li>the plane of the image (&#8216;image_plane&#8217;)</li>
-<li>image problems (&#8216;arrows&#8217;, &#8216;asterisks&#8217; and &#8216;grids&#8217;) inferred from the image caption (&#8216;image_problems_from_text&#8217;)</li>
-</ul>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The &#8216;parsed_abstract&#8217; column contains abstracts coerced into dictionaries where the subheadings of the abstract
-form the keys and their associated information form the values. For example, a <em>MedPix</em> image will typically yield
-a dictionary with the following keys: &#8216;history&#8217;, &#8216;finding&#8217;, &#8216;ddx&#8217; (differential diagnosis), &#8216;dxhow&#8217; and &#8216;exam&#8217;.</p>
-</div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last"><em>MedPix</em> images include a diagnosis made by a physician. For images from other sources, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code>
-column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.</p>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code>) &#8211; <p>series passed though Pandas&#8217; <code class="docutils literal"><span class="pre">DataFrame().apply()</span></code> method, e.g.,
-<code class="docutils literal"><span class="pre">df.apply(lambda</span> <span class="pre">x:</span> <span class="pre">feature_extract(x,</span> <span class="pre">list_of_diseases),</span> <span class="pre">axis=1)</span></code>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The dataframe must contain &#8216;title&#8217;, &#8216;abstract&#8217;, &#8216;image_caption&#8217;, &#8216;image_mention&#8217;
-and &#8216;journal_title&#8217; columns.</p>
-</div>
-</li>
-<li><strong>list_of_diseases</strong> (<code class="docutils literal"><span class="pre">list</span></code>) &#8211; a list of diseases (e.g., via <code class="docutils literal"><span class="pre">DiseaseOntInterface().pull()['name'].tolist()</span></code>)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary with the keys listed in the description.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">dict</span></code></p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </div>
