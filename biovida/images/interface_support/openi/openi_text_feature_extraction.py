@@ -976,8 +976,8 @@ def feature_extract(x, list_of_diseases):
 
     .. note::
 
-        In the 'parsed_abstract' abstracts have been converted into dictionaries where the subheadings of the abstract
-        form the keys and their associated information are the values. For example, a *MedPix* image will typically yield
+        The 'parsed_abstract' column contains abstracts coerced into dictionaries where the subheadings of the abstract
+        form the keys and their associated information form the values. For example, a *MedPix* image will typically yield
         a dictionary with the following keys: 'history', 'finding', 'ddx' (differential diagnosis), 'dxhow' and 'exam'.
 
     .. warning::
