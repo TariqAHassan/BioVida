@@ -1,7 +1,7 @@
 """
 
-    Handling Image Databases
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    Databases Management
+    ~~~~~~~~~~~~~~~~~~~~
 
 """
 # Imports
@@ -19,7 +19,7 @@ from biovida.support_tools.support_tools import multimap
 # ----------------------------------------------------------------------------------------------------------
 
 
-def dict_to_tot(d):
+def _dict_to_tot(d):
     """
 
     Convert a dictionary to a tuple of tuples and sort by the former keys.
@@ -37,7 +37,7 @@ def dict_to_tot(d):
     return tuple(sorted(values_to_tuples(d).items(), key=lambda x: x[0]))
 
 
-def record_update_dbs_joiner(records_db, update_db):
+def _record_update_dbs_joiner(records_db, update_db):
     """
 
     Join and drop rows for which `update_db`'s columns exclusively contain NaNs.
@@ -53,7 +53,7 @@ def record_update_dbs_joiner(records_db, update_db):
     return joined_db.reset_index(drop=True)
 
 
-def load_temp_dbs(temp_db_path):
+def _load_temp_dbs(temp_db_path):
     """
 
     Load temporary databases in the 'databases/__temp__' directory.
@@ -93,20 +93,20 @@ def load_temp_dbs(temp_db_path):
     for group in groupings:
         records_db = pd.read_pickle([i for i in group if "__records_db.p" in i][0])
         update_db = pd.read_pickle([i for i in group if "__update_db.p" in i][0])
-        frames.append(record_update_dbs_joiner(records_db, update_db))
+        frames.append(_record_update_dbs_joiner(records_db, update_db))
 
     # Concatenate all frames
     return pd.concat(frames, ignore_index=True)
 
 
-def records_db_merge(current_records_db,
-                     records_db_update,
-                     columns_with_dicts,
-                     duplicates_subset_columns,
-                     rows_to_conserve_func=None,
-                     post_concat_mapping=None,
-                     columns_with_iterables_to_sort=None,
-                     relationship_mapping_func=None):
+def _records_db_merge(current_records_db,
+                      records_db_update,
+                      columns_with_dicts,
+                      duplicates_subset_columns,
+                      rows_to_conserve_func=None,
+                      post_concat_mapping=None,
+                      columns_with_iterables_to_sort=None,
+                      relationship_mapping_func=None):
     """
 
     Merge the existing record database with new additions.
@@ -163,7 +163,7 @@ def records_db_merge(current_records_db,
 
     # Convert items in ``columns_with_dicts`` from dictionaries to tuple of tuples.
     # (making them hashable, as required by ``pandas.drop_duplicates()``).
-    combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict_to_tot)
+    combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=_dict_to_tot)
 
     # Sort iterables in columns with iterables
     combined_dbs = multimap(combined_dbs, columns=columns_with_iterables_to_sort, func=lambda x: tuple(sorted(x)))
@@ -219,9 +219,9 @@ def _df_pruner(cache_records_db, columns):
 
     Prune ``cache_records_db`` by reviewing ``columns``.
 
-    :param cache_records_db: see ``prune_rows_with_deleted_images()``.
+    :param cache_records_db: see ``_prune_rows_with_deleted_images()``.
     :type cache_records_db: ``Pandas DataFrame``
-    :param columns: see ``prune_rows_with_deleted_images()``.
+    :param columns: see ``_prune_rows_with_deleted_images()``.
     :type columns: ``list``
     :return: a pruned ``cache_records_db``.
     :rtype: ``Pandas DataFrame``
@@ -236,7 +236,7 @@ def _df_pruner(cache_records_db, columns):
     return cache_records_db[indices_to_drop].fillna(np.NaN).reset_index(drop=True)
 
 
-def prune_rows_with_deleted_images(cache_records_db, columns, save_path):
+def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
     """
 
     Tool to remove reference to images that have been manually deleted from the cache.

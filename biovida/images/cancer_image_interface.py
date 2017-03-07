@@ -26,10 +26,10 @@ from biovida.images._image_tools import TIME_FORMAT
 from biovida.images._image_tools import NoResultsFound
 
 # Database Management
-from biovida.images._image_database_mgmt import load_temp_dbs
-from biovida.images._image_database_mgmt import records_db_merge
-from biovida.images._image_database_mgmt import record_update_dbs_joiner
-from biovida.images._image_database_mgmt import prune_rows_with_deleted_images
+from biovida.images.image_database_mgmt import _load_temp_dbs
+from biovida.images.image_database_mgmt import _records_db_merge
+from biovida.images.image_database_mgmt import _record_update_dbs_joiner
+from biovida.images.image_database_mgmt import _prune_rows_with_deleted_images
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
@@ -988,7 +988,7 @@ class _CancerImgArchiveImages(object):
         self._pull_images_engine(save_dicoms, allowed_modalities, image_format, check_cache_first)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
-        return record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
+        return _record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -1022,7 +1022,7 @@ class CancerImageInterface(object):
 
         """
         if os.path.isdir(self._Images.temp_directory_path):
-            latent_temps = load_temp_dbs(self._Images.temp_directory_path)
+            latent_temps = _load_temp_dbs(self._Images.temp_directory_path)
             if latent_temps is not None:
                 self._tcia_cache_records_db_gen(tcia_cache_records_db_update=latent_temps)
             # Delete the latent '__temp__' folder
@@ -1053,13 +1053,13 @@ class CancerImageInterface(object):
         else:
             duplicates_subset_columns = [c for c in self.cache_records_db.columns if c != 'pull_time']
             columns_with_iterables_to_sort = ('cached_images_path', 'raw_dicom_files_paths')
-            self.cache_records_db = records_db_merge(current_records_db=self.cache_records_db,
-                                                     records_db_update=tcia_cache_records_db_update,
-                                                     columns_with_dicts=('query',),
-                                                     duplicates_subset_columns=duplicates_subset_columns,
-                                                     rows_to_conserve_func=rows_to_conserve_func,
-                                                     columns_with_iterables_to_sort=columns_with_iterables_to_sort,
-                                                     relationship_mapping_func=None)
+            self.cache_records_db = _records_db_merge(current_records_db=self.cache_records_db,
+                                                      records_db_update=tcia_cache_records_db_update,
+                                                      columns_with_dicts=('query',),
+                                                      duplicates_subset_columns=duplicates_subset_columns,
+                                                      rows_to_conserve_func=rows_to_conserve_func,
+                                                      columns_with_iterables_to_sort=columns_with_iterables_to_sort,
+                                                      relationship_mapping_func=None)
 
             # Save to disk
             self.cache_records_db.to_pickle(self._tcia_cache_records_db_save_path)
@@ -1102,9 +1102,9 @@ class CancerImageInterface(object):
         # Load `cache_records_db` if it exists already, else set to None.
         if os.path.isfile(self._tcia_cache_records_db_save_path):
             cache_records_db = pd.read_pickle(self._tcia_cache_records_db_save_path)
-            self.cache_records_db = prune_rows_with_deleted_images(cache_records_db=cache_records_db,
-                                                                   columns=['cached_images_path', 'raw_dicom_files_paths'],
-                                                                   save_path=self._tcia_cache_records_db_save_path)
+            self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
+                                                                    columns=['cached_images_path', 'raw_dicom_files_paths'],
+                                                                    save_path=self._tcia_cache_records_db_save_path)
 
             # Recompute the image_count_converted_cache column following the pruning procedure.
             self.cache_records_db['image_count_converted_cache'] = self.cache_records_db['cached_images_path'].map(
@@ -1289,7 +1289,7 @@ class CancerImageInterface(object):
 
         """
         # Generate the `cache_records_db`.
-        self._tcia_cache_records_db_gen(tcia_cache_records_db_update=load_temp_dbs(self._Images.temp_directory_path))
+        self._tcia_cache_records_db_gen(tcia_cache_records_db_update=_load_temp_dbs(self._Images.temp_directory_path))
 
         # Delete the '__temp__' folder
         shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)

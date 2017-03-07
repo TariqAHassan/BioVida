@@ -26,10 +26,10 @@ from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
 
 # Database Management
-from biovida.images._image_database_mgmt import load_temp_dbs
-from biovida.images._image_database_mgmt import records_db_merge
-from biovida.images._image_database_mgmt import record_update_dbs_joiner
-from biovida.images._image_database_mgmt import prune_rows_with_deleted_images
+from biovida.images.image_database_mgmt import _load_temp_dbs
+from biovida.images.image_database_mgmt import _records_db_merge
+from biovida.images.image_database_mgmt import _record_update_dbs_joiner
+from biovida.images.image_database_mgmt import _prune_rows_with_deleted_images
 
 # Open-i Support tools
 from biovida.images._interface_support.openi.openi_support_tools import iter_join
@@ -860,7 +860,7 @@ class _OpeniImages(object):
                                  image_size=image_size,
                                  use_image_caption=use_image_caption)
 
-        return record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
+        return _record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -925,7 +925,7 @@ class OpeniInterface(object):
 
         """
         # Load the latent database(s).
-        records_db_update = load_temp_dbs(temp_db_path=self._Images.temp_directory_path)
+        records_db_update = _load_temp_dbs(temp_db_path=self._Images.temp_directory_path)
         if records_db_update is not None:
             # Update `self.current_records_db`.
             self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
@@ -958,13 +958,13 @@ class OpeniInterface(object):
         else:
             duplicates_subset_columns = ['img_grid150', 'img_large', 'img_thumb', 'img_thumb_large',
                                          'query', 'cached_images_path', 'download_success']
-            to_return = records_db_merge(current_records_db=current_records_db,
-                                         records_db_update=records_db_update,
-                                         columns_with_dicts=('query', 'parsed_abstract'),
-                                         duplicates_subset_columns=duplicates_subset_columns,
-                                         rows_to_conserve_func=rows_to_conserve_func,
-                                         post_concat_mapping=('uid_instance', 'uid', resetting_label),
-                                         relationship_mapping_func=_img_relation_map)
+            to_return = _records_db_merge(current_records_db=current_records_db,
+                                          records_db_update=records_db_update,
+                                          columns_with_dicts=('query', 'parsed_abstract'),
+                                          duplicates_subset_columns=duplicates_subset_columns,
+                                          rows_to_conserve_func=rows_to_conserve_func,
+                                          post_concat_mapping=('uid_instance', 'uid', resetting_label),
+                                          relationship_mapping_func=_img_relation_map)
 
         # Save to disk
         to_return.to_pickle(self._openi_cache_records_db_save_path)
@@ -1014,9 +1014,9 @@ class OpeniInterface(object):
         # Load the cache record database, if it exists
         if os.path.isfile(self._openi_cache_records_db_save_path):
             cache_records_db = pd.read_pickle(self._openi_cache_records_db_save_path)
-            self.cache_records_db = prune_rows_with_deleted_images(cache_records_db=cache_records_db,
-                                                                   columns=['cached_images_path'],
-                                                                   save_path=self._openi_cache_records_db_save_path)
+            self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
+                                                                    columns=['cached_images_path'],
+                                                                    save_path=self._openi_cache_records_db_save_path)
         else:
             self.cache_records_db = None
 
