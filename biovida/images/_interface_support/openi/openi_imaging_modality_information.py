@@ -29,7 +29,7 @@ terms_dict = {
              'positron emission tomography'], 'Positron Emission Tomography (PET)'),
     "photograph": (['photograph'], 'Photograph'),
     "ultrasound": (['ultrasound'], 'Ultrasound'),
-    "mammogram": (['mammogram'], 'Mammogram'),
+    "mammogram": (['mammogram', 'mammograph'], 'Mammography'),
     "x-ray": (['xray', 'x-ray'], 'X-Ray')
 }
 
