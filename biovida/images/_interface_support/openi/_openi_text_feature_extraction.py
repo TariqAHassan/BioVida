@@ -12,10 +12,10 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 
 # Image Support Tools
-from biovida.images.interface_support.openi._openi_support_tools import item_extract
-from biovida.images.interface_support.openi._openi_support_tools import filter_unnest
-from biovida.images.interface_support.openi._openi_support_tools import num_word_to_int
-from biovida.images.interface_support.openi._openi_support_tools import multiple_decimal_remove
+from biovida.images._interface_support.openi._openi_support_tools import item_extract
+from biovida.images._interface_support.openi._openi_support_tools import filter_unnest
+from biovida.images._interface_support.openi._openi_support_tools import num_word_to_int
+from biovida.images._interface_support.openi._openi_support_tools import multiple_decimal_remove
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
@@ -25,10 +25,10 @@ from biovida.support_tools.support_tools import multi_replace
 from biovida.support_tools.support_tools import remove_line_breaks
 
 # Data
-from biovida.images.interface_support.openi._openi_imaging_modality_information import (terms_dict,
-                                                                                        modality_subtypes,
-                                                                                        contradictions,
-                                                                                        modality_specific_subtypes)
+from biovida.images._interface_support.openi._openi_imaging_modality_information import (terms_dict,
+                                                                                         modality_subtypes,
+                                                                                         contradictions,
+                                                                                         modality_specific_subtypes)
 
 
 
@@ -717,7 +717,7 @@ def _imaging_modality_guess(abstract, image_caption, image_mention):
 def _image_plane_guess(image_caption):
     """
 
-    Guess whether the plane of the image is 'axial', 'coronal' or 'sagital'.
+    Guess whether the plane of the image is 'axial', 'coronal' or 'sagittal'.
 
     :param image_caption: an element from the 'image_caption' column.
     :type image_caption: ``str``
@@ -962,28 +962,7 @@ def feature_extract(x, list_of_diseases):
 
     Tool to extract text features from patient summaries.
 
-    This function automatically generates the following columns when ``OpeniInterface().pull()`` is called:
-
-    - 'age'
-    - 'sex'
-    - 'ethnicity'
-    - 'diagnosis'
-    - 'parsed_abstract'
-    - duration of illness ('illness_duration_years')
-    - the imaging modality (e.g., MRI) used, based on the text associated with the image ('imaging_modality_from_text')
-    - the plane of the image ('image_plane')
-    - image problems ('arrows', 'asterisks' and 'grids') inferred from the image caption ('image_problems_from_text')
-
-    .. note::
-
-        The 'parsed_abstract' column contains abstracts coerced into dictionaries where the subheadings of the abstract
-        form the keys and their associated information form the values. For example, a *MedPix* image will typically yield
-        a dictionary with the following keys: 'history', 'finding', 'ddx' (differential diagnosis), 'dxhow' and 'exam'.
-
-    .. warning::
-
-        *MedPix* images include a diagnosis made by a physician. For images from other sources, the ``'diagnosis'``
-        column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.
+    See the description of ``OpeniInterface().pull()`` for additional information.
 
     :param x: series passed though Pandas' ``DataFrame().apply()`` method, e.g.,
               ``df.apply(lambda x: feature_extract(x, list_of_diseases), axis=1)``.
@@ -992,7 +971,6 @@ def feature_extract(x, list_of_diseases):
 
                    The dataframe must contain 'title', 'abstract', 'image_caption', 'image_mention'
                    and 'journal_title' columns.
-
 
     :type x: ``Pandas Series``
     :param list_of_diseases: a list of diseases (e.g., via ``DiseaseOntInterface().pull()['name'].tolist()``)

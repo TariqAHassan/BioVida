@@ -32,16 +32,16 @@ from biovida.images._image_database_mgmt import record_update_dbs_joiner
 from biovida.images._image_database_mgmt import prune_rows_with_deleted_images
 
 # Open-i Support tools
-from biovida.images.interface_support.openi._openi_support_tools import iter_join
-from biovida.images.interface_support.openi._openi_support_tools import url_combine
-from biovida.images.interface_support.openi._openi_support_tools import null_convert
-from biovida.images.interface_support.openi._openi_support_tools import ImageProblemBasedOnText
+from biovida.images._interface_support.openi._openi_support_tools import iter_join
+from biovida.images._interface_support.openi._openi_support_tools import url_combine
+from biovida.images._interface_support.openi._openi_support_tools import null_convert
+from biovida.images._interface_support.openi._openi_support_tools import ImageProblemBasedOnText
 
 # Open-i API Parameters Information
-from biovida.images.interface_support.openi._openi_parameters import openi_search_information
+from biovida.images._interface_support.openi._openi_parameters import openi_search_information
 
 # Oeni-i Raw Text Processing
-from biovida.images.interface_support.openi._openi_text_processing import openi_raw_extract_and_clean
+from biovida.images._interface_support.openi._openi_text_processing import openi_raw_extract_and_clean
 
 # Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
@@ -1125,6 +1125,29 @@ class OpeniInterface(object):
 
         Pull (i.e., download) the current search.
 
+        In addition to the columns provided by Open-i, this method will automatically generate the
+        following columns by analyzing the pulled data:
+
+        - ``'age'``
+        - ``'sex'``
+        - ``'ethnicity'``
+        - ``'diagnosis'``
+        - ``'parsed_abstract'``
+        - duration of illness (``'illness_duration_years'``)
+        - the imaging modality (e.g., MRI) used, based on the text associated with the image (``'imaging_modality_from_text'``)
+        - the plane ('axial', 'coronal' or 'sagittal') of the image (``'image_plane'``)
+        - image problems ('arrows', 'asterisks' and 'grids') inferred from the image caption (``'image_problems_from_text'``)
+
+        .. note::
+
+            The 'parsed_abstract' column contains abstracts coerced into dictionaries where the subheadings of the abstract
+            form the keys and their associated information form the values. For example, a *MedPix* image will typically yield
+            a dictionary with the following keys: 'history', 'finding', 'ddx' (differential diagnosis), 'dxhow' and 'exam'.
+
+        .. warning::
+
+            *MedPix* images include a diagnosis made by a physician. For images from other sources, the ``'diagnosis'``
+            column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.
 
         :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.
 

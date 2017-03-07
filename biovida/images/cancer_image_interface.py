@@ -46,8 +46,8 @@ from biovida.support_tools.printing import pandas_pprint
 from biovida.support_tools._cache_management import package_cache_creator
 
 # Cancer Image Support tools
-from biovida.images.interface_support._dicom_data_to_dict import dicom_to_dict
-from biovida.images.interface_support.cancer_image._cancer_image_parameters import CancerImgArchiveParams
+from biovida.images._interface_support._dicom_data_to_dict import dicom_to_dict
+from biovida.images._interface_support.cancer_image._cancer_image_parameters import CancerImgArchiveParams
 
 # Spin up tqdm
 tqdm.pandas("status")
