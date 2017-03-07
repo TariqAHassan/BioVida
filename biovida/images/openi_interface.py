@@ -670,16 +670,16 @@ class _OpeniImages(object):
         self.real_time_update_db = None
         self.real_time_update_db_path = None
 
-        self.temp_folder = os.path.join(database_save_location, "__temp__")
+        self.temp_directory_path = os.path.join(database_save_location, "__temp__")
 
-    def _create_temp_folder(self):
+    def _create_temp_directory_path(self):
         """
 
-        Check if ``self.temp_folder`` exists. If not, create it.
+        Check if ``self.temp_directory_path`` exists. If not, create it.
 
         """
-        if not os.path.isdir(self.temp_folder):
-            os.makedirs(self.temp_folder)
+        if not os.path.isdir(self.temp_directory_path):
+            os.makedirs(self.temp_directory_path)
 
     def _instantiate_real_time_update_db(self, db_index, pull_time):
         """
@@ -692,7 +692,7 @@ class _OpeniImages(object):
         :type pull_time: ``str``
         """
         # Define the path to save `self.real_time_update_db` to.
-        self.real_time_update_db_path = os.path.join(self.temp_folder, "{0}__update_db.p".format(pull_time))
+        self.real_time_update_db_path = os.path.join(self.temp_directory_path, "{0}__update_db.p".format(pull_time))
 
         # Define columns
         real_time_update_columns = ['cached_images_path', 'download_success']
@@ -836,11 +836,11 @@ class _OpeniImages(object):
         :return: `records_db` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
-        self._create_temp_folder()
+        self._create_temp_directory_path()
         self.records_db_images = records_db.copy(deep=True)
         
         # Save `records_db_images` to the __temp__ folder
-        self.records_db_images.to_pickle(os.path.join(self.temp_folder, "{0}__records_db.p".format(pull_time)))
+        self.records_db_images.to_pickle(os.path.join(self.temp_directory_path, "{0}__records_db.p".format(pull_time)))
 
         # Instantiate `self.real_time_update_db`
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index, pull_time=pull_time)
@@ -925,7 +925,7 @@ class OpeniInterface(object):
 
         """
         # Load the latent database(s).
-        records_db_update = load_temp_dbs(temp_db_path=self._Images.temp_folder)
+        records_db_update = load_temp_dbs(temp_db_path=self._Images.temp_directory_path)
         if records_db_update is not None:
             # Update `self.current_records_db`.
             self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
@@ -936,8 +936,8 @@ class OpeniInterface(object):
     def _openi_cache_records_db_handler(self, current_records_db, records_db_update):
         """
 
-        1. if cache_records_db.p doesn't exist, simply dump ``records_db_update``
-        2. if cache_records_db.p does exist, merge with ``records_db_update``
+        1. if cache_records_db.p doesn't exist, simply save ``records_db_update`` to disk.
+        2. if cache_records_db.p does exist, merge with ``records_db_update`` and then save to disk.
 
         :param current_records_db:
         :type current_records_db:
@@ -1004,11 +1004,12 @@ class OpeniInterface(object):
         self.current_search_total = None
         self._current_search_to_harvest = None
 
-        # Path to cache record db
-        self._openi_cache_records_db_save_path = os.path.join(self._created_img_dirs['databases'], 'openi_cache_records_db.p')
-
         # Databases
         self.records_db = None
+
+        # Path to cache record db
+        self._openi_cache_records_db_save_path = os.path.join(self._created_img_dirs['databases'],
+                                                              'openi_cache_records_db.p')
 
         # Load the cache record database, if it exists
         if os.path.isfile(self._openi_cache_records_db_save_path):
@@ -1020,7 +1021,7 @@ class OpeniInterface(object):
             self.cache_records_db = None
 
         # Load in databases in 'databases/__temp__', if they exist
-        if os.path.isdir(self._Images.temp_folder):
+        if os.path.isdir(self._Images.temp_directory_path):
             self._latent_temp_dir()
 
     def options(self, search_parameter, print_options=True):
@@ -1215,7 +1216,7 @@ class OpeniInterface(object):
                                                  records_db_update=self.records_db)
 
             # Delete the 'databases/__temp__' folder.
-            shutil.rmtree(self._Images.temp_folder, ignore_errors=True)
+            shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
 
         return self.records_db
 
