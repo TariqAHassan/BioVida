@@ -1039,11 +1039,12 @@ class CancerImageInterface(object):
 
         """
         if os.path.isdir(self._Images.temp_directory_path):
-            latent_temps = _load_temp_dbs(self._Images.temp_directory_path)
-            if latent_temps is not None:
-                self._tcia_cache_records_db_gen(tcia_cache_records_db_update=latent_temps)
-            # Delete the latent '__temp__' folder
-            shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
+            if os.path.isdir(self._Images.temp_directory_path):
+                latent_temps = _load_temp_dbs(self._Images.temp_directory_path)
+                if latent_temps is not None:
+                    self._tcia_cache_records_db_gen(tcia_cache_records_db_update=latent_temps)
+                # Delete the latent '__temp__' folder
+                shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
 
     def _tcia_cache_records_db_gen(self, tcia_cache_records_db_update):
         """
@@ -1122,8 +1123,8 @@ class CancerImageInterface(object):
         else:
             self.cache_records_db = None
 
-        if os.path.isdir(self._Images.temp_directory_path):
-            self._latent_temp_dir()
+        # Load in databases in 'databases/__temp__', if they exist
+        self._latent_temp_dir()
 
     def _collection_filter(self, summary_df, collection, cancer_type, location):
         """

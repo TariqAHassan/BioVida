@@ -936,14 +936,15 @@ class OpeniInterface(object):
         before python exited (the ``pull()`` method, specifically).
 
         """
-        # Load the latent database(s).
-        records_db_update = _load_temp_dbs(temp_db_path=self._Images.temp_directory_path)
-        if records_db_update is not None:
-            # Update `self.current_records_db`.
-            self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
-                                                 records_db_update=records_db_update)
-            # Delete the latent 'databases/__temp__' folder.
-            shutil.rmtree(self._openi_cache_records_db_save_path, ignore_errors=True)
+        if os.path.isdir(self._Images.temp_directory_path):
+            # Load the latent database(s).
+            records_db_update = _load_temp_dbs(temp_db_path=self._Images.temp_directory_path)
+            if records_db_update is not None:
+                # Update `self.current_records_db`.
+                self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
+                                                     records_db_update=records_db_update)
+                # Delete the latent 'databases/__temp__' folder.
+                shutil.rmtree(self._openi_cache_records_db_save_path, ignore_errors=True)
 
     def _openi_cache_records_db_handler(self, current_records_db, records_db_update):
         """
@@ -1030,8 +1031,7 @@ class OpeniInterface(object):
             self.cache_records_db = None
 
         # Load in databases in 'databases/__temp__', if they exist
-        if os.path.isdir(self._Images.temp_directory_path):
-            self._latent_temp_dir()
+        self._latent_temp_dir()
 
     def options(self, search_parameter, print_options=True):
         """
