@@ -551,7 +551,7 @@ class _CancerImageArchiveImages(object):
         self.real_time_update_db_path = os.path.join(self.temp_directory_path, "{0}__update_db.p".format(pull_time))
 
         # Define columns
-        real_time_update_columns = ['raw_dicom_files_paths', 'cached_images_path', 'conversion_success',
+        real_time_update_columns = ['cached_dicom_images_path', 'cached_images_path', 'conversion_success',
                                     'allowed_modality', 'image_count_converted_cache']
 
         # Instantiate
@@ -759,7 +759,7 @@ class _CancerImageArchiveImages(object):
         :type index: ``int``
         """
         if save_dicoms is not True:
-            self.real_time_update_db.set_value(index, 'raw_dicom_files_paths', np.NaN)
+            self.real_time_update_db.set_value(index, 'cached_dicom_images_path', np.NaN)
             self._save_real_time_update_db()
             return None
 
@@ -777,7 +777,7 @@ class _CancerImageArchiveImages(object):
             os.rename(f, new_location)
 
         # Update the save dataframe
-        self.real_time_update_db.set_value(index, 'raw_dicom_files_paths', tuple(new_dircom_paths))
+        self.real_time_update_db.set_value(index, 'cached_dicom_images_path', tuple(new_dircom_paths))
 
         # Save the data frame.  Note: if python crashes or the session ends before the above loop completes,
         # information on the partial transfer will be lost.
@@ -921,7 +921,7 @@ class _CancerImageArchiveImages(object):
                 # Delete the temporary folder.
                 shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
-                self._update_and_set_list(index, 'raw_dicom_files_paths', dsl_summary)
+                self._update_and_set_list(index, 'cached_dicom_images_path', dsl_summary)
                 self._update_and_set_list(index, 'cached_images_path', sl_summary)
                 self.real_time_update_db.set_value(index, 'conversion_success', cache_complete)
                 self.real_time_update_db.set_value(index, 'image_count_converted_cache', len(sl_summary))
@@ -1016,17 +1016,25 @@ class CancerImageInterface(object):
     :type cache_path: ``str`` or ``None``
     """
 
-    def _load_and_prune_cache_records_db(self, load):
+    def _save_cache_records_db(self):
         """
 
+        :return:
+        """
+        self.cache_records_db.to_pickle(self._cache_records_db_save_path)
+
+    def _load_prune_cache_records_db(self, load):
+        """
+
+        Load and Prune the ``cache_records_db``.
 
         :param load: if ``True`` load the ``cache_records_db`` dataframe in from disk.
         :type load: ``bool``
         """
-        cache_records_db = pd.read_pickle(self._tcia_cache_records_db_save_path) if load else self.cache_records_db
+        cache_records_db = pd.read_pickle(self._cache_records_db_save_path) if load else self.cache_records_db
         self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
-                                                                columns=['cached_images_path', 'raw_dicom_files_paths'],
-                                                                save_path=self._tcia_cache_records_db_save_path)
+                                                                columns=['cached_images_path', 'cached_dicom_images_path'],
+                                                                save_path=self._cache_records_db_save_path)
 
         # Recompute the image_count_converted_cache column following the pruning procedure.
         self.cache_records_db['image_count_converted_cache'] = self.cache_records_db['cached_images_path'].map(
@@ -1059,7 +1067,7 @@ class CancerImageInterface(object):
         def rows_to_conserve_func(x):
             """Mark to conserve the row in the cache if the conversion was sucessful or dicoms were saved."""
             conversion_success = x['conversion_success'] == True
-            raw_dicoms = isinstance(x['raw_dicom_files_paths'], (list, tuple)) and len(x['raw_dicom_files_paths'])
+            raw_dicoms = isinstance(x['cached_dicom_images_path'], (list, tuple)) and len(x['cached_dicom_images_path'])
             return conversion_success or raw_dicoms
 
         # Compose or update the master 'cache_records_db' dataframe
@@ -1067,20 +1075,20 @@ class CancerImageInterface(object):
             cache_records_db = tcia_cache_records_db_update.copy(deep=True)
             self.cache_records_db = cache_records_db[
                 cache_records_db.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
-            self.cache_records_db.to_pickle(self._tcia_cache_records_db_save_path)
+            self._save_cache_records_db()
         else:
             duplicates_subset_columns = [c for c in self.cache_records_db.columns if c != 'pull_time']
-            columns_with_iterables_to_sort = ('cached_images_path', 'raw_dicom_files_paths')
-            self.cache_records_db = _records_db_merge(current_records_db=self.cache_records_db,
+            columns_with_iterables_to_sort = ('cached_images_path', 'cached_dicom_images_path')
+            self.cache_records_db = _records_db_merge(interface_name='CancerImageInterface',
+                                                      current_records_db=self.cache_records_db,
                                                       records_db_update=tcia_cache_records_db_update,
                                                       columns_with_dicts=('query',),
                                                       duplicates_subset_columns=duplicates_subset_columns,
                                                       rows_to_conserve_func=rows_to_conserve_func,
-                                                      columns_with_iterables_to_sort=columns_with_iterables_to_sort,
-                                                      relationship_mapping_func=None)
+                                                      columns_with_iterables_to_sort=columns_with_iterables_to_sort)
 
             # Save to disk
-            self.cache_records_db.to_pickle(self._tcia_cache_records_db_save_path)
+            self._save_cache_records_db()
 
     def __init__(self, api_key, verbose=True, cache_path=None):
         self._verbose = verbose
@@ -1114,12 +1122,12 @@ class CancerImageInterface(object):
         self.records_db = None
 
         # Path to the `cache_records_db`
-        self._tcia_cache_records_db_save_path = os.path.join(self._Images._created_img_dirs['databases'],
+        self._cache_records_db_save_path = os.path.join(self._Images._created_img_dirs['databases'],
                                                             'tcia_cache_records_db.p')
 
         # Load `cache_records_db` if it exists already, else set to None.
-        if os.path.isfile(self._tcia_cache_records_db_save_path):
-            self._load_and_prune_cache_records_db(load=True)
+        if os.path.isfile(self._cache_records_db_save_path):
+            self._load_prune_cache_records_db(load=True)
         else:
             self.cache_records_db = None
 
@@ -1347,7 +1355,7 @@ class CancerImageInterface(object):
                     return {p: dicom_to_dict(dicom_file=p) for p in paths}
 
         # Deploy and Return
-        return db['raw_dicom_files_paths'].progress_map(dicom_apply, na_action='ignore')
+        return db['cached_dicom_images_path'].progress_map(dicom_apply, na_action='ignore')
 
     def pull(self,
              patient_limit=3,

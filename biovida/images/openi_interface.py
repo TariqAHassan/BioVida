@@ -15,7 +15,6 @@ from tqdm import tqdm
 from math import floor
 from copy import deepcopy
 from datetime import datetime
-from collections import Counter
 
 from biovida import __version__
 
@@ -28,6 +27,7 @@ from biovida.images._image_tools import sleep_with_noise
 # Database Management
 from biovida.images.image_database_mgmt import _load_temp_dbs
 from biovida.images.image_database_mgmt import _records_db_merge
+from biovida.images.image_database_mgmt import _openi_image_relation_map
 from biovida.images.image_database_mgmt import _record_update_dbs_joiner
 from biovida.images.image_database_mgmt import _prune_rows_with_deleted_images
 
@@ -868,43 +868,6 @@ class _OpeniImages(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _img_relation_map(data_frame):
-    """
-
-    Algorithm to find the index of rows which reference
-    the same image in the cache (the image size can vary).
-
-    :param data_frame:
-    :type data_frame: ``Pandas DataFrame``
-    :return:
-    :rtype: ``Pandas DataFrame``
-    """
-    # Copy the data_frame
-    df = data_frame.copy(deep=True)
-
-    # Reset the index
-    df = df.reset_index(drop=True)
-
-    # Get duplicated img_large occurences. Use of 'img_large' is arbitrary, could have used
-    # 'img_thumb', 'img_grid150', etc.
-    duplicated_img_refs = (k for k, v in Counter(df['img_large']).items() if v > 1)
-
-    # Get the indices of duplicates
-    dup_index = {k: df[df['img_large'] == k].index.tolist() for k in duplicated_img_refs}
-
-    def related(img_large, index):
-        """Function to look for references to the same image in the cache."""
-        if img_large in dup_index:
-            return tuple(sorted([i for i in dup_index[img_large] if i != index]))
-        else:
-            return np.NaN
-
-    # Apply `relate()`
-    df['shared_image_ref'] = [related(img, index) for img, index in zip(df['img_large'], df.index)]
-
-    return df
-
-
 class OpeniInterface(object):
     """
 
@@ -917,17 +880,26 @@ class OpeniInterface(object):
     :type verbose: ``bool``
     """
 
-    def _load_and_prune_cache_records_db(self, load):
+    def _save_cache_records_db(self):
         """
 
+        Save ``cache_records_db`` to 'disk'.
+
+        """
+        self.cache_records_db.to_pickle(self._cache_records_db_save_path)
+
+    def _load_prune_cache_records_db(self, load):
+        """
+
+        Load and Prune the ``cache_records_db``.
 
         :param load: if ``True`` load the ``cache_records_db`` dataframe in from disk.
         :type load: ``bool``
         """
-        cache_records_db = pd.read_pickle(self._openi_cache_records_db_save_path) if load else self.cache_records_db
+        cache_records_db = pd.read_pickle(self._cache_records_db_save_path) if load else self.cache_records_db
         self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
                                                                 columns=['cached_images_path'],
-                                                                save_path=self._openi_cache_records_db_save_path)
+                                                                save_path=self._cache_records_db_save_path)
 
     def _latent_temp_dir(self):
         """
@@ -944,7 +916,7 @@ class OpeniInterface(object):
                 self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
                                                      records_db_update=records_db_update)
                 # Delete the latent 'databases/__temp__' folder.
-                shutil.rmtree(self._openi_cache_records_db_save_path, ignore_errors=True)
+                shutil.rmtree(self._cache_records_db_save_path, ignore_errors=True)
 
     def _openi_cache_records_db_handler(self, current_records_db, records_db_update):
         """
@@ -963,27 +935,24 @@ class OpeniInterface(object):
         if current_records_db is None and records_db_update is None:
             raise ValueError("`current_records_db` and `records_db_update` cannot both be None.")
         elif current_records_db is not None and records_db_update is None:
-            to_return = current_records_db
-            to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
+            data_frame = current_records_db
+            self.cache_records_db = data_frame[data_frame.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         elif current_records_db is None and records_db_update is not None:
-            to_return = _img_relation_map(records_db_update)
-            to_return = to_return[to_return.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
+            data_frame = _openi_image_relation_map(records_db_update)
+            self.cache_records_db = data_frame[data_frame.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         else:
             duplicates_subset_columns = ['img_grid150', 'img_large', 'img_thumb', 'img_thumb_large',
                                          'query', 'cached_images_path', 'download_success']
-            to_return = _records_db_merge(current_records_db=current_records_db,
-                                          records_db_update=records_db_update,
-                                          columns_with_dicts=('query', 'parsed_abstract'),
-                                          duplicates_subset_columns=duplicates_subset_columns,
-                                          rows_to_conserve_func=rows_to_conserve_func,
-                                          post_concat_mapping=('uid_instance', 'uid', resetting_label),
-                                          relationship_mapping_func=_img_relation_map)
+            self.cache_records_db = _records_db_merge(interface_name='OpeniInterface',
+                                                      current_records_db=current_records_db,
+                                                      records_db_update=records_db_update,
+                                                      columns_with_dicts=('query', 'parsed_abstract'),
+                                                      duplicates_subset_columns=duplicates_subset_columns,
+                                                      rows_to_conserve_func=rows_to_conserve_func,
+                                                      post_concat_mapping=('uid_instance', 'uid', resetting_label))
 
         # Save to disk
-        to_return.to_pickle(self._openi_cache_records_db_save_path)
-
-        # Save to class instance
-        self.cache_records_db = to_return
+        self._save_cache_records_db()
 
     def __init__(self, cache_path=None, verbose=True):
         self._verbose = verbose
@@ -1021,12 +990,12 @@ class OpeniInterface(object):
         self.records_db = None
 
         # Path to cache record db
-        self._openi_cache_records_db_save_path = os.path.join(self._created_img_dirs['databases'],
-                                                              'openi_cache_records_db.p')
+        self._cache_records_db_save_path = os.path.join(self._created_img_dirs['databases'],
+                                                        'openi_cache_records_db.p')
 
         # Load the cache record database, if it exists
-        if os.path.isfile(self._openi_cache_records_db_save_path):
-            self._load_and_prune_cache_records_db(load=True)
+        if os.path.isfile(self._cache_records_db_save_path):
+            self._load_prune_cache_records_db(load=True)
         else:
             self.cache_records_db = None
 

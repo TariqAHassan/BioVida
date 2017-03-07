@@ -9,9 +9,56 @@ import os
 import numpy as np
 import pandas as pd
 from warnings import warn
+from collections import Counter
 
 # General Support Tools
+from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import multimap
+
+# General Image Support Tools
+from biovida.images._image_tools import ActionVoid
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Relationship Mapping Function
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _openi_image_relation_map(data_frame):
+    """
+
+    Algorithm to find the index of rows which reference
+    the same image in the cache (the image size can vary).
+
+    :param data_frame:
+    :type data_frame: ``Pandas DataFrame``
+    :return:
+    :rtype: ``Pandas DataFrame``
+    """
+    # Copy the data_frame
+    df = data_frame.copy(deep=True)
+
+    # Reset the index
+    df = df.reset_index(drop=True)
+
+    # Get duplicated img_large occurences. Use of 'img_large' is arbitrary, could have used
+    # 'img_thumb', 'img_grid150', etc.
+    duplicated_img_refs = (k for k, v in Counter(df['img_large']).items() if v > 1)
+
+    # Get the indices of duplicates
+    dup_index = {k: df[df['img_large'] == k].index.tolist() for k in duplicated_img_refs}
+
+    def related(img_large, index):
+        """Function to look for references to the same image in the cache."""
+        if img_large in dup_index:
+            return tuple(sorted([i for i in dup_index[img_large] if i != index]))
+        else:
+            return np.NaN
+
+    # Apply `relate()`
+    df['shared_image_ref'] = [related(img, index) for img, index in zip(df['img_large'], df.index)]
+
+    return df
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -99,14 +146,37 @@ def _load_temp_dbs(temp_db_path):
     return pd.concat(frames, ignore_index=True)
 
 
-def _records_db_merge(current_records_db,
+def _relationship_mapper(data_frame, interface_name):
+    """
+
+    :param data_frame:
+    :type data_frame: ``Pandas DataFrame``
+    :param interface_name:
+    :type interface_name: ``str``
+    :return:
+    :rtype: ``Pandas DataFrame``
+    """
+    _relationship_mapping_dict = {
+        # Keys: Interface Class Name.
+        # Values: mapping function
+        'OpeniInterface': _openi_image_relation_map
+    }
+
+    if interface_name in _relationship_mapping_dict:
+        relationship_mapping_func = _relationship_mapping_dict[interface_name]
+        data_frame = relationship_mapping_func(data_frame)
+
+    return data_frame
+
+
+def _records_db_merge(interface_name,
+                      current_records_db,
                       records_db_update,
                       columns_with_dicts,
                       duplicates_subset_columns,
                       rows_to_conserve_func=None,
                       post_concat_mapping=None,
-                      columns_with_iterables_to_sort=None,
-                      relationship_mapping_func=None):
+                      columns_with_iterables_to_sort=None):
     """
 
     Merge the existing record database with new additions.
@@ -132,13 +202,9 @@ def _records_db_merge(current_records_db,
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
                                   in fact, present in the cahce. If not, remove it from the database to be saved.
     :type rows_to_conserve_func: ``function``
-    :param post_concat_mapping: a list (or tuple) of the form (new column name, column to apply the func to, func).
-    :type post_concat_mapping: ``list`` or ``tuple``
     :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
                                   prior to dropping. Defaults to ``None``.
     :type columns_with_iterables_to_sort: ``list`` or ``tuple``
-    :param relationship_mapping_func: function to map relationships in the dataframe. Defaults to ``None``.
-    :type relationship_mapping_func: ``function``
     :return: a dataframe which merges ``current_records_db`` and ``records_db_update``
     :rtype: ``Pandas DataFrame``
     """
@@ -174,12 +240,11 @@ def _records_db_merge(current_records_db,
     # Convert the tuples back to dictionaries
     combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict)
 
-    # Sort
+    # Sort against the original order.
     combined_dbs = combined_dbs.sort_values('__temp_order__')
 
     # Map relationships in the dataframe.
-    if relationship_mapping_func is not None:
-        combined_dbs = relationship_mapping_func(combined_dbs)
+    combined_dbs = _relationship_mapper(data_frame=combined_dbs, interface_name=interface_name)
 
     return combined_dbs.drop('__temp_order__', axis=1).reset_index(drop=True)
 
@@ -275,6 +340,121 @@ def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
     pruned_cache_records_db = _df_pruner(cache_records_db, columns)
     pruned_cache_records_db.to_pickle(save_path)
     return pruned_cache_records_db
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Deleting Images
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _robust_delete(to_delete):
+    """
+
+    Function to delete ``to_delete``.
+    If a list (or tuple), all paths therein will be deleted.
+
+    :param to_delete: a file, or multiple files to delete. Note: if ``to_delete`` is not a ``string``,
+                     ``list`` or ``tuple``, no action will be taken.
+    :type to_delete: ``str``, ``list``  or ``tuple``
+    """
+    def delete_file(td):
+        if os.path.isfile(td):
+            os.remove(td)
+
+    if isinstance(to_delete, str):
+        delete_file(to_delete)
+    elif isinstance(to_delete, (list, tuple)):
+        for t in to_delete:
+            if isinstance(t, str):
+                delete_file(t)
+
+
+_image_interface_image_columns = {
+    'OpeniInterface': ('cached_images_path',),
+    'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path')
+}
+
+
+def _double_check_with_user():
+    """
+
+    Ask the user to verify they wish to precede.
+
+    """
+    response = input("This action cannot be undone.\n"
+                     "Are you sure you wish to precede (y/n)?")
+    if cln(response).lower() not in ('yes', 'ye', 'es', 'y'):
+        raise ActionVoid
+
+
+def delete_images(interface, delete_rule):
+    """
+
+    .. warning::
+
+        The effects of this function can only be undone by downloading all of the deleted data again.
+
+    :param interface: an instance of ``OpeniInterface`` or ``CancerImageInterface``.
+    :type interface: ``OpeniInterface`` or ``CancerImageInterface``
+    :param delete_rule:
+    :type delete_rule: ``function``
+
+    :Example:
+
+    >>> from biovida.images import delete_images
+    >>> from biovida.images import OpeniInterface
+    ...
+    >>> opi = OpeniInterface()
+    >>> opi.search(image_type=['ct', 'mri'], collection='medpix')
+    >>> opi.pull()
+    ...
+    >>> def my_delete_rule(row):
+    >>>     if 'Oompa Loompas' in row['abstract']:
+    >>>         return True
+    ...
+    >>> delete_images(opi, delete_rule=my_delete_rule)
+
+    In this example, any rows in the ``records_db`` and ``cache_records_db``
+    for which the 'abstract' column contains the string 'Oompa Loompas' will be deleted.
+    Any images associated with this row will be destroyed.
+
+    """
+    _double_check_with_user()
+    image_columns = _image_interface_image_columns[type(interface).__name__]
+
+    def delete_rule_wrapper(row, enact):
+        """
+        Wrap delete_rule to ensure the output is boolean
+        and add switch to control the behavior of ``_robust_delete()``
+        :return: whether or not to keep the row.
+        :rtype: ``bool``
+        """
+        if delete_rule(row):
+            if enact:
+                for c in image_columns:
+                    _robust_delete(row[c])
+            return False
+        else:
+            return True
+
+    if type(interface.records_db).__name__ == 'DataFrame':
+        to_conserve = interface.records_db.apply(lambda r: delete_rule_wrapper(r, enact=False), axis=1)
+        interface.records_db = interface.records_db[to_conserve.tolist()].reset_index(drop=True)
+
+    if type(interface.cache_records_db).__name__ == 'DataFrame':
+        # Apply ``delete_rule`` to ``cache_records_db``
+        interface.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
+        # Prune ``cache_records_db`` by inspecting which images have been deleted.
+        interface._load_prune_cache_records_db(load=False)
+        # Map relationships, if applicable.
+        interface.cache_records_db = _relationship_mapper(data_frame=interface.cache_records_db,
+                                                          interface_name=interface.__class__.__name__)
+        # Save the updated ``cache_records_db`` to 'disk'
+        interface._save_cache_records_db()
+    else:
+        raise TypeError("`cache_record_db` is not a DataFrame.")
+
+
 
 
 
