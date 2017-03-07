@@ -21,7 +21,7 @@ from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools._cache_management import package_cache_creator
 
 
-class CancerImgArchiveParams(object):
+class CancerImageArchiveParams(object):
     """
     
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
@@ -80,7 +80,7 @@ class CancerImgArchiveParams(object):
         :rtype: ``list``
     
         :Example:
-        >>> CancerImgArchiveParams()._extract_on_required('Date (R)Collection(R)PatientID')
+        >>> CancerImageArchiveParams()._extract_on_required('Date (R)Collection(R)PatientID')
         ...
         ['Date (R)', 'Collection (R)', 'PatientID']
         """

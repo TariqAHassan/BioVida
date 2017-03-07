@@ -47,7 +47,7 @@ from biovida.support_tools._cache_management import package_cache_creator
 
 # Cancer Image Support tools
 from biovida.images._interface_support.dicom_data_to_dict import dicom_to_dict
-from biovida.images._interface_support.cancer_image.cancer_image_parameters import CancerImgArchiveParams
+from biovida.images._interface_support.cancer_image.cancer_image_parameters import CancerImageArchiveParams
 
 # Spin up tqdm
 tqdm.pandas("status")
@@ -58,7 +58,7 @@ tqdm.pandas("status")
 # ----------------------------------------------------------------------------------------------------------
 
 
-class _CancerImgArchiveOverview(object):
+class _CancerImageArchiveOverview(object):
     """
 
     Overview of Information Available on the Cancer Imaging Archive.
@@ -205,16 +205,16 @@ class _CancerImgArchiveOverview(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-class _CancerImgArchiveRecords(object):
+class _CancerImageArchiveRecords(object):
     """
 
     Class to harvest records for a given collection/study through the Cancer Imaging Archive API.
 
     :param api_key: an key to the the Cancer Imaging Archive's API.
     :type api_key: ``str``
-    :param dicom_modality_abbrevs: an instance of ``CancerImgArchiveParams().dicom_modality_abbreviations('dict')``
+    :param dicom_modality_abbrevs: an instance of ``CancerImageArchiveParams().dicom_modality_abbreviations('dict')``
     :type dicom_modality_abbrevs: ``dict``
-    :param cancer_img_archive_overview: an instance of ``_CancerImgArchiveOverview()``
+    :param cancer_img_archive_overview: an instance of ``_CancerImageArchiveOverview()``
     :type cancer_img_archive_overview: ``class``
     :param root_url: the root URL for the Cancer Imaging Archive's API.
     :type root_url: ``str``
@@ -409,7 +409,7 @@ class _CancerImgArchiveRecords(object):
 
         :param collection_series: a series of the study name, e.g., ('MY-STUDY', 'MY-STUDY', 'MY-STUDY', ...).
         :type collection_series: ``Pandas Series``
-        :param overview_download_override: see ``_CancerImgArchiveOverview()_all_studies_cache_mngt()``'s
+        :param overview_download_override: see ``_CancerImageArchiveOverview()_all_studies_cache_mngt()``'s
                                            ``download_override`` param.
         :type overview_download_override: ``bool``
         :return: the name of disease studied in a given collection (lower case).
@@ -436,7 +436,7 @@ class _CancerImgArchiveRecords(object):
         :type search_dict: ``dict``
         :param pull_time: the time the query was launched.
         :type pull_time: ``datetime``
-        :param overview_download_override: see ``_CancerImgArchiveOverview()_all_studies_cache_mngt()``'s
+        :param overview_download_override: see ``_CancerImageArchiveOverview()_all_studies_cache_mngt()``'s
                                            ``download_override`` param.
         :type overview_download_override: ``bool``
         :param patient_limit: limit on the number of patients to extract.
@@ -489,15 +489,15 @@ class _CancerImgArchiveRecords(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-class _CancerImgArchiveImages(object):
+class _CancerImageArchiveImages(object):
     """
 
     Class to harvest images for a given collection/study through the Cancer Imaging Archive API, based on
-    records extracted by ``_CancerImgArchiveRecords()``.
+    records extracted by ``_CancerImageArchiveRecords()``.
 
     :param api_key: an key to the the Cancer Imaging Archive's API.
     :type api_key: ``str``
-    :param dicom_modality_abbrevs: an instance of ``CancerImgArchiveParams().dicom_modality_abbreviations('dict')``
+    :param dicom_modality_abbrevs: an instance of ``CancerImageArchiveParams().dicom_modality_abbreviations('dict')``
     :type dicom_modality_abbrevs: ``dict``
     :param root_url: the root URL for the the Cancer Imaging Archive's API.
     :type root_url: ``str``
@@ -940,7 +940,7 @@ class _CancerImgArchiveImages(object):
 
         Pull Images from the Cancer Imaging Archive.
 
-        :param records_db: the yield from ``_CancerImgArchiveRecords().records_pull()``.
+        :param records_db: the yield from ``_CancerImageArchiveRecords().records_pull()``.
         :type records_db: ``Pandas DataFrame``
         :param pull_time: the time the pull for images was initiated (standard format: "%Y_%h_%d__%H_%M_%S_%f").
         :type pull_time: ``str``
@@ -1084,26 +1084,26 @@ class CancerImageInterface(object):
 
     def __init__(self, api_key, verbose=True, cache_path=None):
         self._verbose = verbose
-        self.dicom_modality_abbrevs = CancerImgArchiveParams(cache_path, verbose).dicom_modality_abbreviations('dict')
+        self.dicom_modality_abbrevs = CancerImageArchiveParams(cache_path, verbose).dicom_modality_abbreviations('dict')
 
         # Root URL to for the Cancer Imaging Archive's REST API
         root_url = 'https://services.cancerimagingarchive.net/services/v3/TCIA'
 
         # Instantiate Classes
-        self._Overview = _CancerImgArchiveOverview(dicom_modality_abbrevs=self.dicom_modality_abbrevs,
-                                                   verbose=verbose,
-                                                   cache_path=cache_path)
+        self._Overview = _CancerImageArchiveOverview(dicom_modality_abbrevs=self.dicom_modality_abbrevs,
+                                                     verbose=verbose,
+                                                     cache_path=cache_path)
 
-        self._Records = _CancerImgArchiveRecords(api_key=api_key,
+        self._Records = _CancerImageArchiveRecords(api_key=api_key,
+                                                   dicom_modality_abbrevs=self.dicom_modality_abbrevs,
+                                                   cancer_img_archive_overview=self._Overview,
+                                                   root_url=root_url)
+
+        self._Images = _CancerImageArchiveImages(api_key=api_key,
                                                  dicom_modality_abbrevs=self.dicom_modality_abbrevs,
-                                                 cancer_img_archive_overview=self._Overview,
-                                                 root_url=root_url)
-
-        self._Images = _CancerImgArchiveImages(api_key=api_key,
-                                               dicom_modality_abbrevs=self.dicom_modality_abbrevs,
-                                               root_url=root_url,
-                                               cache_path=cache_path,
-                                               verbose=verbose)
+                                                 root_url=root_url,
+                                                 cache_path=cache_path,
+                                                 verbose=verbose)
 
         # Search attributes
         self._pull_time = None
@@ -1131,7 +1131,7 @@ class CancerImageInterface(object):
 
         Limits `summary_df` to individual collections.
 
-        :param summary_df: the yeild of ``_CancerImgArchiveOverview()._all_studies_cache_mngt()``
+        :param summary_df: the yeild of ``_CancerImageArchiveOverview()._all_studies_cache_mngt()``
         :type summary_df: ``Pandas DataFrame``
         :param collection: a collection (study), or iterable (e.g., list) of collections,
                            hosted by the Cancer Imaging Archive. Defaults to ``None``.
@@ -1295,8 +1295,8 @@ class CancerImageInterface(object):
     def _tcia_cache_records_db_handler(self):
         """
 
-        If ``cache_records_db`` does not exists on disk, create it using ``tcia_cache_records_db_update`` (evolved inside this
-        function). If it already exists, merge it with ``tcia_cache_records_db_update``.
+        If ``cache_records_db`` does not exists on disk, create it using ``tcia_cache_records_db_update``
+        (evolved inside this function). If it already exists, merge it with ``tcia_cache_records_db_update``.
 
         """
         # Generate the `cache_records_db`.
