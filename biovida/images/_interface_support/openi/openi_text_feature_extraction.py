@@ -18,10 +18,9 @@ from biovida.images._interface_support.openi.openi_support_tools import multiple
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import unescape
-from biovida.support_tools.support_tools import items_null
 from biovida.support_tools.support_tools import multi_replace
-from biovida.support_tools.support_tools import remove_line_breaks
+from biovida.support_tools.support_tools import remove_from_head_tail
+from biovida.support_tools.support_tools import remove_html_bullet_points
 
 # Data
 from biovida.images._interface_support.openi.openi_imaging_modality_information import (terms_dict,
@@ -33,21 +32,6 @@ from biovida.images._interface_support.openi.openi_imaging_modality_information 
 # ----------------------------------------------------------------------------------------------------------
 # Abstract Processing
 # ----------------------------------------------------------------------------------------------------------
-
-
-def _raw_abstract_clean(abstract):
-    """
-
-    Cleans ``abstract`` by removing any bullent points (html entities)
-    and replacing them with semi-colons.
-
-    :param abstract: a text abstract.
-    :type abstract: ``str``
-    :return: see description.
-    :rtype: ``str``
-    """
-    no_points = cln(abstract).replace('\n&bull; ', "; ").replace('&bull; ', "; ")
-    return cln(remove_line_breaks(no_points).replace(" ;", "; "))
 
 
 def _key_clean(key):
@@ -76,8 +60,8 @@ def _value_clean(value):
 
     Cleans the value for the ``parsed_abstract`` dictionary inside ``_abstract_parser()``.
 
-    :param key: ``value`` as evolved inside ``_abstract_parser()``.
-    :type key: ``str``
+    :param value: ``value`` as evolved inside ``_abstract_parser()``.
+    :type value: ``str``
     :return: see description.
     :rtype: ``str``
     """
@@ -92,7 +76,7 @@ def _value_clean(value):
 def _abstract_parser(abstract):
     """
 
-    Take a raw HTML abstract and generate dicitionary
+    Take a raw HTML abstract and generate dictionary
     using the items in bold (e.g., '<b>History: </b>') as the keys
     and the result of the information inside the <p>...</p> tags as the value.
 
@@ -111,7 +95,7 @@ def _abstract_parser(abstract):
     if not isinstance(abstract, str):
         return None
 
-    soup = BeautifulSoup(_raw_abstract_clean(abstract), 'lxml')
+    soup = BeautifulSoup(remove_html_bullet_points(abstract), 'lxml')
 
     parsed_abstract = dict()
     for p in soup.find_all('p'):
@@ -123,61 +107,11 @@ def _abstract_parser(abstract):
                 # Look for Value
                 contents = p.contents
                 if len(contents) == 2:
-                    value = _value_clean(contents[-1])
+                    value = remove_from_head_tail(contents[-1], char=";")
                     if isinstance(value, str) and len(value):
                         parsed_abstract[key] = value
 
     return parsed_abstract if parsed_abstract else None
-
-
-# ----------------------------------------------------------------------------------------------------------
-# Custom HTML cleaning
-# ----------------------------------------------------------------------------------------------------------
-
-
-def _html_text_clean(html_text, action, parse_medpix=False):
-    """
-
-    This removes HTML features commonly encountered in the 'abstract' column.
-    While not perfect, it avoids use of a heavy dependency (like ``BeautifulSoup``).
-
-    :param html_text: any HTML text
-    :type html_text: ``str``
-    :param action: 'entities', 'tags' or 'both'.
-    :param parse_medpix:
-    :type parse_medpix: ``bool``
-    :return: cleaned ``html_text``
-    :rtype: ``str``
-    """
-    if items_null(html_text) or html_text is None:
-        return html_text
-
-    # Tags to remove
-    KNOWN_TAGS = ('p', 'b', 'li')
-
-    # Remove bullet points and line breaks
-    html_text = html_text.replace('&bull;', '').replace('\n', '')
-
-    # Escape HTML entities
-    if action in ('entities', 'both'):
-        html_text = unescape(html_text)
-
-    # Remove known tags
-    if action in ('tags', 'both'):
-        for kt in KNOWN_TAGS:
-            for t in ('<{0}>'.format(kt), '</{0}>'.format(kt)):
-                html_text = html_text.replace(t, ' ')
-
-    # Limit white space to length 1 and strip() `html_text`
-    html_text = cln(html_text)
-
-    # Prettify MedPix Text
-    if parse_medpix:
-        for h in ('History', 'Diagnosis', 'Findings', 'Ddx', 'Dxhow'):
-            html_text = html_text.replace(' {0}'.format(h), '. {0}'.format(h))
-        html_text = html_text.replace('..', '.')
-
-    return html_text
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -632,7 +566,7 @@ def _im_scan(source):
         if any(i in source for i in v[0]):
             # Add that the `k` modality was found (e.g., 'mri').
             matches[k].add(None)
-            # Scan `source` for subtypes (taking the optunity to
+            # Scan `source` for subtypes (taking the opportunity to
             # look for those that may not be modality specific).
             if k in modality_subtypes:
                 for v2 in modality_subtypes[k]:
@@ -939,7 +873,7 @@ def _background_extract(d):
     :param d: the ``d`` dictionary as evolved inside ``feature_extract()``.
     :type d: ``dict``
     :return: the study background/history (or case information, e.g., 'case report').
-    :rtype: ``dict``
+    :rtype: ``None`` or ``str``
     """
     # Extract the background/history
     if isinstance(d['parsed_abstract'], dict):
@@ -998,24 +932,19 @@ def feature_extract(x, list_of_diseases):
     for (k, func) in pairs:
         d[k] = func(background, abstract, image_caption, image_mention)
 
-    # Guess the imaging technology used by using the text
     d['imaging_modality_from_text'] = _imaging_modality_guess(abstract, image_caption, image_mention)
-
-    # Guess image plane
     d['image_plane'] = _image_plane_guess(image_caption)
-
-    # Use the image caption to detect problems in the image
     d['image_problems_from_text'] = _problematic_image_features(image_caption)
-
-    # Guess Ethnicity
     d['ethnicity'], eth_sex = _ethnicity_guess(background, abstract, image_caption, image_mention)
 
     # Try to Extract Age from Ethnicity analysis
     if d['sex'] is None and eth_sex is not None:
         d['sex'] = eth_sex
 
-    # Lower keys and return
-    return {k.lower(): v for k, v in d.items()}
+    return d
+
+
+
 
 
 

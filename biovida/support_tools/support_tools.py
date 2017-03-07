@@ -73,6 +73,41 @@ def remove_line_breaks(s):
     return re.sub(r'[\t\r\n]', ' ', s)
 
 
+def remove_html_bullet_points(html):
+    """
+
+    Cleans ``html`` by removing any bullet points (html entities)
+    and replacing them with semi-colons.
+
+    :param html: html as text with bullet points (HTML entity: '&bull;'
+    :type html: ``str``
+    :return: see description.
+    :rtype: ``str``
+    """
+    no_points = cln(html).replace('\n&bull; ', "; ").replace('&bull; ', "; ")
+    return cln(remove_line_breaks(no_points).replace(" ;", "; "))
+
+
+def remove_from_head_tail(s, char):
+    """
+
+    Remove ``char`` from the head and tail of ``s``.
+
+    :param s: ``s`` as evolved inside ``_abstract_parser()``.
+    :type s: ``str``
+    :param char: the character to remove from the head and tail of ``s``.
+    :type char: ``str``
+    :return: see description.
+    :rtype: ``str``
+    """
+    cleaned = cln(s)
+    if cleaned.startswith(char):
+        cleaned = cleaned[1:]
+    if cleaned.endswith(char):
+        cleaned = cleaned[:-1]
+    return cln(cleaned)
+
+
 def n_sub_dirs(dir):
     """
 

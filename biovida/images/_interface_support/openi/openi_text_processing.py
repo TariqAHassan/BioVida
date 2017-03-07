@@ -7,10 +7,13 @@
 # Imports
 import numpy as np
 import pandas as pd
+from bs4 import BeautifulSoup
 
 # General Support tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import unescape
+from biovida.support_tools.support_tools import remove_from_head_tail
+from biovida.support_tools.support_tools import remove_html_bullet_points
 
 # Image Support Tools
 from biovida.images._image_tools import resetting_label
@@ -25,10 +28,29 @@ from biovida.images._interface_support.openi.openi_parameters import openi_image
 
 # Tools for Text Feature Extraction
 from biovida.images._interface_support.openi.openi_text_feature_extraction import feature_extract
-from biovida.images._interface_support.openi.openi_text_feature_extraction import _html_text_clean
 
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Abstract Cleaning
+# ----------------------------------------------------------------------------------------------------------
+
+
+def abstract_cleaner(abstract):
+    """
+
+    Clean ``abstract`` by converting the HTML into standard text.
+
+    :param abstract: an abstract obtained via. the Open-i API.
+    :type abstract: ``str``
+    :return: cleaned ``abstract``
+    :rtype: ``str``
+    """
+    soup = BeautifulSoup(remove_html_bullet_points(abstract).replace("<b>", ". "), 'lxml')
+    cleaned = soup.text.replace(" ; ", " ").replace("..", ".").replace(".;", ";")
+    return remove_from_head_tail(cleaned, char=".") + "."
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -142,9 +164,7 @@ def _df_clean(data_frame):
     :rtype:  ``Pandas DataFrame``
     """
     # Clean the abstract
-    data_frame['abstract'] = data_frame.apply(
-        lambda x: _html_text_clean(x['abstract'], 'both', parse_medpix='medpix' in str(x['journal_title']).lower()),
-        axis=1)
+    data_frame['abstract'] = data_frame['abstract'].map(abstract_cleaner)
 
     # Add the full name for modalities (before the 'image_modality_major' values are altered below).
     data_frame['modality_full'] = data_frame['image_modality_major'].map(
