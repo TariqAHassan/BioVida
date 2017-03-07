@@ -22,13 +22,13 @@ class DiseaseSymptomsInterface(object):
     References:
 
     - Daniel Himmelstein, Antoine Lizee, Chrissy Hessler, Leo Brueggeman, Sabrina Chen, Dexter Hadley, Ari Green,
-      Pouya Khankhanian, Sergio Baranzini (2016) Rephetio: Repurposing drugs on a hetnet [report].
-      Thinklab. doi:10.15363/thinklab.a7. [1].
+      Pouya Khankhanian, Sergio Baranzini. Rephetio: Repurposing drugs on a hetnet [report]. Thinklab (2016).
+      doi:`10.15363/thinklab.a7 <http://www.thinklab.com/p/rephetio/report#edges>`_. Online Repository:
+      https://github.com/dhimmel/medline.
 
-    - Zhou, X., Menche, J., Barabási, A. L., & Sharma, A. (2014). Human symptoms–disease network. Nature communications, 5. [2].
-
-    1. http://www.thinklab.com/p/rephetio/report#edges
-    2. http://www.nature.com/articles/ncomms5212
+    - Zhou, XueZhong, Jörg Menche, Albert-László Barabási, and Amitabh Sharma. Human symptoms–disease network.
+      Nature communications 5 (2014). doi:`10.1038/ncomms5212 <http://www.nature.com/articles/ncomms5212>`_.
+      Online Repository: https://github.com/dhimmel/hsdn.
 
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                        Default to ``None`` (which will generate a cache in the home folder).
