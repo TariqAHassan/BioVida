@@ -227,15 +227,15 @@
 <span class="sd">    :type batch_size: ``int``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span>
-                 <span class="p">,</span> <span class="n">data_path</span><span class="o">=</span><span class="kc">None</span>
-                 <span class="p">,</span> <span class="n">img_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">)</span>
-                 <span class="p">,</span> <span class="n">rescale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mf">255.0</span>
-                 <span class="p">,</span> <span class="n">shear_range</span><span class="o">=</span><span class="mf">0.05</span>
-                 <span class="p">,</span> <span class="n">zoom_range</span><span class="o">=</span><span class="mf">0.30</span>
-                 <span class="p">,</span> <span class="n">horizontal_flip</span><span class="o">=</span><span class="kc">True</span>
-                 <span class="p">,</span> <span class="n">vertical_flip</span><span class="o">=</span><span class="kc">False</span>
-                 <span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">data_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">img_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span>
+                 <span class="n">rescale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span>
+                 <span class="n">shear_range</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                 <span class="n">zoom_range</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
+                 <span class="n">horizontal_flip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">vertical_flip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="o">=</span> <span class="n">data_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span> <span class="o">=</span> <span class="n">img_shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rescale</span> <span class="o">=</span> <span class="n">rescale</span>
@@ -602,17 +602,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_existence_check</span><span class="p">(</span><span class="s2">&quot;fit and validated&quot;</span><span class="p">,</span> <span class="s2">&quot;convnet&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nb_epoch</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`nb_epoch` must be an intiger.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`nb_epoch` must be an integer.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Define callbacks</span>
         <span class="n">early_stop</span> <span class="o">=</span> <span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="n">min_delta</span><span class="o">=</span><span class="n">min_delta</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="n">patience</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit_generator</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_generator</span>
-                                 <span class="p">,</span> <span class="n">samples_per_epoch</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_generator</span><span class="o">.</span><span class="n">nb_sample</span>
-                                 <span class="p">,</span> <span class="n">nb_epoch</span><span class="o">=</span><span class="n">nb_epoch</span>
-                                 <span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_generator</span>
-                                 <span class="p">,</span> <span class="n">nb_val_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_generator</span><span class="o">.</span><span class="n">nb_sample</span>
-                                 <span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">early_stop</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit_generator</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_generator</span><span class="p">,</span>
+                                 <span class="n">samples_per_epoch</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_generator</span><span class="o">.</span><span class="n">nb_sample</span><span class="p">,</span>
+                                 <span class="n">nb_epoch</span><span class="o">=</span><span class="n">nb_epoch</span><span class="p">,</span>
+                                 <span class="n">validation_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_generator</span><span class="p">,</span>
+                                 <span class="n">nb_val_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_generator</span><span class="o">.</span><span class="n">nb_sample</span><span class="p">,</span>
+                                 <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">early_stop</span><span class="p">])</span></div>
 
     <span class="k">def</span> <span class="nf">_support_save_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_name</span><span class="p">,</span> <span class="n">save_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -728,11 +728,12 @@
 <span class="sd">        Generate Predictions for a list of images.</span>
 
 <span class="sd">        :param list_of_images: a list of paths (strings) to images or ``ndarrays``.</span>
+<span class="sd">        :type list_of_images: ``list``</span>
 <span class="sd">        :param status: True for a tqdm status bar; False for no status bar. Defaults to True.</span>
 <span class="sd">        :type status: ``bool``</span>
 <span class="sd">        :param verbose: if True, print updates. Defaults to False</span>
 <span class="sd">        :type verbose: ``bool``</span>
-<span class="sd">        :return: a list of lists with tuples of the form (name, probabability). Defaults to False.</span>
+<span class="sd">        :return: a list of lists with tuples of the form (name, probability). Defaults to False.</span>
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
