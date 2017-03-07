@@ -84,7 +84,7 @@ class _ImagesInterfaceIntegration(object):
         # Apply rename and return
         return openi_subsection.rename(columns=openi_col_rename)
 
-    def _cancer_img_prep(self, cache_records_db):
+    def _cancer_image_prep(self, cache_records_db):
         """
 
         A tool to clean and standardize  an ``CancerImageInterface`` instance's cache record database
@@ -130,7 +130,7 @@ class _ImagesInterfaceIntegration(object):
         :return: a dictionary mapping class names to functions.
         :rtype: ``dict``
         """
-        return {'OpeniInterface': self._open_i_prep, 'CancerImageInterface': self._cancer_img_prep}
+        return {'OpeniInterface': self._open_i_prep, 'CancerImageInterface': self._cancer_image_prep}
 
     def integration(self, interfaces):
         """
@@ -637,7 +637,7 @@ class _DisgenetIntegration(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _images_unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
+def images_unify(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
     """
 
     Unify Interfaces in the ``images`` subpackage against other BioVida APIs.
