@@ -98,7 +98,7 @@ def _abstract_parser(abstract):
 
     :param abstract: a text abstract.
     :type abstract: ``str``
-    :return: a dicitionary of the form described above.
+    :return: a dictionary of the form described above.
     :rtype: ``None`` or ``dict``
 
     :Example:
@@ -116,9 +116,9 @@ def _abstract_parser(abstract):
     parsed_abstract = dict()
     for p in soup.find_all('p'):
         # Look for Key
-        key_candidiate = p.find_all('b')
-        if len(key_candidiate) == 1:
-            key = _key_clean(key_candidiate[0].text)
+        key_candidate = p.find_all('b')
+        if len(key_candidate) == 1:
+            key = _key_clean(key_candidate[0].text)
             if len(key):
                 # Look for Value
                 contents = p.contents
