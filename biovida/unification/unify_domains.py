@@ -1,7 +1,7 @@
 """
 
-    Unifying BioVida APIs
-    ~~~~~~~~~~~~~~~~~~~~~
+    Unifying Across Domains
+    ~~~~~~~~~~~~~~~~~~~~~~~
 
 """
 # Subpackage Unification Tools -- Images
