@@ -43,6 +43,12 @@ Resource Integration
 .. automodule:: biovida.unification.unify_domains
 	:members:
 
+Cache Management
+----------------
+
+.. automodule:: biovida.images.image_cache_mgmt
+	:members:
+
 Support Tools
 -------------
 
