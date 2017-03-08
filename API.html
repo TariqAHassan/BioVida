@@ -1449,16 +1449,17 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <h3>Unifying Across Domains<a class="headerlink" href="#unifying-across-domains" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
-<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>cache_path=None</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>source_db='cache_records_db'</em>, <em>cache_path=None</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tool to unify image interfaces (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
 with Diagnostic and Genomic Data.</p>
-<p>Note: this tool extracts the <code class="docutils literal"><span class="pre">cache_records_db</span></code> attribute from these classes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>interfaces</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; instances of: <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or both inside a list.</li>
+<li><strong>source_db</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the database to use. Must be one of: &#8216;records_db&#8217;, &#8216;cache_records_db&#8217;.
+Defaults to &#8216;cache_records_db&#8217;.</li>
 <li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
 Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
@@ -1550,7 +1551,7 @@ column <em>is</em> an account of a given patient&#8217;s symptoms.</p>
 <h3>Image Cache Management<a class="headerlink" href="#image-cache-management" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_delete">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>interface</em>, <em>delete_rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>instance</em>, <em>delete_rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete images from the cache.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -1561,7 +1562,7 @@ column <em>is</em> an account of a given patient&#8217;s symptoms.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>interface</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
+<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
 <li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be one of: <code class="docutils literal"><span class="pre">'all'</span></code> (delete <em>all</em> data) or a <code class="docutils literal"><span class="pre">function</span></code> which (1) accepts a single
 parameter (argument) and (2) returns <code class="docutils literal"><span class="pre">True</span></code> when the data is to be deleted.</li>
 </ul>
@@ -1600,20 +1601,22 @@ types will be ignored.</p>
 
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_divvy">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>interface</em>, <em>divvy_rule</em>, <em>source_db='records_db'</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>source_db='records_db'</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy images from the cache to another location.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>interface</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
+<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <a href="#id1"><span class="problematic" id="id2">``</span></a>Pandas DataFrame) &#8211; the yield of the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code> or an instance of
+<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
 <li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
 system path(s) [see example below].</li>
 <li><strong>source_db</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>the database to use. Must be one of:</p>
 <ul>
-<li>&#8216;records_db&#8217;: the yield of the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code>.</li>
-<li>&#8216;cache_records_db&#8217;: the cache for <code class="docutils literal"><span class="pre">interface</span></code>.</li>
+<li>&#8216;records_db&#8217;: the dataframe resulting from the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code>.</li>
+<li>&#8216;cache_records_db&#8217;: the cache dataframe for <code class="docutils literal"><span class="pre">instance</span></code>.</li>
+<li>&#8216;unify_against_images&#8217;: the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code>.</li>
 </ul>
 </li>
 <li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
