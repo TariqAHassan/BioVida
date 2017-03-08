@@ -6,6 +6,7 @@
 """
 # Imports
 import os
+import shutil
 import numpy as np
 import pandas as pd
 from warnings import warn
@@ -169,7 +170,6 @@ def _relationship_mapper(data_frame, interface_name):
     return data_frame
 
 
-# ToDo: handle dataframes with 0 rows.
 def _records_db_merge(interface_name,
                       current_records_db,
                       records_db_update,
@@ -209,6 +209,8 @@ def _records_db_merge(interface_name,
     :return: a dataframe which merges ``current_records_db`` and ``records_db_update``
     :rtype: ``Pandas DataFrame``
     """
+    # Note: this function does not explicitly handle cases where combined_dbs has length 0, no obvious need to though.
+
     # Load in the current database and combine with the `records_db_update` database
     combined_dbs = pd.concat([current_records_db, records_db_update], ignore_index=True)
 
@@ -344,14 +346,20 @@ def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Deleting Image Data
+# Interface Data
 # ----------------------------------------------------------------------------------------------------------
 
 
 _image_interface_image_columns = {
+    # Note: the first column should be the default.
     'OpeniInterface': ('cached_images_path',),
     'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path')
 }
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Deleting Image Data
+# ----------------------------------------------------------------------------------------------------------
 
 
 def _robust_delete(to_delete):
@@ -390,6 +398,8 @@ def _double_check_with_user():
 
 def image_delete(interface, delete_rule):
     """
+
+    Delete images from the cache.
 
     .. warning::
 
@@ -433,7 +443,7 @@ def image_delete(interface, delete_rule):
             raise ValueError("`delete_rule` must be 'all' or a `function`.")
 
     def delete_rule_wrapper(row, enact):
-        """Wrap delete_rule to ensure the output is boolean"""
+        """Wrap delete_rule to ensure the output is a boolean."""
         if delete_all or delete_rule(row):
             if enact:
                 for c in _image_interface_image_columns[interface.__class__.__name__]:
@@ -447,7 +457,7 @@ def image_delete(interface, delete_rule):
         interface.records_db = interface.records_db[to_conserve.tolist()].reset_index(drop=True)
     if type(interface.cache_records_db).__name__ == 'DataFrame':
         # Apply ``delete_rule`` to ``cache_records_db``.
-        interface.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
+        _ = interface.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
         # Prune ``cache_records_db`` by inspecting which images have been deleted.
         interface._load_prune_cache_records_db(load=False)
         # Map relationships, if applicable.
@@ -456,6 +466,146 @@ def image_delete(interface, delete_rule):
         interface._save_cache_records_db()
     else:
         raise TypeError("`cache_record_db` is not a DataFrame.")
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Divvy Image Data
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _robust_copy(to_copy, copy_path, allow_overwrite):
+    """
+
+    Function to copy ``to_copy``.
+    If a list (or tuple), all paths therein will be copied.
+
+    :param to_copy: a file, or multiple files to delete. Note: if ``to_copy`` is not a ``string``,
+                     ``list`` or ``tuple``, no action will be taken.
+    :type to_copy: ``str``, ``list``  or ``tuple``
+    :param copy_path: the location for the image
+    :type copy_path: ``str``
+    :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
+    :type allow_overwrite: ``bool``
+    """
+    def copy_util(from_path):
+        if os.path.isfile(from_path):
+            to_path = os.path.join(copy_path, os.path.basename(from_path))
+            if not allow_overwrite and os.path.isfile(to_path):
+                raise FileExistsError("The following file already exists:\n{0}".format(to_path))
+            shutil.copy2(from_path, to_path)
+        else:
+            warn("No such file:\n'{0}'".format(from_path))
+
+    if isinstance(to_copy, str):
+        copy_util(from_path=to_copy)
+    elif isinstance(to_copy, (list, tuple)):
+        for c in to_copy:
+            if isinstance(c, str):
+                copy_util(from_path=c)
+
+
+def _divvy_column_selector(interface, source_db, image_column, data_frame):
+    """
+
+    Select the column to use when copying images from.
+
+    :param interface:  see ``image_divvy()``
+    :type interface: ``OpeniInterface`` or ``CancerImageInterface``
+    :param source_db: see ``image_divvy()``
+    :type source_db: ``str``
+    :param image_column: see ``image_divvy()``
+    :type image_column: ``str``
+    :param data_frame: as evolved inside  ``image_divvy()``.
+    :type data_frame: ``Pandas DataFrame``
+    :return: the column in ``data_frame`` to use when copying images to the new location.
+    :rtype: ``str``
+    """
+    if image_column is None:
+        return _image_interface_image_columns[interface.__class__.__name__][0]
+    elif not isinstance(image_column, str):
+        raise TypeError('`image_column` must be a string or `None`.')
+    elif image_column in _image_interface_image_columns[interface.__class__.__name__]:
+        if image_column not in data_frame.columns:
+            raise KeyError("The '{0}' column is missing from '{1}'.".format(image_column, source_db))
+        return image_column
+    else:
+        raise KeyError("'{0}' is not a valid image column for '{1}'.".format(image_column, source_db))
+
+
+def image_divvy(interface, divvy_rule, source_db='records_db', create_dirs=False, allow_overwrite=True, image_column=None):
+    """
+
+    Copy images from the cache to another location.
+
+    :param interface: an instance of ``OpeniInterface`` or ``CancerImageInterface``.
+    :type interface: ``OpeniInterface`` or ``CancerImageInterface``
+    :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
+                       system path(s) [see example below].
+    :type divvy_rule: ``function``
+    :param source_db: the database to use. Must be one of:
+
+                    - 'records_db': the yield of the most recent ``search()`` & ``pull()``.
+                    - 'cache_records_db': the cache for ``interface``.
+
+    :type source_db: ``str``
+    :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``False``.
+    :type create_dirs: ``bool``
+    :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
+    :type allow_overwrite: ``bool``
+    :param image_column: the column to use when copying images. If ``None``, use ``'cached_images_path'``. Default to ``None``.
+    :type image_column: ``str``
+
+    :Example:
+
+    >>> from biovida.images import image_divvy
+    >>> from biovida.images import OpeniInterface
+    ...
+    >>> opi = OpeniInterface()
+    >>> opi.search(image_type=['mri', 'pet'])
+    >>> opi.pull()
+    ...
+    >>> def my_divvy_rule(row):
+    >>>    if 'MRI' in row['modality_full']:
+    >>>        return '/your/path/here/MRI_images'
+    >>>    elif 'PET' in row['modality_full']:
+    >>>        return '/your/path/here/PET_images'
+    ...
+    >>> image_divvy(opi, divvy_rule=my_divvy_rule)
+
+    """
+    # Extract the required dataframe.
+    data_frame = getattr(interface, source_db)
+    if type(data_frame).__name__ != 'DataFrame':
+        raise TypeError("{0} expected to be a DataFrame.\n"
+                        "Got an object of type: '{1}'.".format(source_db, type(data_frame).__name__))
+
+    def path_existence_handler(path):
+        """Create `path` if it does not exist and `create_dirs=True`."""
+        if not os.path.isdir(path):
+            if create_dirs:
+                os.makedirs(path)
+                print("\nThe following directory has been created:\n\n{0}\n".format(path))
+            else:
+                raise NotADirectoryError("\nNo such directory:\n'{0}'\n"
+                                         "Consider setting `create_dirs=True`.".format(path))
+
+    # Define the column to copy images from.
+    column_to_use = _divvy_column_selector(interface, source_db, image_column, data_frame)
+
+    def divvy_rule_wrapper(row):
+        """Wrap ``divvy_rule`` to automate copying."""
+        copy_path = divvy_rule(row)
+        if isinstance(copy_path, str):
+            path_existence_handler(copy_path)
+            _robust_copy(to_copy=row[column_to_use],
+                         copy_path=copy_path,
+                         allow_overwrite=allow_overwrite)
+        else:
+            raise TypeError("String Expected.\n`divvy_rule` returned "
+                            "an object of type '{0}'.".format(type(copy_path).__name__))
+
+    # Apply rule
+    _ = data_frame.apply(divvy_rule_wrapper, axis=1)
 
 
 
