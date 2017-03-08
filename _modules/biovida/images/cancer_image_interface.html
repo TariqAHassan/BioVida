@@ -110,6 +110,10 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.image_cache_mgmt">Cache Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-cache-management">Image Cache Management</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.support_tools.printing">Support Tools</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#printing-tools">Printing Tools</a></li>
 </ul>
@@ -193,10 +197,10 @@
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">NoResultsFound</span>
 
 <span class="c1"># Database Management</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_load_temp_dbs</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_records_db_merge</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_record_update_dbs_joiner</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_database_mgmt</span> <span class="k">import</span> <span class="n">_prune_rows_with_deleted_images</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_load_temp_dbs</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_records_db_merge</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_record_update_dbs_joiner</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_prune_rows_with_deleted_images</span>
 
 <span class="c1"># General Support Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>

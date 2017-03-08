@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>biovida.images.image_cache_mgmt &#8212; BioVida 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootswatch-3.3.6/simplex/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          BioVida</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/TariqAHassan/BioVida">View on GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#dependencies">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#image-data">Image Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.genomics.disgenet_interface">Genomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.diagnostics.disease_ont_interface">Diagnostics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.unification.unify_domains">Resource Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.image_cache_mgmt">Cache Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-cache-management">Image Cache Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.support_tools.printing">Support Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Current Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <h1>Source code for biovida.images.image_cache_mgmt</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Image Cache Management</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># Imports</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+
+<span class="c1"># General Support Tools</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">multimap</span>
+
+<span class="c1"># General Image Support Tools</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">ActionVoid</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Relationship Mapping Function</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span> <span class="nf">_openi_image_relation_map</span><span class="p">(</span><span class="n">data_frame</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Algorithm to find the index of rows which reference</span>
+<span class="sd">    the same image in the cache (the image size can vary).</span>
+
+<span class="sd">    :param data_frame:</span>
+<span class="sd">    :type data_frame: ``Pandas DataFrame``</span>
+<span class="sd">    :return:</span>
+<span class="sd">    :rtype: ``Pandas DataFrame``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Copy the data_frame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Reset the index</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Get duplicated img_large occurences. Use of &#39;img_large&#39; is arbitrary, could have used</span>
+    <span class="c1"># &#39;img_thumb&#39;, &#39;img_grid150&#39;, etc.</span>
+    <span class="n">duplicated_img_refs</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Get the indices of duplicates</span>
+    <span class="n">dup_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">duplicated_img_refs</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">related</span><span class="p">(</span><span class="n">img_large</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to look for references to the same image in the cache.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">img_large</span> <span class="ow">in</span> <span class="n">dup_index</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dup_index</span><span class="p">[</span><span class="n">img_large</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">index</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+    <span class="c1"># Apply `relate()`</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;shared_image_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">related</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Merging New Records with the Existing Cache</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span> <span class="nf">_dict_to_tot</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Convert a dictionary to a tuple of tuples and sort by the former keys.</span>
+
+<span class="sd">    :param d: any dictionary.</span>
+<span class="sd">    :type d: ``dict``</span>
+<span class="sd">    :return: ``d`` as a tuple of tuples, sorted by the former key values.</span>
+<span class="sd">    :rtype: ``tuple``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">values_to_tuples</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values_to_tuples</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+
+<span class="k">def</span> <span class="nf">_record_update_dbs_joiner</span><span class="p">(</span><span class="n">records_db</span><span class="p">,</span> <span class="n">update_db</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Join and drop rows for which `update_db`&#39;s columns exclusively contain NaNs.</span>
+
+<span class="sd">    :param records_db: permanent database/dataframe which keeps a record of files in the cache.</span>
+<span class="sd">    :type records_db: ``Pandas DataFrame``</span>
+<span class="sd">    :param update_db: database/dataframe to &#39;update&#39; ``records_db``</span>
+<span class="sd">    :type update_db: ``Pandas DataFrame``</span>
+<span class="sd">    :return: ``records_db`` with ``update_db`` left-joined.</span>
+<span class="sd">    :rtype: ``Pandas DataFrame``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">joined_db</span> <span class="o">=</span> <span class="n">records_db</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">update_db</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">update_db</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">joined_db</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_load_temp_dbs</span><span class="p">(</span><span class="n">temp_db_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Load temporary databases in the &#39;databases/__temp__&#39; directory.</span>
+
+<span class="sd">    :param temp_db_path: path to the temporary databases (must be pickled and use the &#39;.p&#39; extension).</span>
+<span class="sd">    :type temp_db_path: ``str``</span>
+<span class="sd">    :return: all of the &#39;.p&#39; dataframes in ``temp_db_path`` merged into a single dataframe.</span>
+<span class="sd">    :rtype: ``Pandas DataFrame`` or ``None``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get pickled objects in ``temp_db_path``</span>
+    <span class="n">db_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_db_path</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">temp_db_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.p&quot;</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">db_paths</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Set of to group db_paths by</span>
+    <span class="n">unique_pull_times</span> <span class="o">=</span> <span class="p">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">db_paths</span><span class="p">}</span>
+
+    <span class="n">groupings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">pull_time</span> <span class="ow">in</span> <span class="n">unique_pull_times</span><span class="p">:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">db_paths</span> <span class="k">if</span> <span class="n">pull_time</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;FileNotFoundError: Either &#39;</span><span class="si">{0}</span><span class="s2">__records_db.p&#39; or &#39;</span><span class="si">{0}</span><span class="s2">__update_db.p&#39;&quot;</span>
+                 <span class="s2">&quot; is missing from</span><span class="se">\n</span><span class="s2"> </span><span class="si">{1}</span><span class="se">\n</span><span class="s2">Deleting the file which is present...</span><span class="se">\n</span><span class="s2">&quot;</span>
+                 <span class="s2">&quot;As a result, images obtained from the last `pull()` will likely be missing&quot;</span>
+                 <span class="s2">&quot; from `cache_records_db`.</span><span class="se">\n</span><span class="s2">For this reason, it is recommended that you</span><span class="se">\n</span><span class="s2">&quot;</span>
+                 <span class="s2">&quot;**precisely** repeat your last `search()` and `pull()`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pull_time</span><span class="p">,</span> <span class="n">temp_db_path</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">groupings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">groupings</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Read the dataframes in the &#39;__temp__&#39; directory into memory</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groupings</span><span class="p">:</span>
+        <span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">group</span> <span class="k">if</span> <span class="s2">&quot;__records_db.p&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">update_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">group</span> <span class="k">if</span> <span class="s2">&quot;__update_db.p&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_record_update_dbs_joiner</span><span class="p">(</span><span class="n">records_db</span><span class="p">,</span> <span class="n">update_db</span><span class="p">))</span>
+
+    <span class="c1"># Concatenate all frames</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_relationship_mapper</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">interface_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    :param data_frame:</span>
+<span class="sd">    :type data_frame: ``Pandas DataFrame``</span>
+<span class="sd">    :param interface_name:</span>
+<span class="sd">    :type interface_name: ``str``</span>
+<span class="sd">    :return:</span>
+<span class="sd">    :rtype: ``Pandas DataFrame``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_relationship_mapping_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># Keys: Interface Class Name.</span>
+        <span class="c1"># Values: mapping function</span>
+        <span class="s1">&#39;OpeniInterface&#39;</span><span class="p">:</span> <span class="n">_openi_image_relation_map</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">interface_name</span> <span class="ow">in</span> <span class="n">_relationship_mapping_dict</span><span class="p">:</span>
+        <span class="n">relationship_mapping_func</span> <span class="o">=</span> <span class="n">_relationship_mapping_dict</span><span class="p">[</span><span class="n">interface_name</span><span class="p">]</span>
+        <span class="n">data_frame</span> <span class="o">=</span> <span class="n">relationship_mapping_func</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data_frame</span>
+
+
+<span class="k">def</span> <span class="nf">_records_db_merge</span><span class="p">(</span><span class="n">interface_name</span><span class="p">,</span>
+                      <span class="n">current_records_db</span><span class="p">,</span>
+                      <span class="n">records_db_update</span><span class="p">,</span>
+                      <span class="n">columns_with_dicts</span><span class="p">,</span>
+                      <span class="n">duplicates_subset_columns</span><span class="p">,</span>
+                      <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">post_concat_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">columns_with_iterables_to_sort</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Merge the existing record database with new additions.</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        Both ``current_records_db`` and ``records_db_update`` are expected to have &#39;pull_time&#39; columns.</span>
+
+<span class="sd">    :param current_records_db: the existing record database.</span>
+<span class="sd">    :type current_records_db: ``Pandas DataFrame``</span>
+<span class="sd">    :param records_db_update: the new records dataframe to be merged with the existing one (``current_records_db``).</span>
+<span class="sd">    :type records_db_update: ``Pandas DataFrame``</span>
+<span class="sd">    :param columns_with_dicts: a list of columns which contain dictionaries. Note: this column *should* contain only</span>
+<span class="sd">                               dictionaries or NaNs.</span>
+<span class="sd">    :type columns_with_dicts: ``list``, ``tuple`` or ``None``.</span>
+<span class="sd">    :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.</span>
+
+<span class="sd">                    .. warning::</span>
+
+<span class="sd">                            Do *not* include the &#39;shared_image_ref&#39; column as this function will recompute it.</span>
+
+<span class="sd">    :type duplicates_subset_columns: ``list`` or ``tuple``</span>
+<span class="sd">    :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,</span>
+<span class="sd">                                  in fact, present in the cahce. If not, remove it from the database to be saved.</span>
+<span class="sd">    :type rows_to_conserve_func: ``function``</span>
+<span class="sd">    :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted</span>
+<span class="sd">                                  prior to dropping. Defaults to ``None``.</span>
+<span class="sd">    :type columns_with_iterables_to_sort: ``list`` or ``tuple``</span>
+<span class="sd">    :return: a dataframe which merges ``current_records_db`` and ``records_db_update``</span>
+<span class="sd">    :rtype: ``Pandas DataFrame``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load in the current database and combine with the `records_db_update` database</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">current_records_db</span><span class="p">,</span> <span class="n">records_db_update</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Mark each row to conserve order following ``pandas.drop_duplicates()``.</span>
+    <span class="n">combined_dbs</span><span class="p">[</span><span class="s1">&#39;__temp_order__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">combined_dbs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Analyze which rows to drop</span>
+    <span class="k">if</span> <span class="n">rows_to_conserve_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="p">[</span><span class="n">combined_dbs</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+
+    <span class="c1"># Apply post merge mapping</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post_concat_mapping</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">post_concat_mapping</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">column_name</span><span class="p">,</span> <span class="n">column_to_extract</span><span class="p">,</span> <span class="n">func</span> <span class="o">=</span> <span class="n">post_concat_mapping</span>
+        <span class="n">combined_dbs</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">[</span><span class="n">column_to_extract</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="c1"># Note: Typically these will be &#39;in sync&#39;. However, if they are not, preference is given</span>
+    <span class="c1"># to &#39;biovida_version&#39; s.t. the data harvested with the latest version is given preference.</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">,</span> <span class="s1">&#39;pull_time&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Convert items in ``columns_with_dicts`` from dictionaries to tuple of tuples.</span>
+    <span class="c1"># (making them hashable, as required by ``pandas.drop_duplicates()``).</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">multimap</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns_with_dicts</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">_dict_to_tot</span><span class="p">)</span>
+
+    <span class="c1"># Sort iterables in columns with iterables</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">multimap</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns_with_iterables_to_sort</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+
+    <span class="c1"># Drop Duplicates (keeping the most recent).</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Convert the tuples back to dictionaries</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">multimap</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns_with_dicts</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="c1"># Sort against the original order.</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;__temp_order__&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Map relationships in the dataframe.</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">_relationship_mapper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">interface_name</span><span class="o">=</span><span class="n">interface_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">combined_dbs</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;__temp_order__&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Pruning the Cache of Deleted Files</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span> <span class="nf">_files_existence_checker</span><span class="p">(</span><span class="n">to_check</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Checks if ``to_check`` exists.</span>
+<span class="sd">    If not take the following action:</span>
+
+<span class="sd">    - If a ``str``, return ``to_check`` if it exists else ``None``.</span>
+
+<span class="sd">    - If a ``list`` or ``tuple``, remove items that do not exist.</span>
+<span class="sd">      If resultant length is zero return ``None``.</span>
+
+<span class="sd">    :param to_check: file, or iterable of file, to check the existence of</span>
+<span class="sd">    :type to_check: ``str``, ``list`` or ``tuple``</span>
+<span class="sd">    :return: ``to_check``, pruned ``to_check`` (if iterable) or ``None`` (all files removed).</span>
+<span class="sd">    :rtype: ``str``, ``list``, ``tuple``, ``None`` or ``type(to_check)``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_check</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">to_check</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">to_check</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_check</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">files_present</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">to_check</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">i</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">files_present</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files_present</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">to_check</span>
+
+
+<span class="k">def</span> <span class="nf">_df_pruner</span><span class="p">(</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Prune ``cache_records_db`` by reviewing ``columns``.</span>
+
+<span class="sd">    :param cache_records_db: see ``_prune_rows_with_deleted_images()``.</span>
+<span class="sd">    :type cache_records_db: ``Pandas DataFrame``</span>
+<span class="sd">    :param columns: see ``_prune_rows_with_deleted_images()``.</span>
+<span class="sd">    :type columns: ``list``</span>
+<span class="sd">    :return: a pruned ``cache_records_db``.</span>
+<span class="sd">    :rtype: ``Pandas DataFrame``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="n">cache_records_db</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache_records_db</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_files_existence_checker</span><span class="p">)</span>
+
+    <span class="c1"># Mark rows to remove</span>
+    <span class="n">indices_to_drop</span> <span class="o">=</span> <span class="n">cache_records_db</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Drop and reset the index</span>
+    <span class="k">return</span> <span class="n">cache_records_db</span><span class="p">[</span><span class="n">indices_to_drop</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_prune_rows_with_deleted_images</span><span class="p">(</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">save_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Tool to remove reference to images that have been manually deleted from the cache.</span>
+<span class="sd">    After this pruning has occurred, ``cache_records_db`` is saved at ``save_path``.</span>
+
+<span class="sd">    If a column element is a string, it will be left &#39;as is&#39; if the file exists,</span>
+<span class="sd">    otherwise it the entire row will be marked for deletion.</span>
+
+<span class="sd">    If a column element is a tuple, image paths in the tuple that do not exist will be removed from the</span>
+<span class="sd">    tuple. If the resultant tuple is of zero length (i.e., all images have been deleted), the entire row</span>
+<span class="sd">    will be marked for deletion.</span>
+
+<span class="sd">    If, for a given row, all entries for the columns in ``columns`` are ``None`` (i.e., the images</span>
+<span class="sd">    have been deleted), that row will be removed from ``cache_records_db``.</span>
+<span class="sd">    Note: if one column is marked for deletion and another is not, the row will be conserved.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        If no images have been deleted, the output of this function will be the same as the input.</span>
+
+<span class="sd">    :param cache_records_db: a cache_records_db from the ``OpeniInterface()`` or ``CancerImageInterface()``</span>
+<span class="sd">    :type cache_records_db: ``Pandas DataFrame``</span>
+<span class="sd">    :param columns: a ``list`` of columns with paths to cached images. These columns can be columns of</span>
+<span class="sd">                    strings or columns of tuples.</span>
+
+<span class="sd">        .. warning::</span>
+
+<span class="sd">            This parameter *must* be a ``list``.</span>
+
+<span class="sd">    :type columns: ``list``</span>
+<span class="sd">    :param save_path: the location to save ``cache_records_db``.</span>
+<span class="sd">    :type save_path: ``str``</span>
+<span class="sd">    :return: a pruned ``cache_records_db``</span>
+<span class="sd">    :rtype: ``Pandas DataFrame``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pruned_cache_records_db</span> <span class="o">=</span> <span class="n">_df_pruner</span><span class="p">(</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+    <span class="n">pruned_cache_records_db</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pruned_cache_records_db</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Deleting Images</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span> <span class="nf">_robust_delete</span><span class="p">(</span><span class="n">to_delete</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Function to delete ``to_delete``.</span>
+<span class="sd">    If a list (or tuple), all paths therein will be deleted.</span>
+
+<span class="sd">    :param to_delete: a file, or multiple files to delete. Note: if ``to_delete`` is not a ``string``,</span>
+<span class="sd">                     ``list`` or ``tuple``, no action will be taken.</span>
+<span class="sd">    :type to_delete: ``str``, ``list``  or ``tuple``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">delete_file</span><span class="p">(</span><span class="n">td</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">td</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">td</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_delete</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">delete_file</span><span class="p">(</span><span class="n">to_delete</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_delete</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">to_delete</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">delete_file</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+
+<span class="n">_image_interface_image_columns</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;OpeniInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
+    <span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_double_check_with_user</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Ask the user to verify they wish to precede.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;This action cannot be undone.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                     <span class="s2">&quot;Are you sure you wish to precede (y/n)?&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cln</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;ye&#39;</span><span class="p">,</span> <span class="s1">&#39;es&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ActionVoid</span>
+
+
+<div class="viewcode-block" id="delete_images"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.delete_images">[docs]</a><span class="k">def</span> <span class="nf">delete_images</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">delete_rule</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        The effects of this function can only be undone by downloading all of the deleted data again.</span>
+
+<span class="sd">    :param interface: an instance of ``OpeniInterface`` or ``CancerImageInterface``.</span>
+<span class="sd">    :type interface: ``OpeniInterface`` or ``CancerImageInterface``</span>
+<span class="sd">    :param delete_rule:</span>
+<span class="sd">    :type delete_rule: ``function``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; from biovida.images import delete_images</span>
+<span class="sd">    &gt;&gt;&gt; from biovida.images import OpeniInterface</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; opi = OpeniInterface()</span>
+<span class="sd">    &gt;&gt;&gt; opi.search(image_type=[&#39;ct&#39;, &#39;mri&#39;], collection=&#39;medpix&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; opi.pull()</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; def my_delete_rule(row):</span>
+<span class="sd">    &gt;&gt;&gt;     if &#39;Oompa Loompas&#39; in row[&#39;abstract&#39;]:</span>
+<span class="sd">    &gt;&gt;&gt;         return True</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; delete_images(opi, delete_rule=my_delete_rule)</span>
+
+<span class="sd">    In this example, any rows in the ``records_db`` and ``cache_records_db``</span>
+<span class="sd">    for which the &#39;abstract&#39; column contains the string &#39;Oompa Loompas&#39; will be deleted.</span>
+<span class="sd">    Any images associated with this row will be destroyed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_double_check_with_user</span><span class="p">()</span>
+    <span class="n">image_columns</span> <span class="o">=</span> <span class="n">_image_interface_image_columns</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">delete_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">enact</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wrap delete_rule to ensure the output is boolean</span>
+<span class="sd">        and add switch to control the behavior of ``_robust_delete()``</span>
+<span class="sd">        :return: whether or not to keep the row.</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">enact</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">image_columns</span><span class="p">:</span>
+                    <span class="n">_robust_delete</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
+        <span class="n">to_conserve</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">interface</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="n">to_conserve</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
+        <span class="c1"># Apply ``delete_rule`` to ``cache_records_db``</span>
+        <span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Prune ``cache_records_db`` by inspecting which images have been deleted.</span>
+        <span class="n">interface</span><span class="o">.</span><span class="n">_load_prune_cache_records_db</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Map relationships, if applicable.</span>
+        <span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_relationship_mapper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
+                                                          <span class="n">interface_name</span><span class="o">=</span><span class="n">interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="c1"># Save the updated ``cache_records_db`` to &#39;disk&#39;</span>
+        <span class="n">interface</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`cache_record_db` is not a DataFrame.&quot;</span><span class="p">)</span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Tariq A. Hassan.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -111,6 +111,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#unifying-biovida-apis">Unifying BioVida APIs</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biovida.images.image_cache_mgmt">Cache Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#image-cache-management">Image Cache Management</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-biovida.support_tools.printing">Support Tools</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
 </ul>
@@ -151,6 +155,10 @@
 </li>
 <li><a class="reference internal" href="#module-biovida.unification.unify_domains">Resource Integration</a><ul>
 <li><a class="reference internal" href="#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.image_cache_mgmt">Cache Management</a><ul>
+<li><a class="reference internal" href="#image-cache-management">Image Cache Management</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-biovida.support_tools.printing">Support Tools</a><ul>
@@ -217,6 +225,10 @@
 </li>
 <li><a class="reference internal" href="#module-biovida.unification.unify_domains">Resource Integration</a><ul>
 <li><a class="reference internal" href="#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-biovida.images.image_cache_mgmt">Cache Management</a><ul>
+<li><a class="reference internal" href="#image-cache-management">Image Cache Management</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-biovida.support_tools.printing">Support Tools</a><ul>
@@ -1528,6 +1540,52 @@ an account of a given patient&#8217;s symptoms.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">udf2</span> <span class="o">=</span> <span class="n">unify_against_images</span><span class="p">([</span><span class="n">opi</span><span class="p">,</span> <span class="n">cii</span><span class="p">])</span>
 </pre></div>
 </div>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-biovida.images.image_cache_mgmt">
+<span id="cache-management"></span><h2>Cache Management<a class="headerlink" href="#module-biovida.images.image_cache_mgmt" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="image-cache-management">
+<h3>Image Cache Management<a class="headerlink" href="#image-cache-management" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="biovida.images.image_cache_mgmt.delete_images">
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">delete_images</code><span class="sig-paren">(</span><em>interface</em>, <em>delete_rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#delete_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.delete_images" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The effects of this function can only be undone by downloading all of the deleted data again.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>interface</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
+<li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">function</span></code>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">delete_images</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">OpeniInterface</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opi</span> <span class="o">=</span> <span class="n">OpeniInterface</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opi</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">image_type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ct&#39;</span><span class="p">,</span> <span class="s1">&#39;mri&#39;</span><span class="p">],</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;medpix&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="s1">&#39;Oompa Loompas&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="kc">True</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delete_images</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">delete_rule</span><span class="o">=</span><span class="n">my_delete_rule</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, any rows in the <code class="docutils literal"><span class="pre">records_db</span></code> and <code class="docutils literal"><span class="pre">cache_records_db</span></code>
+for which the &#8216;abstract&#8217; column contains the string &#8216;Oompa Loompas&#8217; will be deleted.
+Any images associated with this row will be destroyed.</p>
 </dd></dl>
 
 </div>
