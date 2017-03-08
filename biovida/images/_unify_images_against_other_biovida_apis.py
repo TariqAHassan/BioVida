@@ -67,13 +67,11 @@ class _ImagesInterfaceIntegration(object):
         )
 
         # Define columns to keep
-        openi_columns = ['abstract', 'image_id', 'image_caption', 'modality_best_guess', 'age', 'sex',
-                         'diagnosis', 'query', 'pull_time', 'download_success', 'cached_images_path']
+        openi_columns = ['abstract', 'image_id', 'image_caption', 'modality_best_guess', 'age',
+                         'sex', 'diagnosis', 'query', 'pull_time', 'cached_images_path']
 
         # Column name changes
-        openi_col_rename = {'diagnosis': 'disease',
-                            'cached_images_path': 'files_path',
-                            'download_success': 'harvest_success'}
+        openi_col_rename = {'diagnosis': 'disease', 'cached_images_path': 'files_path'}
 
         # Define subsection based on `openi_columns`
         openi_subsection = cache_records_db_cln[openi_columns]
@@ -95,15 +93,14 @@ class _ImagesInterfaceIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         # Define columns to keep
-        cancer_img_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age', 'sex',
-                              'cancer_type', 'query', 'pull_time', 'conversion_success', 'cached_images_path']
+        cancer_img_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age',
+                              'sex', 'cancer_type', 'query', 'pull_time', 'cached_images_path']
 
         # Column name changes (based on `_open_i_prep`).
         cancer_img_col_rename = {'series_instance_uid': 'image_id',
                                  'series_description': 'image_caption',
                                  'modality_full': 'modality_best_guess',
                                  'cancer_type': 'disease',
-                                 'conversion_success': 'harvest_success',
                                  'cached_images_path': 'files_path'}
 
         # Deep copy the input to prevent mutating the original in memory.
@@ -300,6 +297,7 @@ class _DiseaseOntologyIntegration(object):
         :return: information on the disease (see ``_dis_ont_dict_gen()``).
         :rtype: ``dict`` or ``None``
         """
+        # ToDo: change to ``isinstance(disease, str)``.
         if items_null(disease) or disease is None:
             return None
         elif disease in self.ont_name_dict:
@@ -349,7 +347,7 @@ class _DiseaseOntologyIntegration(object):
     def integration(self, data_frame, fuzzy_threshold=False):
         """
 
-        Look up the 'disease_family', 'disease_synonym' and 'disease_definition' () colums to ``data_frame``
+        Create the 'disease_family', 'disease_synonym' and 'disease_definition' colums to ``data_frame``
         using Disease Ontology data.
 
         :param data_frame: a dataframe which has been passed through ``_ImagesInterfaceIntegration().integration()``
@@ -529,6 +527,8 @@ class _DiseaseSymptomsIntegration(object):
         :return: a series with tuples of 'known_associated_symptoms' found in 'abstract'.
         :rtype: ``Pandas Series``
         """
+        # ToDo: 'abstract' could yield erroneous answers; use 'problems' and 'mesh'; 'abstract' only
+        #       if article_type in ['case report', 'encounter'] (requires adding such a column to CancerImage data).
         def match_symptoms(x):
             """Find items in 'known_associated_symptoms' in 'abstract'."""
             if isinstance(x['known_associated_symptoms'], (list, tuple)) and isinstance(x['abstract'], str):
