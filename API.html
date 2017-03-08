@@ -1549,8 +1549,8 @@ an account of a given patient&#8217;s symptoms.</p>
 <div class="section" id="image-cache-management">
 <h3>Image Cache Management<a class="headerlink" href="#image-cache-management" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
-<dt id="biovida.images.image_cache_mgmt.delete_images">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">delete_images</code><span class="sig-paren">(</span><em>interface</em>, <em>delete_rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#delete_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.delete_images" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.image_cache_mgmt.image_delete">
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>interface</em>, <em>delete_rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">The effects of this function can only be undone by downloading all of the deleted data again.</p>
@@ -1569,7 +1569,7 @@ an account of a given patient&#8217;s symptoms.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">delete_images</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">image_delete</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">OpeniInterface</span>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">opi</span> <span class="o">=</span> <span class="n">OpeniInterface</span><span class="p">()</span>
