@@ -1023,11 +1023,11 @@ class CancerImageInterface(object):
             An API key can be obtained by following the instructions provided `here <https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide/>`_.
 
     :type api_key: ``str``
-    :param verbose: print additional details.
-    :type verbose: ``bool``
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
                        one will created. Default to ``None``, which will generate a cache in the home folder.
     :type cache_path: ``str`` or ``None``
+    :param verbose: print additional details.
+    :type verbose: ``bool``
     """
 
     def _save_cache_records_db(self):
@@ -1106,9 +1106,10 @@ class CancerImageInterface(object):
             # Save to disk
             self._save_cache_records_db()
 
-    def __init__(self, api_key, verbose=True, cache_path=None):
-        self._verbose = verbose
+    def __init__(self, api_key, cache_path=None, verbose=True):
+        self._API_KEY = api_key
         self._cache_path = cache_path
+        self._verbose = verbose
         self.dicom_modality_abbrevs = CancerImageArchiveParams(cache_path, verbose).dicom_modality_abbreviations('dict')
 
         # Root URL to for the Cancer Imaging Archive's REST API
