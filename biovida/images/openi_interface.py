@@ -665,6 +665,9 @@ class _OpeniImages(object):
         self.image_save_location = image_save_location
         self._verbose = verbose
 
+        # Settings
+        self._check_cache_first = None
+
         # Database
         self.records_db_images = None
         self.real_time_update_db = None
@@ -751,10 +754,18 @@ class _OpeniImages(object):
         :return: `1` if an image was downloaded, `0` otherwise.
         :rtype: ``int``
         """
+        check_first = self._check_cache_first
+
+        def proceed_with_download(image_save_path):
+            if check_first:
+                return not os.path.isfile(image_save_path)
+            else:
+                return True
+
         image_downloaded = 0
         try:
             # Only download if the file does not already exist in the cache.
-            if not os.path.isfile(image_save_path):
+            if proceed_with_download(image_save_path):
                 if block:
                     raise ImageProblemBasedOnText
 
@@ -814,7 +825,7 @@ class _OpeniImages(object):
                 sleep_with_noise(amount_of_time=images_sleep_time[1])
                 download_count = 0  # reset
 
-    def pull_images(self, records_db, image_size, pull_time, images_sleep_time, use_image_caption):
+    def pull_images(self, records_db, image_size, pull_time, images_sleep_time, check_cache_first, use_image_caption):
         """
 
         Pull images based in ``records_db``.
@@ -829,6 +840,11 @@ class _OpeniImages(object):
                                    Note: noise is randomly added to the sleep time by sampling from a normal distribution
                                    (with mean = 0, sd = 0.75).
         :type images_sleep_time: ``tuple``
+        :param check_cache_first: check the image cache for the image prior to downloading.
+                                  If ``True`` and the image is already present, no attempt will be made to download it
+                                  again. If ``False`` the image will be downloaded regardless of whether or not it is
+                                  detected in the cache.
+        :type check_cache_first: ``bool``
         :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
                                   a dataset intended for machine learning. Defaults to ``False``.
@@ -836,6 +852,7 @@ class _OpeniImages(object):
         :return: `records_db` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
+        self._check_cache_first = check_cache_first
         self._create_temp_directory_path()
         self.records_db_images = records_db.copy(deep=True)
         
@@ -1099,6 +1116,7 @@ class OpeniInterface(object):
              records_sleep_time=(10, 1.5),
              images_sleep_time=(10, 1.5),
              download_limit=60,
+             check_cache_first=True,
              clinical_cases_only=True,
              use_image_caption=False):
         """
@@ -1151,8 +1169,12 @@ class OpeniInterface(object):
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 60.
         :type download_limit: ``int``
+        :param check_cache_first: check the image cache for the image prior to downloading.
+                                  If ``True`` and the image is already present, no attempt will be made to download it
+                                  again.
+        :type check_cache_first: ``bool``
         :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,
-                                    this parameter requies that 'article_type' is one of: 'encounter', 'case_report'.
+                                    this parameter requires that 'article_type' is one of: 'encounter', 'case_report'.
                                     Defaults to ``True``.
         :type clinical_cases_only: ``bool``
         :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
@@ -1188,6 +1210,7 @@ class OpeniInterface(object):
                                                        image_size=image_size,
                                                        pull_time=self._pull_time.strftime(TIME_FORMAT),
                                                        images_sleep_time=images_sleep_time,
+                                                       check_cache_first=check_cache_first,
                                                        use_image_caption=use_image_caption)
 
             # Add the new records_db datafame with the existing `cache_records_db`.
