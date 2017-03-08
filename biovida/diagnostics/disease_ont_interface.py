@@ -43,7 +43,8 @@ class DiseaseOntInterface(object):
         self.disease_db = None
         self.db_date = None
 
-    def _quote_value_parse(self, q):
+    @staticmethod
+    def _quote_value_parse(q):
         """
 
         Splits a string on the presence of quotes (") inside the string itself.
@@ -82,13 +83,14 @@ class DiseaseOntInterface(object):
         # Remove escape for the colon in the urls
         cleaned_urls = [u.replace("\:/", ":/") for u in urls]
     
-        # Return the quote and the urls as seperate entities
+        # Return the quote and the urls as separate entities
         return [("def", parsed_definition[0].replace("_", " ")), ("def_urls", cleaned_urls)]
-    
-    def _is_a_parser(self, is_a):
+
+    @staticmethod
+    def _is_a_parser(is_a):
         """
 
-        Seperates the DOID from the text of the entry in an 'is_a' entry.
+        Separates the DOID from the text of the entry in an 'is_a' entry.
 
         :param is_a: a value corresponding to a term entry 'is_a' in the Disease Ontology database
         :type is_a: ``str``
@@ -212,8 +214,9 @@ class DiseaseOntInterface(object):
     
         # Convert to a dict and return
         return self._parsed_term_to_dict(parsed_term)
-    
-    def _do_df_cleaner(self, data_frame, columns_with_lists):
+
+    @staticmethod
+    def _do_df_cleaner(data_frame, columns_with_lists):
         """
 
         This method cleans the final Disease Ontology database in the following ways:

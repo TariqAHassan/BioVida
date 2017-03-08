@@ -128,7 +128,8 @@ class ImageProcessing(object):
         # Switch to control verbosity
         self._print_update = False
 
-    def _apply_status(self, x, status):
+    @staticmethod
+    def _apply_status(x, status):
         """
 
         Applies a tqdm() progress bar to an an iterable (if `status` is True).
@@ -181,7 +182,8 @@ class ImageProcessing(object):
         else:
             return self._ndarrays_images
 
-    def _grayscale_img(self, img_path):
+    @staticmethod
+    def _grayscale_img(img_path):
         """
 
         Computes whether or not an image is grayscale.
@@ -195,7 +197,7 @@ class ImageProcessing(object):
         # See: http://stackoverflow.com/q/23660929/4898004
         if img_path is None or items_null(img_path):
             return np.NaN
-        img = Image.open(img_path) # ToDo: find way to call only once inside this class (similar to _ndarray_extract())
+        img = Image.open(img_path)  # ToDo: find way to call only once inside this class (similar to _ndarray_extract())
         stat = ImageStat.Stat(img.convert("RGB"))
         return np.mean(stat.sum) == stat.sum[0]
 
@@ -220,7 +222,8 @@ class ImageProcessing(object):
             self.image_dataframe['grayscale'] = self.image_dataframe['cached_images_path'].progress_map(
                 self._grayscale_img, na_action='ignore')
 
-    def _logo_analysis_out(self, analysis_results, output_params):
+    @staticmethod
+    def _logo_analysis_out(analysis_results, output_params):
         """
 
         Decides the output for the ``logo_analysis`` function.
@@ -402,7 +405,8 @@ class ImageProcessing(object):
         self.image_dataframe['hborder'] = ba_df['hborder']
         self.image_dataframe['vborder'] = ba_df['vborder']
 
-    def _h_crop_top_decision(self, x):
+    @staticmethod
+    def _h_crop_top_decision(x):
         """
 
         Choose lowest horizontal cropping point.
@@ -418,7 +422,8 @@ class ImageProcessing(object):
         crop_candidates = [x[i][0] if i == 'hborder' else x[i][1] for i in cols if not items_null(x[i])]
         return max(crop_candidates) if len(crop_candidates) else np.NaN
 
-    def _h_crop_lower_decision(self, x):
+    @staticmethod
+    def _h_crop_lower_decision(x):
         """
 
         Chose the highest cropping point for the image's bottom.
@@ -453,8 +458,8 @@ class ImageProcessing(object):
         self.image_dataframe['upper_crop'] = self.image_dataframe.apply(self._h_crop_top_decision, axis=1)
         self.image_dataframe['lower_crop'] = self.image_dataframe.apply(self._h_crop_lower_decision, axis=1)
 
-    def _apply_cropping(self,
-                        cached_images_path,
+    @staticmethod
+    def _apply_cropping(cached_images_path,
                         lower_crop,
                         upper_crop,
                         vborder,
@@ -688,7 +693,7 @@ class ImageProcessing(object):
 
     def auto(self,
              img_problem_threshold=0.275,
-             valid_floor=0.01,
+             valid_floor=0.01,  # ToDo: implement
              require_grayscale=True,
              new_analysis=False,
              status=True):

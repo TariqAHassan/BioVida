@@ -150,7 +150,8 @@ class _CancerImageArchiveOverview(object):
 
         return summary_df
 
-    def _studies_filter(self, summary_df, cancer_type, location, modality):
+    @staticmethod
+    def _studies_filter(summary_df, cancer_type, location, modality):
         """
 
         Apply Filters passed to ``studies()``.
@@ -273,7 +274,8 @@ class _CancerImageArchiveRecords(object):
                                  "could be caused by a problem with the Cancer Imaging Archive API.\n".format(study))
         return study_df
 
-    def _date_index_map(self, list_of_dates):
+    @staticmethod
+    def _date_index_map(list_of_dates):
         """
 
         Returns a dict of the form: ``{date: index in ``list_of_dates``, ...}``
@@ -854,7 +856,8 @@ class _CancerImageArchiveImages(object):
         os.makedirs(temp_folder)
         return temp_folder
 
-    def _valid_modality(self, allowed_modalities, modality, modality_full):
+    @staticmethod
+    def _valid_modality(allowed_modalities, modality, modality_full):
         """
 
         Check if `modality` or `modality_full` contains the modality the user is looking for.
@@ -1131,7 +1134,7 @@ class CancerImageInterface(object):
                                                  cache_path=cache_path,
                                                  verbose=verbose)
 
-        self._ROOT_PATH = _Overview._created_img_dirs['ROOT_PATH']
+        self._ROOT_PATH = self._Overview._created_img_dirs['ROOT_PATH']
 
         # Search attributes
         self._pull_time = None
@@ -1154,7 +1157,8 @@ class CancerImageInterface(object):
         # Load in databases in 'databases/__temp__', if they exist
         self._latent_temp_dir()
 
-    def _collection_filter(self, summary_df, collection, cancer_type, location):
+    @staticmethod
+    def _collection_filter(summary_df, collection, cancer_type, location):
         """
 
         Limits `summary_df` to individual collections.

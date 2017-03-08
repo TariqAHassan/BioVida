@@ -69,7 +69,8 @@ class _OpeniSearch(object):
     def __init__(self):
         self._root_url = 'https://openi.nlm.nih.gov'
 
-    def _openi_search_special_case(self, search_param, blocked, passed):
+    @staticmethod
+    def _openi_search_special_case(search_param, blocked, passed):
         """
 
         :param search_param: one of 'video', 'image_type'...
@@ -113,7 +114,8 @@ class _OpeniSearch(object):
                 if k == 'rankby':
                     self._openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
 
-    def _exclusions_img_type_merge(self, args, exclusions):
+    @staticmethod
+    def _exclusions_img_type_merge(args, exclusions):
         """
 
         Merge Image type with Exclusions.
@@ -137,7 +139,7 @@ class _OpeniSearch(object):
         # Handle handle tuples, then `None`s (with the 'else []').
         args['image_type'] = list(args['image_type']) if isinstance(args['image_type'], (list, tuple)) else []
 
-        # Merge `exclusions` with `imgage_type`
+        # Merge `exclusions` with `image_type`
         args['image_type'] += list(map(lambda x: 'exclude_{0}'.format(x), exclusions))
 
         return args
@@ -162,7 +164,8 @@ class _OpeniSearch(object):
 
         return "{0}/retrieve.php{1}".format(self._root_url, search_term)
 
-    def _search_probe(self, search_query, print_results):
+    @staticmethod
+    def _search_probe(search_query, print_results):
         """
 
         :param search_query:
@@ -190,7 +193,8 @@ class _OpeniSearch(object):
 
         return total, sample['list'][0]
 
-    def options(self, search_parameter, print_options=True):
+    @staticmethod
+    def options(search_parameter, print_options=True):
         """
 
         Options for parameters of `openi_search()`.
@@ -225,7 +229,8 @@ class _OpeniSearch(object):
         else:
             return opts
 
-    def _search_clean(self, k, v):
+    @staticmethod
+    def _search_clean(k, v):
         """
 
         Define a tool to clean the search terms in `OpeniInterface().search()`.
@@ -236,7 +241,8 @@ class _OpeniSearch(object):
         """
         return [cln(i).replace(' ', '_').lower() for i in v] if k != 'query' and v is not None else v
 
-    def _api_url_terms(self, k, v, search_dict):
+    @staticmethod
+    def _api_url_terms(k, v, search_dict):
         """
 
         Convert values passed into a form the API will understand.
@@ -248,7 +254,8 @@ class _OpeniSearch(object):
         """
         return ','.join([search_dict[k][1][i] for i in v]) if k != 'query' else v
 
-    def _api_url_param(self, x, search_dict):
+    @staticmethod
+    def _api_url_param(x, search_dict):
         """
 
         Convert param names into a form the API will understand.
@@ -387,7 +394,7 @@ class _OpeniRecords(object):
         :type total: int
         :return:
         """
-        # Initalize
+        # Initialize
         end = 1
         bounds = list()
 
@@ -426,7 +433,8 @@ class _OpeniRecords(object):
 
         return bounds, download_no
 
-    def openi_bounds_formatter(self, bounds):
+    @staticmethod
+    def openi_bounds_formatter(bounds):
         """
 
         Format the computed bounds for the Open-i API.
@@ -464,7 +472,8 @@ class _OpeniRecords(object):
         except:
             return None
 
-    def harvest_vect(self, request_rslt):
+    @staticmethod
+    def harvest_vect(request_rslt):
         """
 
         Defines the terms to harvest from the results returned by the Open-i API.
@@ -556,7 +565,8 @@ class _OpeniRecords(object):
 
         return harvested_data
 
-    def _apply_clinical_case_only(self, records_db):
+    @staticmethod
+    def _apply_clinical_case_only(records_db):
         """
 
         Remove records (dataframe rows) which are not of clinical encounters.

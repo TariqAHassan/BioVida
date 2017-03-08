@@ -51,7 +51,8 @@ class DiseaseSymptomsInterface(object):
         self.rephetio_ml_db = None
         self.combined_db = None
 
-    def _clean_columns(self, columns):
+    @staticmethod
+    def _clean_columns(columns):
         """
 
         Convert ``columns`` into snake_case.
@@ -63,7 +64,8 @@ class DiseaseSymptomsInterface(object):
         """
         return list(map(lambda x: cln(x).replace(" ", "_").lower(), list(columns)))
 
-    def _comma_reverse(self, term):
+    @staticmethod
+    def _comma_reverse(term):
         """
 
         Reverse a single comma, e.g., 'car, blue' --> 'blue car'.
@@ -80,7 +82,8 @@ class DiseaseSymptomsInterface(object):
         else:
             return " ".join(cln(term).split(", ")[::-1])
 
-    def _harvest(self, url, cleaner_func, save_path, download_override):
+    @staticmethod
+    def _harvest(url, cleaner_func, save_path, download_override):
         """
 
         Pull (i.e., download) a Database.
