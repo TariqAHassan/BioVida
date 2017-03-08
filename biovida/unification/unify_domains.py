@@ -90,7 +90,6 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
     # --- Search and Pull ---
     >>> udf2 = unify_against_images([opi, cii])
     """
-    # Note: this simply wraps ``biovida.images._unify_images_against_other_biovida_apis._images_unify``
     return images_unify(interfaces=interfaces, cache_path=cache_path, verbose=verbose, fuzzy_threshold=fuzzy_threshold)
 
 
