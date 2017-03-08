@@ -41,8 +41,8 @@ def _openi_image_relation_map(data_frame):
     # Reset the index
     df = df.reset_index(drop=True)
 
-    # Get duplicated img_large occurences. Use of 'img_large' is arbitrary, could have used
-    # 'img_thumb', 'img_grid150', etc.
+    # Get duplicated img_large occurrences. Use of 'img_large' is arbitrary, could have used
+    # any of the 'img_...' columns, e.g., 'img_thumb' or 'img_grid150'.
     duplicated_img_refs = (k for k, v in Counter(df['img_large']).items() if v > 1)
 
     # Get the indices of duplicates
@@ -379,7 +379,7 @@ def _robust_delete(to_delete):
 def _double_check_with_user():
     """
 
-    Ask the user to verify they wish to precede.
+    Ask the user to verify they wish to proceed.
 
     """
     response = input("This action cannot be undone.\n"
