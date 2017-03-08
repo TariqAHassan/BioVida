@@ -350,7 +350,7 @@ def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
 # ----------------------------------------------------------------------------------------------------------
 
 
-_image_interface_image_columns = {
+_image_instance_image_columns = {
     # Note: the first column should be the default.
     'OpeniInterface': ('cached_images_path',),
     'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path'),
@@ -397,7 +397,7 @@ def _double_check_with_user():
         raise ActionVoid("\n\nAction Canceled.")
 
 
-def image_delete(interface, delete_rule):
+def image_delete(instance, delete_rule):
     """
 
     Delete images from the cache.
@@ -406,8 +406,8 @@ def image_delete(interface, delete_rule):
 
         The effects of this function can only be undone by downloading the deleted data again.
 
-    :param interface: an instance of ``OpeniInterface`` or ``CancerImageInterface``.
-    :type interface: ``OpeniInterface`` or ``CancerImageInterface``
+    :param instance: an instance of ``OpeniInterface`` or ``CancerImageInterface``.
+    :type instance: ``OpeniInterface`` or ``CancerImageInterface``
     :param delete_rule: must be one of: ``'all'`` (delete *all* data) or a ``function`` which (1) accepts a single
                         parameter (argument) and (2) returns ``True`` when the data is to be deleted.
     :type delete_rule: ``str`` or ``function``
@@ -452,24 +452,24 @@ def image_delete(interface, delete_rule):
         """Wrap delete_rule to ensure the output is a boolean."""
         if delete_all or delete_rule(row):
             if enact:
-                for c in _image_interface_image_columns[interface.__class__.__name__]:
+                for c in _image_instance_image_columns[instance.__class__.__name__]:
                     _robust_delete(row[c])
             return False
         else:
             return True
 
-    if type(interface.records_db).__name__ == 'DataFrame':
-        to_conserve = interface.records_db.apply(lambda r: delete_rule_wrapper(r, enact=False), axis=1)
-        interface.records_db = interface.records_db[to_conserve.tolist()].reset_index(drop=True)
-    if type(interface.cache_records_db).__name__ == 'DataFrame':
+    if type(instance.records_db).__name__ == 'DataFrame':
+        to_conserve = instance.records_db.apply(lambda r: delete_rule_wrapper(r, enact=False), axis=1)
+        instance.records_db = instance.records_db[to_conserve.tolist()].reset_index(drop=True)
+    if type(instance.cache_records_db).__name__ == 'DataFrame':
         # Apply ``delete_rule`` to ``cache_records_db``.
-        _ = interface.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
+        _ = instance.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
         # Prune ``cache_records_db`` by inspecting which images have been deleted.
-        interface._load_prune_cache_records_db(load=False)
+        instance._load_prune_cache_records_db(load=False)
         # Map relationships, if applicable.
-        interface.cache_records_db = _relationship_mapper(interface.cache_records_db, interface.__class__.__name__)
+        instance.cache_records_db = _relationship_mapper(instance.cache_records_db, instance.__class__.__name__)
         # Save the updated ``cache_records_db`` to 'disk'.
-        interface._save_cache_records_db()
+        instance._save_cache_records_db()
     else:
         raise TypeError("`cache_record_db` is not a DataFrame.")
 
@@ -510,13 +510,13 @@ def _robust_copy(to_copy, copy_path, allow_overwrite):
                 copy_util(from_path=c)
 
 
-def _divvy_column_selector(interface, source_db, image_column, data_frame):
+def _divvy_column_selector(instance, source_db, image_column, data_frame):
     """
 
     Select the column to use when copying images from.
 
-    :param interface:  see ``image_divvy()``
-    :type interface: ``OpeniInterface`` or ``CancerImageInterface``
+    :param instance:  see ``image_divvy()``
+    :type instance: ``OpeniInterface`` or ``CancerImageInterface``
     :param source_db: see ``image_divvy()``
     :type source_db: ``str``
     :param image_column: see ``image_divvy()``
@@ -527,10 +527,10 @@ def _divvy_column_selector(interface, source_db, image_column, data_frame):
     :rtype: ``str``
     """
     if image_column is None:
-        return _image_interface_image_columns[interface.__class__.__name__][0]
+        return _image_instance_image_columns[instance.__class__.__name__][0]
     elif not isinstance(image_column, str):
         raise TypeError('`image_column` must be a string or `None`.')
-    elif image_column in _image_interface_image_columns[interface.__class__.__name__]:
+    elif image_column in _image_instance_image_columns[instance.__class__.__name__]:
         if image_column not in data_frame.columns:
             raise KeyError("The '{0}' column is missing from '{1}'.".format(image_column, source_db))
         return image_column
@@ -538,21 +538,26 @@ def _divvy_column_selector(interface, source_db, image_column, data_frame):
         raise KeyError("'{0}' is not a valid image column for '{1}'.".format(image_column, source_db))
 
 
-def image_divvy(interface, divvy_rule, source_db='records_db', create_dirs=False, allow_overwrite=True, image_column=None):
+def image_divvy(instance,
+                divvy_rule,
+                source_db='records_db',
+                create_dirs=False,
+                allow_overwrite=True,
+                image_column=None):
     """
 
     Copy images from the cache to another location.
 
-    :param interface: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
+    :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
                      ``OpeniInterface`` or ``CancerImageInterface``.
-    :type interface: ``OpeniInterface`` or ``CancerImageInterface`` or ``Pandas DataFrame
+    :type instance: ``OpeniInterface`` or ``CancerImageInterface`` or ``Pandas DataFrame
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
     :type divvy_rule: ``function``
     :param source_db: the database to use. Must be one of:
 
-                    - 'records_db': the yield of the most recent ``search()`` & ``pull()``.
-                    - 'cache_records_db': the cache for ``interface``.
+                    - 'records_db': the dataframe resulting from the most recent ``search()`` & ``pull()``.
+                    - 'cache_records_db': the cache dataframe for ``instance``.
                     - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
 
     :type source_db: ``str``
@@ -582,7 +587,7 @@ def image_divvy(interface, divvy_rule, source_db='records_db', create_dirs=False
 
     """
     # Extract the required dataframe.
-    data_frame = getattr(interface, source_db) if source_db != 'unify_against_images' else interface
+    data_frame = getattr(instance, source_db) if source_db != 'unify_against_images' else instance
     if type(data_frame).__name__ != 'DataFrame':
         raise TypeError("{0} expected to be a DataFrame.\n"
                         "Got an object of type: '{1}'.".format(source_db, type(data_frame).__name__))
@@ -598,7 +603,7 @@ def image_divvy(interface, divvy_rule, source_db='records_db', create_dirs=False
                                          "Consider setting `create_dirs=True`.".format(path))
 
     # Define the column to copy images from.
-    column_to_use = _divvy_column_selector(interface, source_db, image_column, data_frame)
+    column_to_use = _divvy_column_selector(instance, source_db, image_column, data_frame)
 
     def divvy_rule_wrapper(row):
         """Wrap ``divvy_rule`` to automate copying."""
