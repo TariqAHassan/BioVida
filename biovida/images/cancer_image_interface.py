@@ -791,7 +791,10 @@ class _CancerImageArchiveImages(object):
         :param n_images_min: `image_count` as passed in ``_pull_images_engine()``. Denotes the min. number of images
                               for a given series for the cache to be considered complete (less than this number
                               will trigger an effort to download the corresponding images (or, more specifically,
-                              seriesUID).
+                              SeriesInstanceUID). Note: This number gives the number of dicoms -- the number of
+                              converted images could be larger (i.e., 3D images which can unpack to be many more),
+                              but it is not possible to known this without actually downloading and unpacking these
+                              images.
         :type n_images_min: ``int``
         :return: tuple of the form:
 
@@ -806,21 +809,19 @@ class _CancerImageArchiveImages(object):
             return False, None, None
 
         # Check that `self._created_img_dirs['raw']` has files which contain the string `series_abbrev`.
-        save_location_summary = [os.path.join(self._created_img_dirs['raw'], f)
-                                 for f in os.listdir(self._created_img_dirs['raw']) if series_abbrev in f]
+        save_location_summary = sorted([os.path.join(self._created_img_dirs['raw'], f)
+                                        for f in os.listdir(self._created_img_dirs['raw']) if series_abbrev in f])
 
         # Check that `self._created_img_dirs['dicoms'])` has files which contain the string `series_abbrev`.
-        dicoms_sl_summary = tuple([os.path.join(self._created_img_dirs['dicoms'], f)
-                                   for f in os.listdir(self._created_img_dirs['dicoms']) if series_abbrev in f])
+        dicoms_sl_summary = tuple(sorted([os.path.join(self._created_img_dirs['dicoms'], f)
+                                          for f in os.listdir(self._created_img_dirs['dicoms']) if series_abbrev in f]))
 
         # Base determination of whether or not the cache is complete w.r.t. dicoms on `save_dicoms`.
         dicoms_sl_summary_complete = len(dicoms_sl_summary) >= n_images_min if save_dicoms else True
 
-        # Compose completeness boolean from the status of `self._created_img_dirs['raw']` and
-        # `self._created_img_dirs['dicoms']`
-        complete = len(save_location_summary) >= n_images_min and dicoms_sl_summary_complete
+        cache_complete = len(save_location_summary) >= n_images_min and dicoms_sl_summary_complete
 
-        return complete, save_location_summary, dicoms_sl_summary if len(dicoms_sl_summary) else np.NaN
+        return cache_complete, save_location_summary, dicoms_sl_summary if len(dicoms_sl_summary) else np.NaN
 
     def _create_temp_dir(self, temp_folder_name='__temp__'):
         """
@@ -909,9 +910,9 @@ class _CancerImageArchiveImages(object):
                 dicom_files = self._download_zip(series_uid, temporary_folder=temporary_folder)
 
                 # Convert dicom files to `image_format`
-                # ToDo: Change 'conversion_success' to be true if *any* images were converted.
                 for e, f in enumerate(dicom_files, start=1):
-                    self._save_dicom_as_img(f, index, pull_position=e, save_name=series_abbrev, image_format=image_format)
+                    self._save_dicom_as_img(path_to_dicom_file=f, index=index, pull_position=e,
+                                            save_name=series_abbrev, image_format=image_format)
 
                 # Save raw dicom files, if `save_dicoms` is True.
                 self._move_dicoms(save_dicoms, dicom_files, series_abbrev, index)
