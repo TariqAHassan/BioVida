@@ -169,6 +169,7 @@ def _relationship_mapper(data_frame, interface_name):
     return data_frame
 
 
+# ToDo: handle dataframes with 0 rows.
 def _records_db_merge(interface_name,
                       current_records_db,
                       records_db_update,
@@ -343,8 +344,14 @@ def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Deleting Images
+# Deleting Image Data
 # ----------------------------------------------------------------------------------------------------------
+
+
+_image_interface_image_columns = {
+    'OpeniInterface': ('cached_images_path',),
+    'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path')
+}
 
 
 def _robust_delete(to_delete):
@@ -369,12 +376,6 @@ def _robust_delete(to_delete):
                 delete_file(t)
 
 
-_image_interface_image_columns = {
-    'OpeniInterface': ('cached_images_path',),
-    'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path')
-}
-
-
 def _double_check_with_user():
     """
 
@@ -387,21 +388,22 @@ def _double_check_with_user():
         raise ActionVoid
 
 
-def delete_images(interface, delete_rule):
+def image_delete(interface, delete_rule):
     """
 
     .. warning::
 
-        The effects of this function can only be undone by downloading all of the deleted data again.
+        The effects of this function can only be undone by downloading the deleted data again.
 
     :param interface: an instance of ``OpeniInterface`` or ``CancerImageInterface``.
     :type interface: ``OpeniInterface`` or ``CancerImageInterface``
-    :param delete_rule:
-    :type delete_rule: ``function``
+    :param delete_rule: must be one of: ``'all'`` (delete *all* data) or a ``function`` which (1) accepts a single
+                        parameter (argument) and (2) returns ``True`` when the data is to be deleted.
+    :type delete_rule: ``str`` or ``function``
 
     :Example:
 
-    >>> from biovida.images import delete_images
+    >>> from biovida.images import image_delete
     >>> from biovida.images import OpeniInterface
     ...
     >>> opi = OpeniInterface()
@@ -412,26 +414,29 @@ def delete_images(interface, delete_rule):
     >>>     if 'Oompa Loompas' in row['abstract']:
     >>>         return True
     ...
-    >>> delete_images(opi, delete_rule=my_delete_rule)
+    >>> image_delete(opi, delete_rule=my_delete_rule)
 
-    In this example, any rows in the ``records_db`` and ``cache_records_db``
-    for which the 'abstract' column contains the string 'Oompa Loompas' will be deleted.
-    Any images associated with this row will be destroyed.
+    .. note::
+
+        In this example, any rows in the ``records_db`` and ``cache_records_db``
+        for which the 'abstract' column contains the string 'Oompa Loompas' will be deleted.
+        Any images associated with this row will also be destroyed.
 
     """
     _double_check_with_user()
-    image_columns = _image_interface_image_columns[type(interface).__name__]
+
+    delete_all = False
+    if isinstance(delete_rule, str):
+        if cln(delete_rule).lower() == 'all':
+            delete_all = True
+        else:
+            raise ValueError("`delete_rule` must be 'all' or a `function`.")
 
     def delete_rule_wrapper(row, enact):
-        """
-        Wrap delete_rule to ensure the output is boolean
-        and add switch to control the behavior of ``_robust_delete()``
-        :return: whether or not to keep the row.
-        :rtype: ``bool``
-        """
-        if delete_rule(row):
+        """Wrap delete_rule to ensure the output is boolean"""
+        if delete_all or delete_rule(row):
             if enact:
-                for c in image_columns:
+                for c in _image_interface_image_columns[interface.__class__.__name__]:
                     _robust_delete(row[c])
             return False
         else:
@@ -440,27 +445,17 @@ def delete_images(interface, delete_rule):
     if type(interface.records_db).__name__ == 'DataFrame':
         to_conserve = interface.records_db.apply(lambda r: delete_rule_wrapper(r, enact=False), axis=1)
         interface.records_db = interface.records_db[to_conserve.tolist()].reset_index(drop=True)
-
     if type(interface.cache_records_db).__name__ == 'DataFrame':
-        # Apply ``delete_rule`` to ``cache_records_db``
+        # Apply ``delete_rule`` to ``cache_records_db``.
         interface.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
         # Prune ``cache_records_db`` by inspecting which images have been deleted.
         interface._load_prune_cache_records_db(load=False)
         # Map relationships, if applicable.
-        interface.cache_records_db = _relationship_mapper(data_frame=interface.cache_records_db,
-                                                          interface_name=interface.__class__.__name__)
-        # Save the updated ``cache_records_db`` to 'disk'
+        interface.cache_records_db = _relationship_mapper(interface.cache_records_db, interface.__class__.__name__)
+        # Save the updated ``cache_records_db`` to 'disk'.
         interface._save_cache_records_db()
     else:
         raise TypeError("`cache_record_db` is not a DataFrame.")
-
-
-
-
-
-
-
-
 
 
 

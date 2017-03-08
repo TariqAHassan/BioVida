@@ -1,5 +1,5 @@
 # Expose key Tools at the Subpackage level
-from biovida.images.image_cache_mgmt import delete_images
+from biovida.images.image_cache_mgmt import image_delete
 
 # Expose key Class at the Subpackage level
 from biovida.images.openi_interface import OpeniInterface
