@@ -395,6 +395,10 @@ class _CancerImageArchiveRecords(object):
         patient_study_df['modality_full'] = patient_study_df['modality'].map(
             lambda x: self.dicom_modality_abbrevs.get(x, np.NaN), na_action='ignore')
 
+        # Lower and clean 'body_part_examined' column
+        patient_study_df['body_part_examined'] = patient_study_df['body_part_examined'].map(
+            lambda x: cln(x).lower() if isinstance(x, str) else x, na_action='ignore')
+
         # Convert series_date to datetime
         patient_study_df['series_date'] = pd.to_datetime(patient_study_df['series_date'], infer_datetime_format=True)
 
@@ -551,7 +555,7 @@ class _CancerImageArchiveImages(object):
         self.real_time_update_db_path = os.path.join(self.temp_directory_path, "{0}__update_db.p".format(pull_time))
 
         # Define columns
-        real_time_update_columns = ['cached_dicom_images_path', 'cached_images_path', 'conversion_success',
+        real_time_update_columns = ['cached_dicom_images_path', 'cached_images_path', 'error_free_conversion',
                                     'allowed_modality', 'image_count_converted_cache']
 
         # Instantiate
@@ -594,7 +598,7 @@ class _CancerImageArchiveImages(object):
         # Generate the list of paths to the dicoms
         return list(filter(None, map(file_path_full, z.filelist)))
 
-    def _dicom_to_standard_image(self, f, pull_position, conversion, new_file_name, image_format):
+    def _dicom_to_standard_image(self, f, pull_position, series_uid, conversion, new_file_name, image_format):
         """
 
         This method handles the act of saving dicom images as in a more common file format (e.g., .png).
@@ -610,6 +614,8 @@ class _CancerImageArchiveImages(object):
         :type f: ``pydicom object``
         :param pull_position: the position of the file in the list of files pulled from the database.
         :type pull_position: ``int``
+        :param series_uid: the 'series_instance_uid' needed to use TCIA's ``getImage`` parameter
+        :type series_uid: ``str``
         :param conversion: the color scale conversion to use, e.g., 'LA' or 'RGB'.
         :type conversion: ``str``
         :param new_file_name: see ``_save_dicom_as_img``'s ``save_name`` parameter.
@@ -635,7 +641,8 @@ class _CancerImageArchiveImages(object):
         def save_path(instance):
             """Define the path to save the image to."""
             head = "{0}_{1}".format(instance, pull_position)
-            file_name = "{0}__{1}__default.{2}".format(head, os.path.basename(new_file_name), image_format.replace(".", ""))
+            file_name = "{0}__{1}__default.{2}".format(
+                head, os.path.basename(new_file_name), image_format.replace(".", ""))
             return os.path.join(save_location, file_name)
 
         if pixel_arr.ndim == 2:
@@ -651,7 +658,9 @@ class _CancerImageArchiveImages(object):
                 Image.fromarray(pixel_arr[layer:layer + 1][0]).convert(conversion).save(path)
                 all_save_paths.append(path)
         else:
-            raise ValueError("Cannot handle {0} dimensional arrays. Images must be 2D or 3D.".format(pixel_arr.ndim))
+            warn("\nProblem converting the image for\nthe following SeriesInstanceUID:\n\n{0}\n\nCannot "
+                 "stabilize {1} dimensional arrays.\nImages must be 2D or 3D.".format(series_uid, pixel_arr.ndim))
+            return [], False
 
         return all_save_paths, True
 
@@ -693,6 +702,7 @@ class _CancerImageArchiveImages(object):
                            path_to_dicom_file,
                            index,
                            pull_position,
+                           series_uid,
                            save_name=None,
                            color=False,
                            image_format='png'):
@@ -704,6 +714,8 @@ class _CancerImageArchiveImages(object):
         :type path_to_dicom_file: ``str``
         :param pull_position: the position of the image in the raw zip data provided by the Cancer Imaging Archive API.
         :type pull_position: ``int``
+        :param series_uid: the 'series_instance_uid' needed to use TCIA's ``getImage`` parameter
+        :type series_uid: ``str``
         :param index: the row index currently being processed inside of the main loop in ``_pull_images_engine()``.
         :type index: ``int``
         :param save_name: name of the new file (do *NOT* include a file extension).
@@ -729,14 +741,17 @@ class _CancerImageArchiveImages(object):
             new_file_name = os.path.basename(os.path.splitext(path_to_dicom_file)[0])
 
         # Convert the image into a PIL object and save to disk.
-        all_save_paths, success = self._dicom_to_standard_image(f, pull_position, conversion, new_file_name, image_format)
+        all_save_paths, success = self._dicom_to_standard_image(f, pull_position=pull_position, series_uid=series_uid,
+                                                                conversion=conversion, new_file_name=new_file_name,
+                                                                image_format=image_format)
 
         # Update Record
         cfp_len = self._update_and_set_list(index, 'cached_images_path', all_save_paths, return_replacement_len=True)
         self.real_time_update_db.set_value(index, 'image_count_converted_cache', cfp_len)
 
         # Add record of whether or not the dicom file could be converted to a standard image type
-        self.real_time_update_db.set_value(index, 'conversion_success', success)
+        if self.real_time_update_db.get_value(index, 'error_free_conversion') != False:  # Block False being replaced.
+            self.real_time_update_db.set_value(index, 'error_free_conversion', success)
 
         # Save the data frame
         self._save_real_time_update_db()
@@ -912,7 +927,7 @@ class _CancerImageArchiveImages(object):
                 # Convert dicom files to `image_format`
                 for e, f in enumerate(dicom_files, start=1):
                     self._save_dicom_as_img(path_to_dicom_file=f, index=index, pull_position=e,
-                                            save_name=series_abbrev, image_format=image_format)
+                                            series_uid=series_uid,save_name=series_abbrev, image_format=image_format)
 
                 # Save raw dicom files, if `save_dicoms` is True.
                 self._move_dicoms(save_dicoms, dicom_files, series_abbrev, index)
@@ -922,7 +937,7 @@ class _CancerImageArchiveImages(object):
             else:
                 self._update_and_set_list(index, 'cached_dicom_images_path', dsl_summary)
                 self._update_and_set_list(index, 'cached_images_path', sl_summary)
-                self.real_time_update_db.set_value(index, 'conversion_success', cache_complete)
+                self.real_time_update_db.set_value(index, 'error_free_conversion', cache_complete)
                 self.real_time_update_db.set_value(index, 'image_count_converted_cache', len(sl_summary))
                 # Save the data frame
                 self._save_real_time_update_db()
@@ -1066,9 +1081,10 @@ class CancerImageInterface(object):
         """
         def rows_to_conserve_func(x):
             """Mark to conserve the row in the cache if the conversion was sucessful or dicoms were saved."""
-            conversion_success = x['conversion_success'] == True
+            iccc = x['image_count_converted_cache']
+            any_conversion_success = isinstance(iccc, (int, float)) and iccc > 0
             raw_dicoms = isinstance(x['cached_dicom_images_path'], (list, tuple)) and len(x['cached_dicom_images_path'])
-            return conversion_success or raw_dicoms
+            return any_conversion_success or raw_dicoms
 
         # Compose or update the master 'cache_records_db' dataframe
         if self.cache_records_db is None:
