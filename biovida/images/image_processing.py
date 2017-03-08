@@ -30,34 +30,6 @@ from biovida.images.models.image_classification import ImageRecognitionCNN
 pd.options.mode.chained_assignment = None
 
 
-# ---------------------------------------------------------------------------------------------
-# General Procedure Openi (for Ultrasound, X-ray, CT and MRI):
-# ---------------------------------------------------------------------------------------------
-#
-#   1. Check if grayscale                                                       X
-#         - mark finding in dataframe.
-#   2. Look for MedPix(R) logo                                                 X
-#         - if true, try to crop
-#   3. Look for text bar                                                        P
-#         - if true, try crop
-#   4. Look for border                                                          P
-#         - if true, try to crop
-#   5. Look for arrows or boxes *                                               P
-#         - if true, ban
-#   6. Look for image grids *                                                   P
-#         - if true, ban
-#   7. Look for graphs *
-#         - if true, ban
-#   8. Look for other text in the image *
-#         - if true, ban (or find crop).
-#
-# Legend:
-#     * = requires machine learning
-#     p = partially solved
-#     X = solved
-# ---------------------------------------------------------------------------------------------
-
-
 def _extract_search_class_db(database_to_extract, search_class):
     """
 
