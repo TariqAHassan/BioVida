@@ -1108,6 +1108,7 @@ class CancerImageInterface(object):
 
     def __init__(self, api_key, verbose=True, cache_path=None):
         self._verbose = verbose
+        self._cache_path = cache_path
         self.dicom_modality_abbrevs = CancerImageArchiveParams(cache_path, verbose).dicom_modality_abbreviations('dict')
 
         # Root URL to for the Cancer Imaging Archive's REST API
@@ -1128,6 +1129,8 @@ class CancerImageInterface(object):
                                                  root_url=root_url,
                                                  cache_path=cache_path,
                                                  verbose=verbose)
+
+        self._ROOT_PATH = _Overview._created_img_dirs['ROOT_PATH']
 
         # Search attributes
         self._pull_time = None

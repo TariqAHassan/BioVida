@@ -955,17 +955,20 @@ class OpeniInterface(object):
         self._save_cache_records_db()
 
     def __init__(self, cache_path=None, verbose=True):
+        self._cache_path = cache_path
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
         self._date_format = '%d/%m/%Y',
 
         # Generate Required Caches
-        self.root_path, self._created_img_dirs = package_cache_creator(sub_dir='images',
-                                                                       cache_path=cache_path,
-                                                                       to_create=['openi'],
-                                                                       nest=[('openi', 'aux'), ('openi', 'raw'),
-                                                                             ('openi', 'databases')],
-                                                                       requires_medpix_logo=True)
+        _, self._created_img_dirs = package_cache_creator(sub_dir='images',
+                                                          cache_path=cache_path,
+                                                          to_create=['openi'],
+                                                          nest=[('openi', 'aux'), ('openi', 'raw'),
+                                                                ('openi', 'databases')],
+                                                          requires_medpix_logo=True)
+
+        self._ROOT_PATH = self._created_img_dirs['ROOT_PATH']
 
         # Instantiate Classes
         self._Search = _OpeniSearch()
