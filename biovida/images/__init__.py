@@ -1,4 +1,5 @@
 # Expose key Tools at the Subpackage level
+from biovida.images.image_cache_mgmt import image_divvy
 from biovida.images.image_cache_mgmt import image_delete
 
 # Expose key Class at the Subpackage level
