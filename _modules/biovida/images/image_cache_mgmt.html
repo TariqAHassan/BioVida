@@ -340,6 +340,7 @@
     <span class="k">return</span> <span class="n">data_frame</span>
 
 
+<span class="c1"># ToDo: handle dataframes with 0 rows.</span>
 <span class="k">def</span> <span class="nf">_records_db_merge</span><span class="p">(</span><span class="n">interface_name</span><span class="p">,</span>
                       <span class="n">current_records_db</span><span class="p">,</span>
                       <span class="n">records_db_update</span><span class="p">,</span>
@@ -514,8 +515,14 @@
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
-<span class="c1"># Deleting Images</span>
+<span class="c1"># Deleting Image Data</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="n">_image_interface_image_columns</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;OpeniInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
+    <span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">)</span>
+<span class="p">}</span>
 
 
 <span class="k">def</span> <span class="nf">_robust_delete</span><span class="p">(</span><span class="n">to_delete</span><span class="p">):</span>
@@ -540,12 +547,6 @@
                 <span class="n">delete_file</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 
 
-<span class="n">_image_interface_image_columns</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;OpeniInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
-    <span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">)</span>
-<span class="p">}</span>
-
-
 <span class="k">def</span> <span class="nf">_double_check_with_user</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -563,12 +564,13 @@
 
 <span class="sd">    .. warning::</span>
 
-<span class="sd">        The effects of this function can only be undone by downloading all of the deleted data again.</span>
+<span class="sd">        The effects of this function can only be undone by downloading the deleted data again.</span>
 
 <span class="sd">    :param interface: an instance of ``OpeniInterface`` or ``CancerImageInterface``.</span>
 <span class="sd">    :type interface: ``OpeniInterface`` or ``CancerImageInterface``</span>
-<span class="sd">    :param delete_rule:</span>
-<span class="sd">    :type delete_rule: ``function``</span>
+<span class="sd">    :param delete_rule: must be one of: ``&#39;all&#39;`` (delete *all* data) or a ``function`` which (1) accepts a single</span>
+<span class="sd">                        parameter (argument) and (2) returns ``True`` when the data is to be deleted.</span>
+<span class="sd">    :type delete_rule: ``str`` or ``function``</span>
 
 <span class="sd">    :Example:</span>
 
@@ -583,26 +585,29 @@
 <span class="sd">    &gt;&gt;&gt;     if &#39;Oompa Loompas&#39; in row[&#39;abstract&#39;]:</span>
 <span class="sd">    &gt;&gt;&gt;         return True</span>
 <span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; delete_images(opi, delete_rule=my_delete_rule)</span>
+<span class="sd">    &gt;&gt;&gt; image_delete(opi, delete_rule=my_delete_rule)</span>
 
-<span class="sd">    In this example, any rows in the ``records_db`` and ``cache_records_db``</span>
-<span class="sd">    for which the &#39;abstract&#39; column contains the string &#39;Oompa Loompas&#39; will be deleted.</span>
-<span class="sd">    Any images associated with this row will be destroyed.</span>
+<span class="sd">    .. note::</span>
+
+<span class="sd">        In this example, any rows in the ``records_db`` and ``cache_records_db``</span>
+<span class="sd">        for which the &#39;abstract&#39; column contains the string &#39;Oompa Loompas&#39; will be deleted.</span>
+<span class="sd">        Any images associated with this row will also be destroyed.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_double_check_with_user</span><span class="p">()</span>
-    <span class="n">image_columns</span> <span class="o">=</span> <span class="n">_image_interface_image_columns</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+
+    <span class="n">delete_all</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cln</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="n">delete_all</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`delete_rule` must be &#39;all&#39; or a `function`.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">delete_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">enact</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Wrap delete_rule to ensure the output is boolean</span>
-<span class="sd">        and add switch to control the behavior of ``_robust_delete()``</span>
-<span class="sd">        :return: whether or not to keep the row.</span>
-<span class="sd">        :rtype: ``bool``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrap delete_rule to ensure the output is boolean&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">delete_all</span> <span class="ow">or</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">enact</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">image_columns</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_image_interface_image_columns</span><span class="p">[</span><span class="n">interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]:</span>
                     <span class="n">_robust_delete</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
@@ -611,27 +616,17 @@
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
         <span class="n">to_conserve</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">interface</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="n">to_conserve</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
-        <span class="c1"># Apply ``delete_rule`` to ``cache_records_db``</span>
+        <span class="c1"># Apply ``delete_rule`` to ``cache_records_db``.</span>
         <span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Prune ``cache_records_db`` by inspecting which images have been deleted.</span>
         <span class="n">interface</span><span class="o">.</span><span class="n">_load_prune_cache_records_db</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="c1"># Map relationships, if applicable.</span>
-        <span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_relationship_mapper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
-                                                          <span class="n">interface_name</span><span class="o">=</span><span class="n">interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="c1"># Save the updated ``cache_records_db`` to &#39;disk&#39;</span>
+        <span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_relationship_mapper</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="c1"># Save the updated ``cache_records_db`` to &#39;disk&#39;.</span>
         <span class="n">interface</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`cache_record_db` is not a DataFrame.&quot;</span><span class="p">)</span></div>
-
-
-
-
-
-
-
-
 
 
 

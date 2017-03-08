@@ -350,7 +350,7 @@ a dictionary with the following keys: &#8216;history&#8217;, &#8216;finding&#821
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last"><em>MedPix</em> images include a diagnosis made by a physician. For images from other sources, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code>
+<p class="last"><em>MedPix</em> images include a distinct &#8216;diagnosis&#8217; section. For images from other sources, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code>
 column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1356,7 +1356,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>interface</em>, <em>delete_rule</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The effects of this function can only be undone by downloading all of the deleted data again.</p>
+<p class="last">The effects of this function can only be undone by downloading the deleted data again.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1364,7 +1364,8 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>interface</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
-<li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">function</span></code>) &#8211; </li>
+<li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be one of: <code class="docutils literal"><span class="pre">'all'</span></code> (delete <em>all</em> data) or a <code class="docutils literal"><span class="pre">function</span></code> which (1) accepts a single
+parameter (argument) and (2) returns <code class="docutils literal"><span class="pre">True</span></code> when the data is to be deleted.</li>
 </ul>
 </td>
 </tr>
@@ -1383,12 +1384,15 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="s1">&#39;Oompa Loompas&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">]:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="kc">True</span>
 <span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">delete_images</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">delete_rule</span><span class="o">=</span><span class="n">my_delete_rule</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_delete</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">delete_rule</span><span class="o">=</span><span class="n">my_delete_rule</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In this example, any rows in the <code class="docutils literal"><span class="pre">records_db</span></code> and <code class="docutils literal"><span class="pre">cache_records_db</span></code>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In this example, any rows in the <code class="docutils literal"><span class="pre">records_db</span></code> and <code class="docutils literal"><span class="pre">cache_records_db</span></code>
 for which the &#8216;abstract&#8217; column contains the string &#8216;Oompa Loompas&#8217; will be deleted.
-Any images associated with this row will be destroyed.</p>
+Any images associated with this row will also be destroyed.</p>
+</div>
 </dd></dl>
 
 </div>
