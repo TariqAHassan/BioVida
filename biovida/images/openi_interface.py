@@ -722,11 +722,11 @@ class _OpeniImages(object):
         # Get the actual file name
         base = os.path.basename(url)
 
-        # Seperate the name from the image type
+        # Separate the name from the image type
         bname, image_format = os.path.splitext(base)
 
         # Generate and clean strings to populate the name format below. Note: 1 = file number
-        # (incase medpix has images with multiple segments -- though, it doesn't appear to currently.)
+        # (in case medpix has images with multiple segments -- though, it doesn't appear to currently.)
         replacement_terms = map(lambda x: cln(x), (str(1), bname, image_size, image_format.replace(".", "")))
 
         # Generate the name for the image

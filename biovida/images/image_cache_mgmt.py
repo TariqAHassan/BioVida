@@ -383,9 +383,9 @@ def _double_check_with_user():
 
     """
     response = input("This action cannot be undone.\n"
-                     "Are you sure you wish to precede (y/n)?")
+                     "Do you wish to continue (y/n)?")
     if cln(response).lower() not in ('yes', 'ye', 'es', 'y'):
-        raise ActionVoid
+        raise ActionVoid("\n\nAction Canceled.")
 
 
 def image_delete(interface, delete_rule):
