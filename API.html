@@ -1551,7 +1551,8 @@ an account of a given patient&#8217;s symptoms.</p>
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_delete">
 <code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>interface</em>, <em>delete_rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition warning">
+<dd><p>Delete images from the cache.</p>
+<div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">The effects of this function can only be undone by downloading the deleted data again.</p>
 </div>
@@ -1578,7 +1579,7 @@ parameter (argument) and (2) returns <code class="docutils literal"><span class=
 <span class="gp">&gt;&gt;&gt; </span><span class="n">opi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="s1">&#39;Oompa Loompas&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;Oompa Loompas&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">]:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="kc">True</span>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">image_delete</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">delete_rule</span><span class="o">=</span><span class="n">my_delete_rule</span><span class="p">)</span>
@@ -1589,6 +1590,52 @@ parameter (argument) and (2) returns <code class="docutils literal"><span class=
 <p class="last">In this example, any rows in the <code class="docutils literal"><span class="pre">records_db</span></code> and <code class="docutils literal"><span class="pre">cache_records_db</span></code>
 for which the &#8216;abstract&#8217; column contains the string &#8216;Oompa Loompas&#8217; will be deleted.
 Any images associated with this row will also be destroyed.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="biovida.images.image_cache_mgmt.image_divvy">
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>interface</em>, <em>divvy_rule</em>, <em>source_db='records_db'</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy images from the cache to another location.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>interface</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
+<li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
+system path(s) [see example below].</li>
+<li><strong>source_db</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>the database to use. Must be one of:</p>
+<ul>
+<li>&#8216;records_db&#8217;: the yield of the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code>.</li>
+<li>&#8216;cache_records_db&#8217;: the cache for <code class="docutils literal"><span class="pre">interface</span></code>.</li>
+</ul>
+</li>
+<li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>image_column</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the column to use when copying images. If <code class="docutils literal"><span class="pre">None</span></code>, use <code class="docutils literal"><span class="pre">'cached_images_path'</span></code>. Default to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">image_divvy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">OpeniInterface</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opi</span> <span class="o">=</span> <span class="n">OpeniInterface</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opi</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">image_type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mri&#39;</span><span class="p">,</span> <span class="s1">&#39;pet&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_divvy_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">if</span> <span class="s1">&#39;MRI&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;modality_full&#39;</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">return</span> <span class="s1">&#39;/your/path/here/MRI_images&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">elif</span> <span class="s1">&#39;PET&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;modality_full&#39;</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="k">return</span> <span class="s1">&#39;/your/path/here/PET_images&#39;</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule</span><span class="p">)</span>
+</pre></div>
 </div>
 </dd></dl>
 

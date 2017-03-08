@@ -893,11 +893,11 @@
         <span class="c1"># Get the actual file name</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
-        <span class="c1"># Seperate the name from the image type</span>
+        <span class="c1"># Separate the name from the image type</span>
         <span class="n">bname</span><span class="p">,</span> <span class="n">image_format</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
 
         <span class="c1"># Generate and clean strings to populate the name format below. Note: 1 = file number</span>
-        <span class="c1"># (incase medpix has images with multiple segments -- though, it doesn&#39;t appear to currently.)</span>
+        <span class="c1"># (in case medpix has images with multiple segments -- though, it doesn&#39;t appear to currently.)</span>
         <span class="n">replacement_terms</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">bname</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">image_format</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)))</span>
 
         <span class="c1"># Generate the name for the image</span>
@@ -1126,17 +1126,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="o">=</span> <span class="n">cache_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_root_url</span> <span class="o">=</span> <span class="s1">&#39;https://openi.nlm.nih.gov&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_date_format</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%Y&#39;</span><span class="p">,</span>
 
         <span class="c1"># Generate Required Caches</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">,</span>
-                                                                       <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
-                                                                       <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;openi&#39;</span><span class="p">],</span>
-                                                                       <span class="n">nest</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;aux&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">),</span>
-                                                                             <span class="p">(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;databases&#39;</span><span class="p">)],</span>
-                                                                       <span class="n">requires_medpix_logo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">,</span>
+                                                          <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
+                                                          <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;openi&#39;</span><span class="p">],</span>
+                                                          <span class="n">nest</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;aux&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">),</span>
+                                                                <span class="p">(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;databases&#39;</span><span class="p">)],</span>
+                                                          <span class="n">requires_medpix_logo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ROOT_PATH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;ROOT_PATH&#39;</span><span class="p">]</span>
 
         <span class="c1"># Instantiate Classes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_Search</span> <span class="o">=</span> <span class="n">_OpeniSearch</span><span class="p">()</span>

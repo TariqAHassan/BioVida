@@ -177,6 +177,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
@@ -212,8 +213,8 @@
     <span class="c1"># Reset the index</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1"># Get duplicated img_large occurences. Use of &#39;img_large&#39; is arbitrary, could have used</span>
-    <span class="c1"># &#39;img_thumb&#39;, &#39;img_grid150&#39;, etc.</span>
+    <span class="c1"># Get duplicated img_large occurrences. Use of &#39;img_large&#39; is arbitrary, could have used</span>
+    <span class="c1"># any of the &#39;img_...&#39; columns, e.g., &#39;img_thumb&#39; or &#39;img_grid150&#39;.</span>
     <span class="n">duplicated_img_refs</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Get the indices of duplicates</span>
@@ -340,7 +341,6 @@
     <span class="k">return</span> <span class="n">data_frame</span>
 
 
-<span class="c1"># ToDo: handle dataframes with 0 rows.</span>
 <span class="k">def</span> <span class="nf">_records_db_merge</span><span class="p">(</span><span class="n">interface_name</span><span class="p">,</span>
                       <span class="n">current_records_db</span><span class="p">,</span>
                       <span class="n">records_db_update</span><span class="p">,</span>
@@ -380,6 +380,8 @@
 <span class="sd">    :return: a dataframe which merges ``current_records_db`` and ``records_db_update``</span>
 <span class="sd">    :rtype: ``Pandas DataFrame``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Note: this function does not explicitly handle cases where combined_dbs has length 0, no obvious need to though.</span>
+
     <span class="c1"># Load in the current database and combine with the `records_db_update` database</span>
     <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">current_records_db</span><span class="p">,</span> <span class="n">records_db_update</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -515,14 +517,20 @@
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
-<span class="c1"># Deleting Image Data</span>
+<span class="c1"># Interface Data</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
 <span class="n">_image_interface_image_columns</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Note: the first column should be the default.</span>
     <span class="s1">&#39;OpeniInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
     <span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">)</span>
 <span class="p">}</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Deleting Image Data</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
 <span class="k">def</span> <span class="nf">_robust_delete</span><span class="p">(</span><span class="n">to_delete</span><span class="p">):</span>
@@ -550,17 +558,19 @@
 <span class="k">def</span> <span class="nf">_double_check_with_user</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Ask the user to verify they wish to precede.</span>
+<span class="sd">    Ask the user to verify they wish to proceed.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">response</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;This action cannot be undone.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                     <span class="s2">&quot;Are you sure you wish to precede (y/n)?&quot;</span><span class="p">)</span>
+                     <span class="s2">&quot;Do you wish to continue (y/n)?&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cln</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;ye&#39;</span><span class="p">,</span> <span class="s1">&#39;es&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">ActionVoid</span>
+        <span class="k">raise</span> <span class="n">ActionVoid</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Action Canceled.&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="image_delete"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.image_delete">[docs]</a><span class="k">def</span> <span class="nf">image_delete</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">delete_rule</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Delete images from the cache.</span>
 
 <span class="sd">    .. warning::</span>
 
@@ -582,7 +592,7 @@
 <span class="sd">    &gt;&gt;&gt; opi.pull()</span>
 <span class="sd">    ...</span>
 <span class="sd">    &gt;&gt;&gt; def my_delete_rule(row):</span>
-<span class="sd">    &gt;&gt;&gt;     if &#39;Oompa Loompas&#39; in row[&#39;abstract&#39;]:</span>
+<span class="sd">    &gt;&gt;&gt;     if isinstance(row[&#39;abstract&#39;], str) and &#39;Oompa Loompas&#39; in row[&#39;abstract&#39;]:</span>
 <span class="sd">    &gt;&gt;&gt;         return True</span>
 <span class="sd">    ...</span>
 <span class="sd">    &gt;&gt;&gt; image_delete(opi, delete_rule=my_delete_rule)</span>
@@ -604,7 +614,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`delete_rule` must be &#39;all&#39; or a `function`.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">delete_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">enact</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Wrap delete_rule to ensure the output is boolean&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Wrap delete_rule to ensure the output is a boolean.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">delete_all</span> <span class="ow">or</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">enact</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_image_interface_image_columns</span><span class="p">[</span><span class="n">interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]:</span>
@@ -618,7 +628,7 @@
         <span class="n">interface</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="n">to_conserve</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
         <span class="c1"># Apply ``delete_rule`` to ``cache_records_db``.</span>
-        <span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Prune ``cache_records_db`` by inspecting which images have been deleted.</span>
         <span class="n">interface</span><span class="o">.</span><span class="n">_load_prune_cache_records_db</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="c1"># Map relationships, if applicable.</span>
@@ -627,6 +637,146 @@
         <span class="n">interface</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`cache_record_db` is not a DataFrame.&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Divvy Image Data</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span> <span class="nf">_robust_copy</span><span class="p">(</span><span class="n">to_copy</span><span class="p">,</span> <span class="n">copy_path</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Function to copy ``to_copy``.</span>
+<span class="sd">    If a list (or tuple), all paths therein will be copied.</span>
+
+<span class="sd">    :param to_copy: a file, or multiple files to delete. Note: if ``to_copy`` is not a ``string``,</span>
+<span class="sd">                     ``list`` or ``tuple``, no action will be taken.</span>
+<span class="sd">    :type to_copy: ``str``, ``list``  or ``tuple``</span>
+<span class="sd">    :param copy_path: the location for the image</span>
+<span class="sd">    :type copy_path: ``str``</span>
+<span class="sd">    :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.</span>
+<span class="sd">    :type allow_overwrite: ``bool``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">copy_util</span><span class="p">(</span><span class="n">from_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">from_path</span><span class="p">):</span>
+            <span class="n">to_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">copy_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">from_path</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_overwrite</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">to_path</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s2">&quot;The following file already exists:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">to_path</span><span class="p">))</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">from_path</span><span class="p">,</span> <span class="n">to_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No such file:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_path</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_copy</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">copy_util</span><span class="p">(</span><span class="n">from_path</span><span class="o">=</span><span class="n">to_copy</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_copy</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">to_copy</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">copy_util</span><span class="p">(</span><span class="n">from_path</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_divvy_column_selector</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">source_db</span><span class="p">,</span> <span class="n">image_column</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Select the column to use when copying images from.</span>
+
+<span class="sd">    :param interface:  see ``image_divvy()``</span>
+<span class="sd">    :type interface: ``OpeniInterface`` or ``CancerImageInterface``</span>
+<span class="sd">    :param source_db: see ``image_divvy()``</span>
+<span class="sd">    :type source_db: ``str``</span>
+<span class="sd">    :param image_column: see ``image_divvy()``</span>
+<span class="sd">    :type image_column: ``str``</span>
+<span class="sd">    :param data_frame: as evolved inside  ``image_divvy()``.</span>
+<span class="sd">    :type data_frame: ``Pandas DataFrame``</span>
+<span class="sd">    :return: the column in ``data_frame`` to use when copying images to the new location.</span>
+<span class="sd">    :rtype: ``str``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">image_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_image_interface_image_columns</span><span class="p">[</span><span class="n">interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_column</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`image_column` must be a string or `None`.&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">image_column</span> <span class="ow">in</span> <span class="n">_image_interface_image_columns</span><span class="p">[</span><span class="n">interface</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">image_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The &#39;</span><span class="si">{0}</span><span class="s2">&#39; column is missing from &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_column</span><span class="p">,</span> <span class="n">source_db</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">image_column</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not a valid image column for &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_column</span><span class="p">,</span> <span class="n">source_db</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="image_divvy"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.image_divvy">[docs]</a><span class="k">def</span> <span class="nf">image_divvy</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="p">,</span> <span class="n">source_db</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span> <span class="n">create_dirs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">image_column</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Copy images from the cache to another location.</span>
+
+<span class="sd">    :param interface: an instance of ``OpeniInterface`` or ``CancerImageInterface``.</span>
+<span class="sd">    :type interface: ``OpeniInterface`` or ``CancerImageInterface``</span>
+<span class="sd">    :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return</span>
+<span class="sd">                       system path(s) [see example below].</span>
+<span class="sd">    :type divvy_rule: ``function``</span>
+<span class="sd">    :param source_db: the database to use. Must be one of:</span>
+
+<span class="sd">                    - &#39;records_db&#39;: the yield of the most recent ``search()`` &amp; ``pull()``.</span>
+<span class="sd">                    - &#39;cache_records_db&#39;: the cache for ``interface``.</span>
+
+<span class="sd">    :type source_db: ``str``</span>
+<span class="sd">    :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``False``.</span>
+<span class="sd">    :type create_dirs: ``bool``</span>
+<span class="sd">    :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.</span>
+<span class="sd">    :type allow_overwrite: ``bool``</span>
+<span class="sd">    :param image_column: the column to use when copying images. If ``None``, use ``&#39;cached_images_path&#39;``. Default to ``None``.</span>
+<span class="sd">    :type image_column: ``str``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; from biovida.images import image_divvy</span>
+<span class="sd">    &gt;&gt;&gt; from biovida.images import OpeniInterface</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; opi = OpeniInterface()</span>
+<span class="sd">    &gt;&gt;&gt; opi.search(image_type=[&#39;mri&#39;, &#39;pet&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; opi.pull()</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; def my_divvy_rule(row):</span>
+<span class="sd">    &gt;&gt;&gt;    if &#39;MRI&#39; in row[&#39;modality_full&#39;]:</span>
+<span class="sd">    &gt;&gt;&gt;        return &#39;/your/path/here/MRI_images&#39;</span>
+<span class="sd">    &gt;&gt;&gt;    elif &#39;PET&#39; in row[&#39;modality_full&#39;]:</span>
+<span class="sd">    &gt;&gt;&gt;        return &#39;/your/path/here/PET_images&#39;</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; image_divvy(opi, divvy_rule=my_divvy_rule)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract the required dataframe.</span>
+    <span class="n">data_frame</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">source_db</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> expected to be a DataFrame.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;Got an object of type: &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_db</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">path_existence_handler</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create `path` if it does not exist and `create_dirs=True`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">create_dirs</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The following directory has been created:</span><span class="se">\n\n</span><span class="si">{0}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No such directory:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{0}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                         <span class="s2">&quot;Consider setting `create_dirs=True`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+    <span class="c1"># Define the column to copy images from.</span>
+    <span class="n">column_to_use</span> <span class="o">=</span> <span class="n">_divvy_column_selector</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">source_db</span><span class="p">,</span> <span class="n">image_column</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">divvy_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrap ``divvy_rule`` to automate copying.&quot;&quot;&quot;</span>
+        <span class="n">copy_path</span> <span class="o">=</span> <span class="n">divvy_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">copy_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">path_existence_handler</span><span class="p">(</span><span class="n">copy_path</span><span class="p">)</span>
+            <span class="n">_robust_copy</span><span class="p">(</span><span class="n">to_copy</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="n">column_to_use</span><span class="p">],</span>
+                         <span class="n">copy_path</span><span class="o">=</span><span class="n">copy_path</span><span class="p">,</span>
+                         <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;String Expected.</span><span class="se">\n</span><span class="s2">`divvy_rule` returned &quot;</span>
+                            <span class="s2">&quot;an object of type &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">copy_path</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="c1"># Apply rule</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">divvy_rule_wrapper</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 
 
