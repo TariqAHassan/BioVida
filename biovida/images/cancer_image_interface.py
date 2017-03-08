@@ -280,7 +280,7 @@ class _CancerImageArchiveRecords(object):
 
         :param list_of_dates: a list (or tuple) of datetime objects.
         :type list_of_dates: ``list`` or ``tuple``
-        :return: descrition (above)
+        :return: description (above)
         :rtype: ``dict``
         """
         return {k: i for i, k in enumerate(sorted(list_of_dates), start=1)}
@@ -520,7 +520,7 @@ class _CancerImageArchiveImages(object):
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
         self.ROOT_URL = root_url
 
-        # Add Record DataFrame; this database updates in real time as the images are downloaded.
+        # Add Record DataFrame; this database updates in real-time as the images are downloaded.
         self.records_db_images = None
         self.real_time_update_db = None
         self.real_time_update_db_path = None
@@ -715,8 +715,6 @@ class _CancerImageArchiveImages(object):
         :type color: ``bool``
         :param image_format: see: ``pull_images()``.
         :type image_format: ``str``
-        :return: ``_dicom_to_standard_image()``
-        :rtype: ``tuple``
         """
         # Load the DICOM file into RAM
         f = dicom.read_file(path_to_dicom_file)
@@ -1019,7 +1017,8 @@ class CancerImageInterface(object):
     def _save_cache_records_db(self):
         """
 
-        :return:
+        Save ``cache_records_db`` to 'disk'.
+
         """
         self.cache_records_db.to_pickle(self._cache_records_db_save_path)
 
@@ -1123,7 +1122,7 @@ class CancerImageInterface(object):
 
         # Path to the `cache_records_db`
         self._cache_records_db_save_path = os.path.join(self._Images._created_img_dirs['databases'],
-                                                            'tcia_cache_records_db.p')
+                                                        'tcia_cache_records_db.p')
 
         # Load `cache_records_db` if it exists already, else set to None.
         if os.path.isfile(self._cache_records_db_save_path):
