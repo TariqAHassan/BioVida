@@ -411,7 +411,7 @@ def image_delete(interface, delete_rule):
     >>> opi.pull()
     ...
     >>> def my_delete_rule(row):
-    >>>     if 'Oompa Loompas' in row['abstract']:
+    >>>     if isinstance(row['abstract'], str) and 'Oompa Loompas' in row['abstract']:
     >>>         return True
     ...
     >>> image_delete(opi, delete_rule=my_delete_rule)
