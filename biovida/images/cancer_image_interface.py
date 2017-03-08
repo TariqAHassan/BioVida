@@ -1436,7 +1436,8 @@ class CancerImageInterface(object):
         :type save_dicoms: ``bool``
         :param check_cache_first: check the image cache for the image prior to downloading.
                                   If ``True`` and the image is already present, no attempt will be made to download it
-                                  again.
+                                  again. If ``False`` the image will be downloaded regardless of whether or not it is
+                                  detected in the cache.
 
                  .. warning::
 
