@@ -353,7 +353,8 @@ def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
 _image_interface_image_columns = {
     # Note: the first column should be the default.
     'OpeniInterface': ('cached_images_path',),
-    'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path')
+    'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path'),
+    'unify_against_images': ('cached_images_path',),
 }
 
 
@@ -431,6 +432,11 @@ def image_delete(interface, delete_rule):
         In this example, any rows in the ``records_db`` and ``cache_records_db``
         for which the 'abstract' column contains the string 'Oompa Loompas' will be deleted.
         Any images associated with this row will also be destroyed.
+
+    .. warning::
+
+        The function passed to ``delete_rule`` *must* return a boolean ``True``. All other object
+        types will be ignored.
 
     """
     _double_check_with_user()
@@ -537,8 +543,9 @@ def image_divvy(interface, divvy_rule, source_db='records_db', create_dirs=False
 
     Copy images from the cache to another location.
 
-    :param interface: an instance of ``OpeniInterface`` or ``CancerImageInterface``.
-    :type interface: ``OpeniInterface`` or ``CancerImageInterface``
+    :param interface: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
+                     ``OpeniInterface`` or ``CancerImageInterface``.
+    :type interface: ``OpeniInterface`` or ``CancerImageInterface`` or ``Pandas DataFrame
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
     :type divvy_rule: ``function``
@@ -546,6 +553,7 @@ def image_divvy(interface, divvy_rule, source_db='records_db', create_dirs=False
 
                     - 'records_db': the yield of the most recent ``search()`` & ``pull()``.
                     - 'cache_records_db': the cache for ``interface``.
+                    - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
 
     :type source_db: ``str``
     :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``False``.
@@ -574,7 +582,7 @@ def image_divvy(interface, divvy_rule, source_db='records_db', create_dirs=False
 
     """
     # Extract the required dataframe.
-    data_frame = getattr(interface, source_db)
+    data_frame = getattr(interface, source_db) if source_db != 'unify_against_images' else interface
     if type(data_frame).__name__ != 'DataFrame':
         raise TypeError("{0} expected to be a DataFrame.\n"
                         "Got an object of type: '{1}'.".format(source_db, type(data_frame).__name__))
