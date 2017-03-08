@@ -66,14 +66,14 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
 
     .. note::
 
-        The `'known_associated_genes'` column is of the form ``((Gene Name, DisGeNET Evidence Score), ...)``.
+        The ``'known_associated_genes'`` column is of the form ``((Gene Name, DisGeNET Evidence Score), ...)``.
 
     .. warning::
 
-        The `'known_associated_symptoms'` and `'known_associated_genes'` columns denote symptoms and genes
+        The ``'known_associated_symptoms'`` and ``'known_associated_genes'`` columns denote symptoms and genes
         known to be associated with the disease the patient presented with. **These columns are not an account
-        of the symptomatology or genotype of the patients themselves**. Conversely, 'patient_symptoms' *is*
-        an account of a given patient's symptoms.
+        of the symptomatology or genotype of the patients themselves**. Conversely, the ``'patient_symptoms'``
+        column *is* an account of a given patient's symptoms.
 
     :Example:
 
