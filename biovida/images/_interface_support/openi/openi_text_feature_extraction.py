@@ -809,7 +809,7 @@ def _markers_guess(image_caption):
     for term in ('arrow', 'asterisk'):
         # Look for arrows or asterisk.
         match_on = tuple(map(lambda x: x.format(term), (' {0} ', ' {0}', ' {0}s ', ' {0}s')))
-        # Example: '...which are indiciated by the asterisks...'
+        # Example: '...which are indicated by the asterisks...'
         if any(i in image_caption_clean for i in match_on):
             features.add("{0}s".format(term))
         # Example: '...along the left side (arrows)...'
