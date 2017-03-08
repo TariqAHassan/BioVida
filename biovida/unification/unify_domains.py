@@ -13,16 +13,21 @@ from biovida.images._unify_images_against_other_biovida_apis import images_unify
 # ----------------------------------------------------------------------------------------------------------
 
 
-def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_threshold=False):
+def unify_against_images(interfaces,
+                         source_db='cache_records_db',
+                         cache_path=None,
+                         verbose=True,
+                         fuzzy_threshold=False):
     """
 
     Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)
     with Diagnostic and Genomic Data.
 
-    Note: this tool extracts the ``cache_records_db`` attribute from these classes.
-
     :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a list.
     :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
+    :param source_db: the database to use. Must be one of: 'records_db', 'cache_records_db'.
+                      Defaults to 'cache_records_db'.
+    :type source_db: ``str``
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                        Default to ``None`` (which will generate a cache in the home folder).
     :type cache_path: ``str`` or ``None``
@@ -90,7 +95,8 @@ def unify_against_images(interfaces, cache_path=None, verbose=True, fuzzy_thresh
     # --- Search and Pull ---
     >>> udf2 = unify_against_images([opi, cii])
     """
-    return images_unify(interfaces=interfaces, cache_path=cache_path, verbose=verbose, fuzzy_threshold=fuzzy_threshold)
+    return images_unify(interfaces=interfaces, source_db=source_db, cache_path=cache_path,
+                        verbose=verbose, fuzzy_threshold=fuzzy_threshold)
 
 
 
