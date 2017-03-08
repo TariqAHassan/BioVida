@@ -1394,6 +1394,11 @@ parameter (argument) and (2) returns <code class="docutils literal"><span class=
 for which the &#8216;abstract&#8217; column contains the string &#8216;Oompa Loompas&#8217; will be deleted.
 Any images associated with this row will also be destroyed.</p>
 </div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The function passed to <code class="docutils literal"><span class="pre">delete_rule</span></code> <em>must</em> return a boolean <code class="docutils literal"><span class="pre">True</span></code>. All other object
+types will be ignored.</p>
+</div>
 </dd></dl>
 
 <dl class="function">

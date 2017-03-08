@@ -603,6 +603,11 @@
 <span class="sd">        for which the &#39;abstract&#39; column contains the string &#39;Oompa Loompas&#39; will be deleted.</span>
 <span class="sd">        Any images associated with this row will also be destroyed.</span>
 
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        The function passed to ``delete_rule`` *must* return a boolean ``True``. All other object</span>
+<span class="sd">        types will be ignored.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_double_check_with_user</span><span class="p">()</span>
 
