@@ -26,10 +26,10 @@ from biovida.images._image_tools import TIME_FORMAT
 from biovida.images._image_tools import NoResultsFound
 
 # Database Management
-from biovida.images.image_database_mgmt import _load_temp_dbs
-from biovida.images.image_database_mgmt import _records_db_merge
-from biovida.images.image_database_mgmt import _record_update_dbs_joiner
-from biovida.images.image_database_mgmt import _prune_rows_with_deleted_images
+from biovida.images.image_cache_mgmt import _load_temp_dbs
+from biovida.images.image_cache_mgmt import _records_db_merge
+from biovida.images.image_cache_mgmt import _record_update_dbs_joiner
+from biovida.images.image_cache_mgmt import _prune_rows_with_deleted_images
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln

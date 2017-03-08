@@ -1,7 +1,7 @@
 """
 
-    Databases Management
-    ~~~~~~~~~~~~~~~~~~~~
+    Image Cache Management
+    ~~~~~~~~~~~~~~~~~~~~~~
 
 """
 # Imports

@@ -25,11 +25,11 @@ from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
 
 # Database Management
-from biovida.images.image_database_mgmt import _load_temp_dbs
-from biovida.images.image_database_mgmt import _records_db_merge
-from biovida.images.image_database_mgmt import _openi_image_relation_map
-from biovida.images.image_database_mgmt import _record_update_dbs_joiner
-from biovida.images.image_database_mgmt import _prune_rows_with_deleted_images
+from biovida.images.image_cache_mgmt import _load_temp_dbs
+from biovida.images.image_cache_mgmt import _records_db_merge
+from biovida.images.image_cache_mgmt import _openi_image_relation_map
+from biovida.images.image_cache_mgmt import _record_update_dbs_joiner
+from biovida.images.image_cache_mgmt import _prune_rows_with_deleted_images
 
 # Open-i Support tools
 from biovida.images._interface_support.openi.openi_support_tools import iter_join
