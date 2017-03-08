@@ -37,8 +37,8 @@ Diagnostics
 .. automodule:: biovida.diagnostics.disease_symptoms_interface
 	:members:
 
-Resource Integration
---------------------
+Domain Integration
+------------------
 
 .. automodule:: biovida.unification.unify_domains
 	:members:
