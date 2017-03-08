@@ -214,7 +214,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">disease_db</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_date</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_quote_value_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_quote_value_parse</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Splits a string on the presence of quotes (&quot;) inside the string itself.</span>
@@ -253,13 +254,14 @@
         <span class="c1"># Remove escape for the colon in the urls</span>
         <span class="n">cleaned_urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;\:/&quot;</span><span class="p">,</span> <span class="s2">&quot;:/&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">]</span>
     
-        <span class="c1"># Return the quote and the urls as seperate entities</span>
+        <span class="c1"># Return the quote and the urls as separate entities</span>
         <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;def&quot;</span><span class="p">,</span> <span class="n">parsed_definition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;def_urls&quot;</span><span class="p">,</span> <span class="n">cleaned_urls</span><span class="p">)]</span>
-    
-    <span class="k">def</span> <span class="nf">_is_a_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_a</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_is_a_parser</span><span class="p">(</span><span class="n">is_a</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Seperates the DOID from the text of the entry in an &#39;is_a&#39; entry.</span>
+<span class="sd">        Separates the DOID from the text of the entry in an &#39;is_a&#39; entry.</span>
 
 <span class="sd">        :param is_a: a value corresponding to a term entry &#39;is_a&#39; in the Disease Ontology database</span>
 <span class="sd">        :type is_a: ``str``</span>
@@ -383,8 +385,9 @@
     
         <span class="c1"># Convert to a dict and return</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed_term_to_dict</span><span class="p">(</span><span class="n">parsed_term</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">_do_df_cleaner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">,</span> <span class="n">columns_with_lists</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_do_df_cleaner</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">columns_with_lists</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        This method cleans the final Disease Ontology database in the following ways:</span>

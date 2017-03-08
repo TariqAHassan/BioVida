@@ -201,34 +201,6 @@
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<span class="c1"># ---------------------------------------------------------------------------------------------</span>
-<span class="c1"># General Procedure Openi (for Ultrasound, X-ray, CT and MRI):</span>
-<span class="c1"># ---------------------------------------------------------------------------------------------</span>
-<span class="c1">#</span>
-<span class="c1">#   1. Check if grayscale                                                       X</span>
-<span class="c1">#         - mark finding in dataframe.</span>
-<span class="c1">#   2. Look for MedPix(R) logo                                                 X</span>
-<span class="c1">#         - if true, try to crop</span>
-<span class="c1">#   3. Look for text bar                                                        P</span>
-<span class="c1">#         - if true, try crop</span>
-<span class="c1">#   4. Look for border                                                          P</span>
-<span class="c1">#         - if true, try to crop</span>
-<span class="c1">#   5. Look for arrows or boxes *                                               P</span>
-<span class="c1">#         - if true, ban</span>
-<span class="c1">#   6. Look for image grids *                                                   P</span>
-<span class="c1">#         - if true, ban</span>
-<span class="c1">#   7. Look for graphs *</span>
-<span class="c1">#         - if true, ban</span>
-<span class="c1">#   8. Look for other text in the image *</span>
-<span class="c1">#         - if true, ban (or find crop).</span>
-<span class="c1">#</span>
-<span class="c1"># Legend:</span>
-<span class="c1">#     * = requires machine learning</span>
-<span class="c1">#     p = partially solved</span>
-<span class="c1">#     X = solved</span>
-<span class="c1"># ---------------------------------------------------------------------------------------------</span>
-
-
 <span class="k">def</span> <span class="nf">_extract_search_class_db</span><span class="p">(</span><span class="n">database_to_extract</span><span class="p">,</span> <span class="n">search_class</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -327,7 +299,8 @@
         <span class="c1"># Switch to control verbosity</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_print_update</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_apply_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_apply_status</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Applies a tqdm() progress bar to an an iterable (if `status` is True).</span>
@@ -380,7 +353,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndarrays_images</span>
 
-    <span class="k">def</span> <span class="nf">_grayscale_img</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_path</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_grayscale_img</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Computes whether or not an image is grayscale.</span>
@@ -394,7 +368,7 @@
         <span class="c1"># See: http://stackoverflow.com/q/23660929/4898004</span>
         <span class="k">if</span> <span class="n">img_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">items_null</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span> <span class="c1"># ToDo: find way to call only once inside this class (similar to _ndarray_extract())</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>  <span class="c1"># ToDo: find way to call only once inside this class (similar to _ndarray_extract())</span>
         <span class="n">stat</span> <span class="o">=</span> <span class="n">ImageStat</span><span class="o">.</span><span class="n">Stat</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span> <span class="o">==</span> <span class="n">stat</span><span class="o">.</span><span class="n">sum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -419,7 +393,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;grayscale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">progress_map</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_grayscale_img</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_logo_analysis_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">output_params</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_logo_analysis_out</span><span class="p">(</span><span class="n">analysis_results</span><span class="p">,</span> <span class="n">output_params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Decides the output for the ``logo_analysis`` function.</span>
@@ -601,7 +576,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;hborder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ba_df</span><span class="p">[</span><span class="s1">&#39;hborder&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;vborder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ba_df</span><span class="p">[</span><span class="s1">&#39;vborder&#39;</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">_h_crop_top_decision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_h_crop_top_decision</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Choose lowest horizontal cropping point.</span>
@@ -617,7 +593,8 @@
         <span class="n">crop_candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;hborder&#39;</span> <span class="k">else</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cols</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">crop_candidates</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">crop_candidates</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
 
-    <span class="k">def</span> <span class="nf">_h_crop_lower_decision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_h_crop_lower_decision</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Chose the highest cropping point for the image&#39;s bottom.</span>
@@ -652,8 +629,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;upper_crop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_h_crop_top_decision</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;lower_crop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_h_crop_lower_decision</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_apply_cropping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                        <span class="n">cached_images_path</span><span class="p">,</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_apply_cropping</span><span class="p">(</span><span class="n">cached_images_path</span><span class="p">,</span>
                         <span class="n">lower_crop</span><span class="p">,</span>
                         <span class="n">upper_crop</span><span class="p">,</span>
                         <span class="n">vborder</span><span class="p">,</span>
@@ -887,7 +864,7 @@
 
 <div class="viewcode-block" id="ImageProcessing.auto"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.auto">[docs]</a>    <span class="k">def</span> <span class="nf">auto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
              <span class="n">img_problem_threshold</span><span class="o">=</span><span class="mf">0.275</span><span class="p">,</span>
-             <span class="n">valid_floor</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+             <span class="n">valid_floor</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>  <span class="c1"># ToDo: implement</span>
              <span class="n">require_grayscale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
              <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
              <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>

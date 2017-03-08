@@ -222,7 +222,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rephetio_ml_db</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combined_db</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_clean_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_clean_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Convert ``columns`` into snake_case.</span>
@@ -234,7 +235,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="p">)))</span>
 
-    <span class="k">def</span> <span class="nf">_comma_reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_comma_reverse</span><span class="p">(</span><span class="n">term</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Reverse a single comma, e.g., &#39;car, blue&#39; --&gt; &#39;blue car&#39;.</span>
@@ -251,7 +253,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">term</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">_harvest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">cleaner_func</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">download_override</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_harvest</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cleaner_func</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">download_override</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Pull (i.e., download) a Database.</span>
