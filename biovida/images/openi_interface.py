@@ -1123,7 +1123,7 @@ class OpeniInterface(object):
 
         .. warning::
 
-            *MedPix* images include a diagnosis made by a physician. For images from other sources, the ``'diagnosis'``
+            *MedPix* images include a distinct 'diagnosis' section. For images from other sources, the ``'diagnosis'``
             column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.
 
         :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.
