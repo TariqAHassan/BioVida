@@ -1435,7 +1435,8 @@ class CancerImageInterface(object):
         :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.
         :type save_dicoms: ``bool``
         :param check_cache_first: check the image cache for the image prior to downloading.
-                                  If the image is already present, no attempt will be made to download it again.
+                                  If ``True`` and the image is already present, no attempt will be made to download it
+                                  again.
 
                  .. warning::
 
