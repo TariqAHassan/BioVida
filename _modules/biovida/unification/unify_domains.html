@@ -184,7 +184,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
-<div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../API.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../other/unification.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)</span>
@@ -237,14 +237,14 @@
 
 <span class="sd">    .. note::</span>
 
-<span class="sd">        The `&#39;known_associated_genes&#39;` column is of the form ``((Gene Name, DisGeNET Evidence Score), ...)``.</span>
+<span class="sd">        The ``&#39;known_associated_genes&#39;`` column is of the form ``((Gene Name, DisGeNET Evidence Score), ...)``.</span>
 
 <span class="sd">    .. warning::</span>
 
-<span class="sd">        The `&#39;known_associated_symptoms&#39;` and `&#39;known_associated_genes&#39;` columns denote symptoms and genes</span>
+<span class="sd">        The ``&#39;known_associated_symptoms&#39;`` and ``&#39;known_associated_genes&#39;`` columns denote symptoms and genes</span>
 <span class="sd">        known to be associated with the disease the patient presented with. **These columns are not an account</span>
-<span class="sd">        of the symptomatology or genotype of the patients themselves**. Conversely, &#39;patient_symptoms&#39; *is*</span>
-<span class="sd">        an account of a given patient&#39;s symptoms.</span>
+<span class="sd">        of the symptomatology or genotype of the patients themselves**. Conversely, the ``&#39;patient_symptoms&#39;``</span>
+<span class="sd">        column *is* an account of a given patient&#39;s symptoms.</span>
 
 <span class="sd">    :Example:</span>
 
