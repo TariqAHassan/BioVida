@@ -221,6 +221,7 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
 
     # Render a hash map of `cache_path` - to - local address
     record_dict = {k[0]: os.path.join(sub_dir_full_path, v.split(os.sep)[-1]) for k, v in package_created_dirs.items()}
+    record_dict['ROOT_PATH'] = root_path
 
     # Add nested directories, if any
     record_dict_nest = _add_to_create_nest(nest, record_dict, verbose)
