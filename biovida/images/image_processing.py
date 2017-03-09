@@ -677,7 +677,7 @@ class ImageProcessing(object):
 
     def auto(self,
              img_problem_threshold=0.275,
-             valid_floor=0.01,  # ToDo: implement
+             valid_floor=0.01,
              require_grayscale=True,
              new_analysis=False,
              status=True):
@@ -703,7 +703,9 @@ class ImageProcessing(object):
         self.auto_analysis(new_analysis=new_analysis, status=status)
 
         # Run Auto Decision
-        self.auto_decision(img_problem_threshold=img_problem_threshold, require_grayscale=require_grayscale)
+        self.auto_decision(img_problem_threshold=img_problem_threshold,
+                           require_grayscale=require_grayscale,
+                           valid_floor=valid_floor)
 
         return self.image_dataframe
 
