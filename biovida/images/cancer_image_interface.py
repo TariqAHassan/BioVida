@@ -1166,7 +1166,7 @@ class CancerImageInterface(object):
 
     @property
     def cache_records_db_short(self):
-        """Return `records_db` with nonessential columns removed."""
+        """Return `cache_records_db` with nonessential columns removed."""
         return data_frame_col_drop(self.cache_records_db, nonessential_cancer_image_columns, 'cache_records_db')
 
     @staticmethod

@@ -1003,7 +1003,7 @@ class OpeniInterface(object):
 
     @property
     def cache_records_db_short(self):
-        """Return `records_db` with nonessential columns removed."""
+        """Return `cache_records_db` with nonessential columns removed."""
         return data_frame_col_drop(self.cache_records_db, nonessential_openi_columns, 'cache_records_db')
 
     def options(self, search_parameter, print_options=True):
