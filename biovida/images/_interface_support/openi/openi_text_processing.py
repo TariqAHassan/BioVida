@@ -291,10 +291,10 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
 
     if verbose:
         print("\n\nCleaning Text Information...\n")
-    # Clean the abstract
-    data_frame = _df_clean(data_frame)
+    return _df_clean(data_frame)
 
-    return data_frame
+
+
 
 
 
