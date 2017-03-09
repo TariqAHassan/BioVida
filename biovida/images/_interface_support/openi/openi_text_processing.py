@@ -16,6 +16,7 @@ from biovida.support_tools.support_tools import remove_from_head_tail
 from biovida.support_tools.support_tools import remove_html_bullet_points
 
 # Image Support Tools
+from biovida.images._image_tools import NoResultsFound
 from biovida.images._image_tools import resetting_label
 
 # General Support Tools
@@ -57,6 +58,24 @@ def abstract_cleaner(abstract):
 
 
 # ----------------------------------------------------------------------------------------------------------
+# Article Type Lookup
+# ----------------------------------------------------------------------------------------------------------
+
+
+def article_type_lookup(article_type_abbrev):
+    """
+
+    Lookup the full article type from the shorthand used by the Open-i API.
+
+    :param article_type_abbrev: values as passed via. ``data_frame['article_type'].map(...)`` in
+    :return: the full article type name.
+    :rtype: ``str``
+    """
+    rslt = openi_article_type_params.get(cln(article_type_abbrev).lower(), None)
+    return cln(rslt.replace("_", " ")) if isinstance(rslt, str) else article_type_abbrev
+
+
+# ----------------------------------------------------------------------------------------------------------
 # Handle Missing Columns
 # ----------------------------------------------------------------------------------------------------------
 
@@ -77,6 +96,41 @@ def _df_add_missing_columns(data_frame):
     for c in ('license_type', 'license_url', 'image_caption_concepts'):
         if c not in data_frame.columns:
             data_frame[c] = [np.NaN] * data_frame.shape[0]
+    return data_frame
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Tool to Limit to Clinical Cases
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _apply_clinical_case_only(data_frame):
+    """
+
+    Remove records (dataframe rows) which are not of clinical encounters.
+
+    Note: this is here, and not in ``openi_interface()._OpeniImages().pull_images()`` because
+    Open-i API's 'article_type (&at) parameter does not have an 'encounter' option
+    (which it probably should...).
+
+    :param data_frame: the ``data_frame`` as evolved in ``openi_raw_extract_and_clean()``.
+    :type data_frame: ``Pandas DataFrame``
+    :return: see description.
+    :rtype: ``Pandas DataFrame``
+    """
+    clinical_article_types = ('encounter', 'case report')
+
+    def test(article_type):
+        if isinstance(article_type, str) and article_type in clinical_article_types:
+            return True
+        else:
+            return False
+
+    data_frame = data_frame[data_frame['article_type'].map(test)].reset_index(drop=True)
+
+    if data_frame.shape[0] == 0:
+        raise NoResultsFound("\nNo results remained after the `clinical_cases_only=True` restriction was applied.\n"
+                             "Consider setting `pull()`'s `clinical_cases_only` parameter to `False`.")
     return data_frame
 
 
@@ -177,14 +231,6 @@ def _df_clean(data_frame):
     data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
         lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore')
 
-    def article_type_lookup(x):
-        """Look up ``x`` in ``openi_article_type_params``."""
-        rslt = openi_article_type_params.get(cln(x).lower(), None)
-        return cln(rslt.replace("_", " ")) if isinstance(rslt, str) else x
-
-    # Look up the article type
-    data_frame['article_type'] = data_frame['article_type'].map(article_type_lookup, na_action='ignore')
-
     # Label the number of instance of repeating 'uid's.
     data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
 
@@ -197,13 +243,17 @@ def _df_clean(data_frame):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def openi_raw_extract_and_clean(data_frame, verbose, cache_path):
+def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_path):
     """
 
     Extract features from, and clean text of, ``data_frame``.
 
     :param data_frame: the dataframe evolved inside ``biovida.images.openi_interface._OpeniRecords().records_pull()``.
     :rtype data_frame: ``Pandas DataFrame``
+    :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,
+                                this parameter requires that 'article_type' is one of: 'encounter', 'case_report'.
+                                Defaults to ``True``.
+    :type clinical_cases_only: ``bool``
     :param verbose: print additional details.
     :type verbose: ``bool``
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
@@ -217,6 +267,12 @@ def openi_raw_extract_and_clean(data_frame, verbose, cache_path):
 
     # Add potentially missing columns
     data_frame = _df_add_missing_columns(data_frame)
+
+    # Look up the article type
+    data_frame['article_type'] = data_frame['article_type'].map(article_type_lookup, na_action='ignore')
+
+    if clinical_cases_only:
+        data_frame = _apply_clinical_case_only(data_frame)
 
     # Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
     data_frame = _df_make_hashable(data_frame)

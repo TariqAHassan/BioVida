@@ -68,6 +68,7 @@ class _OpeniSearch(object):
 
     def __init__(self):
         self._root_url = 'https://openi.nlm.nih.gov'
+        self.current_search = None
 
     @staticmethod
     def _openi_search_special_case(search_param, blocked, passed):
@@ -445,11 +446,11 @@ class _OpeniRecords(object):
         """
         return ["&m={0}&n={1}".format(i[0], i[1]) for i in bounds]
 
-    def date_formater(self, date_dict):
+    def date_formatter(self, date_dict):
         """
 
         :param date_dict:
-        :param date_format:
+        :type date_dict: ``dict``
         :return:
         """
         if not date_dict:
@@ -522,7 +523,7 @@ class _OpeniRecords(object):
                 if isinstance(j, (list, tuple)):
                     item_dict[iter_join(j)] = null_convert(item.get(j[0], {}).get(j[1], None))
                 elif j == 'journal_date':
-                    item_dict[j] = null_convert(self.date_formater(item.get(j, None)))
+                    item_dict[j] = null_convert(self.date_formatter(item.get(j, None)))
                 elif append_root_url(camel_to_snake_case(j)):
                     item_dict[j] = url_combine(self.root_url, null_convert(item.get(j, None)))
                 else:
@@ -559,34 +560,6 @@ class _OpeniRecords(object):
             harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
 
         return harvested_data
-
-    @staticmethod
-    def _apply_clinical_case_only(records_db):
-        """
-
-        Remove records (dataframe rows) which are not of clinical encounters.
-
-        Note: this is here, and not in ``_OpeniImages().pull_images()`` b/c the
-        Open-i API does not have an 'encounter' param (which it probably should).
-
-        :param records_db: the ``records_db`` as evolved in ``records_pull()``.
-        :type records_db: ``Pandas DataFrame``
-        :return: see description.
-        :rtype: ``Pandas DataFrame``
-        """
-        clinical_article_types = ('encounter', 'case report')
-
-        def test(article_type):
-            if isinstance(article_type, str) and article_type in clinical_article_types:
-                return True
-            else:
-                return False
-
-        records_db = records_db[records_db['article_type'].map(test)].reset_index(drop=True)
-        if records_db.shape[0] == 0:
-            raise NoResultsFound("\nNo results remained after the `clinical_cases_only=True` restriction was applied.\n"
-                                 "Consider setting `pull()`'s `clinical_cases_only` parameter to `False`.")
-        return records_db
 
     def records_pull(self,
                      search_url,
@@ -636,6 +609,7 @@ class _OpeniRecords(object):
 
         # Process Text
         records_db = openi_raw_extract_and_clean(data_frame=records_db,
+                                                 clinical_cases_only=clinical_cases_only,
                                                  verbose=self._verbose,
                                                  cache_path=self._cache_path)
 
@@ -646,10 +620,6 @@ class _OpeniRecords(object):
         # Add the Version of BioVida which generated the DataFrame
         records_db['biovida_version'] = [__version__] * records_db.shape[0]
 
-        if clinical_cases_only:
-            records_db = self._apply_clinical_case_only(records_db)
-
-        # Add to attrs.
         self.records_db = records_db
 
         return self.records_db
