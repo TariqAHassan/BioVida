@@ -558,14 +558,16 @@ class ImageProcessing(object):
             print("\n\nPreparing Images for Neural Network...")
             verbose_prediction = True
         else:
-            verbose_prediction= False
+            verbose_prediction = False
 
         transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self._ircnn.img_shape, status=status)
 
+        if verbose_prediction:
+            print("\n\nAnalyzing Images for Visual Problems with Neural Network...")
+
         # Make the predictions and Save
         self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
-                                                                            status=status,
-                                                                            verbose=verbose_prediction)
+                                                                            status=status, verbose=False)
 
     def visual_image_problems(self, new_analysis=False, status=True):
         """
@@ -601,10 +603,6 @@ class ImageProcessing(object):
         it believes all of the other images are likely devoid of problems it has been
         trained to detect.
         """
-        # Note: This method is a wrapper for `_image_problems_predictions()`
-        if self._verbose and self._print_update:
-            print("\n\nAnalyzing Images for Problems...")
-
         if 'visual_image_problems' not in self.image_dataframe.columns or new_analysis:
             self._image_problems_predictions(status=status)
 
