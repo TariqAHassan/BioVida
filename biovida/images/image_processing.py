@@ -127,6 +127,8 @@ class ImageProcessing(object):
 
         :param x: any iterable data structure.
         :type x: ``iterable``
+        :param length: length of ``x`` (typically only needed for generators, which do not include this information).
+        :type length: ``int`` or ``None``
         :return: ``x`` wrapped in a tqdm status bar if ``status`` is True, else the object is returned 'as is'.
         :type: ``tqdm`` or ``any``
         """
