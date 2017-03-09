@@ -268,7 +268,7 @@ class _OpeniSearch(object):
         return search_dict[x][0] if x != 'query' else 'query'
 
     def search(self,
-               query,
+               query=None,
                image_type=None,
                rankby=None,
                article_type=None,
@@ -309,10 +309,6 @@ class _OpeniSearch(object):
         """
         # Remove 'self' and 'print_results' from locals
         args_cleaned = {k: v for k, v in deepcopy(locals()).items() if k not in ['self', 'print_results']}
-
-        # Block blank searches
-        if not len(list(filter(None, args_cleaned.values()))):
-            raise ValueError("No Search Criterion Detected. Please specify criterion to narrow your search.")
 
         # Extract the function arguments and format values.
         args = {k: [v] if isinstance(v, str) and k != 'query' else v for k, v in args_cleaned.items() if k != 'exclusions'}
