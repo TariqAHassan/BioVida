@@ -351,7 +351,7 @@ def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
 
 
 _image_instance_image_columns = {
-    # Note: the first column should be the default.
+    # Note: the first item should be the default.
     'OpeniInterface': ('cached_images_path',),
     'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path'),
     'unify_against_images': ('cached_images_path',),
