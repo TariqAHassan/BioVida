@@ -252,7 +252,7 @@ def _align_pandas(data_frame, to_align='right'):
     return data_frame
 
 
-def _pandas_print_full(pd_df, full_rows=False, full_cols=False, lift_column_width_limit=False):
+def _pandas_print_full(pd_df, full_rows, full_cols, print_dims, lift_column_width_limit):
     """
 
     Print *all* of a Pandas DataFrame.
@@ -263,6 +263,8 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False, lift_column_widt
     :type full_rows: ``bool``
     :param full_cols: print all columns side-by-side if True. Defaults to ``True``.
     :type full_cols: ``bool``
+    :param print_dims: print the dimensions of the data.
+    :type print_dims: ``bool``
     :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
     :type lift_column_width_limit: ``bool``
     """
@@ -277,7 +279,9 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False, lift_column_widt
         pd.set_option('display.max_colwidth', 10000)
 
     print(pd_df)
-    print("\n[{0} rows x {1} columns]".format(pd_df.shape[0], pd_df.shape[1]))
+
+    if print_dims:
+        print("\n[{0} rows x {1} columns]".format(pd_df.shape[0], pd_df.shape[1]))
 
     # Restore Pandas Printing Defaults
     if full_rows:
@@ -290,18 +294,21 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False, lift_column_widt
         pd.reset_option('display.max_colwidth')
 
 
-def _pandas_series_print(series):
+def _pandas_series_print(series, print_dims):
     """
 
     Fully Print a pandas series.
 
     :param series: a series.
     :type series: ``Pandas Series``
+    :param print_dims: print the dimensions of the data.
+    :type print_dims: ``bool``
     """
     if len(series) != 0:
         for i, v in zip(series.index.tolist(), series.tolist()):
             print("{0}:".format(str(i)), v)
-    print("\n[{0} rows]".format(len(series)))
+    if print_dims:
+        print("\n[{0} rows]".format(len(series)))
 
 
 def pandas_pprint(data,
@@ -309,6 +316,7 @@ def pandas_pprint(data,
                   header_align='center',
                   full_rows=False,
                   full_cols=False,
+                  print_dims=True,
                   lift_column_width_limit=False):
     """
 
@@ -325,11 +333,14 @@ def pandas_pprint(data,
     :type full_rows: ``bool``
     :param full_cols: print all columns.
     :type full_cols: ``bool``
+    :param print_dims: print the dimensions of the data.
+    :type print_dims: ``bool``
     :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
     :type lift_column_width_limit: ``bool``
     """
     if type(data).__name__ not in ('DataFrame', 'Series'):
-        raise TypeError("`data` cannot be of type '{0}'; must be of type 'DataFrame' or 'Series'.".format(type(data).__name__))
+        raise TypeError("`data` cannot be of type '{0}'; "
+                        "must be of type 'DataFrame' or 'Series'.".format(type(data).__name__))
 
     # Deep copy to prevent altering ``data`` in memory.
     data_copy = data.copy(deep=True)
@@ -338,10 +349,11 @@ def pandas_pprint(data,
     if isinstance(data_copy, pd.DataFrame):
         aligned_df = _align_pandas(data_copy, col_align)
         pd.set_option('colheader_justify', header_align)
-        _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols, lift_column_width_limit)
+        _pandas_print_full(pd_df=aligned_df.fillna(""), full_rows=full_rows, full_cols=full_cols,
+                           print_dims=print_dims, lift_column_width_limit=lift_column_width_limit)
         pd.set_option('colheader_justify', 'right')
     elif isinstance(data_copy, pd.Series):
-        _pandas_series_print(data_copy)
+        _pandas_series_print(data_copy, print_dims)
 
 
 
