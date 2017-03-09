@@ -230,7 +230,7 @@ def _df_clean(data_frame):
     data_frame['modality_full'] = data_frame['image_modality_major'].map(
         lambda x: openi_image_type_modality_full.get(cln(x).lower(), x), na_action='ignore')
 
-    # Make the type of Imaging technology type human-readable. ToDo: apply to the other image_modality.
+    # Make the type of Imaging technology type human-readable.
     data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
         lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore')
 
