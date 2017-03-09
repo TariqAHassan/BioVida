@@ -210,7 +210,7 @@ def _df_fill_nan(data_frame):
         lambda x: np.NaN if isinstance(x, str) and cln(x).lower().startswith('replace this - ') else x,
         na_action='ignore')
 
-    return data_frame
+    return data_frame.fillna(np.NaN)
 
 
 def _df_clean(data_frame):
@@ -286,9 +286,8 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
     # Run Feature Extracting Tool and Join with `data_frame`.
     if verbose:
         print("\n\nExtracting Features from Text...\n")
-    pp = pd.DataFrame(data_frame.progress_apply(
-        lambda x: feature_extract(x, list_of_diseases=list_of_diseases), axis=1).tolist()).fillna(np.NaN)
-    data_frame = data_frame.join(pp, how='left')
+    extract = data_frame.progress_apply(lambda x: feature_extract(x, list_of_diseases), axis=1).tolist()
+    data_frame = data_frame.join(pd.DataFrame(extract), how='left')
 
     if verbose:
         print("\n\nCleaning Text Information...\n")
