@@ -252,7 +252,7 @@ def _align_pandas(data_frame, to_align='right'):
     return data_frame
 
 
-def _pandas_print_full(pd_df, full_rows, full_cols, print_dims, dims_to_print, lift_column_width_limit):
+def _pandas_print_full(pd_df, full_rows, full_cols, dims_to_print, lift_column_width_limit):
     """
 
     Print *all* of a Pandas DataFrame.
@@ -263,8 +263,6 @@ def _pandas_print_full(pd_df, full_rows, full_cols, print_dims, dims_to_print, l
     :type full_rows: ``bool``
     :param full_cols: print all columns side-by-side if True. Defaults to ``True``.
     :type full_cols: ``bool``
-    :param print_dims: print the dimensions of the data.
-    :type print_dims: ``bool``
     :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
     :type lift_column_width_limit: ``bool``
     """
@@ -280,9 +278,9 @@ def _pandas_print_full(pd_df, full_rows, full_cols, print_dims, dims_to_print, l
 
     print(pd_df)
 
-    if print_dims and dims_to_print == 'both':
+    if dims_to_print == 'both':
         print("\n[{0} rows x {1} columns]".format(pd_df.shape[0], pd_df.shape[1]))
-    elif print_dims and dims_to_print == 'rows_only':
+    elif dims_to_print == 'rows_only':
         print("\n[{0} rows]".format(pd_df.shape[0]))
 
     # Restore Pandas Printing Defaults
@@ -301,7 +299,7 @@ def pandas_pprint(data,
                   header_align='center',
                   full_rows=False,
                   full_cols=False,
-                  print_dims=True,
+                  print_dims=False,
                   lift_column_width_limit=False):
     """
 
@@ -318,7 +316,7 @@ def pandas_pprint(data,
     :type full_rows: ``bool``
     :param full_cols: print all columns.
     :type full_cols: ``bool``
-    :param print_dims: print the dimensions of the data.
+    :param print_dims: print the dimensions of the data. Not typically needed.
     :type print_dims: ``bool``
     :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
     :type lift_column_width_limit: ``bool``
@@ -338,10 +336,13 @@ def pandas_pprint(data,
     else:
         dims_to_print = 'both'
 
+    if not print_dims:
+        dims_to_print = False  # block
+
     aligned_df = _align_pandas(data_copy, col_align)
     pd.set_option('colheader_justify', header_align)
     _pandas_print_full(pd_df=aligned_df.fillna(""), full_rows=full_rows, full_cols=full_cols,
-                       print_dims=print_dims, dims_to_print=dims_to_print,
+                       dims_to_print=dims_to_print,
                        lift_column_width_limit=lift_column_width_limit)
     pd.set_option('colheader_justify', 'right')
 
