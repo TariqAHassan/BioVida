@@ -276,7 +276,7 @@ def robust_match_template(pattern_img,
                                  Defaults to 0.875.
     :type end_search_threshold: ``float`` or  ``None``
     :param base_img_cropping: the amount of the image to crop with respect to the x and y axis.
-                          form: ``(height, width)``. Defaults to ``(0.15, 0.5)``.
+                              form: ``(height, width)``. Defaults to ``(0.15, 0.5)``.
                           
     Notes:
 
