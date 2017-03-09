@@ -113,7 +113,7 @@ class ImageProcessing(object):
         self._print_update = False
 
     @staticmethod
-    def _apply_status(x, status):
+    def _apply_status(x, status, length=None):
         """
 
         Applies a tqdm() progress bar to an an iterable (if `status` is True).
@@ -124,7 +124,10 @@ class ImageProcessing(object):
         :type: ``tqdm`` or ``any``
         """
         if status:
-            return tqdm(x)
+            if length is None:
+                return tqdm(x, total=len(x))
+            else:
+                return tqdm(x, total=length)
         else:
             return x
 
@@ -162,7 +165,7 @@ class ImageProcessing(object):
             self._ndarrays_images = [imread(i, flatten=True) for i in self.image_dataframe['cached_images_path']]
 
         if zip_with_column is not None:
-            return zip(*[self._ndarrays_images, self.image_dataframe[zip_with_column]])
+            return list(zip(*[self._ndarrays_images, self.image_dataframe[zip_with_column]]))
         else:
             return self._ndarrays_images
 
@@ -517,17 +520,14 @@ class ImageProcessing(object):
         else:
             df = data_frame
 
-        # Zip the relevant columns (faster than looping through the dataframe directly). ToDo: refactor with .iterrows.
-        to_predict = zip(*[df[i] for i in ('cached_images_path', 'lower_crop', 'upper_crop', 'vborder')])
-
         all_cropped_images = list()
-        for cached_images_path, lower_crop, upper_crop, vborder in self._apply_status(to_predict, status):
-            cropped_image = self._apply_cropping(cached_images_path,
-                                                 lower_crop,
-                                                 upper_crop,
-                                                 vborder,
-                                                 return_as_array,
-                                                 convert_to_rgb)
+        for index, row in self._apply_status(df.iterrows(), status=status, length=len(df)):
+            cropped_image = self._apply_cropping(cached_images_path=row['cached_images_path'],
+                                                 lower_crop=row['lower_crop'],
+                                                 upper_crop=row['upper_crop'],
+                                                 vborder=row['vborder'],
+                                                 return_as_array=return_as_array,
+                                                 convert_to_rgb=convert_to_rgb)
 
             all_cropped_images.append(cropped_image)
 
@@ -805,7 +805,7 @@ class ImageProcessing(object):
         if self._verbose:
             print("\n\nSaving Images...")
 
-        for index, row in tqdm(return_df.iterrows(), total=len(return_df)):
+        for index, row in self._apply_status(return_df.iterrows(), status=status, length=len(return_df)):
             full_save_path = os.path.join(save_rule_wrapper(row), row['cached_images_path'].split(os.sep)[-1])
 
             if allow_overwrite:
