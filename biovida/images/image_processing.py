@@ -11,15 +11,17 @@ import pandas as pd
 import pkg_resources
 from PIL import Image
 from tqdm import tqdm
-from warnings import warn
 from PIL import ImageStat
 from scipy.misc import imread
 
 # General tools
 from biovida.support_tools.support_tools import items_null
+from biovida.support_tools.support_tools import data_frame_col_drop
 
 # Tools form the image subpackage
 from biovida.images._image_tools import load_and_scale_imgs
+
+from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
 
 # Models
 from biovida.images.models.border_detection import border_detection
@@ -111,6 +113,11 @@ class ImageProcessing(object):
 
         # Switch to control verbosity
         self._print_update = False
+
+    @property
+    def image_dataframe_short(self):
+        """Return `image_dataframe` with nonessential columns removed."""
+        return data_frame_col_drop(self.image_dataframe, nonessential_openi_columns, 'image_dataframe')
 
     @staticmethod
     def _apply_status(x, status, length=None):
@@ -762,7 +769,12 @@ class ImageProcessing(object):
 
         Save processed images to disk.
 
-        :param save_rule: the directory to save the images.
+        :param save_rule:
+
+            - if a ``str``: the directory to save the images.
+            - if a ``function``: it must (1) accept a single parameter (argument) and (2) return system path(s)
+              [see example below].
+
         :type save_rule: ``str`` or ``function``
         :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist.
                             Defaults to ``False``.
@@ -776,6 +788,31 @@ class ImageProcessing(object):
         :type convert_to_rgb: ``bool``
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
+
+        :Example:
+
+        >>> from biovida.images import OpeniInterface
+        >>> from biovida.images import ImageProcessing
+        ...
+        >>> opi = OpeniInterface()
+        >>> opi.search(image_type='mri')
+        >>> opi.pull()
+        ...
+        >>> ip = ImageProcessing(opi)
+        >>> ip.auto()
+        ...
+        # Simple Save Rule
+        >>> ip.save('/your/path/here/images')
+        ...
+        # More Complex Save Rule
+        >>> def my_save_rule(row):
+        >>>     if isinstance(row['abstract'], str) and 'lung' in row['abstract']:
+        >>>         return '/your/path/here/lung_images'
+        >>>     elif isinstance(row['abstract'], str) and 'heart' in row['abstract']:
+        >>>         return '/your/path/here/heart_images'
+        ...
+        >>> ip.save(my_save_rule)
+
         """
         self._save_method_error_checking(save_rule)
 

@@ -314,6 +314,31 @@ def multimap(data_frame, columns, func):
     return data_frame
 
 
+def data_frame_col_drop(data_frame, columns_to_drop, data_frame_name):
+    """
+
+    Return ``data_frame`` with select columns dropped.
+
+    :param data_frame: a ``data_frame``
+    :type data_frame: ``Pandas DataFrame``
+    :param columns_to_drop: a 'list' of columns to drop from ``data_frame``.
+    :type columns_to_drop: ``list`` or ``tuple``
+    :param data_frame_name: the name of ``data_frame`` to use when raising.
+    :type data_frame_name: ``str``
+    :return: ``data_frame`` with ``columns_to_drop`` dropped.
+    :rtype: ``Pandas DataFrame``
+    """
+    if not isinstance(data_frame, pd.DataFrame):
+        raise TypeError("`{0}` is not a DataFrame.".format(data_frame_name))
+    columns_to_keep = [i for i in data_frame.columns if i not in columns_to_drop]
+    return data_frame[columns_to_keep]
+
+
+
+
+
+
+
 
 
 

@@ -35,6 +35,7 @@ from biovida.images._interface_support.openi.openi_support_tools import iter_joi
 from biovida.images._interface_support.openi.openi_support_tools import url_combine
 from biovida.images._interface_support.openi.openi_support_tools import null_convert
 from biovida.images._interface_support.openi.openi_support_tools import ImageProblemBasedOnText
+from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
 
 # Open-i API Parameters Information
 from biovida.images._interface_support.openi.openi_parameters import openi_search_information
@@ -49,6 +50,7 @@ from biovida.support_tools._cache_management import package_cache_creator
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import camel_to_snake_case
+from biovida.support_tools.support_tools import data_frame_col_drop
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
 # Start tqdm
@@ -993,6 +995,16 @@ class OpeniInterface(object):
 
         # Load in databases in 'databases/__temp__', if they exist
         self._latent_temp_dir()
+
+    @property
+    def records_db_short(self):
+        """Return `records_db` with nonessential columns removed."""
+        return data_frame_col_drop(self.records_db, nonessential_openi_columns, 'records_db')
+
+    @property
+    def cache_records_db_short(self):
+        """Return `records_db` with nonessential columns removed."""
+        return data_frame_col_drop(self.cache_records_db, nonessential_openi_columns, 'cache_records_db')
 
     def options(self, search_parameter, print_options=True):
         """

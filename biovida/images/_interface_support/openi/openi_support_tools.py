@@ -1,7 +1,7 @@
 """
 
-    General Support Tools for ``openi_interface()._OpeniRecords()``
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    General Support Tools for Open-i Data Processing
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
 # Imports
@@ -16,6 +16,36 @@ from biovida.support_tools.support_tools import items_null
 
 # Regex for ``extract_float()``
 non_decimal = re.compile(r'[^\d.]+')
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Data
+# ----------------------------------------------------------------------------------------------------------
+
+
+nonessential_openi_columns = [
+    'biovida_version',
+    'detailed_query_url',
+    'fulltext_html_url',
+    'get_article_figures',
+    'img_grid150',
+    'img_large',
+    'img_thumb',
+    'img_thumb_large',
+    'pmc_url',
+    'pub_med_url',
+    'license_url',
+    'medpix_article_id',
+    'medpix_figure_id',
+    'medpix_image_url',
+    'similar_in_collection',
+    'similar_in_results'
+]
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Tools
+# ----------------------------------------------------------------------------------------------------------
 
 
 class ImageProblemBasedOnText(Exception):

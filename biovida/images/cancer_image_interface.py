@@ -37,6 +37,7 @@ from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import combine_dicts
 from biovida.support_tools.support_tools import camel_to_snake_case
+from biovida.support_tools.support_tools import data_frame_col_drop
 from biovida.support_tools.support_tools import list_to_bulletpoints
 
 # Import Printing Tools
@@ -48,6 +49,7 @@ from biovida.support_tools._cache_management import package_cache_creator
 # Cancer Image Support tools
 from biovida.images._interface_support.dicom_data_to_dict import dicom_to_dict
 from biovida.images._interface_support.cancer_image.cancer_image_parameters import CancerImageArchiveParams
+from biovida.images._interface_support.cancer_image.cancer_image_support_tools import nonessential_cancer_image_columns
 
 # Spin up tqdm
 tqdm.pandas("status")
@@ -1157,6 +1159,16 @@ class CancerImageInterface(object):
         # Load in databases in 'databases/__temp__', if they exist
         self._latent_temp_dir()
 
+    @property
+    def records_db_short(self):
+        """Return `records_db` with nonessential columns removed."""
+        return data_frame_col_drop(self.records_db, nonessential_cancer_image_columns, 'records_db')
+
+    @property
+    def cache_records_db_short(self):
+        """Return `records_db` with nonessential columns removed."""
+        return data_frame_col_drop(self.cache_records_db, nonessential_cancer_image_columns, 'cache_records_db')
+
     @staticmethod
     def _collection_filter(summary_df, collection, cancer_type, location):
         """
@@ -1274,7 +1286,8 @@ class CancerImageInterface(object):
 
         if pretty_print:
             current_query_print = self.current_query.copy(deep=True)
-            pandas_pprint(current_query_print, full_cols=True, col_align='left', lift_column_width_limit=True)
+            pandas_pprint(data=current_query_print, full_cols=True, col_align='left',
+                          print_dims=False, lift_column_width_limit=True)
 
         # Warn the user if search criteria have not been applied.
         if all([collection is None, cancer_type is None, location is None, modality is None]):
@@ -1285,7 +1298,8 @@ class CancerImageInterface(object):
                  "If you still wish to proceed, consider adjusting `pull()`'s\n"
                  "`patient_limit` and `session_limit` parameters.")
 
-        return None if pretty_print else self.current_query
+        if not pretty_print:
+            return self.current_query
 
     def _pull_records(self, patient_limit, collections_limit):
         """
