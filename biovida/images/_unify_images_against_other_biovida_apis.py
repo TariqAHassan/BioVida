@@ -129,7 +129,7 @@ class _ImagesInterfaceIntegration(object):
         """
         return {'OpeniInterface': self._open_i_prep, 'CancerImageInterface': self._cancer_image_prep}
 
-    def integration(self, interfaces, source_db):
+    def integration(self, interfaces, db_to_extract):
         """
 
         Standardize interfaces.
@@ -154,8 +154,8 @@ class _ImagesInterfaceIntegration(object):
 
         :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a tuple.
         :rtype interfaces: ``tuple``, ``list``, ``OpeniInterface`` class or ``CancerImageInterface`` class.
-        :param source_db: the database to use. Must be one of: 'records_db', 'cache_records_db'.
-        :type source_db: ``str``
+        :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
+        :type db_to_extract: ``str``
         :return: standardize interfaces
         :rtype: ``Pandas DataFrame``
         """
@@ -167,10 +167,10 @@ class _ImagesInterfaceIntegration(object):
         frames = list()
         for class_instance in interfaces:
             func = prep_class_dict[type(class_instance).__name__]
-            database = getattr(class_instance, source_db)
+            database = getattr(class_instance, db_to_extract)
             if 'DataFrame' != type(database).__name__:
                 raise ValueError("The {0} instance's '{1}' database must be of type DataFrame,\nnot "
-                                 "'{2}'.".format(type(class_instance).__name__, source_db, type(database).__name__))
+                                 "'{2}'.".format(type(class_instance).__name__, db_to_extract, type(database).__name__))
             frames.append(func(database))
 
         return pd.concat(frames, ignore_index=True)
@@ -639,16 +639,16 @@ class _DisgenetIntegration(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def images_unify(interfaces, source_db='cache_records_db', cache_path=None, verbose=True, fuzzy_threshold=False):
+def images_unify(interfaces, db_to_extract='cache_records_db', cache_path=None, verbose=True, fuzzy_threshold=False):
     """
 
     Unify Interfaces in the ``images`` subpackage against other BioVida APIs.
 
     :param interfaces: See: ``biovia.unify_domains.unify_against_images()``
     :param interfaces: `list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
-    :param source_db: the database to use. Must be one of: 'records_db', 'cache_records_db'.
-                      Defaults to 'cache_records_db'.
-    :type source_db: ``str``
+    :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
+                          Defaults to 'cache_records_db'.
+    :type db_to_extract: ``str``
     :param cache_path: See: ``biovia.unify_domains.unify_against_images()``
     :param cache_path: `str`` or ``None``
     :param verbose: See: ``biovia.unify_domains.unify_against_images()``
@@ -663,7 +663,7 @@ def images_unify(interfaces, source_db='cache_records_db', cache_path=None, verb
         fuzzy_threshold = 95
 
     # Combine Instances
-    combined_df = _ImagesInterfaceIntegration().integration(interfaces=interfaces, source_db=source_db)
+    combined_df = _ImagesInterfaceIntegration().integration(interfaces=interfaces, db_to_extract=db_to_extract)
 
     # Disease Ontology
     combined_df = _DiseaseOntologyIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
