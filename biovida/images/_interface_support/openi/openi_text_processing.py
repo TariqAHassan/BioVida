@@ -48,6 +48,9 @@ def abstract_cleaner(abstract):
     :return: cleaned ``abstract``
     :rtype: ``str``
     """
+    if not isinstance(abstract, str):
+        return np.NaN
+
     soup = BeautifulSoup(remove_html_bullet_points(abstract).replace("<b>", ". "), 'lxml')
     cleaned = soup.text.replace(" ; ", " ").replace("..", ".").replace(".;", ";")
     return remove_from_head_tail(cleaned, char=".") + "."
