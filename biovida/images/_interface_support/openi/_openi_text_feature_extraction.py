@@ -23,10 +23,10 @@ from biovida.support_tools.support_tools import remove_from_head_tail
 from biovida.support_tools.support_tools import remove_html_bullet_points
 
 # Data
-from biovida.images._interface_support.openi.openi_imaging_modality_information import (terms_dict,
-                                                                                        modality_subtypes,
-                                                                                        contradictions,
-                                                                                        modality_specific_subtypes)
+from biovida.images._interface_support.openi._openi_imaging_modality_information import (terms_dict,
+                                                                                         modality_subtypes,
+                                                                                         contradictions,
+                                                                                         modality_specific_subtypes)
 
 
 # ----------------------------------------------------------------------------------------------------------
