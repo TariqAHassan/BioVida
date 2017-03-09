@@ -277,6 +277,7 @@ def _pandas_print_full(pd_df, full_rows=False, full_cols=False, lift_column_widt
         pd.set_option('display.max_colwidth', 10000)
 
     print(pd_df)
+    print("\n[{0} rows x {1} columns]".format(pd_df.shape[0], pd_df.shape[1]))
 
     # Restore Pandas Printing Defaults
     if full_rows:
@@ -300,6 +301,7 @@ def _pandas_series_print(series):
     if len(series) != 0:
         for i, v in zip(series.index.tolist(), series.tolist()):
             print("{0}:".format(str(i)), v)
+    print("\n[{0} rows]".format(len(series)))
 
 
 def pandas_pprint(data,
