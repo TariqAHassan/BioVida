@@ -71,6 +71,9 @@ def article_type_lookup(article_type_abbrev):
     :return: the full article type name.
     :rtype: ``str``
     """
+    if not isinstance(article_type_abbrev, str):
+        return article_type_abbrev
+
     rslt = openi_article_type_params.get(cln(article_type_abbrev).lower(), None)
     return cln(rslt.replace("_", " ")) if isinstance(rslt, str) else article_type_abbrev
 
