@@ -30,77 +30,61 @@ from biovida.images.models.image_classification import ImageRecognitionCNN
 pd.options.mode.chained_assignment = None
 
 
-def _extract_search_class_db(database_to_extract, search_class):
-    """
-
-    Extracts a database from the `search_class` parameter of ImageProcessing().
-
-    :param database_to_extract: see ``ImageProcessing()``.
-    :type database_to_extract: ``str``
-    :param search_class: see ``ImageProcessing()``.
-    :type search_class: ``OpenInterface Class``
-    :return: extract database
-    :rtype: ``Pandas DataFrame``
-    """
-    if database_to_extract not in ('current', 'cache'):
-        raise ValueError("`database_to_extract` must be one of: 'current', 'cache'.")
-
-    def deep_copy_dataframe(data_frame):
-        to_return = data_frame.copy(deep=True)
-        return to_return
-
-    def is_dataframe(data_frame):
-        return type(data_frame).__name__ == 'DataFrame'
-
-    fall_back = False
-    if database_to_extract == 'current' and is_dataframe(search_class.records_db):
-        return deep_copy_dataframe(search_class.records_db)
-    elif not is_dataframe(search_class.records_db):
-        fall_back = True
-        warn("\n`records_db` is not a DataFrame. Falling back to `cache_records_db`.")
-
-    if database_to_extract == 'cache' or fall_back:
-        extracted_db = search_class.cache_records_db
-
-    if not is_dataframe(extracted_db):
-        if fall_back is False:  # i.e., the user set ``database_to_extract='cache'``.
-            raise TypeError("The '{0}' database provided is not a DataFrame. ".format(database_to_extract))
-        else:
-            raise TypeError("Neither `records_db` nor `cache_records_db` are DataFrames.")
-    else:
-        return deep_copy_dataframe(extracted_db)
-
-
 class ImageProcessing(object):
     """
 
     This class is designed to allow easy analysis of cached image data.
 
-    :param search_class: aninstance of the ``biovida.images.openi_interface.OpenInterface()`` class.
-    :type search_class: ``OpenInterface Class``
+    :param instance: an instance of the ``biovida.images.openi_interface.OpenInterface()`` class.
+    :type instance: ``OpenInterface Class``
+    :param db_to_extract: ``records_db`` or``cache_records_db``. Defaults to 'records_db'.
+    :type db_to_extract: ``str``
     :param model_location: the location of the model for Convnet.
-                          If `None`, the default model will be used. Defaults to ``None``.
+                      If `None`, the default model will be used. Defaults to ``None``.
     :type model_location: ``str``
-    :param database_to_extract: 'current' to extract the ``records_db`` from ``search_class`` or
-                                 'cache' to extract ``cache_records_db``. Defaults to 'current'.
-    :type database_to_extract: ``str``
     :param verbose: if ``True``, print additional details. Defaults to ``False``.
     :type verbose: ``bool``
 
-    :var image_dataframe: this is the current dataframe that was passed when instantiating the class and
+    :var image_dataframe: this is the dataframe that was passed when instantiating the class and
                           contains a cache of all analyses run as new columns.
     """
-    def __init__(self, search_class, model_location=None, database_to_extract='current', verbose=True):
+
+    @staticmethod
+    def _extract_db(instance, db_to_extract):
+        """
+
+        Extracts a database from the `instance` parameter of ImageProcessing().
+
+        :param db_to_extract: see ``ImageProcessing()``.
+        :type db_to_extract: ``str``
+        :param instance: see ``ImageProcessing()``.
+        :type instance: ``OpenInterface Class``
+        :return: extract database
+        :rtype: ``Pandas DataFrame``
+        """
+        if db_to_extract not in ('records_db', 'cache_records_db'):
+            raise ValueError("`db_to_extract` must be one of: 'records_db', 'cache_records_db'.")
+
+        extract = getattr(instance, db_to_extract)
+
+        if isinstance(extract, pd.DataFrame):
+            image_dataframe = extract.copy(deep=True)
+            return image_dataframe
+        else:
+            raise TypeError("The '{0}' of `instance` must be of "
+                            "type DataFrame, not: '{2}'.".format(db_to_extract, type(extract).__name__))
+
+    def __init__(self, instance, db_to_extract='records_db', model_location=None, verbose=True):
         self._verbose = verbose
 
-        if "OpeniInterface" != type(search_class).__name__:
-            raise ValueError("`search_class` must be a `OpeniInterface` instance.")
+        if "OpeniInterface" != type(instance).__name__:
+            raise ValueError("`instance` must be a `OpeniInterface` instance.")
 
-        # Extract the current/cache database
-        self.image_dataframe = _extract_search_class_db(database_to_extract, search_class)
+        # Extract the records_db/cache_records_db database
+        self.image_dataframe = self._extract_db(instance, db_to_extract)
 
         # Extract path to the MedPix Logo
-        self._medpix_path = search_class._created_img_dirs['medpix_logo']
+        self._medpix_path = instance._created_img_dirs['medpix_logo']
 
         # Spin up tqdm
         tqdm.pandas("status")
@@ -109,13 +93,13 @@ class ImageProcessing(object):
         self._ircnn = ImageRecognitionCNN()
 
         # Load the model weights and architecture.
-        MODEL_PATH = pkg_resources.resource_filename('biovida', 'images/_resources/visual_image_problems_model.h5')
+        model_path = pkg_resources.resource_filename('biovida', 'images/_resources/visual_image_problems_model.h5')
         if model_location is None:
-            self._ircnn.load(MODEL_PATH, override_existing=True)
+            self._ircnn.load(model_path, override_existing=True)
         elif not isinstance(model_location, str):
             raise ValueError("`model_location` must either be a string or `None`.")
         elif os.path.isfile(model_location):
-            self._ircnn.load(MODEL_PATH, override_existing=True)
+            self._ircnn.load(model_path, override_existing=True)
         else:
             raise FileNotFoundError("'{0}' could not be located.".format(str(model_location)))
 
@@ -774,15 +758,6 @@ class ImageProcessing(object):
                     img.save(full_save_path)
             else:
                 img.save(full_save_path)
-
-
-
-
-
-
-
-
-
 
 
 
