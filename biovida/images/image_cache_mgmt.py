@@ -550,7 +550,7 @@ def image_divvy(instance,
 
     :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
                      ``OpeniInterface`` or ``CancerImageInterface``.
-    :type instance: ``OpeniInterface`` or ``CancerImageInterface`` or ``Pandas DataFrame
+    :type instance: ``OpeniInterface`` or ``CancerImageInterface`` or ``Pandas DataFrame``
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
     :type divvy_rule: ``function``
