@@ -1286,8 +1286,8 @@ class CancerImageInterface(object):
 
         if pretty_print:
             current_query_print = self.current_query.copy(deep=True)
-            pandas_pprint(data=current_query_print, full_cols=True, col_align='left',
-                          print_dims=False, lift_column_width_limit=True)
+            pandas_pprint(data=current_query_print, full_cols=True,
+                          col_align='left', column_width_limit=10000)
 
         # Warn the user if search criteria have not been applied.
         if all([collection is None, cancer_type is None, location is None, modality is None]):

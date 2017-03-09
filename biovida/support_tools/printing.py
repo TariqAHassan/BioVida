@@ -252,7 +252,7 @@ def _align_pandas(data_frame, to_align='right'):
     return data_frame
 
 
-def _pandas_print_full(pd_df, full_rows, full_cols, dims_to_print, lift_column_width_limit):
+def _pandas_print_full(pd_df, full_rows, full_cols, column_width_limit):
     """
 
     Print *all* of a Pandas DataFrame.
@@ -263,8 +263,9 @@ def _pandas_print_full(pd_df, full_rows, full_cols, dims_to_print, lift_column_w
     :type full_rows: ``bool``
     :param full_cols: print all columns side-by-side if True. Defaults to ``True``.
     :type full_cols: ``bool``
-    :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
-    :type lift_column_width_limit: ``bool``
+    :param column_width_limit: change limit on how wide columns can be. If ``None``, no change will be made.
+                               Defaults to ``None``.
+    :type column_width_limit: ``int`` or ``None``
     """
     # Source: https://github.com/TariqAHassan/EasyMoney
     if full_rows:
@@ -272,16 +273,11 @@ def _pandas_print_full(pd_df, full_rows, full_cols, dims_to_print, lift_column_w
     if full_cols:
         pd.set_option('expand_frame_repr', False)
         pd.set_option('display.max_columns', pd_df.shape[1])
-    if lift_column_width_limit:
-        pd.set_option('display.width', 10000)
-        pd.set_option('display.max_colwidth', 10000)
+    if not isinstance(column_width_limit, bool) and isinstance(column_width_limit, int):
+        pd.set_option('display.width', column_width_limit)
+        pd.set_option('display.max_colwidth', column_width_limit)
 
     print(pd_df)
-
-    if dims_to_print == 'both':
-        print("\n[{0} rows x {1} columns]".format(pd_df.shape[0], pd_df.shape[1]))
-    elif dims_to_print == 'rows_only':
-        print("\n[{0} rows]".format(pd_df.shape[0]))
 
     # Restore Pandas Printing Defaults
     if full_rows:
@@ -289,7 +285,7 @@ def _pandas_print_full(pd_df, full_rows, full_cols, dims_to_print, lift_column_w
     if full_cols:
         pd.set_option('expand_frame_repr', True)
         pd.set_option('display.max_columns', 20)
-    if lift_column_width_limit:
+    if not isinstance(column_width_limit, bool) and isinstance(column_width_limit, int):
         pd.reset_option('display.width')
         pd.reset_option('display.max_colwidth')
 
@@ -299,8 +295,7 @@ def pandas_pprint(data,
                   header_align='center',
                   full_rows=False,
                   full_cols=False,
-                  print_dims=False,
-                  lift_column_width_limit=False):
+                  column_width_limit=None):
     """
 
     Pretty Print a Pandas DataFrame or Series.
@@ -316,10 +311,9 @@ def pandas_pprint(data,
     :type full_rows: ``bool``
     :param full_cols: print all columns.
     :type full_cols: ``bool``
-    :param print_dims: print the dimensions of the data. Not typically needed.
-    :type print_dims: ``bool``
-    :param lift_column_width_limit: remove limit on how wide columns can be. Defaults to ``False``
-    :type lift_column_width_limit: ``bool``
+    :param column_width_limit: change limit on how wide columns can be. If ``None``, no change will be made.
+                               Defaults to ``None``.
+    :type column_width_limit: ``int`` or ``None``
     """
     # Source: https://github.com/TariqAHassan/EasyMoney
 
@@ -332,18 +326,11 @@ def pandas_pprint(data,
 
     if isinstance(data_copy, pd.Series):
         data_copy = data_copy.to_frame()
-        dims_to_print = 'rows_only'
-    else:
-        dims_to_print = 'both'
-
-    if not print_dims:
-        dims_to_print = False  # block
 
     aligned_df = _align_pandas(data_copy, col_align)
     pd.set_option('colheader_justify', header_align)
-    _pandas_print_full(pd_df=aligned_df.fillna(""), full_rows=full_rows, full_cols=full_cols,
-                       dims_to_print=dims_to_print,
-                       lift_column_width_limit=lift_column_width_limit)
+    _pandas_print_full(pd_df=aligned_df.fillna(""), full_rows=full_rows,
+                       full_cols=full_cols, column_width_limit=column_width_limit)
     pd.set_option('colheader_justify', 'right')
 
 
