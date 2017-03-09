@@ -458,10 +458,10 @@ def image_delete(instance, delete_rule):
         else:
             return True
 
-    if type(instance.records_db).__name__ == 'DataFrame':
+    if isinstance(instance.records_db, pd.DataFrame):
         to_conserve = instance.records_db.apply(lambda r: delete_rule_wrapper(r, enact=False), axis=1)
         instance.records_db = instance.records_db[to_conserve.tolist()].reset_index(drop=True)
-    if type(instance.cache_records_db).__name__ == 'DataFrame':
+    if isinstance(instance.cache_records_db, pd.DataFrame):
         # Apply ``delete_rule`` to ``cache_records_db``.
         _ = instance.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
         # Prune ``cache_records_db`` by inspecting which images have been deleted.
@@ -588,7 +588,7 @@ def image_divvy(instance,
     """
     # Extract the required dataframe.
     data_frame = getattr(instance, source_db) if source_db != 'unify_against_images' else instance
-    if type(data_frame).__name__ != 'DataFrame':
+    if not isinstance(data_frame, pd.DataFrame):
         raise TypeError("{0} expected to be a DataFrame.\n"
                         "Got an object of type: '{1}'.".format(source_db, type(data_frame).__name__))
 

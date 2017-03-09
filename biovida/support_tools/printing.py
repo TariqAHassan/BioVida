@@ -333,12 +333,12 @@ def pandas_pprint(data,
     data_copy = data.copy(deep=True)
 
     # Source: https://github.com/TariqAHassan/EasyMoney
-    if 'DataFrame' == type(data_copy).__name__:
+    if isinstance(data_copy, pd.DataFrame):
         aligned_df = _align_pandas(data_copy, col_align)
         pd.set_option('colheader_justify', header_align)
         _pandas_print_full(aligned_df.fillna(""), full_rows, full_cols, lift_column_width_limit)
         pd.set_option('colheader_justify', 'right')
-    elif 'Series' == type(data_copy).__name__:
+    elif isinstance(data_copy, pd.Series):
         _pandas_series_print(data_copy)
 
 

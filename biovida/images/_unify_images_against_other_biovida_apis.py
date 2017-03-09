@@ -168,7 +168,7 @@ class _ImagesInterfaceIntegration(object):
         for class_instance in interfaces:
             func = prep_class_dict[type(class_instance).__name__]
             database = getattr(class_instance, db_to_extract)
-            if 'DataFrame' != type(database).__name__:
+            if not isinstance(database, pd.DataFrame):
                 raise ValueError("The {0} instance's '{1}' database must be of type DataFrame,\nnot "
                                  "'{2}'.".format(type(class_instance).__name__, db_to_extract, type(database).__name__))
             frames.append(func(database))

@@ -1361,7 +1361,7 @@ class CancerImageInterface(object):
         else:
             raise ValueError("`database` must be one of 'records_db', 'cache_records_db'.")
 
-        if type(database_to_use).__name__ != 'DataFrame':
+        if not isinstance(database_to_use, pd.DataFrame):
             raise TypeError('`{0}` is not a DataFrame.'.format(database))
         else:
             db = database_to_use.copy(deep=True)
