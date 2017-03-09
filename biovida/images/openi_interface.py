@@ -574,7 +574,7 @@ class _OpeniRecords(object):
         :return: see description.
         :rtype: ``Pandas DataFrame``
         """
-        clinical_article_types = ('encounter', 'case_report')
+        clinical_article_types = ('encounter', 'case report')
 
         def test(article_type):
             if isinstance(article_type, str) and article_type in clinical_article_types:
@@ -584,7 +584,8 @@ class _OpeniRecords(object):
 
         records_db = records_db[records_db['article_type'].map(test)].reset_index(drop=True)
         if records_db.shape[0] == 0:
-            raise NoResultsFound("\nNo results remained after the `clinical_cases_only` restriction was applied.")
+            raise NoResultsFound("\nNo results remained after the `clinical_cases_only=True` restriction was applied.\n"
+                                 "Consider setting `pull()`'s `clinical_cases_only` parameter to `False`.")
         return records_db
 
     def records_pull(self,

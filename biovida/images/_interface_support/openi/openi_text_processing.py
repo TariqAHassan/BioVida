@@ -177,9 +177,13 @@ def _df_clean(data_frame):
     data_frame['image_modality_major'] = data_frame['image_modality_major'].map(
         lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore')
 
+    def article_type_lookup(x):
+        """Look up ``x`` in ``openi_article_type_params``."""
+        rslt = openi_article_type_params.get(cln(x).lower(), None)
+        return cln(rslt.replace("_", " ")) if isinstance(rslt, str) else x
+
     # Look up the article type
-    data_frame['article_type'] = data_frame['article_type'].map(
-        lambda x: openi_article_type_params.get(cln(x).replace("_", " ").lower(), x), na_action='ignore')
+    data_frame['article_type'] = data_frame['article_type'].map(article_type_lookup, na_action='ignore')
 
     # Label the number of instance of repeating 'uid's.
     data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
