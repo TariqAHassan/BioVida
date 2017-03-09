@@ -492,7 +492,7 @@ class ImageProcessing(object):
         else:
             return img_to_save
 
-    def _cropper(self, data_frame=None, return_as_array=True, include_path=False, convert_to_rgb=True, status=True):
+    def _cropper(self, data_frame=None, return_as_array=True, convert_to_rgb=True, status=True):
         """
 
         Uses `_apply_cropping()` to apply cropping to images in a dataframe.
@@ -502,9 +502,6 @@ class ImageProcessing(object):
         :type data_frame: ``None`` or ``Pandas DataFrame``
         :param return_as_array: if True, convert the PIL object to an ``ndarray``. Defaults to True.
         :type return_as_array: ``bool``
-        :param include_path: if ``True`` generate a list of lists of the form: ``[(PIL image, path to the image)...]``.
-                             if ``False`` generate a list of lists of the form ``[PIL image, PIL Image, PIL Image...]``.
-        :type include_path: ``bool``
         :param convert_to_rgb: if True, use the PIL library to convert the images to RGB. Defaults to False.
         :type convert_to_rgb: ``bool``
         :param status: display status bar. Defaults to True.
@@ -532,10 +529,7 @@ class ImageProcessing(object):
                                                  return_as_array,
                                                  convert_to_rgb)
 
-            if include_path:
-                all_cropped_images.append((cropped_image, cached_images_path))
-            else:
-                all_cropped_images.append(cropped_image)
+            all_cropped_images.append(cropped_image)
 
         return all_cropped_images
 
@@ -709,20 +703,18 @@ class ImageProcessing(object):
 
         return self.image_dataframe
 
-    def save(self, save_path, crop_images=True, convert_to_rgb=False, block_duplicates=True, status=True):
+    def save(self, save_rule, crop_images=True, convert_to_rgb=False, status=True):
         """
 
         Save processed images to disk.
 
-        :param save_path: the directory to save the images.
-        :type save_path: ``str``
+        :param save_rule: the directory to save the images.
+        :type save_rule: ``str``
         :param crop_images: Crop the images using analyses results from `border_analysis()` and
                             ``logo_analysis()``. Defaults to ``True``.
         :type crop_images: ``bool``
         :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.
         :type convert_to_rgb: ``bool``
-        :param block_duplicates: if ``True``, prohibit writing duplicates. Defaults to ``True``.
-        :type block_duplicates: ``bool``
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
         """
@@ -732,34 +724,29 @@ class ImageProcessing(object):
                            "To automate this process, consider using the `auto_decision()` method.")
 
         # Limit this operation to subsection of the dataframe where valid_image is `True`.
-        valid_df = self.image_dataframe[self.image_dataframe['valid_image'] == True].reset_index(drop=True)
+        valid_df = self.image_dataframe[self.image_dataframe['valid_image'] == True].reset_index(drop=True).copy(deep=True)
 
         if crop_images:
             if self._verbose:
                 print("\n\nCropping Images...")
-            images_to_return = self._cropper(valid_df,
-                                             return_as_array=False,
-                                             include_path=True,
-                                             convert_to_rgb=convert_to_rgb,
-                                             status=status)
+            valid_df['image_to_return'] = self._cropper(data_frame=valid_df,
+                                                        return_as_array=False,
+                                                        convert_to_rgb=convert_to_rgb,
+                                                        status=status)
         else:
             if self._verbose:
                 print("\n\nLoading Images...")
-            images_to_return = self._pil_load(valid_df['cached_images_path'], convert_to_rgb, status)
+            valid_df['image_to_return'] = self._pil_load(valid_df['cached_images_path'], convert_to_rgb, status)
 
-        # Save to disk
         if self._verbose:
             print("\n\nSaving Images...")
-        img_record = set()
-        for img, path in self._apply_status(images_to_return, status):
-            full_save_path = os.path.join(save_path, path.split(os.sep)[-1])
 
-            if block_duplicates:
-                if full_save_path not in img_record:
-                    img_record.add(full_save_path)
-                    img.save(full_save_path)
-            else:
-                img.save(full_save_path)
+        img_record = set()
+        for index, row in tqdm(valid_df.iterrows(), total=len(valid_df)):
+            full_save_path = os.path.join(save_rule, row['cached_images_path'].split(os.sep)[-1])
+            row['image_to_return'].save(full_save_path)
+            img_record.add(full_save_path)
+
 
 
 
