@@ -107,7 +107,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.unification.unify_domains">Domain Integration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../API.html#unifying-biovida-apis">Unifying BioVida APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API.html#unifying-across-domains">Unifying Across Domains</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.image_cache_mgmt">Cache Management</a><ul>
@@ -227,7 +227,7 @@ between braces.</li>
 
 <dl class="function">
 <dt id="biovida.support_tools.printing.pandas_pprint">
-<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align='right'</em>, <em>header_align='center'</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>lift_column_width_limit=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align='right'</em>, <em>header_align='center'</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>column_width_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty Print a Pandas DataFrame or Series.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -240,7 +240,8 @@ e.g., <code class="docutils literal"><span class="pre">{'my_column':</span> <spa
 <li><strong>header_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; alignment of headers. Must be one of: &#8216;left&#8217;, &#8216;right&#8217;, &#8216;center&#8217;.</li>
 <li><strong>full_rows</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all rows.</li>
 <li><strong>full_cols</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all columns.</li>
-<li><strong>lift_column_width_limit</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; remove limit on how wide columns can be. Defaults to <code class="docutils literal"><span class="pre">False</span></code></li>
+<li><strong>column_width_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; change limit on how wide columns can be. If <code class="docutils literal"><span class="pre">None</span></code>, no change will be made.
+Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 </ul>
 </td>
 </tr>

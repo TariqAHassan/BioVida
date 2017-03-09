@@ -176,7 +176,6 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># Imports</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">requests</span>
@@ -207,6 +206,7 @@
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">url_combine</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">null_convert</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">ImageProblemBasedOnText</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">nonessential_openi_columns</span>
 
 <span class="c1"># Open-i API Parameters Information</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_parameters</span> <span class="k">import</span> <span class="n">openi_search_information</span>
@@ -221,6 +221,7 @@
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">header</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">camel_to_snake_case</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">data_frame_col_drop</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
 
 <span class="c1"># Start tqdm</span>
@@ -239,6 +240,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_root_url</span> <span class="o">=</span> <span class="s1">&#39;https://openi.nlm.nih.gov&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_search</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_openi_search_special_case</span><span class="p">(</span><span class="n">search_param</span><span class="p">,</span> <span class="n">blocked</span><span class="p">,</span> <span class="n">passed</span><span class="p">):</span>
@@ -438,7 +440,7 @@
         <span class="k">return</span> <span class="n">search_dict</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="s1">&#39;query&#39;</span>
 
     <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-               <span class="n">query</span><span class="p">,</span>
+               <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">rankby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">article_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -479,10 +481,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Remove &#39;self&#39; and &#39;print_results&#39; from locals</span>
         <span class="n">args_cleaned</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">deepcopy</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;print_results&#39;</span><span class="p">]}</span>
-
-        <span class="c1"># Block blank searches</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">values</span><span class="p">()))):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No Search Criterion Detected. Please specify criterion to narrow your search.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Extract the function arguments and format values.</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">}</span>
@@ -616,11 +614,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;&amp;m=</span><span class="si">{0}</span><span class="s2">&amp;n=</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bounds</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">date_formater</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">date_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        :param date_dict:</span>
-<span class="sd">        :param date_format:</span>
+<span class="sd">        :type date_dict: ``dict``</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">date_dict</span><span class="p">:</span>
@@ -674,16 +672,11 @@
 <span class="sd">        :param to_harvest:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Init</span>
-        <span class="n">item_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-
-        <span class="c1"># Extract the starting point</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;&amp;m=(.+?)&amp;&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-
         <span class="c1"># Request data from the Open-i servers</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="n">bound</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
 
         <span class="n">root_url_columns</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;detailed_query_url&#39;</span><span class="p">,</span> <span class="s1">&#39;get_article_figures&#39;</span><span class="p">,</span> <span class="s1">&#39;similar_in_collection&#39;</span><span class="p">,</span> <span class="s1">&#39;similar_in_results&#39;</span><span class="p">)</span>
+
         <span class="k">def</span> <span class="nf">append_root_url</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Check whether or not to add `self.root_url` to a column.&quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="s1">&#39;img_&#39;</span> <span class="ow">in</span> <span class="n">item</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">root_url_columns</span><span class="p">)</span>
@@ -698,7 +691,7 @@
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
                     <span class="n">item_dict</span><span class="p">[</span><span class="n">iter_join</span><span class="p">(</span><span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">null_convert</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="kc">None</span><span class="p">))</span>
                 <span class="k">elif</span> <span class="n">j</span> <span class="o">==</span> <span class="s1">&#39;journal_date&#39;</span><span class="p">:</span>
-                    <span class="n">item_dict</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">null_convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">date_formater</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="kc">None</span><span class="p">)))</span>
+                    <span class="n">item_dict</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">null_convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">date_formatter</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="kc">None</span><span class="p">)))</span>
                 <span class="k">elif</span> <span class="n">append_root_url</span><span class="p">(</span><span class="n">camel_to_snake_case</span><span class="p">(</span><span class="n">j</span><span class="p">)):</span>
                     <span class="n">item_dict</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">url_combine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">,</span> <span class="n">null_convert</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="kc">None</span><span class="p">)))</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -735,32 +728,6 @@
             <span class="n">harvested_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openi_block_harvest</span><span class="p">(</span><span class="n">joined_url</span><span class="p">,</span> <span class="n">bound</span><span class="p">,</span> <span class="n">to_harvest</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">harvested_data</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_apply_clinical_case_only</span><span class="p">(</span><span class="n">records_db</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Remove records (dataframe rows) which are not of clinical encounters.</span>
-
-<span class="sd">        Note: this is here, and not in ``_OpeniImages().pull_images()`` b/c the</span>
-<span class="sd">        Open-i API does not have an &#39;encounter&#39; param (which it probably should).</span>
-
-<span class="sd">        :param records_db: the ``records_db`` as evolved in ``records_pull()``.</span>
-<span class="sd">        :type records_db: ``Pandas DataFrame``</span>
-<span class="sd">        :return: see description.</span>
-<span class="sd">        :rtype: ``Pandas DataFrame``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">clinical_article_types</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;encounter&#39;</span><span class="p">,</span> <span class="s1">&#39;case_report&#39;</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">article_type</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">article_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">article_type</span> <span class="ow">in</span> <span class="n">clinical_article_types</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span><span class="p">[</span><span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;article_type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">test</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">NoResultsFound</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No results remained after the `clinical_cases_only` restriction was applied.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">records_db</span>
 
     <span class="k">def</span> <span class="nf">records_pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                      <span class="n">search_url</span><span class="p">,</span>
@@ -810,6 +777,7 @@
 
         <span class="c1"># Process Text</span>
         <span class="n">records_db</span> <span class="o">=</span> <span class="n">openi_raw_extract_and_clean</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">records_db</span><span class="p">,</span>
+                                                 <span class="n">clinical_cases_only</span><span class="o">=</span><span class="n">clinical_cases_only</span><span class="p">,</span>
                                                  <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">,</span>
                                                  <span class="n">cache_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span><span class="p">)</span>
 
@@ -820,10 +788,6 @@
         <span class="c1"># Add the Version of BioVida which generated the DataFrame</span>
         <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">__version__</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">clinical_cases_only</span><span class="p">:</span>
-            <span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_clinical_case_only</span><span class="p">(</span><span class="n">records_db</span><span class="p">)</span>
-
-        <span class="c1"># Add to attrs.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span>
@@ -935,6 +899,7 @@
 <span class="sd">        :return: `1` if an image was downloaded, `0` otherwise.</span>
 <span class="sd">        :rtype: ``int``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">image_downloaded</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">check_first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_cache_first</span>
 
         <span class="k">def</span> <span class="nf">proceed_with_download</span><span class="p">(</span><span class="n">image_save_path</span><span class="p">):</span>
@@ -943,7 +908,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="n">image_downloaded</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Only download if the file does not already exist in the cache.</span>
             <span class="k">if</span> <span class="n">proceed_with_download</span><span class="p">(</span><span class="n">image_save_path</span><span class="p">):</span>
@@ -1156,7 +1120,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="o">=</span> <span class="n">cache_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_root_url</span> <span class="o">=</span> <span class="s1">&#39;https://openi.nlm.nih.gov&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_date_format</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%Y&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_date_format</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%Y&#39;</span>
 
         <span class="c1"># Generate Required Caches</span>
         <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">,</span>
@@ -1202,6 +1166,16 @@
 
         <span class="c1"># Load in databases in &#39;databases/__temp__&#39;, if they exist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_latent_temp_dir</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return `records_db` with nonessential columns removed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">data_frame_col_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">nonessential_openi_columns</span><span class="p">,</span> <span class="s1">&#39;records_db&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return `records_db` with nonessential columns removed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">data_frame_col_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">nonessential_openi_columns</span><span class="p">,</span> <span class="s1">&#39;cache_records_db&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OpeniInterface.options"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.options">[docs]</a>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_parameter</span><span class="p">,</span> <span class="n">print_options</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

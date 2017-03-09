@@ -522,7 +522,7 @@
 
 
 <span class="n">_image_instance_image_columns</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># Note: the first column should be the default.</span>
+    <span class="c1"># Note: the first item should be the default.</span>
     <span class="s1">&#39;OpeniInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
     <span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">),</span>
     <span class="s1">&#39;unify_against_images&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
@@ -629,10 +629,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="n">to_conserve</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="n">to_conserve</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="c1"># Apply ``delete_rule`` to ``cache_records_db``.</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Prune ``cache_records_db`` by inspecting which images have been deleted.</span>
@@ -721,7 +721,7 @@
 
 <span class="sd">    :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of</span>
 <span class="sd">                     ``OpeniInterface`` or ``CancerImageInterface``.</span>
-<span class="sd">    :type instance: ``OpeniInterface`` or ``CancerImageInterface`` or ``Pandas DataFrame</span>
+<span class="sd">    :type instance: ``OpeniInterface`` or ``CancerImageInterface`` or ``Pandas DataFrame``</span>
 <span class="sd">    :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return</span>
 <span class="sd">                       system path(s) [see example below].</span>
 <span class="sd">    :type divvy_rule: ``function``</span>
@@ -759,7 +759,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract the required dataframe.</span>
     <span class="n">data_frame</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">source_db</span><span class="p">)</span> <span class="k">if</span> <span class="n">source_db</span> <span class="o">!=</span> <span class="s1">&#39;unify_against_images&#39;</span> <span class="k">else</span> <span class="n">instance</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> expected to be a DataFrame.</span><span class="se">\n</span><span class="s2">&quot;</span>
                         <span class="s2">&quot;Got an object of type: &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_db</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
 

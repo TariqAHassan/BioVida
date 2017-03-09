@@ -208,6 +208,7 @@
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">only_numeric</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">combine_dicts</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">camel_to_snake_case</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">data_frame_col_drop</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
 
 <span class="c1"># Import Printing Tools</span>
@@ -219,6 +220,7 @@
 <span class="c1"># Cancer Image Support tools</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.dicom_data_to_dict</span> <span class="k">import</span> <span class="n">dicom_to_dict</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.cancer_image.cancer_image_parameters</span> <span class="k">import</span> <span class="n">CancerImageArchiveParams</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.cancer_image.cancer_image_support_tools</span> <span class="k">import</span> <span class="n">nonessential_cancer_image_columns</span>
 
 <span class="c1"># Spin up tqdm</span>
 <span class="n">tqdm</span><span class="o">.</span><span class="n">pandas</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
@@ -1328,6 +1330,16 @@
         <span class="c1"># Load in databases in &#39;databases/__temp__&#39;, if they exist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_latent_temp_dir</span><span class="p">()</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return `records_db` with nonessential columns removed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">data_frame_col_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">nonessential_cancer_image_columns</span><span class="p">,</span> <span class="s1">&#39;records_db&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return `records_db` with nonessential columns removed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">data_frame_col_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">nonessential_cancer_image_columns</span><span class="p">,</span> <span class="s1">&#39;cache_records_db&#39;</span><span class="p">)</span>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_collection_filter</span><span class="p">(</span><span class="n">summary_df</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">cancer_type</span><span class="p">,</span> <span class="n">location</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1445,7 +1457,8 @@
 
         <span class="k">if</span> <span class="n">pretty_print</span><span class="p">:</span>
             <span class="n">current_query_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_query</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">pandas_pprint</span><span class="p">(</span><span class="n">current_query_print</span><span class="p">,</span> <span class="n">full_cols</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">col_align</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">lift_column_width_limit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">pandas_pprint</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">current_query_print</span><span class="p">,</span> <span class="n">full_cols</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">col_align</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">column_width_limit</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
 
         <span class="c1"># Warn the user if search criteria have not been applied.</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">collection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cancer_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">modality</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]):</span>
@@ -1456,7 +1469,8 @@
                  <span class="s2">&quot;If you still wish to proceed, consider adjusting `pull()`&#39;s</span><span class="se">\n</span><span class="s2">&quot;</span>
                  <span class="s2">&quot;`patient_limit` and `session_limit` parameters.&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">pretty_print</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_query</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pretty_print</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_query</span></div>
 
     <span class="k">def</span> <span class="nf">_pull_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patient_limit</span><span class="p">,</span> <span class="n">collections_limit</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1532,7 +1546,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`database` must be one of &#39;records_db&#39;, &#39;cache_records_db&#39;.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">database_to_use</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s1">&#39;DataFrame&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">database_to_use</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`</span><span class="si">{0}</span><span class="s1">` is not a DataFrame.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">database</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">db</span> <span class="o">=</span> <span class="n">database_to_use</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

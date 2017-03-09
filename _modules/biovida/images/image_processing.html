@@ -182,15 +182,17 @@
 <span class="kn">import</span> <span class="nn">pkg_resources</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">ImageStat</span>
 <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">imread</span>
 
 <span class="c1"># General tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">items_null</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">data_frame_col_drop</span>
 
 <span class="c1"># Tools form the image subpackage</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_and_scale_imgs</span>
+
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">nonessential_openi_columns</span>
 
 <span class="c1"># Models</span>
 <span class="kn">from</span> <span class="nn">biovida.images.models.border_detection</span> <span class="k">import</span> <span class="n">border_detection</span>
@@ -201,77 +203,61 @@
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">_extract_search_class_db</span><span class="p">(</span><span class="n">database_to_extract</span><span class="p">,</span> <span class="n">search_class</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">    Extracts a database from the `search_class` parameter of ImageProcessing().</span>
-
-<span class="sd">    :param database_to_extract: see ``ImageProcessing()``.</span>
-<span class="sd">    :type database_to_extract: ``str``</span>
-<span class="sd">    :param search_class: see ``ImageProcessing()``.</span>
-<span class="sd">    :type search_class: ``OpenInterface Class``</span>
-<span class="sd">    :return: extract database</span>
-<span class="sd">    :rtype: ``Pandas DataFrame``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">database_to_extract</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;current&#39;</span><span class="p">,</span> <span class="s1">&#39;cache&#39;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`database_to_extract` must be one of: &#39;current&#39;, &#39;cache&#39;.&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">deep_copy_dataframe</span><span class="p">(</span><span class="n">data_frame</span><span class="p">):</span>
-        <span class="n">to_return</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">to_return</span>
-
-    <span class="k">def</span> <span class="nf">is_dataframe</span><span class="p">(</span><span class="n">data_frame</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;DataFrame&#39;</span>
-
-    <span class="n">fall_back</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="n">database_to_extract</span> <span class="o">==</span> <span class="s1">&#39;current&#39;</span> <span class="ow">and</span> <span class="n">is_dataframe</span><span class="p">(</span><span class="n">search_class</span><span class="o">.</span><span class="n">records_db</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">deep_copy_dataframe</span><span class="p">(</span><span class="n">search_class</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_dataframe</span><span class="p">(</span><span class="n">search_class</span><span class="o">.</span><span class="n">records_db</span><span class="p">):</span>
-        <span class="n">fall_back</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">`records_db` is not a DataFrame. Falling back to `cache_records_db`.&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">database_to_extract</span> <span class="o">==</span> <span class="s1">&#39;cache&#39;</span> <span class="ow">or</span> <span class="n">fall_back</span><span class="p">:</span>
-        <span class="n">extracted_db</span> <span class="o">=</span> <span class="n">search_class</span><span class="o">.</span><span class="n">cache_records_db</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_dataframe</span><span class="p">(</span><span class="n">extracted_db</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">fall_back</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># i.e., the user set ``database_to_extract=&#39;cache&#39;``.</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The &#39;</span><span class="si">{0}</span><span class="s2">&#39; database provided is not a DataFrame. &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">database_to_extract</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Neither `records_db` nor `cache_records_db` are DataFrames.&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">deep_copy_dataframe</span><span class="p">(</span><span class="n">extracted_db</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="ImageProcessing"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing">[docs]</a><span class="k">class</span> <span class="nc">ImageProcessing</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    This class is designed to allow easy analysis of cached image data.</span>
 
-<span class="sd">    :param search_class: aninstance of the ``biovida.images.openi_interface.OpenInterface()`` class.</span>
-<span class="sd">    :type search_class: ``OpenInterface Class``</span>
+<span class="sd">    :param instance: an instance of the ``biovida.images.openi_interface.OpenInterface()`` class.</span>
+<span class="sd">    :type instance: ``OpenInterface Class``</span>
+<span class="sd">    :param db_to_extract: ``records_db`` or``cache_records_db``. Defaults to &#39;records_db&#39;.</span>
+<span class="sd">    :type db_to_extract: ``str``</span>
 <span class="sd">    :param model_location: the location of the model for Convnet.</span>
-<span class="sd">                          If `None`, the default model will be used. Defaults to ``None``.</span>
+<span class="sd">                      If `None`, the default model will be used. Defaults to ``None``.</span>
 <span class="sd">    :type model_location: ``str``</span>
-<span class="sd">    :param database_to_extract: &#39;current&#39; to extract the ``records_db`` from ``search_class`` or</span>
-<span class="sd">                                 &#39;cache&#39; to extract ``cache_records_db``. Defaults to &#39;current&#39;.</span>
-<span class="sd">    :type database_to_extract: ``str``</span>
 <span class="sd">    :param verbose: if ``True``, print additional details. Defaults to ``False``.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 
-<span class="sd">    :var image_dataframe: this is the current dataframe that was passed when instantiating the class and</span>
+<span class="sd">    :var image_dataframe: this is the dataframe that was passed when instantiating the class and</span>
 <span class="sd">                          contains a cache of all analyses run as new columns.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_class</span><span class="p">,</span> <span class="n">model_location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database_to_extract</span><span class="o">=</span><span class="s1">&#39;current&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_extract_db</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Extracts a database from the `instance` parameter of ImageProcessing().</span>
+
+<span class="sd">        :param db_to_extract: see ``ImageProcessing()``.</span>
+<span class="sd">        :type db_to_extract: ``str``</span>
+<span class="sd">        :param instance: see ``ImageProcessing()``.</span>
+<span class="sd">        :type instance: ``OpenInterface Class``</span>
+<span class="sd">        :return: extract database</span>
+<span class="sd">        :rtype: ``Pandas DataFrame``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">db_to_extract</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span> <span class="s1">&#39;cache_records_db&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`db_to_extract` must be one of: &#39;records_db&#39;, &#39;cache_records_db&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="n">extract</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extract</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">image_dataframe</span> <span class="o">=</span> <span class="n">extract</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">image_dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The &#39;</span><span class="si">{0}</span><span class="s2">&#39; of `instance` must be of &quot;</span>
+                            <span class="s2">&quot;type DataFrame, not: &#39;</span><span class="si">{2}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_to_extract</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">extract</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span> <span class="n">model_location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
 
-        <span class="k">if</span> <span class="s2">&quot;OpeniInterface&quot;</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">search_class</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`search_class` must be a `OpeniInterface` instance.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;OpeniInterface&quot;</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`instance` must be a `OpeniInterface` instance.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Extract the current/cache database</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span> <span class="o">=</span> <span class="n">_extract_search_class_db</span><span class="p">(</span><span class="n">database_to_extract</span><span class="p">,</span> <span class="n">search_class</span><span class="p">)</span>
+        <span class="c1"># Extract the records_db/cache_records_db database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_db</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">)</span>
 
         <span class="c1"># Extract path to the MedPix Logo</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_medpix_path</span> <span class="o">=</span> <span class="n">search_class</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;medpix_logo&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_medpix_path</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;medpix_logo&#39;</span><span class="p">]</span>
 
         <span class="c1"># Spin up tqdm</span>
         <span class="n">tqdm</span><span class="o">.</span><span class="n">pandas</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
@@ -280,13 +266,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span> <span class="o">=</span> <span class="n">ImageRecognitionCNN</span><span class="p">()</span>
 
         <span class="c1"># Load the model weights and architecture.</span>
-        <span class="n">MODEL_PATH</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;biovida&#39;</span><span class="p">,</span> <span class="s1">&#39;images/_resources/visual_image_problems_model.h5&#39;</span><span class="p">)</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;biovida&#39;</span><span class="p">,</span> <span class="s1">&#39;images/_resources/visual_image_problems_model.h5&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model_location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">MODEL_PATH</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_location</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`model_location` must either be a string or `None`.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">model_location</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">MODEL_PATH</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; could not be located.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">model_location</span><span class="p">)))</span>
 
@@ -299,8 +285,13 @@
         <span class="c1"># Switch to control verbosity</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_print_update</span> <span class="o">=</span> <span class="kc">False</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image_dataframe_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return `image_dataframe` with nonessential columns removed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">data_frame_col_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">,</span> <span class="n">nonessential_openi_columns</span><span class="p">,</span> <span class="s1">&#39;image_dataframe&#39;</span><span class="p">)</span>
+
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_apply_status</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_apply_status</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Applies a tqdm() progress bar to an an iterable (if `status` is True).</span>
@@ -311,7 +302,10 @@
 <span class="sd">        :type: ``tqdm`` or ``any``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">length</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">x</span>
 
@@ -349,7 +343,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_ndarrays_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">imread</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]]</span>
 
         <span class="k">if</span> <span class="n">zip_with_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_ndarrays_images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="n">zip_with_column</span><span class="p">]])</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_ndarrays_images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="n">zip_with_column</span><span class="p">]]))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndarrays_images</span>
 
@@ -679,7 +673,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">img_to_save</span>
 
-    <span class="k">def</span> <span class="nf">_cropper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_as_array</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_path</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_cropper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_as_array</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Uses `_apply_cropping()` to apply cropping to images in a dataframe.</span>
@@ -689,9 +683,6 @@
 <span class="sd">        :type data_frame: ``None`` or ``Pandas DataFrame``</span>
 <span class="sd">        :param return_as_array: if True, convert the PIL object to an ``ndarray``. Defaults to True.</span>
 <span class="sd">        :type return_as_array: ``bool``</span>
-<span class="sd">        :param include_path: if ``True`` generate a list of lists of the form: ``[(PIL image, path to the image)...]``.</span>
-<span class="sd">                             if ``False`` generate a list of lists of the form ``[PIL image, PIL Image, PIL Image...]``.</span>
-<span class="sd">        :type include_path: ``bool``</span>
 <span class="sd">        :param convert_to_rgb: if True, use the PIL library to convert the images to RGB. Defaults to False.</span>
 <span class="sd">        :type convert_to_rgb: ``bool``</span>
 <span class="sd">        :param status: display status bar. Defaults to True.</span>
@@ -707,22 +698,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">data_frame</span>
 
-        <span class="c1"># Zip the relevant columns (faster than looping through the dataframe directly).</span>
-        <span class="n">to_predict</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;lower_crop&#39;</span><span class="p">,</span> <span class="s1">&#39;upper_crop&#39;</span><span class="p">,</span> <span class="s1">&#39;vborder&#39;</span><span class="p">)])</span>
-
         <span class="n">all_cropped_images</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">cached_images_path</span><span class="p">,</span> <span class="n">lower_crop</span><span class="p">,</span> <span class="n">upper_crop</span><span class="p">,</span> <span class="n">vborder</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_status</span><span class="p">(</span><span class="n">to_predict</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
-            <span class="n">cropped_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cropping</span><span class="p">(</span><span class="n">cached_images_path</span><span class="p">,</span>
-                                                 <span class="n">lower_crop</span><span class="p">,</span>
-                                                 <span class="n">upper_crop</span><span class="p">,</span>
-                                                 <span class="n">vborder</span><span class="p">,</span>
-                                                 <span class="n">return_as_array</span><span class="p">,</span>
-                                                 <span class="n">convert_to_rgb</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_status</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)):</span>
+            <span class="n">cropped_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cropping</span><span class="p">(</span><span class="n">cached_images_path</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span>
+                                                 <span class="n">lower_crop</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;lower_crop&#39;</span><span class="p">],</span>
+                                                 <span class="n">upper_crop</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;upper_crop&#39;</span><span class="p">],</span>
+                                                 <span class="n">vborder</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;vborder&#39;</span><span class="p">],</span>
+                                                 <span class="n">return_as_array</span><span class="o">=</span><span class="n">return_as_array</span><span class="p">,</span>
+                                                 <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">include_path</span><span class="p">:</span>
-                <span class="n">all_cropped_images</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cropped_image</span><span class="p">,</span> <span class="n">cached_images_path</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">all_cropped_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cropped_image</span><span class="p">)</span>
+            <span class="n">all_cropped_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cropped_image</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">all_cropped_images</span>
 
@@ -840,7 +825,7 @@
         <span class="c1"># ToDo: make `require_grayscale` flexible s.t. it can be imposed only on images of a certain type (e.g., MRI).</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;grayscale&#39;</span><span class="p">,</span> <span class="s1">&#39;visual_image_problems&#39;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;`image_dataframe` does not contain a </span><span class="si">{0}</span><span class="s2"> column.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;`image_dataframe` does not contain a &#39;</span><span class="si">{0}</span><span class="s2">&#39; column.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
 
         <span class="k">def</span> <span class="nf">img_validity</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;grayscale&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;grayscale&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">require_grayscale</span><span class="p">:</span>
@@ -848,7 +833,7 @@
             <span class="c1"># Block if the &#39;image_caption&#39; column suggests the presence of a problem.</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_problems_from_text&#39;</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_problems_from_text&#39;</span><span class="p">]):</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">else</span><span class="p">:</span>  <span class="c1"># ToDo: add variable img_problem_threshold (e.g., arrows and grids).</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># ToDo: add variable img_problem_threshold (e.g., only block arrows and grids).</span>
                 <span class="c1"># if all image problem confidence is &lt; img_problem_threshold, return True; else False.</span>
                 <span class="n">i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;visual_image_problems&#39;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;valid_img&#39;</span> <span class="ow">and</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">valid_floor</span><span class="p">:</span>
@@ -864,7 +849,7 @@
 
 <div class="viewcode-block" id="ImageProcessing.auto"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.auto">[docs]</a>    <span class="k">def</span> <span class="nf">auto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
              <span class="n">img_problem_threshold</span><span class="o">=</span><span class="mf">0.275</span><span class="p">,</span>
-             <span class="n">valid_floor</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>  <span class="c1"># ToDo: implement</span>
+             <span class="n">valid_floor</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
              <span class="n">require_grayscale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
              <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
              <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -890,69 +875,151 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">auto_analysis</span><span class="p">(</span><span class="n">new_analysis</span><span class="o">=</span><span class="n">new_analysis</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 
         <span class="c1"># Run Auto Decision</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">auto_decision</span><span class="p">(</span><span class="n">img_problem_threshold</span><span class="o">=</span><span class="n">img_problem_threshold</span><span class="p">,</span> <span class="n">require_grayscale</span><span class="o">=</span><span class="n">require_grayscale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_decision</span><span class="p">(</span><span class="n">img_problem_threshold</span><span class="o">=</span><span class="n">img_problem_threshold</span><span class="p">,</span>
+                           <span class="n">require_grayscale</span><span class="o">=</span><span class="n">require_grayscale</span><span class="p">,</span>
+                           <span class="n">valid_floor</span><span class="o">=</span><span class="n">valid_floor</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span></div>
 
-<div class="viewcode-block" id="ImageProcessing.save"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">crop_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">block_duplicates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_save_method_error_checking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_rule</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Save processed images to disk.</span>
+<span class="sd">        Check for error that would cause ``save()`` to fail.</span>
 
-<span class="sd">        :param save_path: the directory to save the images.</span>
-<span class="sd">        :type save_path: ``str``</span>
-<span class="sd">        :param crop_images: Crop the images using analyses results from `border_analysis()` and</span>
-<span class="sd">                            ``logo_analysis()``. Defaults to ``True``.</span>
-<span class="sd">        :type crop_images: ``bool``</span>
-<span class="sd">        :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.</span>
-<span class="sd">        :type convert_to_rgb: ``bool``</span>
-<span class="sd">        :param block_duplicates: if ``True``, prohibit writing duplicates. Defaults to ``True``.</span>
-<span class="sd">        :type block_duplicates: ``bool``</span>
-<span class="sd">        :param status: display status bar. Defaults to ``True``.</span>
-<span class="sd">        :type status: ``bool``</span>
+<span class="sd">        :param save_rule: see ``save()``</span>
+<span class="sd">        :type save_rule: ``str`` or ``function``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">callable</span><span class="p">(</span><span class="n">save_rule</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`save_rule` must be a string or function.&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="s1">&#39;valid_image&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;`image_dataframe` must contain a &#39;valid_image&#39; column which uses booleans to</span><span class="se">\n</span><span class="s2">&quot;</span>
                            <span class="s2">&quot;indicate whether or not to include an entry in the cleaned dataset.</span><span class="se">\n</span><span class="s2">&quot;</span>
                            <span class="s2">&quot;To automate this process, consider using the `auto_decision()` method.&quot;</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_to_return_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crop_images</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Define a dataframe with rows of images found to be &#39;valid&#39;.</span>
+
+<span class="sd">        :param crop_images: see ``save()``.</span>
+<span class="sd">        :type crop_images: ``bool``</span>
+<span class="sd">        :param convert_to_rgb: see ``save()``</span>
+<span class="sd">        :type convert_to_rgb: ``bool``</span>
+<span class="sd">        :param status: see ``save()``</span>
+<span class="sd">        :type status: ``bool``</span>
+<span class="sd">        :return: ``self.image_dataframe`` where the &#39;valid_image&#39; column is ``True``, with the addition of</span>
+<span class="sd">                  a &#39;image_to_return&#39; populated by PIL image to be saved to disk.</span>
+<span class="sd">        :rtype: ``Pandas DataFrame``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Limit this operation to subsection of the dataframe where valid_image is `True`.</span>
-        <span class="n">valid_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;valid_image&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">return_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;valid_image&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">crop_images</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Cropping Images...&quot;</span><span class="p">)</span>
-            <span class="n">images_to_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cropper</span><span class="p">(</span><span class="n">valid_df</span><span class="p">,</span>
-                                             <span class="n">return_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                             <span class="n">include_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                             <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span>
-                                             <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+            <span class="n">return_df</span><span class="p">[</span><span class="s1">&#39;image_to_return&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cropper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">return_df</span><span class="p">,</span>
+                                                        <span class="n">return_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                        <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span>
+                                                        <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Loading Images...&quot;</span><span class="p">)</span>
-            <span class="n">images_to_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pil_load</span><span class="p">(</span><span class="n">valid_df</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span> <span class="n">convert_to_rgb</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">return_df</span><span class="p">[</span><span class="s1">&#39;image_to_return&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pil_load</span><span class="p">(</span><span class="n">return_df</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span> <span class="n">convert_to_rgb</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
 
-        <span class="c1"># Save to disk</span>
+        <span class="k">return</span> <span class="n">return_df</span>
+
+<div class="viewcode-block" id="ImageProcessing.save"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">save_rule</span><span class="p">,</span>
+             <span class="n">create_dirs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">crop_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">convert_to_rgb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Save processed images to disk.</span>
+
+<span class="sd">        :param save_rule:</span>
+
+<span class="sd">            - if a ``str``: the directory to save the images.</span>
+<span class="sd">            - if a ``function``: it must (1) accept a single parameter (argument) and (2) return system path(s)</span>
+<span class="sd">              [see example below].</span>
+
+<span class="sd">        :type save_rule: ``str`` or ``function``</span>
+<span class="sd">        :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist.</span>
+<span class="sd">                            Defaults to ``False``.</span>
+<span class="sd">        :type create_dirs: ``bool``</span>
+<span class="sd">        :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.</span>
+<span class="sd">        :type allow_overwrite: ``bool``</span>
+<span class="sd">        :param crop_images: Crop the images using analyses results from `border_analysis()` and</span>
+<span class="sd">                            ``logo_analysis()``. Defaults to ``True``.</span>
+<span class="sd">        :type crop_images: ``bool``</span>
+<span class="sd">        :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.</span>
+<span class="sd">        :type convert_to_rgb: ``bool``</span>
+<span class="sd">        :param status: display status bar. Defaults to ``True``.</span>
+<span class="sd">        :type status: ``bool``</span>
+
+<span class="sd">        :Example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from biovida.images import OpeniInterface</span>
+<span class="sd">        &gt;&gt;&gt; from biovida.images import ImageProcessing</span>
+<span class="sd">        ...</span>
+<span class="sd">        &gt;&gt;&gt; opi = OpeniInterface()</span>
+<span class="sd">        &gt;&gt;&gt; opi.search(image_type=&#39;mri&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; opi.pull()</span>
+<span class="sd">        ...</span>
+<span class="sd">        &gt;&gt;&gt; ip = ImageProcessing(opi)</span>
+<span class="sd">        &gt;&gt;&gt; ip.auto()</span>
+<span class="sd">        ...</span>
+<span class="sd">        # Simple Save Rule</span>
+<span class="sd">        &gt;&gt;&gt; ip.save(&#39;/your/path/here/images&#39;)</span>
+<span class="sd">        ...</span>
+<span class="sd">        # More Complex Save Rule</span>
+<span class="sd">        &gt;&gt;&gt; def my_save_rule(row):</span>
+<span class="sd">        &gt;&gt;&gt;     if isinstance(row[&#39;abstract&#39;], str) and &#39;lung&#39; in row[&#39;abstract&#39;]:</span>
+<span class="sd">        &gt;&gt;&gt;         return &#39;/your/path/here/lung_images&#39;</span>
+<span class="sd">        &gt;&gt;&gt;     elif isinstance(row[&#39;abstract&#39;], str) and &#39;heart&#39; in row[&#39;abstract&#39;]:</span>
+<span class="sd">        &gt;&gt;&gt;         return &#39;/your/path/here/heart_images&#39;</span>
+<span class="sd">        ...</span>
+<span class="sd">        &gt;&gt;&gt; ip.save(my_save_rule)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_method_error_checking</span><span class="p">(</span><span class="n">save_rule</span><span class="p">)</span>
+
+        <span class="c1"># Limit to valid images</span>
+        <span class="n">return_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_return_df</span><span class="p">(</span><span class="n">crop_images</span><span class="o">=</span><span class="n">crop_images</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">save_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Wrap `save_rule` to ensure it is, or</span>
+<span class="sd">            will yeild, a valid path.&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">save_path</span> <span class="o">=</span> <span class="n">save_rule</span>
+            <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">save_rule</span><span class="p">):</span>
+                <span class="n">save_path</span> <span class="o">=</span> <span class="n">save_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;String Expected.</span><span class="se">\n</span><span class="s2">The function passed to `save_rule` (`</span><span class="si">{0}</span><span class="s2">`)</span><span class="se">\n</span><span class="s2">returned &quot;</span>
+                                    <span class="s2">&quot;an object of type &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_rule</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">save_path</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">save_path</span>
+            <span class="k">elif</span> <span class="n">create_dirs</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">save_path</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No such directory:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{0}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                         <span class="s2">&quot;Consider setting `create_dirs=True`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_path</span><span class="p">))</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Saving Images...&quot;</span><span class="p">)</span>
-        <span class="n">img_record</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">img</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_status</span><span class="p">(</span><span class="n">images_to_return</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
-            <span class="n">full_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-            <span class="k">if</span> <span class="n">block_duplicates</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">full_save_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">img_record</span><span class="p">:</span>
-                    <span class="n">img_record</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span>
-                    <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span></div></div>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_status</span><span class="p">(</span><span class="n">return_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">return_df</span><span class="p">)):</span>
+            <span class="n">full_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">),</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-
-
-
-
-
-
-
+            <span class="k">if</span> <span class="n">allow_overwrite</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_to_return&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">):</span>
+                <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_to_return&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span></div></div>
 
 
 
