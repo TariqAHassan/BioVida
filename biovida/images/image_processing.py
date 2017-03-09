@@ -517,7 +517,7 @@ class ImageProcessing(object):
         else:
             df = data_frame
 
-        # Zip the relevant columns (faster than looping through the dataframe directly).
+        # Zip the relevant columns (faster than looping through the dataframe directly). ToDo: refactor with .iterrows.
         to_predict = zip(*[df[i] for i in ('cached_images_path', 'lower_crop', 'upper_crop', 'vborder')])
 
         all_cropped_images = list()
@@ -647,7 +647,7 @@ class ImageProcessing(object):
         # ToDo: make `require_grayscale` flexible s.t. it can be imposed only on images of a certain type (e.g., MRI).
         for i in ('grayscale', 'visual_image_problems'):
             if i not in self.image_dataframe.columns:
-                raise KeyError("`image_dataframe` does not contain a {0} column.".format(i))
+                raise KeyError("`image_dataframe` does not contain a '{0}' column.".format(i))
 
         def img_validity(x):
             if not items_null(x['grayscale']) and x['grayscale'] == False and require_grayscale:
@@ -655,7 +655,7 @@ class ImageProcessing(object):
             # Block if the 'image_caption' column suggests the presence of a problem.
             elif isinstance(x['image_problems_from_text'], (list, tuple)) and len(x['image_problems_from_text']):
                 return False
-            else:  # ToDo: add variable img_problem_threshold (e.g., arrows and grids).
+            else:  # ToDo: add variable img_problem_threshold (e.g., only block arrows and grids).
                 # if all image problem confidence is < img_problem_threshold, return True; else False.
                 i = x['visual_image_problems']
                 if i[0][0] == 'valid_img' and i[0][1] < valid_floor:
@@ -703,13 +703,72 @@ class ImageProcessing(object):
 
         return self.image_dataframe
 
-    def save(self, save_rule, crop_images=True, convert_to_rgb=False, status=True):
+    def _save_method_error_checking(self, save_rule):
+        """
+
+        Check for error that would cause ``save()`` to fail.
+
+        :param save_rule: see ``save()``
+        :type save_rule: ``str`` or ``function``
+        """
+        if not isinstance(save_rule, str) or callable(save_rule):
+            raise TypeError("`save_rule` must be a string or function.")
+
+        if 'valid_image' not in self.image_dataframe.columns:
+            raise KeyError("`image_dataframe` must contain a 'valid_image' column which uses booleans to\n"
+                           "indicate whether or not to include an entry in the cleaned dataset.\n"
+                           "To automate this process, consider using the `auto_decision()` method.")
+
+    def _to_return_df(self, crop_images, convert_to_rgb, status):
+        """
+
+        Define a dataframe with rows of images found to be 'valid'.
+
+        :param crop_images: see ``save()``.
+        :type crop_images: ``bool``
+        :param convert_to_rgb: see ``save()``
+        :type convert_to_rgb: ``bool``
+        :param status: see ``save()``
+        :type status: ``bool``
+        :return: ``self.image_dataframe`` where the 'valid_image' column is ``True``, with the addition of
+                  a 'image_to_return' populated by PIL image to be saved to disk.
+        :rtype: ``Pandas DataFrame``
+        """
+        # Limit this operation to subsection of the dataframe where valid_image is `True`.
+        return_df = self.image_dataframe[self.image_dataframe['valid_image'] == True].reset_index(drop=True).copy(deep=True)
+
+        if crop_images:
+            if self._verbose:
+                print("\n\nCropping Images...")
+            return_df['image_to_return'] = self._cropper(data_frame=return_df,
+                                                        return_as_array=False,
+                                                        convert_to_rgb=convert_to_rgb,
+                                                        status=status)
+        else:
+            if self._verbose:
+                print("\n\nLoading Images...")
+            return_df['image_to_return'] = self._pil_load(return_df['cached_images_path'], convert_to_rgb, status)
+
+        return return_df
+
+    def save(self,
+             save_rule,
+             create_dirs=False,
+             allow_overwrite=True,
+             crop_images=True,
+             convert_to_rgb=False,
+             status=True):
         """
 
         Save processed images to disk.
 
         :param save_rule: the directory to save the images.
-        :type save_rule: ``str``
+        :type save_rule: ``str`` or ``function``
+        :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist.
+                            Defaults to ``False``.
+        :type create_dirs: ``bool``
+        :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
+        :type allow_overwrite: ``bool``
         :param crop_images: Crop the images using analyses results from `border_analysis()` and
                             ``logo_analysis()``. Defaults to ``True``.
         :type crop_images: ``bool``
@@ -718,34 +777,41 @@ class ImageProcessing(object):
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
         """
-        if 'valid_image' not in self.image_dataframe.columns:
-            raise KeyError("`image_dataframe` must contain a 'valid_image' column which uses booleans to\n"
-                           "indicate whether or not to include an entry in the cleaned dataset.\n"
-                           "To automate this process, consider using the `auto_decision()` method.")
+        self._save_method_error_checking(save_rule)
 
-        # Limit this operation to subsection of the dataframe where valid_image is `True`.
-        valid_df = self.image_dataframe[self.image_dataframe['valid_image'] == True].reset_index(drop=True).copy(deep=True)
+        # Limit to valid images
+        return_df = self._to_return_df(crop_images=crop_images, convert_to_rgb=convert_to_rgb, status=status)
 
-        if crop_images:
-            if self._verbose:
-                print("\n\nCropping Images...")
-            valid_df['image_to_return'] = self._cropper(data_frame=valid_df,
-                                                        return_as_array=False,
-                                                        convert_to_rgb=convert_to_rgb,
-                                                        status=status)
-        else:
-            if self._verbose:
-                print("\n\nLoading Images...")
-            valid_df['image_to_return'] = self._pil_load(valid_df['cached_images_path'], convert_to_rgb, status)
+        def save_rule_wrapper(row):
+            """Wrap `save_rule` to ensure it is, or
+            will yeild, a valid path."""
+            if isinstance(save_rule, str):
+                save_path = save_rule
+            elif callable(save_rule):
+                save_path = save_rule(row)
+                if not isinstance(save_path, str):
+                    raise TypeError("String Expected.\nThe function passed to `save_rule` (`{0}`)\nreturned "
+                                    "an object of type '{1}'.".format(save_rule.__name__, type(save_path).__name__))
+
+            if os.path.isdir(save_path):
+                return save_path
+            elif create_dirs:
+                os.makedirs(save_path)
+                return save_path
+            else:
+                raise NotADirectoryError("\nNo such directory:\n'{0}'\n"
+                                         "Consider setting `create_dirs=True`.".format(save_path))
 
         if self._verbose:
             print("\n\nSaving Images...")
 
-        img_record = set()
-        for index, row in tqdm(valid_df.iterrows(), total=len(valid_df)):
-            full_save_path = os.path.join(save_rule, row['cached_images_path'].split(os.sep)[-1])
-            row['image_to_return'].save(full_save_path)
-            img_record.add(full_save_path)
+        for index, row in tqdm(return_df.iterrows(), total=len(return_df)):
+            full_save_path = os.path.join(save_rule_wrapper(row), row['cached_images_path'].split(os.sep)[-1])
+
+            if allow_overwrite:
+                row['image_to_return'].save(full_save_path)
+            elif not os.path.isfile(full_save_path):
+                row['image_to_return'].save(full_save_path)
 
 
 
