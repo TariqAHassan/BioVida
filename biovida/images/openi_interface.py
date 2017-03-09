@@ -503,16 +503,11 @@ class _OpeniRecords(object):
         :param to_harvest:
         :return:
         """
-        # Init
-        item_dict = dict()
-
-        # Extract the starting point
-        start = int(re.findall('&m=(.+?)&', bound)[0])
-
         # Request data from the Open-i servers
         req = requests.get(url + bound).json()['list']
 
         root_url_columns = ('detailed_query_url', 'get_article_figures', 'similar_in_collection', 'similar_in_results')
+
         def append_root_url(item):
             """Check whether or not to add `self.root_url` to a column."""
             return 'img_' in item or any(c == item for c in root_url_columns)
@@ -580,6 +575,7 @@ class _OpeniRecords(object):
         :rtype: ``Pandas DataFrame``
         """
         clinical_article_types = ('encounter', 'case_report')
+
         def test(article_type):
             if isinstance(article_type, str) and article_type in clinical_article_types:
                 return True
@@ -764,6 +760,7 @@ class _OpeniImages(object):
         :return: `1` if an image was downloaded, `0` otherwise.
         :rtype: ``int``
         """
+        image_downloaded = 0
         check_first = self._check_cache_first
 
         def proceed_with_download(image_save_path):
@@ -772,7 +769,6 @@ class _OpeniImages(object):
             else:
                 return True
 
-        image_downloaded = 0
         try:
             # Only download if the file does not already exist in the cache.
             if proceed_with_download(image_save_path):
@@ -985,7 +981,7 @@ class OpeniInterface(object):
         self._cache_path = cache_path
         self._verbose = verbose
         self._root_url = 'https://openi.nlm.nih.gov'
-        self._date_format = '%d/%m/%Y',
+        self._date_format = '%d/%m/%Y'
 
         # Generate Required Caches
         _, self._created_img_dirs = package_cache_creator(sub_dir='images',
