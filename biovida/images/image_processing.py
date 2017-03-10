@@ -232,7 +232,7 @@ class ImageProcessing(object):
         :rtype: ``NaN``, ``dict`` or ``tuple``
         """
         # Unpack ``output_params``
-        match_quality_threshold, x_greater_check, y_greater_check, return_full = output_params
+        match_quality_threshold, x_greater_check, y_greater_check = output_params
 
         # Unpack ``analysis_results``
         bounding_box = analysis_results['bounding_box']
@@ -248,10 +248,7 @@ class ImageProcessing(object):
                         bounding_box['bottom_left'][1] > (base_img_shape[1] * y_greater_check):
             return np.NaN
 
-        if return_full:
-            return bounding_box
-        else:
-            return bounding_box['bottom_left']
+        return bounding_box
 
     def _logo_processor(self, robust_match_template_wrapper, output_params, status):
         """
@@ -263,7 +260,7 @@ class ImageProcessing(object):
         :type robust_match_template_wrapper: ``function``
         :param output_params: tuple of the form:
 
-                        ``(match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1], return_full)``
+                        ``(match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])``
 
         :type output_params: ``tuple``
         :param status: display status bar. Defaults to ``True``.
@@ -294,14 +291,12 @@ class ImageProcessing(object):
                       base_resizes=(0.5, 2.5, 0.1),
                       end_search_threshold=0.875,
                       base_img_cropping=(0.15, 0.5),
-                      return_full=False,
                       new_analysis=False,
                       status=True):
         """
 
         Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
-        populate the corresponding row of the 'medpix_logo_lower_left' column in the 'image_dataframe'
-        with its a full bonding box if ``return_full=True``, otherwise only the lower left corner.
+        populate the the 'medpix_logo_bounding_box' of ``image_dataframe`` with its bounding box.
 
         :param match_quality_threshold: the minimum match quality required to accept the match.
                                         See: ``skimage.feature.match_template()`` for more information.
@@ -317,25 +312,20 @@ class ImageProcessing(object):
         :type end_search_threshold: ``float``
         :param base_img_cropping: See: ``biovida.images.models.template_matching.robust_match_template()``
         :type base_img_cropping: ``tuple``
-        :param return_full: if ``True``, return a dictionary with the location of all four corners for the
-                            logo's bounding box. Otherwise, only the bottom left corner will be returned.
-                            Defaults to ``False``.
-                            Note: ``True`` **cannot** be used in conjunction with 'auto' methods in this class.
-        :type return_full: ``bool``
         :param new_analysis: rerun the analysis if it has already been computed.
         :type new_analysis: ``bool``
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
         """
         # Note: this method wraps ``biovida.images.models.template_matching.robust_match_template()``.
-        if 'medpix_logo_lower_left' in self.image_dataframe.columns and not new_analysis:
+        if 'medpix_logo_bounding_box' in self.image_dataframe.columns and not new_analysis:
             return None
 
         if self._verbose and self._print_update:
             print("\n\nStarting Logo Analysis...")
 
         # Package Params
-        output_params = (match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1], return_full)
+        output_params = (match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])
 
         # Load the Pattern. ToDo: Allow for non MedPix logos logos.
         medpix_template_img = imread(self._medpix_path, flatten=True)
@@ -348,10 +338,9 @@ class ImageProcessing(object):
                                          base_img_cropping=base_img_cropping)
 
         # Run the algorithm searching for the medpix logo in the base image
-        results = self._logo_processor(robust_match_template_wrapper, output_params, status)
-
-        # Update dataframe with the (x, y) values of the lower left corner of the logo's bonding box.
-        self.image_dataframe['medpix_logo_lower_left'] = results
+        self.image_dataframe['medpix_logo_bounding_box'] = self._logo_processor(robust_match_template_wrapper,
+                                                                                output_params=output_params,
+                                                                                status=status)
 
     def border_analysis(self,
                         signal_strength_threshold=0.25,
@@ -382,9 +371,9 @@ class ImageProcessing(object):
 
         def ba_func(image):
             return border_detection(image,
-                                    signal_strength_threshold,
-                                    min_border_separation,
-                                    lower_bar_search_space,
+                                    signal_strength_threshold=signal_strength_threshold,
+                                    min_border_separation=min_border_separation,
+                                    lower_bar_search_space=lower_bar_search_space,
                                     report_signal_strength=False,
                                     rescale_input_ndarray=True)
 
@@ -406,16 +395,24 @@ class ImageProcessing(object):
         """
 
         Choose lowest horizontal cropping point.
-        Solves: upper 'hborder' vs 'medpix_logo_lower_left'.
+        Solves: upper 'hborder' vs 'medpix_logo_bounding_box'
+        (dictionary key = 'bottom_left').
 
         :param x: data passed through Pandas ``DataFrame.apply()`` method.
         :type x: ``Pandas Object``
         :return: the lowest crop location.
         :rtype: ``int`` or ``float``
         """
-        # Note: hborder = [top, lower]; medpix_logo_lower_left = [x, y].
-        cols = ('hborder', 'medpix_logo_lower_left')
-        crop_candidates = [x[i][0] if i == 'hborder' else x[i][1] for i in cols if not items_null(x[i])]
+        # Note: hborder = [top, lower]; medpix_logo_bounding_box['bottom_left'] = [x, y].
+        # That is, `hborder[0]` must be compared with `medpix_logo_bounding_box['bottom_left'][1]`.
+        crop_candidates = list()
+        if isinstance(x['hborder'], (list, tuple)):
+            crop_candidates.append(x['hborder'][0])
+        if isinstance(x['medpix_logo_bounding_box'], dict):
+            lower_left = x['medpix_logo_bounding_box'].get('bottom_left', None)
+            if isinstance(lower_left, (list, tuple)):
+                crop_candidates.append(lower_left[1])
+
         return max(crop_candidates) if len(crop_candidates) else np.NaN
 
     @staticmethod
@@ -445,7 +442,7 @@ class ImageProcessing(object):
         if all(x in self.image_dataframe.columns for x in ['upper_crop', 'lower_crop']) and not new_analysis:
             return None
 
-        for i in ('medpix_logo_lower_left', 'hborder', 'hbar'):
+        for i in ('medpix_logo_bounding_box', 'hborder', 'hbar'):
             if i not in self.image_dataframe.columns:
                 raise KeyError("The `image_dataframe` does not contain the\nfollowing required column: '{0}'.\n"
                                "Please execute the corresponding analysis method to generate it.".format(i))
