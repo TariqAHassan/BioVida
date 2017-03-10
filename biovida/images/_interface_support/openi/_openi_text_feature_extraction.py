@@ -247,6 +247,8 @@ def _age_marker_match(image_summary_info):
     Extract age from a string based on it being followed by one of
     those in ``age_markers``.
 
+    Note: will be confused by strings like: 'The first six years of substantial'...
+
     :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
                                or 'image_mention'.
     :type image_summary_info: ``str``
