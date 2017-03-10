@@ -237,15 +237,15 @@ class ImageProcessing(object):
         # Unpack ``analysis_results``
         bounding_box = analysis_results['bounding_box']
         match_quality = analysis_results['match_quality']
-        base_img_shape = analysis_results['base_img_shape']
+        base_image_shape = analysis_results['base_image_shape']
 
         # Check match quality.
         if bounding_box is None or match_quality < match_quality_threshold:
             return np.NaN
 
         # Check the box is in the top right (as defined by ``x_greater_check`` and ``y_greater_check``).
-        if bounding_box['bottom_left'][0] < (base_img_shape[0] * x_greater_check) or \
-                        bounding_box['bottom_left'][1] > (base_img_shape[1] * y_greater_check):
+        if bounding_box['bottom_left'][0] < (base_image_shape[0] * x_greater_check) or \
+                        bounding_box['bottom_left'][1] > (base_image_shape[1] * y_greater_check):
             return np.NaN
 
         return bounding_box
