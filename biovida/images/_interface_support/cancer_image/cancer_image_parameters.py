@@ -256,11 +256,11 @@ class CancerImageArchiveParams(object):
 
         return modality_df if rtype == 'dataframe' else dict(zip(modality_df['short'], modality_df['long']))
 
-    def cancer_img_api_ref(self, 
-                           rtype='dataframe',
-                           download_override=False,
-                           api_ref_loc='https://wiki.cancerimagingarchive.net/display/Public/'
-                                       'TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide'):
+    def cancer_image_api_ref(self,
+                             rtype='dataframe',
+                             download_override=False,
+                             api_ref_loc='https://wiki.cancerimagingarchive.net/display/Public/'
+                                         'TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide'):
         """
     
         Extracts the API reference for The Cancer Imaging Archive.
