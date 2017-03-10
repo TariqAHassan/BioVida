@@ -86,22 +86,22 @@ def _best_guess_location(match_template_result, scaling=1):
     return np.ceil(np.array((x, y)) / float(scaling)), match_template_result.max()
 
 
-def _robust_match_template_loading(img, param_name):
+def _robust_match_template_loading(image, param_name):
     """
 
     Loads images for ``robust_match_template()``.
 
-    :param img: a path to an image or the image as a 2D array
-    :type img: ``str`` or ``2D ndarray``
-    :param param_name: the name of the parameter which is being loaded (i.e., `pattern_img` or `base_img`.
+    :param image: a path to an image or the image as a 2D array
+    :type image: ``str`` or ``2D ndarray``
+    :param param_name: the name of the parameter which is being loaded (i.e., `pattern_image` or `base_image`.
     :type param_name: ``str``
     :return: an image as an array.
     :rtype: ``2D ndarray``
     """
-    if 'ndarray' in str(type(img)):
-        return img
-    elif isinstance(img, str):
-        return imread(img, flatten=True)
+    if 'ndarray' in str(type(image)):
+        return image
+    elif isinstance(image, str):
+        return imread(image, flatten=True)
     else:
         raise ValueError("`{0}` must either be a `ndarray` or a path to an image.".format(param_name))
 
@@ -154,7 +154,7 @@ def _min_base_rescale(base, pattern, base_resizes, round_to=3):
     return tuple(base_resizes)
 
 
-def _matching_engine(base, pattern, base_resizes, base_img_cropping, end_search_threshold):
+def _matching_engine(base, pattern, base_resizes, base_image_cropping, end_search_threshold):
     """
 
     Runs ``skimage.feature.match_template()`` against ``base`` for a given ``pattern``
@@ -167,8 +167,8 @@ def _matching_engine(base, pattern, base_resizes, base_img_cropping, end_search_
     :param base_resizes: the range over which to rescale the base image.Define as a tuple of the
                          form ``(start, end, step size)``.
     :type base_resizes: ``tuple``
-    :param base_img_cropping: see ``robust_match_template()``.
-    :type base_img_cropping: ``tuple``
+    :param base_image_cropping: see ``robust_match_template()``.
+    :type base_image_cropping: ``tuple``
     :param end_search_threshold: if a match of this quality is found, end the search. Set ``None`` to disable.
     :type end_search_threshold: ``float`` or  ``None``
     :return: a dictionary of matches made by the ``skimage.feature.match_template()`` function
@@ -177,8 +177,8 @@ def _matching_engine(base, pattern, base_resizes, base_img_cropping, end_search_
     :rtype: ``dict``
     """
     # Crop the base image
-    base_h_crop = int(base.shape[1] * base_img_cropping[1])
-    cropped_base = _cropper(base, v_prop=base_img_cropping[0], h_prop=base_img_cropping[1])
+    base_h_crop = int(base.shape[1] * base_image_cropping[1])
+    cropped_base = _cropper(base, v_prop=base_image_cropping[0], h_prop=base_image_cropping[1])
 
     # Apply tool to ensure the base will always be larger than the pattern
     start, end, step = _min_base_rescale(cropped_base, pattern, base_resizes, round_to=3)
@@ -234,11 +234,11 @@ def _corners_calc(top_left, bottom_right):
     return {k: tuple(map(int, v)) for k, v in d.items()}
 
 
-def robust_match_template(pattern_img,
-                          base_img,
+def robust_match_template(pattern_image,
+                          base_image,
                           base_resizes=(0.5, 2.5, 0.1),
                           end_search_threshold=0.875,
-                          base_img_cropping=(0.15, 0.5)):
+                          base_image_cropping=(0.15, 0.5)):
     """
 
     Search for a pattern image in a base image using a algorithm which is robust
@@ -249,33 +249,33 @@ def robust_match_template(pattern_img,
     Limitations:
 
     - Cropping is limited to the the top left of the base image. The can be circumvented by setting
-      ``base_img_cropping=(1, 1)`` and cropping ``base_img`` oneself.
+      ``base_image_cropping=(1, 1)`` and cropping ``base_image`` oneself.
 
     - This function may become unstable in situations where the pattern image is larger than the base image.
 
-    :param pattern_img: the pattern image.
+    :param pattern_image: the pattern image.
 
             .. warning::
 
-                    If a `ndarray` is passed to `pattern_img`, it *must* be preprocessed to be a 2D array,
-                    e.g., ``scipy.misc.imread(pattern_img, flatten=True)``
+                    If a `ndarray` is passed to `pattern_image`, it *must* be preprocessed to be a 2D array,
+                    e.g., ``scipy.misc.imread(pattern_image, flatten=True)``
 
-    :type pattern_img: ``str`` or ``ndarray``
-    :param base_img: the base image in which to look for the ``pattern_img``.
+    :type pattern_image: ``str`` or ``ndarray``
+    :param base_image: the base image in which to look for the ``pattern_image``.
 
              .. warning::
 
-                    If a `ndarray` is passed to `base_img`, it *must* be preprocessed to be a 2D array,
-                    e.g., ``scipy.misc.imread(base_img, flatten=True)``
+                    If a `ndarray` is passed to `base_image`, it *must* be preprocessed to be a 2D array,
+                    e.g., ``scipy.misc.imread(base_image, flatten=True)``
 
-    :type base_img: ``str`` or ``ndarray``
+    :type base_image: ``str`` or ``ndarray``
     :param base_resizes: the range over which to rescale the base image.Define as a tuple of the
                          form ``(start, end, step size)``. Defaults to ``(0.5, 2.0, 0.1)``.
     :type base_resizes: ``tuple``
     :param end_search_threshold: if a match of this quality is found, end the search. Set equal to ``None`` to disable.
                                  Defaults to 0.875.
     :type end_search_threshold: ``float`` or  ``None``
-    :param base_img_cropping: the amount of the image to crop with respect to the x and y axis.
+    :param base_image_cropping: the amount of the image to crop with respect to the x and y axis.
                               form: ``(height, width)``. Defaults to ``(0.15, 0.5)``.
                           
     Notes:
@@ -287,25 +287,25 @@ def robust_match_template(pattern_img,
     - Cropping more of the base image reduces the probability that the algorithm getting confused.
       However, if the image is cropped too much, the target pattern itself could be removed.
 
-    :type base_img_cropping: ``tuple``
-    :return: A dictionary of the form: ``{"bounding_box": ..., "match_quality": ..., "base_img_shape": ...}``.
+    :type base_image_cropping: ``tuple``
+    :return: A dictionary of the form: ``{"bounding_box": ..., "match_quality": ..., "base_image_shape": ...}``.
 
             - bounding_box (``dict``): ``{'bottom_right': (x, y), 'top_right': (x, y), 'top_left': (x, y), 'bottom_left': (x, y)}``.
 
             - match_quality (``float``): quality of the match.
 
-            - base_img_shape (``tuple``): the size of the base image provided. Form: ``(width (x), height (y))``.
+            - base_image_shape (``tuple``): the size of the base image provided. Form: ``(width (x), height (y))``.
 
     :rtype: ``dict``
     """
     # Load the pattern images
-    pattern = _robust_match_template_loading(pattern_img, "pattern_img")
+    pattern = _robust_match_template_loading(pattern_image, "pattern_image")
 
     # Load the base
-    base = _robust_match_template_loading(base_img, "base_img")
+    base = _robust_match_template_loading(base_image, "base_image")
 
     # Search for matches
-    match_dict = _matching_engine(base, pattern, base_resizes, base_img_cropping, end_search_threshold)
+    match_dict = _matching_engine(base, pattern, base_resizes, base_image_cropping, end_search_threshold)
 
     if len(list(match_dict.keys())):
         # Extract the best match
@@ -318,28 +318,28 @@ def robust_match_template(pattern_img,
         bounding_box = None
 
     # Return the bounding box, match quality and the size of the base image
-    return {"bounding_box": bounding_box, "match_quality": best_match[2], "base_img_shape": base.shape[::-1]}
+    return {"bounding_box": bounding_box, "match_quality": best_match[2], "base_image_shape": base.shape[::-1]}
 
 
-def _box_show(base_img_path, pattern_img_path):
+def _box_show(base_image_path, pattern_image_path):
     """
 
     This function uses matplotlib to show the bounding box for the pattern.
 
-    :param base_img_path: the path to the base image.
-    :type base_img_path: ``str``
-    :param pattern_img_path: the path to the pattern image.
-    :type pattern_img_path: ``str``
+    :param base_image_path: the path to the base image.
+    :type base_image_path: ``str``
+    :param pattern_image_path: the path to the pattern image.
+    :type pattern_image_path: ``str``
     """
     import matplotlib.pyplot as plt
     import matplotlib.patches as patches
 
     # Load the Images
-    base_img = imread(base_img_path, flatten=True)
-    pattern_img = imread(pattern_img_path, flatten=True)
+    base_image = imread(base_image_path, flatten=True)
+    pattern_image = imread(pattern_image_path, flatten=True)
 
     # Run the analysis
-    rslt = robust_match_template(pattern_img, base_img)
+    rslt = robust_match_template(pattern_image, base_image)
 
     # Extract the top left and top right
     top_left = rslt['bounding_box']['top_left']
@@ -351,7 +351,7 @@ def _box_show(base_img_path, pattern_img_path):
 
     # Show the base image
     fig, (ax1) = plt.subplots(ncols=1, figsize=(5, 5), sharex=True, sharey=True)
-    ax1.imshow(base_img, 'gray')
+    ax1.imshow(base_image, 'gray')
 
     # Add the bounding box
     ax1.add_patch(patches.Rectangle(top_left, width, height, fill=False, edgecolor="red"))

@@ -331,11 +331,11 @@ class ImageProcessing(object):
         medpix_template_img = imread(self._medpix_path, flatten=True)
 
         def robust_match_template_wrapper(img):
-            return robust_match_template(pattern_img=medpix_template_img,
-                                         base_img=img,
+            return robust_match_template(pattern_image=medpix_template_img,
+                                         base_image=img,
                                          base_resizes=base_resizes,
                                          end_search_threshold=end_search_threshold,
-                                         base_img_cropping=base_img_cropping)
+                                         base_image_cropping=base_img_cropping)
 
         # Run the algorithm searching for the medpix logo in the base image
         self.image_dataframe['medpix_logo_bounding_box'] = self._logo_processor(robust_match_template_wrapper,
