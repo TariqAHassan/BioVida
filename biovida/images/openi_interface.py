@@ -952,14 +952,14 @@ class OpeniInterface(object):
         self._date_format = '%d/%m/%Y'
 
         # Generate Required Caches
-        _, self._created_img_dirs = package_cache_creator(sub_dir='images',
-                                                          cache_path=cache_path,
-                                                          to_create=['openi'],
-                                                          nest=[('openi', 'aux'), ('openi', 'raw'),
-                                                                ('openi', 'databases')],
-                                                          requires_medpix_logo=True)
+        _, self._created_image_dirs = package_cache_creator(sub_dir='images',
+                                                            cache_path=cache_path,
+                                                            to_create=['openi'],
+                                                            nest=[('openi', 'aux'), ('openi', 'raw'),
+                                                                  ('openi', 'databases')],
+                                                            requires_medpix_logo=True)
 
-        self._ROOT_PATH = self._created_img_dirs['ROOT_PATH']
+        self._ROOT_PATH = self._created_image_dirs['ROOT_PATH']
 
         # Instantiate Classes
         self._Search = _OpeniSearch()
@@ -969,8 +969,8 @@ class OpeniInterface(object):
                                       verbose=verbose,
                                       cache_path=cache_path)
 
-        self._Images = _OpeniImages(image_save_location=self._created_img_dirs['raw'],
-                                    database_save_location=self._created_img_dirs['databases'],
+        self._Images = _OpeniImages(image_save_location=self._created_image_dirs['raw'],
+                                    database_save_location=self._created_image_dirs['databases'],
                                     verbose=verbose)
 
         # Search attributes
@@ -984,7 +984,7 @@ class OpeniInterface(object):
         self.records_db = None
 
         # Path to cache record db
-        self._cache_records_db_save_path = os.path.join(self._created_img_dirs['databases'],
+        self._cache_records_db_save_path = os.path.join(self._created_image_dirs['databases'],
                                                         'openi_cache_records_db.p')
 
         # Load the cache record database, if it exists

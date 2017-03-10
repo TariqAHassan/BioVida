@@ -86,7 +86,7 @@ class ImageProcessing(object):
         self.image_dataframe = self._extract_db(instance, db_to_extract)
 
         # Extract path to the MedPix Logo
-        self._medpix_path = instance._created_img_dirs['medpix_logo']
+        self._medpix_path = instance._created_image_dirs['medpix_logo']
 
         # Spin up tqdm
         tqdm.pandas("status")
@@ -154,8 +154,8 @@ class ImageProcessing(object):
         :return: a list of a. PIL images or b. PIL images in tuples of the form (PIL Image, image path).
         :rtype: ``list``
         """
-        def conversion(img):
-            return (Image.open(img).convert('RGB'), img) if convert_to_rgb else (Image.open(img), img)
+        def conversion(image):
+            return (Image.open(image).convert('RGB'), image) if convert_to_rgb else (Image.open(image), image)
         return [conversion(i) for i in self._apply_status(image_paths, status)]
 
     def _ndarray_extract(self, zip_with_column=None, reload_override=False):
@@ -179,22 +179,22 @@ class ImageProcessing(object):
             return self._ndarrays_images
 
     @staticmethod
-    def _grayscale_img(img_path):
+    def _grayscale_image(image_path):
         """
 
         Computes whether or not an image is grayscale.
         See the `grayscale_analysis()` method for caveats.
 
-        :param img_path: path to an image.
-        :type img_path:``str``
+        :param image_path: path to an image.
+        :type image_path:``str``
         :return: ``True`` if grayscale, else ``False``.
         :rtype: ``bool``
         """
         # See: http://stackoverflow.com/q/23660929/4898004
-        if img_path is None or items_null(img_path):
+        if image_path is None or items_null(image_path):
             return np.NaN
-        img = Image.open(img_path)  # ToDo: find way to call only once inside this class (similar to _ndarray_extract())
-        stat = ImageStat.Stat(img.convert("RGB"))
+        image = Image.open(image_path)  # ToDo: find way to call only once inside this class (similar to _ndarray_extract())
+        stat = ImageStat.Stat(image.convert("RGB"))
         return np.mean(stat.sum) == stat.sum[0]
 
     def grayscale_analysis(self, new_analysis=False):
@@ -216,7 +216,7 @@ class ImageProcessing(object):
 
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
             self.image_dataframe['grayscale'] = self.image_dataframe['cached_images_path'].progress_map(
-                self._grayscale_img, na_action='ignore')
+                self._grayscale_image, na_action='ignore')
 
     @staticmethod
     def _logo_analysis_out(analysis_results, output_params):
@@ -275,11 +275,11 @@ class ImageProcessing(object):
         # the journal title (to check for their source being medpix).
         to_analyze = self._ndarray_extract(zip_with_column='journal_title')
 
-        for img, journal in self._apply_status(to_analyze, status):
+        for image, journal in self._apply_status(to_analyze, status):
             if 'medpix' not in str(journal).lower():
                 results.append(np.NaN)
             else:
-                analysis_results = robust_match_template_wrapper(img)
+                analysis_results = robust_match_template_wrapper(image)
                 current = self._logo_analysis_out(analysis_results, output_params)
                 results.append(current)
 
@@ -290,7 +290,7 @@ class ImageProcessing(object):
                       xy_position_threshold=(1 / 3.0, 1 / 2.5),
                       base_resizes=(0.5, 2.5, 0.1),
                       end_search_threshold=0.875,
-                      base_img_cropping=(0.15, 0.5),
+                      base_image_cropping=(0.15, 0.5),
                       new_analysis=False,
                       status=True):
         """
@@ -310,8 +310,8 @@ class ImageProcessing(object):
         :type base_resizes: ``tuple``
         :param end_search_threshold: See: ``biovida.images.models.template_matching.robust_match_template()``.
         :type end_search_threshold: ``float``
-        :param base_img_cropping: See: ``biovida.images.models.template_matching.robust_match_template()``
-        :type base_img_cropping: ``tuple``
+        :param base_image_cropping: See: ``biovida.images.models.template_matching.robust_match_template()``
+        :type base_image_cropping: ``tuple``
         :param new_analysis: rerun the analysis if it has already been computed.
         :type new_analysis: ``bool``
         :param status: display status bar. Defaults to ``True``.
@@ -328,14 +328,14 @@ class ImageProcessing(object):
         output_params = (match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])
 
         # Load the Pattern. ToDo: Allow for non MedPix logos logos.
-        medpix_template_img = imread(self._medpix_path, flatten=True)
+        medpix_template_image = imread(self._medpix_path, flatten=True)
 
-        def robust_match_template_wrapper(img):
-            return robust_match_template(pattern_image=medpix_template_img,
-                                         base_image=img,
+        def robust_match_template_wrapper(image):
+            return robust_match_template(pattern_image=medpix_template_image,
+                                         base_image=image,
                                          base_resizes=base_resizes,
                                          end_search_threshold=end_search_threshold,
-                                         base_image_cropping=base_img_cropping)
+                                         base_image_cropping=base_image_cropping)
 
         # Run the algorithm searching for the medpix logo in the base image
         self.image_dataframe['medpix_logo_bounding_box'] = self._logo_processor(robust_match_template_wrapper,
@@ -492,14 +492,14 @@ class ImageProcessing(object):
             converted_image = converted_image.crop((int(vborder[0]), 0, int(vborder[1]), h))
 
         if convert_to_rgb:
-            img_to_save = converted_image.convert("RGB")
+            image_to_save = converted_image.convert("RGB")
         else:
-            img_to_save = converted_image
+            image_to_save = converted_image
 
         if return_as_array:
-            return np.asarray(img_to_save)
+            return np.asarray(image_to_save)
         else:
-            return img_to_save
+            return image_to_save
 
     def _cropper(self, data_frame=None, return_as_array=True, convert_to_rgb=True, status=True):
         """
@@ -631,18 +631,18 @@ class ImageProcessing(object):
         # Ban Verbosity
         self._print_update = False
 
-    def auto_decision(self, img_problem_threshold, require_grayscale, valid_floor=0.01):
+    def auto_decision(self, image_problem_threshold, require_grayscale, valid_floor=0.01):
         """
 
         Automatically generate 'valid_image' column in the `image_dataframe`
         column by deciding whether or not images are valid using default parameter values for class methods.
 
-        :param img_problem_threshold: a scalar from 0 to 1 which specifies the threshold value required
+        :param image_problem_threshold: a scalar from 0 to 1 which specifies the threshold value required
                                       to cause the image to be marked as invalid.
                                       For instance, a threshold value of `0.5` would mean that any image
                                       which contains a image problem probability above `0.5` will be marked
                                       as invalid.
-        :type img_problem_threshold: ``float``
+        :type image_problem_threshold: ``float``
         :param require_grayscale: if True, require that images are grayscale to be considered valid.
         :type require_grayscale: ``bool``
         :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
@@ -653,28 +653,28 @@ class ImageProcessing(object):
             if i not in self.image_dataframe.columns:
                 raise KeyError("`image_dataframe` does not contain a '{0}' column.".format(i))
 
-        def img_validity(x):
+        def image_validity(x):
             if not items_null(x['grayscale']) and x['grayscale'] == False and require_grayscale:
                 return False
             # Block if the 'image_caption' column suggests the presence of a problem.
             elif isinstance(x['image_problems_from_text'], (list, tuple)) and len(x['image_problems_from_text']):
                 return False
-            else:  # ToDo: add variable img_problem_threshold (e.g., only block arrows and grids).
-                # if all image problem confidence is < img_problem_threshold, return True; else False.
+            else:  # ToDo: add variable image_problem_threshold (e.g., only block arrows and grids).
+                # if all image problem confidence is < image_problem_threshold, return True; else False.
                 i = x['visual_image_problems']
                 if i[0][0] == 'valid_img' and i[0][1] < valid_floor:
                     return False
-                elif i[0][0] != 'valid_img' and i[0][1] > img_problem_threshold:
+                elif i[0][0] != 'valid_img' and i[0][1] > image_problem_threshold:
                     return False
-                elif i[0][0] == 'valid_img' and i[1][1] > img_problem_threshold:
+                elif i[0][0] == 'valid_img' and i[1][1] > image_problem_threshold:
                     return False
                 else:
                     return True
 
-        self.image_dataframe['valid_image'] = self.image_dataframe.apply(img_validity, axis=1)
+        self.image_dataframe['valid_image'] = self.image_dataframe.apply(image_validity, axis=1)
 
     def auto(self,
-             img_problem_threshold=0.275,
+             image_problem_threshold=0.275,
              valid_floor=0.01,
              require_grayscale=True,
              new_analysis=False,
@@ -683,8 +683,8 @@ class ImageProcessing(object):
 
         Automatically carry out all aspects of image preprocessing (recommended).
 
-        :param img_problem_threshold: see ``auto_decision()``. Defaults to `0.275`.
-        :type img_problem_threshold: ``float``
+        :param image_problem_threshold: see ``auto_decision()``. Defaults to `0.275`.
+        :type image_problem_threshold: ``float``
         :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
         :type valid_floor: ``float``
         :param require_grayscale: see ``auto_decision()``. Defaults to ``True``
@@ -701,7 +701,7 @@ class ImageProcessing(object):
         self.auto_analysis(new_analysis=new_analysis, status=status)
 
         # Run Auto Decision
-        self.auto_decision(img_problem_threshold=img_problem_threshold,
+        self.auto_decision(image_problem_threshold=image_problem_threshold,
                            require_grayscale=require_grayscale,
                            valid_floor=valid_floor)
 
