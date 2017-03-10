@@ -557,7 +557,7 @@ class ImageProcessing(object):
         else:
             verbose_prediction = False
 
-        transformed_images = load_and_scale_images(cropped_images_for_analysis, self._ircnn.img_shape, status=status)
+        transformed_images = load_and_scale_images(cropped_images_for_analysis, self._ircnn.image_shape, status=status)
 
         if verbose_prediction:
             print("\n\nAnalyzing Images for Visual Problems with Neural Network...")

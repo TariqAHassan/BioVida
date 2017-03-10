@@ -41,8 +41,8 @@ class ImageRecognitionCNN(object):
                       This directory *must* have this structure. Defaults to ``None`` (to be use when loading
                       pre-computed weights).
     :type data_path: ``str``
-    :param img_shape: the (height, width) to rescale the images to. Elements must be ``ints``. Defaults to ``(150, 150)``.
-    :type img_shape: ``tuple`` or ``list``.
+    :param image_shape: the (height, width) to rescale the images to. Elements must be ``ints``. Defaults to ``(150, 150)``.
+    :type image_shape: ``tuple`` or ``list``.
     :param rescale: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to 1/255.
     :type rescale: ``float``
     :param shear_range: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to 0.1.
@@ -61,7 +61,7 @@ class ImageRecognitionCNN(object):
 
     def __init__(self,
                  data_path=None,
-                 img_shape=(150, 150),
+                 image_shape=(150, 150),
                  rescale=1/255.0,
                  shear_range=0.05,
                  zoom_range=0.30,
@@ -69,7 +69,7 @@ class ImageRecognitionCNN(object):
                  vertical_flip=False,
                  batch_size=1):
         self._data_path = data_path
-        self.img_shape = img_shape
+        self.image_shape = image_shape
         self.rescale = rescale
         self._shear_range = shear_range
         self._zoom_range = zoom_range
@@ -105,7 +105,7 @@ class ImageRecognitionCNN(object):
 
         # Indefinitely generate batches of augmented train image data
         self._train_generator = train_datagen.flow_from_directory(directory=self._train_data_dir,
-                                                                  target_size=self.img_shape,
+                                                                  target_size=self.image_shape,
                                                                   class_mode='categorical',
                                                                   batch_size=self._batch_size)
 
@@ -120,7 +120,7 @@ class ImageRecognitionCNN(object):
 
         # This is a similar generator, for validation data
         self._validation_generator = validation_datagen.flow_from_directory(directory=self._validation_data_dir,
-                                                                            target_size=self.img_shape,
+                                                                            target_size=self.image_shape,
                                                                             class_mode='categorical',
                                                                             batch_size=self._batch_size)
 
@@ -153,20 +153,20 @@ class ImageRecognitionCNN(object):
 
         self.data_classes = train_classes
 
-    def _impose_vgg_img_reqs(self):
+    def _impose_vgg_image_reqs(self):
         """
 
         This method imposes the 224x224 image size requirement made by VGG 19.
 
         """
-        self.img_shape = list(self.img_shape)
-        if self.img_shape[0] != 224:
-            warn("{0} is an invalid image height for vgg_19. Falling back 224.".format(self.img_shape[0]))
-            self.img_shape[0] = 224
-        if self.img_shape[1] != 224:
-            warn("{0} is an invalid image width for vgg_19. Falling back to 224.".format(self.img_shape[1]))
-            self.img_shape[1] = 224
-        self.img_shape = tuple(self.img_shape)
+        self.image_shape = list(self.image_shape)
+        if self.image_shape[0] != 224:
+            warn("{0} is an invalid image height for vgg_19. Falling back 224.".format(self.image_shape[0]))
+            self.image_shape[0] = 224
+        if self.image_shape[1] != 224:
+            warn("{0} is an invalid image width for vgg_19. Falling back to 224.".format(self.image_shape[1]))
+            self.image_shape[1] = 224
+        self.image_shape = tuple(self.image_shape)
 
     def _alex_net(self, nb_classes, output_layer_activation):
         """
@@ -205,7 +205,7 @@ class ImageRecognitionCNN(object):
                               "This library can be installed by running the following command from the command line:\n"
                               "$ pip install git+git://github.com/heuritech/convnets-keras@master")
 
-        inputs = Input(shape=(3, self.img_shape[0], self.img_shape[1]))
+        inputs = Input(shape=(3, self.image_shape[0], self.image_shape[1]))
 
         conv_1 = Convolution2D(96, 11, 11,
                                subsample=(4, 4),
@@ -267,7 +267,7 @@ class ImageRecognitionCNN(object):
         """
         self.model = Sequential()
 
-        self.model.add(ZeroPadding2D((1, 1), input_shape=(3, self.img_shape[0], self.img_shape[1])))
+        self.model.add(ZeroPadding2D((1, 1), input_shape=(3, self.image_shape[0], self.image_shape[1])))
         self.model.add(Convolution2D(64, 3, 3, activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
         self.model.add(Convolution2D(64, 3, 3, activation='relu'))
@@ -328,7 +328,7 @@ class ImageRecognitionCNN(object):
         """
         self.model = Sequential()
         self.model.add(Convolution2D(32, 3, 3
-                                     , input_shape=(3, self.img_shape[0], self.img_shape[1])
+                                     , input_shape=(3, self.image_shape[0], self.image_shape[1])
                                      , activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -374,7 +374,7 @@ class ImageRecognitionCNN(object):
         :type output_layer_activation: ``str``
         """
         if model_to_use == 'vgg19':
-            self._impose_vgg_img_reqs()
+            self._impose_vgg_image_reqs()
 
         if self._data_path is not None:
             self._data_stream()
@@ -457,7 +457,7 @@ class ImageRecognitionCNN(object):
         :type save_path: ``str``
         """
         data = [self._data_path,
-                self.img_shape,
+                self.image_shape,
                 self.rescale,
                 self._shear_range,
                 self._zoom_range,
@@ -504,7 +504,7 @@ class ImageRecognitionCNN(object):
         data = pickle.load(open(load_location, "rb"))
 
         self._data_path = data[0]
-        self.img_shape = data[1]
+        self.image_shape = data[1]
         self.rescale = data[2]
         self._shear_range = data[3]
         self._zoom_range = data[4]
@@ -540,18 +540,18 @@ class ImageRecognitionCNN(object):
         # Load the Model
         self.model = load_model(path)
 
-    def _prediction_labels(self, single_img_prediction):
+    def _prediction_labels(self, single_image_prediction):
         """
 
         Convert a single prediction into a human-readable list of tuples.
 
-        :param single_img_prediction: see ``predict()``
-        :type single_img_prediction: list of ndarray arrays.
+        :param single_image_prediction: see ``predict()``
+        :type single_image_prediction: list of ndarray arrays.
         :return: a list of tuples where the elements are of the form ``(label, P(label))``
         :rtype: ``list``
         """
         data_classes_reversed = {v: k for k, v in self.data_classes.items()}
-        predictions = ((data_classes_reversed[e], i) for e, i in enumerate(single_img_prediction))
+        predictions = ((data_classes_reversed[e], i) for e, i in enumerate(single_image_prediction))
         return sorted(predictions, key=lambda x: x[1], reverse=True)
 
     def predict(self, list_of_images, status=True, verbose=False):
@@ -583,7 +583,7 @@ class ImageRecognitionCNN(object):
         else:
             if verbose:
                 print("\n\nPreparing Images for Neural Network...")
-            images = load_and_scale_images(list_of_images, image_size=self.img_shape, status=status, grayscale_first=True)
+            images = load_and_scale_images(list_of_images, image_size=self.image_shape, status=status, grayscale_first=True)
 
         if verbose:
             print("\n\nGenerating Predictions...")
