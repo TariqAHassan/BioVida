@@ -510,15 +510,15 @@ def _robust_copy(to_copy, copy_path, allow_overwrite):
                 copy_util(from_path=c)
 
 
-def _divvy_column_selector(instance, source_db, image_column, data_frame):
+def _divvy_column_selector(instance, db_to_extract, image_column, data_frame):
     """
 
     Select the column to use when copying images from.
 
     :param instance:  see ``image_divvy()``
     :type instance: ``OpeniInterface`` or ``CancerImageInterface``
-    :param source_db: see ``image_divvy()``
-    :type source_db: ``str``
+    :param db_to_extract: see ``image_divvy()``
+    :type db_to_extract: ``str``
     :param image_column: see ``image_divvy()``
     :type image_column: ``str``
     :param data_frame: as evolved inside  ``image_divvy()``.
@@ -532,15 +532,15 @@ def _divvy_column_selector(instance, source_db, image_column, data_frame):
         raise TypeError('`image_column` must be a string or `None`.')
     elif image_column in _image_instance_image_columns[instance.__class__.__name__]:
         if image_column not in data_frame.columns:
-            raise KeyError("The '{0}' column is missing from '{1}'.".format(image_column, source_db))
+            raise KeyError("The '{0}' column is missing from '{1}'.".format(image_column, db_to_extract))
         return image_column
     else:
-        raise KeyError("'{0}' is not a valid image column for '{1}'.".format(image_column, source_db))
+        raise KeyError("'{0}' is not a valid image column for '{1}'.".format(image_column, db_to_extract))
 
 
 def image_divvy(instance,
                 divvy_rule,
-                source_db='records_db',
+                db_to_extract='records_db',
                 create_dirs=False,
                 allow_overwrite=True,
                 image_column=None):
@@ -554,13 +554,13 @@ def image_divvy(instance,
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
     :type divvy_rule: ``function``
-    :param source_db: the database to use. Must be one of:
+    :param db_to_extract: the database to use. Must be one of:
 
                     - 'records_db': the dataframe resulting from the most recent ``search()`` & ``pull()``.
                     - 'cache_records_db': the cache dataframe for ``instance``.
                     - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
 
-    :type source_db: ``str``
+    :type db_to_extract: ``str``
     :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``False``.
     :type create_dirs: ``bool``
     :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
@@ -587,10 +587,10 @@ def image_divvy(instance,
 
     """
     # Extract the required dataframe.
-    data_frame = getattr(instance, source_db) if source_db != 'unify_against_images' else instance
+    data_frame = getattr(instance, db_to_extract) if db_to_extract != 'unify_against_images' else instance
     if not isinstance(data_frame, pd.DataFrame):
         raise TypeError("{0} expected to be a DataFrame.\n"
-                        "Got an object of type: '{1}'.".format(source_db, type(data_frame).__name__))
+                        "Got an object of type: '{1}'.".format(db_to_extract, type(data_frame).__name__))
 
     def path_existence_handler(path):
         """Create `path` if it does not exist and `create_dirs=True`."""
@@ -603,7 +603,7 @@ def image_divvy(instance,
                                          "Consider setting `create_dirs=True`.".format(path))
 
     # Define the column to copy images from.
-    column_to_use = _divvy_column_selector(instance, source_db, image_column, data_frame)
+    column_to_use = _divvy_column_selector(instance, db_to_extract, image_column, data_frame)
 
     def divvy_rule_wrapper(row):
         """Wrap ``divvy_rule`` to automate copying."""
