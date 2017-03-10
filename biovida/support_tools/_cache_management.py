@@ -32,14 +32,15 @@ def _medpix_logo_download(save_path,
 
     if not os.path.isfile(full_save_path):
         # Get representative images
-        img = Image.open(requests.get(image_web_address, stream=True).raw)
+        image = Image.open(requests.get(image_web_address, stream=True).raw)
         # Crop and Save
-        img_cropped = img.crop((406, 6, 502, 27))
-        img_cropped.save(full_save_path)
+        image_cropped = image.crop((406, 6, 502, 27))
+        image_cropped.save(full_save_path)
         print("\nThe MedPix Logo, required for processing Open-i images, has been downloaded to:\n\n {0}\n".format(
             list_to_bulletpoints([full_save_path])))
 
     return {'medpix_logo': full_save_path}
+
 
 def _sub_directory_creator(root_path, to_create):
     """
@@ -100,9 +101,6 @@ def _directory_creator(cache_path=None, verbose=True):
     :return: the root path (i.e., path the cache itself).
     :rtype: ``str``
     """
-    # Init. Root Path
-    root_path = None
-
     # Record of dirs created.
     created_dirs = list()
 
