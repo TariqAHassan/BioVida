@@ -14,12 +14,9 @@
 
 """
 # General Imports
-import numpy as np
-import scipy.misc
 from keras import backend as K
 K.set_image_dim_ordering('th')
 
-from keras.preprocessing.image import load_img
 from biovida.images.models.image_classification import ImageRecognitionCNN
 
 
