@@ -1337,7 +1337,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return `records_db` with nonessential columns removed.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return `cache_records_db` with nonessential columns removed.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">data_frame_col_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">nonessential_cancer_image_columns</span><span class="p">,</span> <span class="s1">&#39;cache_records_db&#39;</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>

@@ -269,7 +269,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <dl class="attribute">
 <dt id="biovida.images.openi_interface.OpeniInterface.cache_records_db_short">
 <code class="descname">cache_records_db_short</code><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.cache_records_db_short" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return <cite>records_db</cite> with nonessential columns removed.</p>
+<dd><p>Return <cite>cache_records_db</cite> with nonessential columns removed.</p>
 </dd></dl>
 
 <dl class="method">
@@ -452,7 +452,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <dl class="attribute">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.cache_records_db_short">
 <code class="descname">cache_records_db_short</code><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.cache_records_db_short" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return <cite>records_db</cite> with nonessential columns removed.</p>
+<dd><p>Return <cite>cache_records_db</cite> with nonessential columns removed.</p>
 </dd></dl>
 
 <dl class="method">
@@ -770,10 +770,9 @@ of red, green and blue.</li>
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.logo_analysis">
-<code class="descname">logo_analysis</code><span class="sig-paren">(</span><em>match_quality_threshold=0.25</em>, <em>xy_position_threshold=(0.3333333333333333</em>, <em>0.4)</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_img_cropping=(0.15</em>, <em>0.5)</em>, <em>return_full=False</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing.logo_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.logo_analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">logo_analysis</code><span class="sig-paren">(</span><em>match_quality_threshold=0.25</em>, <em>xy_position_threshold=(0.3333333333333333</em>, <em>0.4)</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_img_cropping=(0.15</em>, <em>0.5)</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing.logo_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.logo_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
-populate the corresponding row of the &#8216;medpix_logo_lower_left&#8217; column in the &#8216;image_dataframe&#8217;
-with its a full bonding box if <code class="docutils literal"><span class="pre">return_full=True</span></code>, otherwise only the lower left corner.</p>
+populate the the &#8216;medpix_logo_bounding_box&#8217; of <code class="docutils literal"><span class="pre">image_dataframe</span></code> with its bounding box.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -788,10 +787,6 @@ and less than 1/2.5 of the image&#8217;s height.</li>
 <li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
 <li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
 <li><strong>base_img_cropping</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code></li>
-<li><strong>return_full</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, return a dictionary with the location of all four corners for the
-logo&#8217;s bounding box. Otherwise, only the bottom left corner will be returned.
-Defaults to <code class="docutils literal"><span class="pre">False</span></code>.
-Note: <code class="docutils literal"><span class="pre">True</span></code> <strong>cannot</strong> be used in conjunction with &#8216;auto&#8217; methods in this class.</li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>

@@ -298,6 +298,8 @@
 
 <span class="sd">        :param x: any iterable data structure.</span>
 <span class="sd">        :type x: ``iterable``</span>
+<span class="sd">        :param length: length of ``x`` (typically only needed for generators, which do not include this information).</span>
+<span class="sd">        :type length: ``int`` or ``None``</span>
 <span class="sd">        :return: ``x`` wrapped in a tqdm status bar if ``status`` is True, else the object is returned &#39;as is&#39;.</span>
 <span class="sd">        :type: ``tqdm`` or ``any``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -401,7 +403,7 @@
 <span class="sd">        :rtype: ``NaN``, ``dict`` or ``tuple``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Unpack ``output_params``</span>
-        <span class="n">match_quality_threshold</span><span class="p">,</span> <span class="n">x_greater_check</span><span class="p">,</span> <span class="n">y_greater_check</span><span class="p">,</span> <span class="n">return_full</span> <span class="o">=</span> <span class="n">output_params</span>
+        <span class="n">match_quality_threshold</span><span class="p">,</span> <span class="n">x_greater_check</span><span class="p">,</span> <span class="n">y_greater_check</span> <span class="o">=</span> <span class="n">output_params</span>
 
         <span class="c1"># Unpack ``analysis_results``</span>
         <span class="n">bounding_box</span> <span class="o">=</span> <span class="n">analysis_results</span><span class="p">[</span><span class="s1">&#39;bounding_box&#39;</span><span class="p">]</span>
@@ -417,10 +419,7 @@
                         <span class="n">bounding_box</span><span class="p">[</span><span class="s1">&#39;bottom_left&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">base_img_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">y_greater_check</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
 
-        <span class="k">if</span> <span class="n">return_full</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">bounding_box</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">bounding_box</span><span class="p">[</span><span class="s1">&#39;bottom_left&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">bounding_box</span>
 
     <span class="k">def</span> <span class="nf">_logo_processor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robust_match_template_wrapper</span><span class="p">,</span> <span class="n">output_params</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -432,7 +431,7 @@
 <span class="sd">        :type robust_match_template_wrapper: ``function``</span>
 <span class="sd">        :param output_params: tuple of the form:</span>
 
-<span class="sd">                        ``(match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1], return_full)``</span>
+<span class="sd">                        ``(match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])``</span>
 
 <span class="sd">        :type output_params: ``tuple``</span>
 <span class="sd">        :param status: display status bar. Defaults to ``True``.</span>
@@ -463,14 +462,12 @@
                       <span class="n">base_resizes</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
                       <span class="n">end_search_threshold</span><span class="o">=</span><span class="mf">0.875</span><span class="p">,</span>
                       <span class="n">base_img_cropping</span><span class="o">=</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-                      <span class="n">return_full</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                       <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                       <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Search for the MedPix Logo. If located, with match quality above match_quality_threshold,</span>
-<span class="sd">        populate the corresponding row of the &#39;medpix_logo_lower_left&#39; column in the &#39;image_dataframe&#39;</span>
-<span class="sd">        with its a full bonding box if ``return_full=True``, otherwise only the lower left corner.</span>
+<span class="sd">        populate the the &#39;medpix_logo_bounding_box&#39; of ``image_dataframe`` with its bounding box.</span>
 
 <span class="sd">        :param match_quality_threshold: the minimum match quality required to accept the match.</span>
 <span class="sd">                                        See: ``skimage.feature.match_template()`` for more information.</span>
@@ -486,25 +483,20 @@
 <span class="sd">        :type end_search_threshold: ``float``</span>
 <span class="sd">        :param base_img_cropping: See: ``biovida.images.models.template_matching.robust_match_template()``</span>
 <span class="sd">        :type base_img_cropping: ``tuple``</span>
-<span class="sd">        :param return_full: if ``True``, return a dictionary with the location of all four corners for the</span>
-<span class="sd">                            logo&#39;s bounding box. Otherwise, only the bottom left corner will be returned.</span>
-<span class="sd">                            Defaults to ``False``.</span>
-<span class="sd">                            Note: ``True`` **cannot** be used in conjunction with &#39;auto&#39; methods in this class.</span>
-<span class="sd">        :type return_full: ``bool``</span>
 <span class="sd">        :param new_analysis: rerun the analysis if it has already been computed.</span>
 <span class="sd">        :type new_analysis: ``bool``</span>
 <span class="sd">        :param status: display status bar. Defaults to ``True``.</span>
 <span class="sd">        :type status: ``bool``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Note: this method wraps ``biovida.images.models.template_matching.robust_match_template()``.</span>
-        <span class="k">if</span> <span class="s1">&#39;medpix_logo_lower_left&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">new_analysis</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;medpix_logo_bounding_box&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">new_analysis</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_print_update</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Starting Logo Analysis...&quot;</span><span class="p">)</span>
 
         <span class="c1"># Package Params</span>
-        <span class="n">output_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">match_quality_threshold</span><span class="p">,</span> <span class="n">xy_position_threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xy_position_threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">return_full</span><span class="p">)</span>
+        <span class="n">output_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">match_quality_threshold</span><span class="p">,</span> <span class="n">xy_position_threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xy_position_threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="c1"># Load the Pattern. ToDo: Allow for non MedPix logos logos.</span>
         <span class="n">medpix_template_img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_medpix_path</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -517,10 +509,9 @@
                                          <span class="n">base_img_cropping</span><span class="o">=</span><span class="n">base_img_cropping</span><span class="p">)</span>
 
         <span class="c1"># Run the algorithm searching for the medpix logo in the base image</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logo_processor</span><span class="p">(</span><span class="n">robust_match_template_wrapper</span><span class="p">,</span> <span class="n">output_params</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
-
-        <span class="c1"># Update dataframe with the (x, y) values of the lower left corner of the logo&#39;s bonding box.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;medpix_logo_lower_left&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;medpix_logo_bounding_box&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logo_processor</span><span class="p">(</span><span class="n">robust_match_template_wrapper</span><span class="p">,</span>
+                                                                                <span class="n">output_params</span><span class="o">=</span><span class="n">output_params</span><span class="p">,</span>
+                                                                                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageProcessing.border_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.border_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">border_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                         <span class="n">signal_strength_threshold</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
@@ -551,9 +542,9 @@
 
         <span class="k">def</span> <span class="nf">ba_func</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">border_detection</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
-                                    <span class="n">signal_strength_threshold</span><span class="p">,</span>
-                                    <span class="n">min_border_separation</span><span class="p">,</span>
-                                    <span class="n">lower_bar_search_space</span><span class="p">,</span>
+                                    <span class="n">signal_strength_threshold</span><span class="o">=</span><span class="n">signal_strength_threshold</span><span class="p">,</span>
+                                    <span class="n">min_border_separation</span><span class="o">=</span><span class="n">min_border_separation</span><span class="p">,</span>
+                                    <span class="n">lower_bar_search_space</span><span class="o">=</span><span class="n">lower_bar_search_space</span><span class="p">,</span>
                                     <span class="n">report_signal_strength</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                     <span class="n">rescale_input_ndarray</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -575,16 +566,24 @@
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Choose lowest horizontal cropping point.</span>
-<span class="sd">        Solves: upper &#39;hborder&#39; vs &#39;medpix_logo_lower_left&#39;.</span>
+<span class="sd">        Solves: upper &#39;hborder&#39; vs &#39;medpix_logo_bounding_box&#39;</span>
+<span class="sd">        (dictionary key = &#39;bottom_left&#39;).</span>
 
 <span class="sd">        :param x: data passed through Pandas ``DataFrame.apply()`` method.</span>
 <span class="sd">        :type x: ``Pandas Object``</span>
 <span class="sd">        :return: the lowest crop location.</span>
 <span class="sd">        :rtype: ``int`` or ``float``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Note: hborder = [top, lower]; medpix_logo_lower_left = [x, y].</span>
-        <span class="n">cols</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;hborder&#39;</span><span class="p">,</span> <span class="s1">&#39;medpix_logo_lower_left&#39;</span><span class="p">)</span>
-        <span class="n">crop_candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;hborder&#39;</span> <span class="k">else</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cols</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
+        <span class="c1"># Note: hborder = [top, lower]; medpix_logo_bounding_box[&#39;bottom_left&#39;] = [x, y].</span>
+        <span class="c1"># That is, `hborder[0]` must be compared with `medpix_logo_bounding_box[&#39;bottom_left&#39;][1]`.</span>
+        <span class="n">crop_candidates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;hborder&#39;</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">crop_candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;hborder&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;medpix_logo_bounding_box&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">lower_left</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;medpix_logo_bounding_box&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bottom_left&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lower_left</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="n">crop_candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lower_left</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">crop_candidates</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">crop_candidates</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
 
     <span class="nd">@staticmethod</span>
@@ -614,7 +613,7 @@
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;upper_crop&#39;</span><span class="p">,</span> <span class="s1">&#39;lower_crop&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">new_analysis</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;medpix_logo_lower_left&#39;</span><span class="p">,</span> <span class="s1">&#39;hborder&#39;</span><span class="p">,</span> <span class="s1">&#39;hbar&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;medpix_logo_bounding_box&#39;</span><span class="p">,</span> <span class="s1">&#39;hborder&#39;</span><span class="p">,</span> <span class="s1">&#39;hbar&#39;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The `image_dataframe` does not contain the</span><span class="se">\n</span><span class="s2">following required column: &#39;</span><span class="si">{0}</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
                                <span class="s2">&quot;Please execute the corresponding analysis method to generate it.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
@@ -727,14 +726,16 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Preparing Images for Neural Network...&quot;</span><span class="p">)</span>
             <span class="n">verbose_prediction</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">verbose_prediction</span><span class="o">=</span> <span class="kc">False</span>
+            <span class="n">verbose_prediction</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">transformed_images</span> <span class="o">=</span> <span class="n">load_and_scale_imgs</span><span class="p">(</span><span class="n">cropped_images_for_analysis</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">img_shape</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">verbose_prediction</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Analyzing Images for Visual Problems with Neural Network...&quot;</span><span class="p">)</span>
+
         <span class="c1"># Make the predictions and Save</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;visual_image_problems&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">list_of_images</span><span class="o">=</span><span class="p">[</span><span class="n">transformed_images</span><span class="p">],</span>
-                                                                            <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
-                                                                            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose_prediction</span><span class="p">)</span>
+                                                                            <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ImageProcessing.visual_image_problems"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.visual_image_problems">[docs]</a>    <span class="k">def</span> <span class="nf">visual_image_problems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -770,10 +771,6 @@
 <span class="sd">        it believes all of the other images are likely devoid of problems it has been</span>
 <span class="sd">        trained to detect.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Note: This method is a wrapper for `_image_problems_predictions()`</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_print_update</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Analyzing Images for Problems...&quot;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="s1">&#39;visual_image_problems&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="n">new_analysis</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_image_problems_predictions</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span></div>
 
