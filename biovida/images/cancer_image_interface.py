@@ -81,7 +81,7 @@ class _CancerImageArchiveOverview(object):
                  tcia_homepage='http://www.cancerimagingarchive.net'):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
-        _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
+        _, self._created_image_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
                                                           to_create=['tcia'], nest=[('tcia', 'databases')])
 
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
@@ -140,7 +140,7 @@ class _CancerImageArchiveOverview(object):
         :rtype: ``Pandas DataFrame``
         """
         # Define the path to save the data
-        save_path = os.path.join(self._created_img_dirs['databases'], 'all_tcia_studies.p')
+        save_path = os.path.join(self._created_image_dirs['databases'], 'all_tcia_studies.p')
 
         if not os.path.isfile(save_path) or download_override:
             if self._verbose:
@@ -217,17 +217,17 @@ class _CancerImageArchiveRecords(object):
     :type api_key: ``str``
     :param dicom_modality_abbrevs: an instance of ``CancerImageArchiveParams().dicom_modality_abbreviations('dict')``
     :type dicom_modality_abbrevs: ``dict``
-    :param cancer_img_archive_overview: an instance of ``_CancerImageArchiveOverview()``
-    :type cancer_img_archive_overview: ``class``
+    :param cancer_image_archive_overview: an instance of ``_CancerImageArchiveOverview()``
+    :type cancer_image_archive_overview: ``class``
     :param root_url: the root URL for the Cancer Imaging Archive's API.
     :type root_url: ``str``
     """
 
-    def __init__(self, api_key, dicom_modality_abbrevs, cancer_img_archive_overview, root_url):
+    def __init__(self, api_key, dicom_modality_abbrevs, cancer_image_archive_overview, root_url):
         self.ROOT_URL = root_url
         self.records_df = None
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
-        self._Overview = cancer_img_archive_overview
+        self._Overview = cancer_image_archive_overview
         self.API_KEY = api_key
         self._url_sep = '+'
 
@@ -328,7 +328,7 @@ class _CancerImageArchiveRecords(object):
 
         return patient_dict
 
-    def _patient_img_summary(self, patient, study, patient_dict):
+    def _patient_image_summary(self, patient, study, patient_dict):
         """
 
         Harvests the Cancer Image Archive's Text Record of all baseline images for a given patient
@@ -470,7 +470,7 @@ class _CancerImageArchiveRecords(object):
         # Evolve a dataframe ('frame') for the baseline images of all patients
         frames = list()
         for patient in tqdm(patients_to_obtain):
-            frames.append(self._patient_img_summary(patient, study=study, patient_dict=study_dict[patient]))
+            frames.append(self._patient_image_summary(patient, study=study, patient_dict=study_dict[patient]))
 
         # Concatenate baselines frame for each patient
         patient_study_df = pd.concat(frames, ignore_index=True)
@@ -518,7 +518,7 @@ class _CancerImageArchiveImages(object):
     """
 
     def __init__(self, api_key, dicom_modality_abbrevs, root_url, verbose, cache_path=None):
-        _, self._created_img_dirs = package_cache_creator(sub_dir='images',
+        _, self._created_image_dirs = package_cache_creator(sub_dir='images',
                                                           cache_path=cache_path,
                                                           to_create=['tcia'],
                                                           nest=[('tcia', 'raw'), ('tcia', 'dicoms'), ('tcia', 'databases')],
@@ -534,7 +534,7 @@ class _CancerImageArchiveImages(object):
         self.real_time_update_db_path = None
 
         # Define the path to the temporary directory
-        self.temp_directory_path = os.path.join(self._created_img_dirs['databases'], "__temp__")
+        self.temp_directory_path = os.path.join(self._created_image_dirs['databases'], "__temp__")
 
     def _create_temp_directory(self):
         """
@@ -622,7 +622,7 @@ class _CancerImageArchiveImages(object):
         :type series_uid: ``str``
         :param conversion: the color scale conversion to use, e.g., 'LA' or 'RGB'.
         :type conversion: ``str``
-        :param new_file_name: see ``_save_dicom_as_img``'s ``save_name`` parameter.
+        :param new_file_name: see ``_save_dicom_as_image``'s ``save_name`` parameter.
         :type new_file_name: ``str``
         :param image_format: see: ``pull_images()``.
         :type image_format: ``str``
@@ -640,7 +640,7 @@ class _CancerImageArchiveImages(object):
         except (UnboundLocalError, TypeError):
             return [], False
 
-        save_location = self._created_img_dirs['raw']
+        save_location = self._created_image_dirs['raw']
 
         def save_path(instance):
             """Define the path to save the image to."""
@@ -702,7 +702,7 @@ class _CancerImageArchiveImages(object):
         # Return the length if requested.
         return len(replacement) if return_replacement_len and isinstance(replacement, (list, tuple)) else None
 
-    def _save_dicom_as_img(self,
+    def _save_dicom_as_image(self,
                            path_to_dicom_file,
                            index,
                            pull_position,
@@ -763,7 +763,7 @@ class _CancerImageArchiveImages(object):
     def _move_dicoms(self, save_dicoms, dicom_files, series_abbrev, index):
         """
 
-        Move the dicom source files to ``self._created_img_dirs['dicoms']``.
+        Move the dicom source files to ``self._created_image_dirs['dicoms']``.
         Employ to prevent the raw dicom files from being destroyed.
 
         :param save_dicoms: see: ``pull_images()``
@@ -787,7 +787,7 @@ class _CancerImageArchiveImages(object):
             new_dicom_file_name = "{0}__{1}{2}".format(f_parsed[0], series_abbrev, f_parsed[1])
 
             # Define the location of the new files
-            new_location = os.path.join(self._created_img_dirs['dicoms'], new_dicom_file_name)
+            new_location = os.path.join(self._created_image_dirs['dicoms'], new_dicom_file_name)
             new_dircom_paths.append(new_location)
 
             # Move the dicom file from '__temp__' --> to --> new location
@@ -818,8 +818,8 @@ class _CancerImageArchiveImages(object):
         :return: tuple of the form:
 
         ``(cache likely complete,
-           series_abbrev matches in self._created_img_dirs['raw'],
-           series_abbrev matches in self._created_img_dirs['dicoms'])``
+           series_abbrev matches in self._created_image_dirs['raw'],
+           series_abbrev matches in self._created_image_dirs['dicoms'])``
 
         :rtype: ``tuple``
         """
@@ -827,13 +827,13 @@ class _CancerImageArchiveImages(object):
         if check_cache_first is False:
             return False, None, None
 
-        # Check that `self._created_img_dirs['raw']` has files which contain the string `series_abbrev`.
-        save_location_summary = sorted([os.path.join(self._created_img_dirs['raw'], f)
-                                        for f in os.listdir(self._created_img_dirs['raw']) if series_abbrev in f])
+        # Check that `self._created_image_dirs['raw']` has files which contain the string `series_abbrev`.
+        save_location_summary = sorted([os.path.join(self._created_image_dirs['raw'], f)
+                                        for f in os.listdir(self._created_image_dirs['raw']) if series_abbrev in f])
 
-        # Check that `self._created_img_dirs['dicoms'])` has files which contain the string `series_abbrev`.
-        dicoms_sl_summary = tuple(sorted([os.path.join(self._created_img_dirs['dicoms'], f)
-                                          for f in os.listdir(self._created_img_dirs['dicoms']) if series_abbrev in f]))
+        # Check that `self._created_image_dirs['dicoms'])` has files which contain the string `series_abbrev`.
+        dicoms_sl_summary = tuple(sorted([os.path.join(self._created_image_dirs['dicoms'], f)
+                                          for f in os.listdir(self._created_image_dirs['dicoms']) if series_abbrev in f]))
 
         # Base determination of whether or not the cache is complete w.r.t. dicoms on `save_dicoms`.
         dicoms_sl_summary_complete = len(dicoms_sl_summary) >= n_images_min if save_dicoms else True
@@ -852,7 +852,7 @@ class _CancerImageArchiveImages(object):
         :return: the full path to the newly created temporary directory.
         :rtype: ``str``
         """
-        temp_folder = os.path.join(self._created_img_dirs['dicoms'], temp_folder_name)
+        temp_folder = os.path.join(self._created_image_dirs['dicoms'], temp_folder_name)
         if os.path.isdir(temp_folder):
             shutil.rmtree(temp_folder, ignore_errors=True)
         os.makedirs(temp_folder)
@@ -931,7 +931,7 @@ class _CancerImageArchiveImages(object):
 
                 # Convert dicom files to `image_format`
                 for e, f in enumerate(dicom_files, start=1):
-                    self._save_dicom_as_img(path_to_dicom_file=f, index=index, pull_position=e,
+                    self._save_dicom_as_image(path_to_dicom_file=f, index=index, pull_position=e,
                                             series_uid=series_uid,save_name=series_abbrev, image_format=image_format)
 
                 # Save raw dicom files, if `save_dicoms` is True.
@@ -1127,7 +1127,7 @@ class CancerImageInterface(object):
 
         self._Records = _CancerImageArchiveRecords(api_key=api_key,
                                                    dicom_modality_abbrevs=self.dicom_modality_abbrevs,
-                                                   cancer_img_archive_overview=self._Overview,
+                                                   cancer_image_archive_overview=self._Overview,
                                                    root_url=root_url)
 
         self._Images = _CancerImageArchiveImages(api_key=api_key,
@@ -1136,7 +1136,7 @@ class CancerImageInterface(object):
                                                  cache_path=cache_path,
                                                  verbose=verbose)
 
-        self._ROOT_PATH = self._Overview._created_img_dirs['ROOT_PATH']
+        self._ROOT_PATH = self._Overview._created_image_dirs['ROOT_PATH']
 
         # Search attributes
         self._pull_time = None
@@ -1147,7 +1147,7 @@ class CancerImageInterface(object):
         self.records_db = None
 
         # Path to the `cache_records_db`
-        self._cache_records_db_save_path = os.path.join(self._Images._created_img_dirs['databases'],
+        self._cache_records_db_save_path = os.path.join(self._Images._created_image_dirs['databases'],
                                                         'tcia_cache_records_db.p')
 
         # Load `cache_records_db` if it exists already, else set to None.
