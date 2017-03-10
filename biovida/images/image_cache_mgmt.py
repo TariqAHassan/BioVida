@@ -44,20 +44,20 @@ def _openi_image_relation_map(data_frame):
 
     # Get duplicated img_large occurrences. Use of 'img_large' is arbitrary, could have used
     # any of the 'img_...' columns, e.g., 'img_thumb' or 'img_grid150'.
-    duplicated_img_refs = (k for k, v in Counter(df['img_large']).items() if v > 1)
+    duplicated_image_refs = (k for k, v in Counter(df['img_large']).items() if v > 1)
 
     # Get the indices of duplicates
-    dup_index = {k: df[df['img_large'] == k].index.tolist() for k in duplicated_img_refs}
+    dup_index = {k: df[df['img_large'] == k].index.tolist() for k in duplicated_image_refs}
 
-    def related(img_large, index):
+    def related(image_large, index):
         """Function to look for references to the same image in the cache."""
-        if img_large in dup_index:
-            return tuple(sorted([i for i in dup_index[img_large] if i != index]))
+        if image_large in dup_index:
+            return tuple(sorted([i for i in dup_index[image_large] if i != index]))
         else:
             return np.NaN
 
     # Apply `relate()`
-    df['shared_image_ref'] = [related(img, index) for img, index in zip(df['img_large'], df.index)]
+    df['shared_image_ref'] = [related(image, index) for image, index in zip(df['img_large'], df.index)]
 
     return df
 
