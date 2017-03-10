@@ -20,11 +20,11 @@ from itertools import chain
 
 from data.training.my_file_paths import (cache_path,
                                          arrow_path,
-                                         base_img_path,
+                                         base_image_path,
                                          grid_save_location,
                                          occluding_text_save_location,
                                          arrow_save_location,
-                                         valid_img_save_location,
+                                         valid_image_save_location,
                                          ellipses_save_location)
 
 
@@ -41,7 +41,7 @@ quality = 95  # set image quality
 
 
 # Define Images to Use
-base_images = [os.path.join(base_img_path, i) for i in os.listdir(base_img_path) if i.endswith(".png")]
+base_images = [os.path.join(base_image_path, i) for i in os.listdir(base_image_path) if i.endswith(".png")]
 
 
 def base_image_record(images_used, cache_path, save_path):
@@ -66,8 +66,8 @@ def base_image_record(images_used, cache_path, save_path):
     df = opi.image_record_database
     
     # Extract the URL data from the image record database
-    df['img_names'] = df['img_cache_path'].map(lambda x: x.split("/")[-1])
-    name_url_dict = dict(zip(df['img_names'], df['img_large']))
+    df['image_names'] = df['image_cache_path'].map(lambda x: x.split("/")[-1])
+    name_url_dict = dict(zip(df['image_names'], df['image_large']))
     
     # Map the URL data onto the image names
     images_used['URL'] = images_used['ImageName'].map(lambda x: name_url_dict[x.replace(" (1)", "")])
@@ -113,7 +113,7 @@ def avg_color(background, location, window=50):
     return np.mean(np.asarray(bg_cropped))
 
 
-def resize_image(img, scalar=1/3, min_size=15):
+def resize_image(image, scalar=1/3, min_size=15):
     """
 
     :param image:
@@ -122,7 +122,7 @@ def resize_image(img, scalar=1/3, min_size=15):
                      pass 0 to disable.
     :return:
     """
-    width, height = img.size
+    width, height = image.size
 
     new_width, new_height = int(width * scalar), int(height * scalar)
 
@@ -130,8 +130,8 @@ def resize_image(img, scalar=1/3, min_size=15):
         new_width += abs(new_width - min_size)
         new_height += abs(new_height - min_size)
 
-    img = img.resize((new_width, new_height), Image.ANTIALIAS)
-    return img
+    image = image.resize((new_width, new_height), Image.ANTIALIAS)
+    return image
 
 
 def random_tuple_in_range(tpl, border_buffer=0.385):
@@ -147,24 +147,24 @@ def random_tuple_in_range(tpl, border_buffer=0.385):
     return rand_x, rand_y
 
 
-def random_crop(img, choice_override=None, top_crop=0.2, lower_crop=0.9):
+def random_crop(image, choice_override=None, top_crop=0.2, lower_crop=0.9):
     """
 
-    :param img:
+    :param image:
     :param choice_override:
     :param top_crop: the amount of the top of the image to crop
     :param lower_crop: the amount of the botto of the image to crop
     :return:
     """
-    w, h = img.size
+    w, h = image.size
     if top_crop is not None:
-        img = img.crop((0, int(h * top_crop), w, h))
-    w, h = img.size
+        image = image.crop((0, int(h * top_crop), w, h))
+    w, h = image.size
     if lower_crop is not None:
-        img = img.crop((0, 0, w, int(h * lower_crop)))
+        image = image.crop((0, 0, w, int(h * lower_crop)))
 
-    w, h = img.size
-    w2, h2 = np.round(np.array(img.size) / 2).astype(int)
+    w, h = image.size
+    w2, h2 = np.round(np.array(image.size) / 2).astype(int)
     if isinstance(choice_override, int):
         choice = choice_override
     else:
@@ -172,36 +172,36 @@ def random_crop(img, choice_override=None, top_crop=0.2, lower_crop=0.9):
 
     side = randint(0, 1)
     if choice == 0:
-        return img
+        return image
     elif choice == 1: # crop w.r.t. width
         if side == 0:
-            return img.crop((0, 0, w2, h))
+            return image.crop((0, 0, w2, h))
         elif side == 1:
-            return img.crop((w2, 0, w, h))
+            return image.crop((w2, 0, w, h))
     elif choice == 2: # crop w.r.t. height
         if side == 0:
-            return img.crop((0, 0, w, h2))
+            return image.crop((0, 0, w, h2))
         elif side == 1:
-            return img.crop((0, h2, w, h))
+            return image.crop((0, h2, w, h))
 
 
-def random_stretch(img, stretch_by):
+def random_stretch(image, stretch_by):
     """
 
-    :param img:
+    :param image:
     :param stretch_by:
     :return:
     """
-    w, h = img.size
+    w, h = image.size
     scale_by = random.uniform(stretch_by[0], stretch_by[1])
     choice = randint(0, 2)
 
     if choice == 0:
-        return img
+        return image
     elif choice == 1:
-        return img.resize((int(w * scale_by), h), Image.ANTIALIAS)
+        return image.resize((int(w * scale_by), h), Image.ANTIALIAS)
     elif choice == 2:
-        return img.resize((w, int(h * scale_by)), Image.ANTIALIAS)
+        return image.resize((w, int(h * scale_by)), Image.ANTIALIAS)
 
 
 def open_muliple_and_random_crop(image_list):
@@ -241,11 +241,11 @@ def opposite_color(color_val, buffer=7.5):
 
 
 # ------------------------------------------------------------------------------------------
-# valid_img
+# valid_image
 # ------------------------------------------------------------------------------------------
 
 
-def valid_img_creator(image_options, start, end, general_name, save_location):
+def valid_image_creator(image_options, start, end, general_name, save_location):
     """
 
     :param image_options:
@@ -256,14 +256,14 @@ def valid_img_creator(image_options, start, end, general_name, save_location):
     """
     for i in tqdm(range(start+1, end+1)):
         # Open and randomly crop
-        img = random_crop(Image.open(random.choice(image_options)))
+        image = random_crop(Image.open(random.choice(image_options)))
         # Randomly rescale
-        img = resize_image(img, random.uniform(0.8, 1.2))
+        image = resize_image(image, random.uniform(0.8, 1.2))
         # Save
-        img.save(os.path.join(save_location, "{0}_{1}.png".format(i, general_name)), quality=quality)
+        image.save(os.path.join(save_location, "{0}_{1}.png".format(i, general_name)), quality=quality)
 
 
-# valid_img_creator(base_images, 17000, 30000, "valid_img", valid_img_save_location)
+# valid_image_creator(base_images, 17000, 30000, "valid_image", valid_image_save_location)
 
 # ------------------------------------------------------------------------------------------
 # Arrows
@@ -505,14 +505,14 @@ def arrow_creator(background_options, foreground_options, start, end, general_na
 # Image Creation:
 
 # ----------------------------------------------------------------
-# ImgShape              ID                 Likelihood
+# imageShape              ID                 Likelihood
 # ----------------------------------------------------------------
 # H stacking            0                  0.25
 # V stacking            1                  0.25
 # HB stacking           2                  0.30 (above/below)
 # VB stacking           3                  0.20 (side-by-side)
 # ----------------------------------------------------------------
-# ImgShape          N images              Likelihood
+# imageShape          N images              Likelihood
 # ----------------------------------------------------------------
 # H stacking        2, 3, 4               (1/3, 1/3, 1/3)
 # V stacking        2, 3                  (1/2, 1/2)
@@ -521,7 +521,7 @@ def arrow_creator(background_options, foreground_options, start, end, general_na
 # ----------------------------------------------------------------
 
 
-def img_stacker(image_list, stacker=np.hstack, min_shape_override=None):
+def image_stacker(image_list, stacker=np.hstack, min_shape_override=None):
     """
 
     Combine Images horizontally.
@@ -531,15 +531,15 @@ def img_stacker(image_list, stacker=np.hstack, min_shape_override=None):
     """
     # see: http://stackoverflow.com/a/30228789/4898004.
     if min_shape_override is not None:
-        imgs = image_list
+        images = image_list
         min_shape = min_shape_override
     else:
-        imgs = open_muliple_and_random_crop(image_list)
-        # imgs = [Image.open(i) for i in image_list]
-        min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
+        images = open_muliple_and_random_crop(image_list)
+        # images = [Image.open(i) for i in image_list]
+        min_shape = sorted([(np.sum(i.size), i.size) for i in images])[0][1]
 
     # Combine
-    return stacker((np.asarray(i.resize(min_shape,  Image.ANTIALIAS)) for i in imgs))
+    return stacker((np.asarray(i.resize(min_shape,  Image.ANTIALIAS)) for i in images))
 
 
 def side_by_side_stacker(image_list, stacker_a, stacker_b):
@@ -549,53 +549,53 @@ def side_by_side_stacker(image_list, stacker_a, stacker_b):
     :return:
     """
     # Open the images
-    imgs = open_muliple_and_random_crop(image_list)
+    images = open_muliple_and_random_crop(image_list)
 
     # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
-    min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
+    min_shape = sorted([(np.sum(i.size), i.size) for i in images])[0][1]
 
     # Generate the first grid
-    grid_1 = img_stacker(image_list=imgs[:int(len(imgs)/2)], stacker=stacker_a, min_shape_override=min_shape)
+    grid_1 = image_stacker(image_list=images[:int(len(images)/2)], stacker=stacker_a, min_shape_override=min_shape)
 
     # Generate the second grid
-    grid_2 = img_stacker(image_list=imgs[int(len(imgs)/2):], stacker=stacker_a, min_shape_override=min_shape)
+    grid_2 = image_stacker(image_list=images[int(len(images)/2):], stacker=stacker_a, min_shape_override=min_shape)
 
     # Stack side-by-side
     return stacker_b((grid_1, grid_2))
 
 
-def grid_masher(all_img_options, name, save_location):
+def grid_masher(all_image_options, name, save_location):
     """
 
     :return:
     """
     # Determine the general shape of the grid
-    img_shape = np.random.choice(4, 1, p=[0.25, 0.25, 0.30, 0.20])[0]
+    image_shape = np.random.choice(4, 1, p=[0.25, 0.25, 0.30, 0.20])[0]
 
-    # Determine possibilities for the number of images based on img_shape.
-    if img_shape == 0:
+    # Determine possibilities for the number of images based on image_shape.
+    if image_shape == 0:
         choices, weights = [2, 3, 4], [1/3, 1/3, 1/3]
-    elif img_shape == 1:
+    elif image_shape == 1:
         choices, weights = [2, 3], [1/2, 1/2]
-    elif img_shape == 2:
+    elif image_shape == 2:
         choices, weights = [2, 4, 6, 8], [1/4, 1/4, 1/4, 1/4]
-    elif img_shape == 3:
+    elif image_shape == 3:
         choices, weights = [4, 6, 8], [1/3, 1/3, 1/3]
 
-    # Pick random number of images, given `img_shape`.
+    # Pick random number of images, given `image_shape`.
     n_images = np.random.choice(choices, 1, weights)[0]
 
     # Extract some the randomly specified number of images
-    grid_images = np.random.choice(all_img_options, n_images, replace=False)
+    grid_images = np.random.choice(all_image_options, n_images, replace=False)
 
     # Stack
-    if img_shape == 0:
-        grid = img_stacker(grid_images)
-    elif img_shape == 1:
-        grid = img_stacker(grid_images, stacker=np.vstack)
-    elif img_shape == 2:
+    if image_shape == 0:
+        grid = image_stacker(grid_images)
+    elif image_shape == 1:
+        grid = image_stacker(grid_images, stacker=np.vstack)
+    elif image_shape == 2:
         grid = side_by_side_stacker(grid_images, stacker_a=np.hstack, stacker_b=np.vstack)
-    elif img_shape == 3:
+    elif image_shape == 3:
         grid = side_by_side_stacker(grid_images, stacker_a=np.vstack, stacker_b=np.hstack)
 
     # Image.fromarray(grid).show()
@@ -605,10 +605,10 @@ def grid_masher(all_img_options, name, save_location):
     rslt.save("{0}/{1}.png".format(save_location, name), quality=quality)
 
 
-def grid_creator(all_img_options, start, end, general_name, save_location):
+def grid_creator(all_image_options, start, end, general_name, save_location):
     """
 
-    :param all_img_options:
+    :param all_image_options:
     :param n:
     :param save_location:
     :return:
@@ -743,10 +743,10 @@ def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
     return list(chain(*[i.split() if max(map(len, i.split())) == 1 else [i] for i in phrases]))
 
 
-def font_size_picker(img, text, font_name, text_size_proportion):
+def font_size_picker(image, text, font_name, text_size_proportion):
     """
 
-    :param img:
+    :param image:
     :param text:
     :param font_name:
     :param text_size_proportion:
@@ -758,7 +758,7 @@ def font_size_picker(img, text, font_name, text_size_proportion):
         return f.getsize(text)
 
     # Get the width of the image
-    image_width, _ = img.size
+    image_width, _ = image.size
 
     # Compute the ideal width of the text
     goal_size = text_size_proportion * image_width
@@ -770,10 +770,10 @@ def font_size_picker(img, text, font_name, text_size_proportion):
     return min(all_sizes, key=lambda x: abs(x - goal_size))
 
 
-def add_text(img, text, font, position, color):
+def add_text(image, text, font, position, color):
     """
 
-    :param img:
+    :param image:
     :param text:
     :param font:
     :param position:
@@ -781,9 +781,9 @@ def add_text(img, text, font, position, color):
     :param color:
     :return:
     """
-    draw = ImageDraw.Draw(img)
+    draw = ImageDraw.Draw(image)
     draw.text(position, text, color, font=font)
-    return img
+    return image
 
 
 def text_background_window(background, text_loc, text_dim, black_color_threshold=35):
@@ -886,20 +886,20 @@ def occluding_text_masher(background_options, border_buffer=0.40):
     return background
 
 
-def occluding_text_creator(all_img_options, start, end, general_name, save_location):
+def occluding_text_creator(all_image_options, start, end, general_name, save_location):
     """
 
-    :param all_img_options:
+    :param all_image_options:
     :param n:
     :param save_location:
     :return:
     """
     for i in tqdm(range(start+1, end+1)):
         # Define the save location
-        img_name ="{0}_{1}.png".format(i, general_name)
-        save_path = os.path.join(save_location, img_name)
+        image_name ="{0}_{1}.png".format(i, general_name)
+        save_path = os.path.join(save_location, image_name)
         # Generate and Save
-        occluding_text_masher(all_img_options).save(save_path)
+        occluding_text_masher(all_image_options).save(save_path)
 
 
 occluding_text_creator(base_images, 0, 33000, "occluding_text", occluding_text_save_location)
@@ -938,10 +938,10 @@ def stretch_generator(stretch_range=(0.4, 0.75)):
         return 0, axis_stretch
 
 
-def draw_ellipse(img, position, r, stretch, thickness=4, fill=None, outline='#d3d3d3'):
+def draw_ellipse(image, position, r, stretch, thickness=4, fill=None, outline='#d3d3d3'):
     """
 
-    :param img:
+    :param image:
     :param x:
     :param y:
     :param r:
@@ -951,7 +951,7 @@ def draw_ellipse(img, position, r, stretch, thickness=4, fill=None, outline='#d3
     :return:
     """
     # See: http://stackoverflow.com/a/2980931/4898004
-    draw = ImageDraw.Draw(img)
+    draw = ImageDraw.Draw(image)
 
     # Extract Stretch (if passed)
     x_s, y_s = tuple(map(int, np.array([r] * 2) * np.array(stretch)))
@@ -962,7 +962,7 @@ def draw_ellipse(img, position, r, stretch, thickness=4, fill=None, outline='#d3
     split = int(thickness/2)
     for rr in np.arange(r-split, r + split + 1):
         draw.ellipse((x - rr - x_s, y - rr - y_s, x + rr + x_s, y + rr + y_s), outline=outline, fill=fill)
-    return img
+    return image
 
 
 def ellipse_mash(base_image, border_buffer=0.25, stretch_range=(0.8, 1.2)):
@@ -989,10 +989,10 @@ def ellipse_mash(base_image, border_buffer=0.25, stretch_range=(0.8, 1.2)):
     return base_image
 
 
-def ellipse_img_creator(all_img_options, start, end, general_name, save_location):
+def ellipse_image_creator(all_image_options, start, end, general_name, save_location):
     """
 
-    :param all_img_options:
+    :param all_image_options:
     :param n:
     :param general_name:
     :param save_location:
@@ -1000,12 +1000,12 @@ def ellipse_img_creator(all_img_options, start, end, general_name, save_location
     """
     for i in tqdm(range(start+1, end+1)):
         # Open a random photo and crop
-        base_image = random_crop(Image.open(random.choice(all_img_options)))
+        base_image = random_crop(Image.open(random.choice(all_image_options)))
         # Save
         ellipse_mash(base_image).save("{0}/{1}_{2}.png".format(save_location, i, general_name), quality=quality)
 
 
-# ellipse_img_creator(base_images, start=0, end=30000, general_name='ellipse', save_location=ellipses_save_location)
+# ellipse_image_creator(base_images, start=0, end=30000, general_name='ellipse', save_location=ellipses_save_location)
 
 
 
