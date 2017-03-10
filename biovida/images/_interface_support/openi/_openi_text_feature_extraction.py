@@ -684,10 +684,10 @@ def _extract_enumerations(input_str):
     ['1a', '2']
     """
     # Block floating point numbers, e.g., '...there are peaks at 2.3 and 3.28.'
-    # See: http://stackoverflow.com/a/4703409/4898004. (Droped second * to ignore '2.', but still catch (2.3).
+    # See: http://stackoverflow.com/a/4703409/4898004. (Dropped second * to ignore '2.', but still catch (2.3).
     floating_point_numbers_removed = cln(re.sub(r"[-+]?\d*\.\d+", " ", input_str))
 
-    # Futher clean the input
+    # Further clean the input
     cleaned_input = cln(floating_point_numbers_removed, extent=2).replace("-", "").lower()
 
     # Define a list to populate
