@@ -288,7 +288,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_openi_search_special_case</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">blocked</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;newest&#39;</span><span class="p">,</span> <span class="s1">&#39;oldest&#39;</span><span class="p">],</span> <span class="n">passed</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_exclusions_img_type_merge</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclusions</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_exclusions_image_type_merge</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclusions</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Merge Image type with Exclusions.</span>
@@ -486,7 +486,7 @@
         <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">}</span>
 
         <span class="c1"># Merge `image_type` with `exclusions`</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclusions_img_type_merge</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclusions</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclusions_image_type_merge</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclusions</span><span class="p">)</span>
 
         <span class="c1"># Get the arguments</span>
         <span class="n">search_arguments</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;query&#39;</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_clean</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -801,7 +801,7 @@
 <span class="k">class</span> <span class="nc">_OpeniImages</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    :param image_save_location: suggested: created_img_dirs[&#39;openi&#39;])</span>
+<span class="sd">    :param image_save_location: suggested: created_image_dirs[&#39;openi&#39;])</span>
 <span class="sd">    :param database_save_location:</span>
 <span class="sd">    :param verbose:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -917,8 +917,8 @@
                 <span class="c1"># Get the image</span>
                 <span class="n">page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_url</span><span class="p">)</span>
                 <span class="c1"># Save to disk</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_save_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">img</span><span class="p">:</span>
-                    <span class="n">img</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_save_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">image</span><span class="p">:</span>
+                    <span class="n">image</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
                 <span class="n">image_downloaded</span> <span class="o">=</span> <span class="mi">1</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="n">image_save_path</span><span class="p">)</span>
@@ -1123,14 +1123,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_date_format</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%Y&#39;</span>
 
         <span class="c1"># Generate Required Caches</span>
-        <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">,</span>
-                                                          <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
-                                                          <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;openi&#39;</span><span class="p">],</span>
-                                                          <span class="n">nest</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;aux&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">),</span>
-                                                                <span class="p">(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;databases&#39;</span><span class="p">)],</span>
-                                                          <span class="n">requires_medpix_logo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">,</span>
+                                                            <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
+                                                            <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;openi&#39;</span><span class="p">],</span>
+                                                            <span class="n">nest</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;aux&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">),</span>
+                                                                  <span class="p">(</span><span class="s1">&#39;openi&#39;</span><span class="p">,</span> <span class="s1">&#39;databases&#39;</span><span class="p">)],</span>
+                                                            <span class="n">requires_medpix_logo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ROOT_PATH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;ROOT_PATH&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ROOT_PATH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;ROOT_PATH&#39;</span><span class="p">]</span>
 
         <span class="c1"># Instantiate Classes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_Search</span> <span class="o">=</span> <span class="n">_OpeniSearch</span><span class="p">()</span>
@@ -1140,8 +1140,8 @@
                                       <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
                                       <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span> <span class="o">=</span> <span class="n">_OpeniImages</span><span class="p">(</span><span class="n">image_save_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">],</span>
-                                    <span class="n">database_save_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span> <span class="o">=</span> <span class="n">_OpeniImages</span><span class="p">(</span><span class="n">image_save_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">],</span>
+                                    <span class="n">database_save_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
                                     <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
         <span class="c1"># Search attributes</span>
@@ -1155,7 +1155,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Path to cache record db</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_img_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
                                                         <span class="s1">&#39;openi_cache_records_db.p&#39;</span><span class="p">)</span>
 
         <span class="c1"># Load the cache record database, if it exists</span>

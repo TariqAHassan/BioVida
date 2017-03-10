@@ -215,20 +215,20 @@
 
     <span class="c1"># Get duplicated img_large occurrences. Use of &#39;img_large&#39; is arbitrary, could have used</span>
     <span class="c1"># any of the &#39;img_...&#39; columns, e.g., &#39;img_thumb&#39; or &#39;img_grid150&#39;.</span>
-    <span class="n">duplicated_img_refs</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">duplicated_image_refs</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Get the indices of duplicates</span>
-    <span class="n">dup_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">duplicated_img_refs</span><span class="p">}</span>
+    <span class="n">dup_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">duplicated_image_refs</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">related</span><span class="p">(</span><span class="n">img_large</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">related</span><span class="p">(</span><span class="n">image_large</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Function to look for references to the same image in the cache.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">img_large</span> <span class="ow">in</span> <span class="n">dup_index</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dup_index</span><span class="p">[</span><span class="n">img_large</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">index</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">image_large</span> <span class="ow">in</span> <span class="n">dup_index</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dup_index</span><span class="p">[</span><span class="n">image_large</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">index</span><span class="p">]))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
 
     <span class="c1"># Apply `relate()`</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;shared_image_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">related</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;shared_image_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">related</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;img_large&#39;</span><span class="p">],</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
 
     <span class="k">return</span> <span class="n">df</span>
 
@@ -681,15 +681,15 @@
                 <span class="n">copy_util</span><span class="p">(</span><span class="n">from_path</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_divvy_column_selector</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">source_db</span><span class="p">,</span> <span class="n">image_column</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_divvy_column_selector</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">,</span> <span class="n">image_column</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Select the column to use when copying images from.</span>
 
 <span class="sd">    :param instance:  see ``image_divvy()``</span>
 <span class="sd">    :type instance: ``OpeniInterface`` or ``CancerImageInterface``</span>
-<span class="sd">    :param source_db: see ``image_divvy()``</span>
-<span class="sd">    :type source_db: ``str``</span>
+<span class="sd">    :param db_to_extract: see ``image_divvy()``</span>
+<span class="sd">    :type db_to_extract: ``str``</span>
 <span class="sd">    :param image_column: see ``image_divvy()``</span>
 <span class="sd">    :type image_column: ``str``</span>
 <span class="sd">    :param data_frame: as evolved inside  ``image_divvy()``.</span>
@@ -703,15 +703,15 @@
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`image_column` must be a string or `None`.&#39;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">image_column</span> <span class="ow">in</span> <span class="n">_image_instance_image_columns</span><span class="p">[</span><span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">image_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The &#39;</span><span class="si">{0}</span><span class="s2">&#39; column is missing from &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_column</span><span class="p">,</span> <span class="n">source_db</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The &#39;</span><span class="si">{0}</span><span class="s2">&#39; column is missing from &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_column</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">image_column</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not a valid image column for &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_column</span><span class="p">,</span> <span class="n">source_db</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not a valid image column for &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_column</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="image_divvy"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.image_divvy">[docs]</a><span class="k">def</span> <span class="nf">image_divvy</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span>
                 <span class="n">divvy_rule</span><span class="p">,</span>
-                <span class="n">source_db</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span>
+                <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span>
                 <span class="n">create_dirs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">image_column</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -725,13 +725,13 @@
 <span class="sd">    :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return</span>
 <span class="sd">                       system path(s) [see example below].</span>
 <span class="sd">    :type divvy_rule: ``function``</span>
-<span class="sd">    :param source_db: the database to use. Must be one of:</span>
+<span class="sd">    :param db_to_extract: the database to use. Must be one of:</span>
 
 <span class="sd">                    - &#39;records_db&#39;: the dataframe resulting from the most recent ``search()`` &amp; ``pull()``.</span>
 <span class="sd">                    - &#39;cache_records_db&#39;: the cache dataframe for ``instance``.</span>
 <span class="sd">                    - &#39;unify_against_images&#39;: the yield of ``biovida.unification.unify_against_images()``.</span>
 
-<span class="sd">    :type source_db: ``str``</span>
+<span class="sd">    :type db_to_extract: ``str``</span>
 <span class="sd">    :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``False``.</span>
 <span class="sd">    :type create_dirs: ``bool``</span>
 <span class="sd">    :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.</span>
@@ -758,10 +758,10 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract the required dataframe.</span>
-    <span class="n">data_frame</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">source_db</span><span class="p">)</span> <span class="k">if</span> <span class="n">source_db</span> <span class="o">!=</span> <span class="s1">&#39;unify_against_images&#39;</span> <span class="k">else</span> <span class="n">instance</span>
+    <span class="n">data_frame</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">)</span> <span class="k">if</span> <span class="n">db_to_extract</span> <span class="o">!=</span> <span class="s1">&#39;unify_against_images&#39;</span> <span class="k">else</span> <span class="n">instance</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> expected to be a DataFrame.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="s2">&quot;Got an object of type: &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_db</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+                        <span class="s2">&quot;Got an object of type: &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_to_extract</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">path_existence_handler</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create `path` if it does not exist and `create_dirs=True`.&quot;&quot;&quot;</span>
@@ -774,7 +774,7 @@
                                          <span class="s2">&quot;Consider setting `create_dirs=True`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
     <span class="c1"># Define the column to copy images from.</span>
-    <span class="n">column_to_use</span> <span class="o">=</span> <span class="n">_divvy_column_selector</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">source_db</span><span class="p">,</span> <span class="n">image_column</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">)</span>
+    <span class="n">column_to_use</span> <span class="o">=</span> <span class="n">_divvy_column_selector</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">,</span> <span class="n">image_column</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">divvy_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Wrap ``divvy_rule`` to automate copying.&quot;&quot;&quot;</span>

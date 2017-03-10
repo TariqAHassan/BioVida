@@ -182,7 +182,7 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
 
 
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_img_rescale</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_image_rescale</span>
 
 
 <span class="k">def</span> <span class="nf">_rounder</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
@@ -432,14 +432,14 @@
         <span class="k">return</span> <span class="n">median_deltas</span>
 
 
-<span class="k">def</span> <span class="nf">_zero_var_axis_elements_remove</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_zero_var_axis_elements_remove</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Replaces, by axis, matrix elements with approx. no variance</span>
 <span class="sd">    (technically using the standard deviation here).</span>
 
-<span class="sd">    :param img: an image represented as an array.</span>
-<span class="sd">    :type img: ``ndarray``</span>
+<span class="sd">    :param image: an image represented as an array.</span>
+<span class="sd">    :type image: ``ndarray``</span>
 <span class="sd">    :param axis: 0 for columns; 1 for rows.</span>
 <span class="sd">    :type axis: ``int``</span>
 <span class="sd">    :param rounding: how much to round the standard deviation values for a given row/column.</span>
@@ -447,21 +447,21 @@
 <span class="sd">    :return: a matrix with rows/columns with standard deviation == 0 replaced with zero vectors.</span>
 <span class="sd">    :rtype: ``ndarray``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">zero_var_items</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">),</span> <span class="n">rounding</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">zero_var_items</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">),</span> <span class="n">rounding</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">img</span><span class="p">[:,</span> <span class="n">zero_var_items</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">image</span><span class="p">[:,</span> <span class="n">zero_var_items</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">img</span><span class="p">[</span><span class="n">zero_var_items</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">img</span>
+        <span class="n">image</span><span class="p">[</span><span class="n">zero_var_items</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">image</span>
 
 
-<div class="viewcode-block" id="edge_detection"><a class="viewcode-back" href="../../../../source/biovida.html#biovida.images.models.border_detection.edge_detection">[docs]</a><span class="k">def</span> <span class="nf">edge_detection</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="edge_detection"><a class="viewcode-back" href="../../../../source/biovida.html#biovida.images.models.border_detection.edge_detection">[docs]</a><span class="k">def</span> <span class="nf">edge_detection</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Detects edges within an image.</span>
 
-<span class="sd">    :param img: an image represented as a matrix</span>
-<span class="sd">    :type img: ``ndarray``</span>
+<span class="sd">    :param image: an image represented as a matrix</span>
+<span class="sd">    :type image: ``ndarray``</span>
 <span class="sd">    :param axis: 0 for columns; 1 for rows.</span>
 <span class="sd">    :type axis: ``int``</span>
 <span class="sd">    :param n_largest_override: override the defaults for the number of inflections to report</span>
@@ -471,11 +471,11 @@
 <span class="sd">    :rtype: ``list``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Set rows with no ~variance to zero vectors to eliminate their muffling effect on the signal.</span>
-    <span class="n">img</span> <span class="o">=</span> <span class="n">_zero_var_axis_elements_remove</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">_zero_var_axis_elements_remove</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
 
     <span class="c1"># Average the remaining values</span>
     <span class="c1"># ToDo: it&#39;s not not clear if _array_cleaner() helps much...after all, the vector has already been averaged.</span>
-    <span class="n">averaged_axis_values</span> <span class="o">=</span> <span class="n">_array_cleaner</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">))</span>
+    <span class="n">averaged_axis_values</span> <span class="o">=</span> <span class="n">_array_cleaner</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">_largest_median_inflection</span><span class="p">(</span><span class="n">averaged_axis_values</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="p">)</span></div>
 
 
@@ -544,7 +544,7 @@
     <span class="n">lower_image_array</span> <span class="o">=</span> <span class="n">image_array</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">cut_off</span><span class="p">:</span><span class="n">flr</span><span class="p">]</span>
 
     <span class="c1"># Run an edge analysis</span>
-    <span class="n">lower_bar_candidates</span> <span class="o">=</span> <span class="n">edge_detection</span><span class="p">(</span><span class="n">img</span><span class="o">=</span><span class="n">lower_image_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">lower_bar_candidates</span> <span class="o">=</span> <span class="n">edge_detection</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">lower_image_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 
     <span class="c1"># Apply Threshold</span>
     <span class="n">thresholded_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">cut_off</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lower_bar_candidates</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">signal_strength_threshold</span><span class="p">]))</span>
@@ -663,7 +663,7 @@
 <span class="sd">                 .. warning::</span>
 
 <span class="sd">                        If a ``ndarray`` is passed, it should be the output of the</span>
-<span class="sd">                        ``biovida.images.image_tools.load_img_rescale()`` function.</span>
+<span class="sd">                        ``biovida.images.image_tools.load_image_rescale()`` function.</span>
 <span class="sd">                        Without this preprocessing, this function&#39;s stability is not assured.</span>
 
 <span class="sd">    :type image: ``str`` or ``2D ndarray``</span>
@@ -700,11 +700,11 @@
     <span class="k">if</span> <span class="s1">&#39;numpy&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">image</span><span class="p">)):</span>
         <span class="n">image_copy</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">rescale_input_ndarray</span><span class="p">:</span>
-            <span class="n">image_array</span> <span class="o">=</span> <span class="n">load_img_rescale</span><span class="p">(</span><span class="n">image_copy</span><span class="p">,</span> <span class="n">gray_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">image_array</span> <span class="o">=</span> <span class="n">load_image_rescale</span><span class="p">(</span><span class="n">image_copy</span><span class="p">,</span> <span class="n">gray_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">image_array</span> <span class="o">=</span> <span class="n">image_copy</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">image_array</span> <span class="o">=</span> <span class="n">load_img_rescale</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">image_array</span> <span class="o">=</span> <span class="n">load_image_rescale</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`image_array` must be either a path to an image or the image as a 2D ndarray.&quot;</span><span class="p">)</span>
 
@@ -751,7 +751,7 @@
     <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
     <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">collections</span> <span class="k">as</span> <span class="n">mc</span>
 
-    <span class="n">image</span> <span class="o">=</span> <span class="n">load_img_rescale</span><span class="p">(</span><span class="n">path_to_image</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">load_image_rescale</span><span class="p">(</span><span class="n">path_to_image</span><span class="p">)</span>
     <span class="n">analysis</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">border_detection</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
 
     <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span>

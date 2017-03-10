@@ -257,22 +257,22 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">scaling</span><span class="p">)),</span> <span class="n">match_template_result</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_robust_match_template_loading</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_robust_match_template_loading</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Loads images for ``robust_match_template()``.</span>
 
-<span class="sd">    :param img: a path to an image or the image as a 2D array</span>
-<span class="sd">    :type img: ``str`` or ``2D ndarray``</span>
-<span class="sd">    :param param_name: the name of the parameter which is being loaded (i.e., `pattern_img` or `base_img`.</span>
+<span class="sd">    :param image: a path to an image or the image as a 2D array</span>
+<span class="sd">    :type image: ``str`` or ``2D ndarray``</span>
+<span class="sd">    :param param_name: the name of the parameter which is being loaded (i.e., `pattern_image` or `base_image`.</span>
 <span class="sd">    :type param_name: ``str``</span>
 <span class="sd">    :return: an image as an array.</span>
 <span class="sd">    :rtype: ``2D ndarray``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;ndarray&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">img</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="n">img</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">imread</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;ndarray&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">image</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">image</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">imread</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`</span><span class="si">{0}</span><span class="s2">` must either be a `ndarray` or a path to an image.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param_name</span><span class="p">))</span>
 
@@ -325,7 +325,7 @@
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">base_resizes</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_matching_engine</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">base_img_cropping</span><span class="p">,</span> <span class="n">end_search_threshold</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_matching_engine</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">base_image_cropping</span><span class="p">,</span> <span class="n">end_search_threshold</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Runs ``skimage.feature.match_template()`` against ``base`` for a given ``pattern``</span>
@@ -338,8 +338,8 @@
 <span class="sd">    :param base_resizes: the range over which to rescale the base image.Define as a tuple of the</span>
 <span class="sd">                         form ``(start, end, step size)``.</span>
 <span class="sd">    :type base_resizes: ``tuple``</span>
-<span class="sd">    :param base_img_cropping: see ``robust_match_template()``.</span>
-<span class="sd">    :type base_img_cropping: ``tuple``</span>
+<span class="sd">    :param base_image_cropping: see ``robust_match_template()``.</span>
+<span class="sd">    :type base_image_cropping: ``tuple``</span>
 <span class="sd">    :param end_search_threshold: if a match of this quality is found, end the search. Set ``None`` to disable.</span>
 <span class="sd">    :type end_search_threshold: ``float`` or  ``None``</span>
 <span class="sd">    :return: a dictionary of matches made by the ``skimage.feature.match_template()`` function</span>
@@ -348,8 +348,8 @@
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Crop the base image</span>
-    <span class="n">base_h_crop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">base_img_cropping</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">cropped_base</span> <span class="o">=</span> <span class="n">_cropper</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">v_prop</span><span class="o">=</span><span class="n">base_img_cropping</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">h_prop</span><span class="o">=</span><span class="n">base_img_cropping</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">base_h_crop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">base_image_cropping</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">cropped_base</span> <span class="o">=</span> <span class="n">_cropper</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">v_prop</span><span class="o">=</span><span class="n">base_image_cropping</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">h_prop</span><span class="o">=</span><span class="n">base_image_cropping</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="c1"># Apply tool to ensure the base will always be larger than the pattern</span>
     <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">_min_base_rescale</span><span class="p">(</span><span class="n">cropped_base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">round_to</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -405,11 +405,11 @@
     <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 
-<div class="viewcode-block" id="robust_match_template"><a class="viewcode-back" href="../../../../source/biovida.html#biovida.images.models.template_matching.robust_match_template">[docs]</a><span class="k">def</span> <span class="nf">robust_match_template</span><span class="p">(</span><span class="n">pattern_img</span><span class="p">,</span>
-                          <span class="n">base_img</span><span class="p">,</span>
+<div class="viewcode-block" id="robust_match_template"><a class="viewcode-back" href="../../../../source/biovida.html#biovida.images.models.template_matching.robust_match_template">[docs]</a><span class="k">def</span> <span class="nf">robust_match_template</span><span class="p">(</span><span class="n">pattern_image</span><span class="p">,</span>
+                          <span class="n">base_image</span><span class="p">,</span>
                           <span class="n">base_resizes</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
                           <span class="n">end_search_threshold</span><span class="o">=</span><span class="mf">0.875</span><span class="p">,</span>
-                          <span class="n">base_img_cropping</span><span class="o">=</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)):</span>
+                          <span class="n">base_image_cropping</span><span class="o">=</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Search for a pattern image in a base image using a algorithm which is robust</span>
@@ -420,33 +420,33 @@
 <span class="sd">    Limitations:</span>
 
 <span class="sd">    - Cropping is limited to the the top left of the base image. The can be circumvented by setting</span>
-<span class="sd">      ``base_img_cropping=(1, 1)`` and cropping ``base_img`` oneself.</span>
+<span class="sd">      ``base_image_cropping=(1, 1)`` and cropping ``base_image`` oneself.</span>
 
 <span class="sd">    - This function may become unstable in situations where the pattern image is larger than the base image.</span>
 
-<span class="sd">    :param pattern_img: the pattern image.</span>
+<span class="sd">    :param pattern_image: the pattern image.</span>
 
 <span class="sd">            .. warning::</span>
 
-<span class="sd">                    If a `ndarray` is passed to `pattern_img`, it *must* be preprocessed to be a 2D array,</span>
-<span class="sd">                    e.g., ``scipy.misc.imread(pattern_img, flatten=True)``</span>
+<span class="sd">                    If a `ndarray` is passed to `pattern_image`, it *must* be preprocessed to be a 2D array,</span>
+<span class="sd">                    e.g., ``scipy.misc.imread(pattern_image, flatten=True)``</span>
 
-<span class="sd">    :type pattern_img: ``str`` or ``ndarray``</span>
-<span class="sd">    :param base_img: the base image in which to look for the ``pattern_img``.</span>
+<span class="sd">    :type pattern_image: ``str`` or ``ndarray``</span>
+<span class="sd">    :param base_image: the base image in which to look for the ``pattern_image``.</span>
 
 <span class="sd">             .. warning::</span>
 
-<span class="sd">                    If a `ndarray` is passed to `base_img`, it *must* be preprocessed to be a 2D array,</span>
-<span class="sd">                    e.g., ``scipy.misc.imread(base_img, flatten=True)``</span>
+<span class="sd">                    If a `ndarray` is passed to `base_image`, it *must* be preprocessed to be a 2D array,</span>
+<span class="sd">                    e.g., ``scipy.misc.imread(base_image, flatten=True)``</span>
 
-<span class="sd">    :type base_img: ``str`` or ``ndarray``</span>
+<span class="sd">    :type base_image: ``str`` or ``ndarray``</span>
 <span class="sd">    :param base_resizes: the range over which to rescale the base image.Define as a tuple of the</span>
 <span class="sd">                         form ``(start, end, step size)``. Defaults to ``(0.5, 2.0, 0.1)``.</span>
 <span class="sd">    :type base_resizes: ``tuple``</span>
 <span class="sd">    :param end_search_threshold: if a match of this quality is found, end the search. Set equal to ``None`` to disable.</span>
 <span class="sd">                                 Defaults to 0.875.</span>
 <span class="sd">    :type end_search_threshold: ``float`` or  ``None``</span>
-<span class="sd">    :param base_img_cropping: the amount of the image to crop with respect to the x and y axis.</span>
+<span class="sd">    :param base_image_cropping: the amount of the image to crop with respect to the x and y axis.</span>
 <span class="sd">                              form: ``(height, width)``. Defaults to ``(0.15, 0.5)``.</span>
 <span class="sd">                          </span>
 <span class="sd">    Notes:</span>
@@ -458,25 +458,25 @@
 <span class="sd">    - Cropping more of the base image reduces the probability that the algorithm getting confused.</span>
 <span class="sd">      However, if the image is cropped too much, the target pattern itself could be removed.</span>
 
-<span class="sd">    :type base_img_cropping: ``tuple``</span>
-<span class="sd">    :return: A dictionary of the form: ``{&quot;bounding_box&quot;: ..., &quot;match_quality&quot;: ..., &quot;base_img_shape&quot;: ...}``.</span>
+<span class="sd">    :type base_image_cropping: ``tuple``</span>
+<span class="sd">    :return: A dictionary of the form: ``{&quot;bounding_box&quot;: ..., &quot;match_quality&quot;: ..., &quot;base_image_shape&quot;: ...}``.</span>
 
 <span class="sd">            - bounding_box (``dict``): ``{&#39;bottom_right&#39;: (x, y), &#39;top_right&#39;: (x, y), &#39;top_left&#39;: (x, y), &#39;bottom_left&#39;: (x, y)}``.</span>
 
 <span class="sd">            - match_quality (``float``): quality of the match.</span>
 
-<span class="sd">            - base_img_shape (``tuple``): the size of the base image provided. Form: ``(width (x), height (y))``.</span>
+<span class="sd">            - base_image_shape (``tuple``): the size of the base image provided. Form: ``(width (x), height (y))``.</span>
 
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Load the pattern images</span>
-    <span class="n">pattern</span> <span class="o">=</span> <span class="n">_robust_match_template_loading</span><span class="p">(</span><span class="n">pattern_img</span><span class="p">,</span> <span class="s2">&quot;pattern_img&quot;</span><span class="p">)</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">_robust_match_template_loading</span><span class="p">(</span><span class="n">pattern_image</span><span class="p">,</span> <span class="s2">&quot;pattern_image&quot;</span><span class="p">)</span>
 
     <span class="c1"># Load the base</span>
-    <span class="n">base</span> <span class="o">=</span> <span class="n">_robust_match_template_loading</span><span class="p">(</span><span class="n">base_img</span><span class="p">,</span> <span class="s2">&quot;base_img&quot;</span><span class="p">)</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">_robust_match_template_loading</span><span class="p">(</span><span class="n">base_image</span><span class="p">,</span> <span class="s2">&quot;base_image&quot;</span><span class="p">)</span>
 
     <span class="c1"># Search for matches</span>
-    <span class="n">match_dict</span> <span class="o">=</span> <span class="n">_matching_engine</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">base_img_cropping</span><span class="p">,</span> <span class="n">end_search_threshold</span><span class="p">)</span>
+    <span class="n">match_dict</span> <span class="o">=</span> <span class="n">_matching_engine</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">base_image_cropping</span><span class="p">,</span> <span class="n">end_search_threshold</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">match_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
         <span class="c1"># Extract the best match</span>
@@ -484,33 +484,35 @@
 
         <span class="c1"># Compute the bounding box</span>
         <span class="n">bounding_box</span> <span class="o">=</span> <span class="n">_corners_calc</span><span class="p">(</span><span class="n">best_match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">best_match</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">match_quality</span> <span class="o">=</span> <span class="n">best_match</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">best_match</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
         <span class="n">bounding_box</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">match_quality</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Return the bounding box, match quality and the size of the base image</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bounding_box&quot;</span><span class="p">:</span> <span class="n">bounding_box</span><span class="p">,</span> <span class="s2">&quot;match_quality&quot;</span><span class="p">:</span> <span class="n">best_match</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;base_img_shape&quot;</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]}</span></div>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bounding_box&quot;</span><span class="p">:</span> <span class="n">bounding_box</span><span class="p">,</span> <span class="s2">&quot;match_quality&quot;</span><span class="p">:</span> <span class="n">match_quality</span><span class="p">,</span> <span class="s2">&quot;base_image_shape&quot;</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]}</span></div>
 
 
-<span class="k">def</span> <span class="nf">_box_show</span><span class="p">(</span><span class="n">base_img_path</span><span class="p">,</span> <span class="n">pattern_img_path</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_box_show</span><span class="p">(</span><span class="n">base_image_path</span><span class="p">,</span> <span class="n">pattern_image_path</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    This function uses matplotlib to show the bounding box for the pattern.</span>
 
-<span class="sd">    :param base_img_path: the path to the base image.</span>
-<span class="sd">    :type base_img_path: ``str``</span>
-<span class="sd">    :param pattern_img_path: the path to the pattern image.</span>
-<span class="sd">    :type pattern_img_path: ``str``</span>
+<span class="sd">    :param base_image_path: the path to the base image.</span>
+<span class="sd">    :type base_image_path: ``str``</span>
+<span class="sd">    :param pattern_image_path: the path to the pattern image.</span>
+<span class="sd">    :type pattern_image_path: ``str``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
     <span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">patches</span>
 
     <span class="c1"># Load the Images</span>
-    <span class="n">base_img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">base_img_path</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">pattern_img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">pattern_img_path</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">base_image</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">base_image_path</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pattern_image</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">pattern_image_path</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Run the analysis</span>
-    <span class="n">rslt</span> <span class="o">=</span> <span class="n">robust_match_template</span><span class="p">(</span><span class="n">pattern_img</span><span class="p">,</span> <span class="n">base_img</span><span class="p">)</span>
+    <span class="n">rslt</span> <span class="o">=</span> <span class="n">robust_match_template</span><span class="p">(</span><span class="n">pattern_image</span><span class="p">,</span> <span class="n">base_image</span><span class="p">)</span>
 
     <span class="c1"># Extract the top left and top right</span>
     <span class="n">top_left</span> <span class="o">=</span> <span class="n">rslt</span><span class="p">[</span><span class="s1">&#39;bounding_box&#39;</span><span class="p">][</span><span class="s1">&#39;top_left&#39;</span><span class="p">]</span>
@@ -522,7 +524,7 @@
 
     <span class="c1"># Show the base image</span>
     <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">base_img</span><span class="p">,</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">base_image</span><span class="p">,</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
 
     <span class="c1"># Add the bounding box</span>
     <span class="n">ax1</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="n">top_left</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">))</span>

@@ -677,14 +677,14 @@ contains a cache of all analyses run as new columns.</p>
 </table>
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto">
-<code class="descname">auto</code><span class="sig-paren">(</span><em>img_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>require_grayscale=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto</code><span class="sig-paren">(</span><em>image_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>require_grayscale=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically carry out all aspects of image preprocessing (recommended).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>img_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <cite>0.275</cite>.</li>
+<li><strong>image_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <cite>0.275</cite>.</li>
 <li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
 <li><strong>require_grayscale</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code></li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
@@ -724,7 +724,7 @@ parameter values for class methods.</p>
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto_decision">
-<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>img_problem_threshold</em>, <em>require_grayscale</em>, <em>valid_floor=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>image_problem_threshold</em>, <em>require_grayscale</em>, <em>valid_floor=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically generate &#8216;valid_image&#8217; column in the <cite>image_dataframe</cite>
 column by deciding whether or not images are valid using default parameter values for class methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -732,7 +732,7 @@ column by deciding whether or not images are valid using default parameter value
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>img_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a scalar from 0 to 1 which specifies the threshold value required
+<li><strong>image_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a scalar from 0 to 1 which specifies the threshold value required
 to cause the image to be marked as invalid.
 For instance, a threshold value of <cite>0.5</cite> would mean that any image
 which contains a image problem probability above <cite>0.5</cite> will be marked
@@ -812,7 +812,7 @@ of red, green and blue.</li>
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.logo_analysis">
-<code class="descname">logo_analysis</code><span class="sig-paren">(</span><em>match_quality_threshold=0.25</em>, <em>xy_position_threshold=(0.3333333333333333</em>, <em>0.4)</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_img_cropping=(0.15</em>, <em>0.5)</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.logo_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.logo_analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">logo_analysis</code><span class="sig-paren">(</span><em>match_quality_threshold=0.25</em>, <em>xy_position_threshold=(0.3333333333333333</em>, <em>0.4)</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_image_cropping=(0.15</em>, <em>0.5)</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.logo_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.logo_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
 populate the the &#8216;medpix_logo_bounding_box&#8217; of <code class="docutils literal"><span class="pre">image_dataframe</span></code> with its bounding box.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -828,7 +828,7 @@ x position of the logo is greater than 1/3 of the image&#8217;s width
 and less than 1/2.5 of the image&#8217;s height.</li>
 <li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
 <li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
-<li><strong>base_img_cropping</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code></li>
+<li><strong>base_image_cropping</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code></li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
@@ -945,14 +945,14 @@ trained to detect.</p>
 <h3>Template Matching<a class="headerlink" href="#template-matching" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.images.models.template_matching.robust_match_template">
-<code class="descclassname">biovida.images.models.template_matching.</code><code class="descname">robust_match_template</code><span class="sig-paren">(</span><em>pattern_img</em>, <em>base_img</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_img_cropping=(0.15</em>, <em>0.5)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/template_matching.html#robust_match_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.template_matching.robust_match_template" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.images.models.template_matching.</code><code class="descname">robust_match_template</code><span class="sig-paren">(</span><em>pattern_image</em>, <em>base_image</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_image_cropping=(0.15</em>, <em>0.5)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/template_matching.html#robust_match_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.template_matching.robust_match_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for a pattern image in a base image using a algorithm which is robust
 against variation in the size of the pattern in the base image.</p>
 <p>Method: Fast Normalized Cross-Correlation.</p>
 <p>Limitations:</p>
 <ul class="simple">
 <li>Cropping is limited to the the top left of the base image. The can be circumvented by setting
-<code class="docutils literal"><span class="pre">base_img_cropping=(1,</span> <span class="pre">1)</span></code> and cropping <code class="docutils literal"><span class="pre">base_img</span></code> oneself.</li>
+<code class="docutils literal"><span class="pre">base_image_cropping=(1,</span> <span class="pre">1)</span></code> and cropping <code class="docutils literal"><span class="pre">base_image</span></code> oneself.</li>
 <li>This function may become unstable in situations where the pattern image is larger than the base image.</li>
 </ul>
 <table class="docutils field-list" frame="void" rules="none">
@@ -960,25 +960,25 @@ against variation in the size of the pattern in the base image.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pattern_img</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; <p>the pattern image.</p>
+<li><strong>pattern_image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; <p>the pattern image.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">If a <cite>ndarray</cite> is passed to <cite>pattern_img</cite>, it <em>must</em> be preprocessed to be a 2D array,
-e.g., <code class="docutils literal"><span class="pre">scipy.misc.imread(pattern_img,</span> <span class="pre">flatten=True)</span></code></p>
+<p class="last">If a <cite>ndarray</cite> is passed to <cite>pattern_image</cite>, it <em>must</em> be preprocessed to be a 2D array,
+e.g., <code class="docutils literal"><span class="pre">scipy.misc.imread(pattern_image,</span> <span class="pre">flatten=True)</span></code></p>
 </div>
 </li>
-<li><strong>base_img</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; <p>the base image in which to look for the <code class="docutils literal"><span class="pre">pattern_img</span></code>.</p>
+<li><strong>base_image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; <p>the base image in which to look for the <code class="docutils literal"><span class="pre">pattern_image</span></code>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">If a <cite>ndarray</cite> is passed to <cite>base_img</cite>, it <em>must</em> be preprocessed to be a 2D array,
-e.g., <code class="docutils literal"><span class="pre">scipy.misc.imread(base_img,</span> <span class="pre">flatten=True)</span></code></p>
+<p class="last">If a <cite>ndarray</cite> is passed to <cite>base_image</cite>, it <em>must</em> be preprocessed to be a 2D array,
+e.g., <code class="docutils literal"><span class="pre">scipy.misc.imread(base_image,</span> <span class="pre">flatten=True)</span></code></p>
 </div>
 </li>
 <li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; the range over which to rescale the base image.Define as a tuple of the
 form <code class="docutils literal"><span class="pre">(start,</span> <span class="pre">end,</span> <span class="pre">step</span> <span class="pre">size)</span></code>. Defaults to <code class="docutils literal"><span class="pre">(0.5,</span> <span class="pre">2.0,</span> <span class="pre">0.1)</span></code>.</li>
 <li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code> or  <code class="docutils literal"><span class="pre">None</span></code>) &#8211; if a match of this quality is found, end the search. Set equal to <code class="docutils literal"><span class="pre">None</span></code> to disable.
 Defaults to 0.875.</li>
-<li><strong>base_img_cropping</strong> &#8211; the amount of the image to crop with respect to the x and y axis.
+<li><strong>base_image_cropping</strong> &#8211; the amount of the image to crop with respect to the x and y axis.
 form: <code class="docutils literal"><span class="pre">(height,</span> <span class="pre">width)</span></code>. Defaults to <code class="docutils literal"><span class="pre">(0.15,</span> <span class="pre">0.5)</span></code>.</li>
 </ul>
 </td>
@@ -996,10 +996,10 @@ However, if the image is cropped too much, the target pattern itself could be re
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the form: <code class="docutils literal"><span class="pre">{&quot;bounding_box&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;match_quality&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;base_img_shape&quot;:</span> <span class="pre">...}</span></code>.<ul class="simple">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the form: <code class="docutils literal"><span class="pre">{&quot;bounding_box&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;match_quality&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;base_image_shape&quot;:</span> <span class="pre">...}</span></code>.<ul class="simple">
 <li>bounding_box (<code class="docutils literal"><span class="pre">dict</span></code>): <code class="docutils literal"><span class="pre">{'bottom_right':</span> <span class="pre">(x,</span> <span class="pre">y),</span> <span class="pre">'top_right':</span> <span class="pre">(x,</span> <span class="pre">y),</span> <span class="pre">'top_left':</span> <span class="pre">(x,</span> <span class="pre">y),</span> <span class="pre">'bottom_left':</span> <span class="pre">(x,</span> <span class="pre">y)}</span></code>.</li>
 <li>match_quality (<code class="docutils literal"><span class="pre">float</span></code>): quality of the match.</li>
-<li>base_img_shape (<code class="docutils literal"><span class="pre">tuple</span></code>): the size of the base image provided. Form: <code class="docutils literal"><span class="pre">(width</span> <span class="pre">(x),</span> <span class="pre">height</span> <span class="pre">(y))</span></code>.</li>
+<li>base_image_shape (<code class="docutils literal"><span class="pre">tuple</span></code>): the size of the base image provided. Form: <code class="docutils literal"><span class="pre">(width</span> <span class="pre">(x),</span> <span class="pre">height</span> <span class="pre">(y))</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1056,7 +1056,7 @@ and returned as an integer. If no plausible borders could be found, <code class=
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If a <code class="docutils literal"><span class="pre">ndarray</span></code> is passed, it should be the output of the
-<code class="docutils literal"><span class="pre">biovida.images.image_tools.load_img_rescale()</span></code> function.
+<code class="docutils literal"><span class="pre">biovida.images.image_tools.load_image_rescale()</span></code> function.
 Without this preprocessing, this function&#8217;s stability is not assured.</p>
 </div>
 </li>
@@ -1098,14 +1098,14 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 
 <dl class="function">
 <dt id="biovida.images.models.border_detection.edge_detection">
-<code class="descclassname">biovida.images.models.border_detection.</code><code class="descname">edge_detection</code><span class="sig-paren">(</span><em>img</em>, <em>axis=0</em>, <em>n_largest_override=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/border_detection.html#edge_detection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.border_detection.edge_detection" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.images.models.border_detection.</code><code class="descname">edge_detection</code><span class="sig-paren">(</span><em>image</em>, <em>axis=0</em>, <em>n_largest_override=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/border_detection.html#edge_detection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.border_detection.edge_detection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detects edges within an image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>img</strong> (<code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; an image represented as a matrix</li>
+<li><strong>image</strong> (<code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; an image represented as a matrix</li>
 <li><strong>axis</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; 0 for columns; 1 for rows.</li>
 <li><strong>n_largest_override</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; override the defaults for the number of inflections to report
 when searching the image along a given axis.</li>
@@ -1464,7 +1464,7 @@ types will be ignored.</p>
 
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_divvy">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>source_db='records_db'</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>db_to_extract='records_db'</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy images from the cache to another location.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1475,7 +1475,7 @@ types will be ignored.</p>
 <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
 <li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
 system path(s) [see example below].</li>
-<li><strong>source_db</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>the database to use. Must be one of:</p>
+<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>the database to use. Must be one of:</p>
 <ul>
 <li>&#8216;records_db&#8217;: the dataframe resulting from the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code>.</li>
 <li>&#8216;cache_records_db&#8217;: the cache dataframe for <code class="docutils literal"><span class="pre">instance</span></code>.</li>

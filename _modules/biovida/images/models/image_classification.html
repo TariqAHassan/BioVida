@@ -185,7 +185,7 @@
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_and_scale_imgs</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_and_scale_images</span>
 
 <span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">callbacks</span>
 <span class="kn">from</span> <span class="nn">keras.preprocessing.image</span> <span class="k">import</span> <span class="n">ImageDataGenerator</span>
@@ -212,8 +212,8 @@
 <span class="sd">                      This directory *must* have this structure. Defaults to ``None`` (to be use when loading</span>
 <span class="sd">                      pre-computed weights).</span>
 <span class="sd">    :type data_path: ``str``</span>
-<span class="sd">    :param img_shape: the (height, width) to rescale the images to. Elements must be ``ints``. Defaults to ``(150, 150)``.</span>
-<span class="sd">    :type img_shape: ``tuple`` or ``list``.</span>
+<span class="sd">    :param image_shape: the (height, width) to rescale the images to. Elements must be ``ints``. Defaults to ``(150, 150)``.</span>
+<span class="sd">    :type image_shape: ``tuple`` or ``list``.</span>
 <span class="sd">    :param rescale: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to 1/255.</span>
 <span class="sd">    :type rescale: ``float``</span>
 <span class="sd">    :param shear_range: See: ``keras.preprocessing.image.ImageDataGenerator()``. Defaults to 0.1.</span>
@@ -232,7 +232,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">data_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">img_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span>
+                 <span class="n">image_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span>
                  <span class="n">rescale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span>
                  <span class="n">shear_range</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
                  <span class="n">zoom_range</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
@@ -240,7 +240,7 @@
                  <span class="n">vertical_flip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="o">=</span> <span class="n">data_path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span> <span class="o">=</span> <span class="n">img_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span> <span class="o">=</span> <span class="n">image_shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rescale</span> <span class="o">=</span> <span class="n">rescale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shear_range</span> <span class="o">=</span> <span class="n">shear_range</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_range</span> <span class="o">=</span> <span class="n">zoom_range</span>
@@ -276,7 +276,7 @@
 
         <span class="c1"># Indefinitely generate batches of augmented train image data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_train_generator</span> <span class="o">=</span> <span class="n">train_datagen</span><span class="o">.</span><span class="n">flow_from_directory</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_data_dir</span><span class="p">,</span>
-                                                                  <span class="n">target_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">,</span>
+                                                                  <span class="n">target_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">,</span>
                                                                   <span class="n">class_mode</span><span class="o">=</span><span class="s1">&#39;categorical&#39;</span><span class="p">,</span>
                                                                   <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span><span class="p">)</span>
 
@@ -291,7 +291,7 @@
 
         <span class="c1"># This is a similar generator, for validation data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validation_generator</span> <span class="o">=</span> <span class="n">validation_datagen</span><span class="o">.</span><span class="n">flow_from_directory</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_data_dir</span><span class="p">,</span>
-                                                                            <span class="n">target_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">,</span>
+                                                                            <span class="n">target_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">,</span>
                                                                             <span class="n">class_mode</span><span class="o">=</span><span class="s1">&#39;categorical&#39;</span><span class="p">,</span>
                                                                             <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span><span class="p">)</span>
 
@@ -324,20 +324,20 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data_classes</span> <span class="o">=</span> <span class="n">train_classes</span>
 
-    <span class="k">def</span> <span class="nf">_impose_vgg_img_reqs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_impose_vgg_image_reqs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        This method imposes the 224x224 image size requirement made by VGG 19.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">224</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is an invalid image height for vgg_19. Falling back 224.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">224</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">224</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is an invalid image width for vgg_19. Falling back to 224.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">224</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">224</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is an invalid image height for vgg_19. Falling back 224.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">224</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">224</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is an invalid image width for vgg_19. Falling back to 224.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">224</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_alex_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -376,7 +376,7 @@
                               <span class="s2">&quot;This library can be installed by running the following command from the command line:</span><span class="se">\n</span><span class="s2">&quot;</span>
                               <span class="s2">&quot;$ pip install git+git://github.com/heuritech/convnets-keras@master&quot;</span><span class="p">)</span>
 
-        <span class="n">inputs</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
         <span class="n">conv_1</span> <span class="o">=</span> <span class="n">Convolution2D</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span>
                                <span class="n">subsample</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
@@ -438,7 +438,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ZeroPadding2D</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ZeroPadding2D</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ZeroPadding2D</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
@@ -499,7 +499,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span>
-                                     <span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                                     <span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                                      <span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
 
@@ -545,7 +545,7 @@
 <span class="sd">        :type output_layer_activation: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">model_to_use</span> <span class="o">==</span> <span class="s1">&#39;vgg19&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_impose_vgg_img_reqs</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_impose_vgg_image_reqs</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data_stream</span><span class="p">()</span>
@@ -628,7 +628,7 @@
 <span class="sd">        :type save_path: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">rescale</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_shear_range</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_range</span><span class="p">,</span>
@@ -675,7 +675,7 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">load_location</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rescale</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shear_range</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_range</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
@@ -711,18 +711,18 @@
         <span class="c1"># Load the Model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_prediction_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">single_img_prediction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_prediction_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">single_image_prediction</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Convert a single prediction into a human-readable list of tuples.</span>
 
-<span class="sd">        :param single_img_prediction: see ``predict()``</span>
-<span class="sd">        :type single_img_prediction: list of ndarray arrays.</span>
+<span class="sd">        :param single_image_prediction: see ``predict()``</span>
+<span class="sd">        :type single_image_prediction: list of ndarray arrays.</span>
 <span class="sd">        :return: a list of tuples where the elements are of the form ``(label, P(label))``</span>
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_classes_reversed</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_classes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="n">predictions</span> <span class="o">=</span> <span class="p">((</span><span class="n">data_classes_reversed</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">single_img_prediction</span><span class="p">))</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="p">((</span><span class="n">data_classes_reversed</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">single_image_prediction</span><span class="p">))</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ImageRecognitionCNN.predict"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_images</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -754,7 +754,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Preparing Images for Neural Network...&quot;</span><span class="p">)</span>
-            <span class="n">images</span> <span class="o">=</span> <span class="n">load_and_scale_imgs</span><span class="p">(</span><span class="n">list_of_images</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">grayscale_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">load_and_scale_images</span><span class="p">(</span><span class="n">list_of_images</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">grayscale_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Generating Predictions...&quot;</span><span class="p">)</span>
