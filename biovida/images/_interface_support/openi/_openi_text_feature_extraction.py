@@ -226,28 +226,26 @@ def _patient_age_guess_abstract_clean(abstract):
     :return: a cleaned ``abstract``
     :rtype: ``str``
     """
-    # ToDo: test moving num_word_to_int() to the top of this function; d* won't capture "ten year history", for example.
+    # E.g., '...eight year history of...' --> '...8 year history of...'
+    abstract_int = num_word_to_int(abstract)
+
     # Block: 'x year history'
     history_block = ("year history", " year history", "-year history")
-    hist_matches = [re.findall(r'\d*\.?\d+' + drop, abstract) for drop in history_block]
 
-    # Clean and recompose the string
-    cleaned_abstract = cln(" ".join([abstract.replace(r, "") for r in chain(*filter(None, hist_matches))])).strip()
-    hist_matches_flat = filter_unnest(hist_matches)
+    # Flatten list comp.
+    hist_matches = filter_unnest([re.findall(r'\d*\.?\d+' + drop, abstract_int) for drop in history_block])
 
-    if len(hist_matches_flat):
-        return num_word_to_int(" ".join([abstract.replace(r, "") for r in hist_matches_flat])).strip()
+    if len(hist_matches):
+        return cln(" ".join([abstract_int.replace(r, "") for r in hist_matches]))
     else:
-        return num_word_to_int(abstract)
+        return cln(abstract_int)
 
 
 def _age_marker_match(image_summary_info):
     """
 
-    Extract age from a string based on it being followed by one of:
-
-    " y", "yo ", "y.o.", "y/o", "year", "-year", " - year", " -year", " ans ", "month old", " month old", "-month old",
-    "months old", " months old" or "-months old".
+    Extract age from a string based on it being followed by one of
+    those in ``age_markers``.
 
     :param image_summary_info: some summary text of the image, e.g., 'history', 'abstract', 'image_caption'
                                or 'image_mention'.
@@ -255,15 +253,18 @@ def _age_marker_match(image_summary_info):
     :return: patient age.
     :rtype: ``str`` or ``None``
     """
-    age_markers = (" y", "yo ", " yo ", "y.o.", "y/o", "year", "-year", " - year", " -year", " ans "
+    # Note: given " y", it is not clear how much help something like " yo" is, given the former
+    # will already catch it.
+    age_markers = (" y", "yo ", " yo ", "y.o.", "y/o", "year", "-year", " -year", " ans ",
                    "month old", " month old", "-month old", "months old", " months old", "-months old")
 
     # Clean the input text
-    cleaned_input = _patient_age_guess_abstract_clean(image_summary_info).lower()
+    cleaned_input = _patient_age_guess_abstract_clean(image_summary_info).replace(" - ", "-").lower()
 
     # Check abstract
     if len(cleaned_input):
-        return filter_unnest([re.findall(r'\d+' + b, cleaned_input) for b in age_markers])
+        rslts = filter_unnest([re.findall(r'\d*\.\d+' + b + '|\d+' + b, cleaned_input) for b in age_markers])
+        return rslts if len(rslts) else None
     else:
         return None
 
@@ -285,7 +286,7 @@ def _patient_age_guess(background, abstract, image_caption, image_mention):
     :rtype: ``float`` or ``None``
     """
     # Loop through the inputs, search all of them for age matches
-    for source in (background, abstract, image_caption, image_caption, image_mention):
+    for source in (background, abstract, image_caption, image_mention):
         if isinstance(source, str):
             matches = _age_marker_match(source)
             if isinstance(matches, list) and len(matches):
@@ -403,7 +404,7 @@ def _remove_substrings(list_of_terms):
     # Source string: "The patient presented with congenital heart disease".
     >>> remove_substrings(list_of_terms=[[38, 'heart disease'], [27, 'congenital heart disease'], [44, 'disease']])
     ...
-    [0, 'congenital heart disease']
+    [27, 'congenital heart disease']
 
     """
     if len(list_of_terms) <= 1:
