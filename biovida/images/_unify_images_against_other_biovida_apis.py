@@ -93,30 +93,30 @@ class _ImagesInterfaceIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         # Define columns to keep
-        cancer_img_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age',
-                              'sex', 'cancer_type', 'query', 'pull_time', 'cached_images_path']
+        cancer_image_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age',
+                                'sex', 'cancer_type', 'query', 'pull_time', 'cached_images_path']
 
         # Column name changes (based on `_open_i_prep`).
-        cancer_img_col_rename = {'series_instance_uid': 'image_id',
-                                 'series_description': 'image_caption',
-                                 'modality_full': 'modality_best_guess',
-                                 'cancer_type': 'disease',
-                                 'cached_images_path': 'files_path'}
+        cancer_image_col_rename = {'series_instance_uid': 'image_id',
+                                   'series_description': 'image_caption',
+                                   'modality_full': 'modality_best_guess',
+                                   'cancer_type': 'disease',
+                                   'cached_images_path': 'files_path'}
 
         # Deep copy the input to prevent mutating the original in memory.
         cache_records_db_cln = cache_records_db.copy(deep=True)
 
-        # Define subsection based on `cancer_img_columns`
-        cancer_img_subsection = cache_records_db_cln[cancer_img_columns]
+        # Define subsection based on `cancer_image_columns`
+        cancer_image_subsection = cache_records_db_cln[cancer_image_columns]
 
         # Add an 'abstract' column
-        cancer_img_subsection['abstract'] = np.NaN
+        cancer_image_subsection['abstract'] = np.NaN
 
         # Add a column to allow the user to identify the API which provided the data
-        cancer_img_subsection['source_api'] = ['tcia'] * cancer_img_subsection.shape[0]
+        cancer_image_subsection['source_api'] = ['tcia'] * cancer_image_subsection.shape[0]
 
         # Apply rename and return
-        return cancer_img_subsection.rename(columns=cancer_img_col_rename)
+        return cancer_image_subsection.rename(columns=cancer_image_col_rename)
 
     def prep_class_dict_gen(self):
         """
