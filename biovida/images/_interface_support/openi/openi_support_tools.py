@@ -64,7 +64,7 @@ def iter_join(t, join_on="_"):
     :return: ``t`` as a string.
     :rtype: ``str``
     """
-    return join_on.join(t) if isinstance(t, (list, tuple)) else i
+    return join_on.join(t) if isinstance(t, (list, tuple)) else t
 
 
 def null_convert(i):
@@ -178,11 +178,33 @@ def num_word_to_int(input_str):
     :return: ``input_str`` with all numbers from 1-130 in natural language (e.g., 'twenty-five')
              with the integer equivalent.
     :rtype: ``str``
+
+    :Example:
+
+    >>> num_word_to_int(input_str="the disease was present from twenty five until their death at eighty-seven.")
+    ...
+    'the disease was present from 25 until their death at 87 .'
+    ...
+    # However, the simple presence of the substring 'one' doesn't confuse the procedure.
+    >>> num_word_to_int(input_str="He wrote 'the oneway (sic) street is closed due to construction'.")
+    ...
+    'He wrote 'the oneway (sic) street is closed due to construction''
+    ...
+    # It can also handle common punctuation
+    >>> num_word_to_int(input_str="The ring was the only one, in all of history, to xyz")
+    ...
+    'The ring was the only 1 in all of history, to xyz'
+    ...
+    # It is also not confused by common expressions (assuming the number is < 20).
+    >>> num_word_to_int(input_str="one-short learning is the ultimate goal of AI research.")
+    'Robust one-short learning is the one of the goals of AI research.'
     """
-    for w, i in age_dict.items():
-        for case in [w.upper(), w.lower(), w.title()]:  # not perfect, but should do
-            input_str = input_str.replace(case, str(i))
-    return input_str
+    # The reversal ensure that 'twenty five' doesn't yield '20 5'.
+    for word, number in sorted(age_dict.items(), key=lambda x: x[-1], reverse=True):
+        for mold in ("^{0} ", " {0} ", " {0}[;|:|,|.|?|!]", " {0}$"):
+            for word_form in (word, word.replace("-", " ")):
+                input_str = re.sub(mold.format(word_form), " {0} ".format(str(number)), input_str, flags=re.I)
+    return cln(input_str)
 
 
 def url_path_extract(url):
