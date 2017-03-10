@@ -313,12 +313,14 @@ def robust_match_template(pattern_image,
 
         # Compute the bounding box
         bounding_box = _corners_calc(best_match[0], best_match[1])
+
+        match_quality = best_match[2]
     else:
-        best_match = [None] * 3
         bounding_box = None
+        match_quality = None
 
     # Return the bounding box, match quality and the size of the base image
-    return {"bounding_box": bounding_box, "match_quality": best_match[2], "base_image_shape": base.shape[::-1]}
+    return {"bounding_box": bounding_box, "match_quality": match_quality, "base_image_shape": base.shape[::-1]}
 
 
 def _box_show(base_image_path, pattern_image_path):
