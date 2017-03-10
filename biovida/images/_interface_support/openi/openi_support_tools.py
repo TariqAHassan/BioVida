@@ -199,7 +199,7 @@ def num_word_to_int(input_str):
     >>> num_word_to_int(input_str="one-short learning is the ultimate goal of AI research.")
     'Robust one-short learning is the one of the goals of AI research.'
     """
-    # The reversal ensure that 'twenty five' doesn't yield '20 5'.
+    # The reversal ensures that 'twenty five' yields '25', not '20 5'.
     for word, number in sorted(age_dict.items(), key=lambda x: x[-1], reverse=True):
         for mold in ("^{0} ", " {0} ", " {0}[;|:|,|.|?|!]", " {0}$"):
             for word_form in (word, word.replace("-", " ")):
