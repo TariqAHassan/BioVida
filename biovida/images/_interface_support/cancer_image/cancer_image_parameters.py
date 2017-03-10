@@ -35,8 +35,8 @@ class CancerImageArchiveParams(object):
         self._verbose = verbose
         
         # Define a location to save the data
-        _, self._created_img_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
-                                                          to_create=['tcia'], nest=[('tcia', 'databases')])
+        _, self._created_image_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
+                                                            to_create=['tcia'], nest=[('tcia', 'databases')])
     
     def _roll_strs_forward(self, l):
         """
@@ -241,7 +241,7 @@ class CancerImageArchiveParams(object):
             raise ValueError("`rtype` must be either 'dataframe' or 'dict'.")
 
         # Define the path to save the data
-        save_path = os.path.join(self._created_img_dirs['databases'], 'tcia_api_dicom_modality.p')
+        save_path = os.path.join(self._created_image_dirs['databases'], 'tcia_api_dicom_modality.p')
 
         if not os.path.isfile(save_path) or download_override:
             if self._verbose:
@@ -282,7 +282,7 @@ class CancerImageArchiveParams(object):
             raise ValueError("`rtype` must be either 'dataframe' or 'dict'.")
     
         # Define the path to save the data
-        save_path = os.path.join(self._created_img_dirs['databases'], 'tcia_api_reference.p')
+        save_path = os.path.join(self._created_image_dirs['databases'], 'tcia_api_reference.p')
     
         if not os.path.isfile(save_path) or download_override:
             if self._verbose:

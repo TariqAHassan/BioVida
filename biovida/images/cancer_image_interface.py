@@ -82,7 +82,7 @@ class _CancerImageArchiveOverview(object):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
         _, self._created_image_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
-                                                          to_create=['tcia'], nest=[('tcia', 'databases')])
+                                                            to_create=['tcia'], nest=[('tcia', 'databases')])
 
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
 
@@ -519,10 +519,11 @@ class _CancerImageArchiveImages(object):
 
     def __init__(self, api_key, dicom_modality_abbrevs, root_url, verbose, cache_path=None):
         _, self._created_image_dirs = package_cache_creator(sub_dir='images',
-                                                          cache_path=cache_path,
-                                                          to_create=['tcia'],
-                                                          nest=[('tcia', 'raw'), ('tcia', 'dicoms'), ('tcia', 'databases')],
-                                                          verbose=verbose)
+                                                            cache_path=cache_path,
+                                                            to_create=['tcia'],
+                                                            nest=[('tcia', 'raw'), ('tcia', 'dicoms'),
+                                                                  ('tcia', 'databases')],
+                                                            verbose=verbose)
 
         self.API_KEY = api_key
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
