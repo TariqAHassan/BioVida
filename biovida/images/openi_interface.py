@@ -117,7 +117,7 @@ class _OpeniSearch(object):
                     self._openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
 
     @staticmethod
-    def _exclusions_img_type_merge(args, exclusions):
+    def _exclusions_image_type_merge(args, exclusions):
         """
 
         Merge Image type with Exclusions.
@@ -315,7 +315,7 @@ class _OpeniSearch(object):
         args = {k: [v] if isinstance(v, str) and k != 'query' else v for k, v in args_cleaned.items() if k != 'exclusions'}
 
         # Merge `image_type` with `exclusions`
-        args = self._exclusions_img_type_merge(args, exclusions)
+        args = self._exclusions_image_type_merge(args, exclusions)
 
         # Get the arguments
         search_arguments = {k: '' if k == 'query' and v is None else self._search_clean(k, v) for k, v in args.items()}
@@ -630,7 +630,7 @@ class _OpeniRecords(object):
 class _OpeniImages(object):
     """
 
-    :param image_save_location: suggested: created_img_dirs['openi'])
+    :param image_save_location: suggested: created_image_dirs['openi'])
     :param database_save_location:
     :param verbose:
     """
@@ -746,8 +746,8 @@ class _OpeniImages(object):
                 # Get the image
                 page = requests.get(image_url)
                 # Save to disk
-                with open(image_save_path, 'wb') as img:
-                    img.write(page.content)
+                with open(image_save_path, 'wb') as image:
+                    image.write(page.content)
                 image_downloaded = 1
 
             self.real_time_update_db.set_value(index, 'cached_images_path', image_save_path)
