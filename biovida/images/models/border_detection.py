@@ -11,7 +11,7 @@ from operator import sub
 from functools import reduce
 
 
-from biovida.images._image_tools import load_img_rescale
+from biovida.images._image_tools import load_image_rescale
 
 
 def _rounder(l, by=3):
@@ -492,7 +492,7 @@ def border_detection(image,
                  .. warning::
 
                         If a ``ndarray`` is passed, it should be the output of the
-                        ``biovida.images.image_tools.load_img_rescale()`` function.
+                        ``biovida.images.image_tools.load_image_rescale()`` function.
                         Without this preprocessing, this function's stability is not assured.
 
     :type image: ``str`` or ``2D ndarray``
@@ -529,11 +529,11 @@ def border_detection(image,
     if 'numpy' in str(type(image)):
         image_copy = image.copy()
         if rescale_input_ndarray:
-            image_array = load_img_rescale(image_copy, gray_only=True)
+            image_array = load_image_rescale(image_copy, gray_only=True)
         else:
             image_array = image_copy
     elif isinstance(image, str):
-        image_array = load_img_rescale(image)
+        image_array = load_image_rescale(image)
     else:
         raise ValueError("`image_array` must be either a path to an image or the image as a 2D ndarray.")
 
@@ -580,7 +580,7 @@ def _lines_plotter(path_to_image):
     from matplotlib import pyplot as plt
     from matplotlib import collections as mc
 
-    image = load_img_rescale(path_to_image)
+    image = load_image_rescale(path_to_image)
     analysis = {k: v for k, v in border_detection(image=image).items() if v is not None}
 
     h, w = image.shape

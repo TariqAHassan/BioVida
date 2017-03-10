@@ -19,7 +19,7 @@ from biovida.support_tools.support_tools import items_null
 from biovida.support_tools.support_tools import data_frame_col_drop
 
 # Tools form the image subpackage
-from biovida.images._image_tools import load_and_scale_imgs
+from biovida.images._image_tools import load_and_scale_images
 
 from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
 
@@ -557,7 +557,7 @@ class ImageProcessing(object):
         else:
             verbose_prediction = False
 
-        transformed_images = load_and_scale_imgs(cropped_images_for_analysis, self._ircnn.img_shape, status=status)
+        transformed_images = load_and_scale_images(cropped_images_for_analysis, self._ircnn.img_shape, status=status)
 
         if verbose_prediction:
             print("\n\nAnalyzing Images for Visual Problems with Neural Network...")

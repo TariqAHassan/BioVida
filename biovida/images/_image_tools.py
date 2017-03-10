@@ -105,7 +105,7 @@ def resetting_label(to_label):
     return all_labels
 
 
-def load_img_rescale(path_to_image, gray_only=False):
+def load_image_rescale(path_to_image, gray_only=False):
     """
 
     Loads an image, converts it to grayscale and normalizes (/255.0).
@@ -121,32 +121,32 @@ def load_img_rescale(path_to_image, gray_only=False):
         return rgb2gray(imread(path_to_image, flatten=True)) / 255.0
 
 
-def image_transposer(converted_image, img_size, axes=(2, 0, 1)):
+def image_transposer(converted_image, image_size, axes=(2, 0, 1)):
     """
 
     Tool to resize and transpose an image (about given axes).
 
     :param converted_image: the image as a ndarray.
     :type converted_image: ``ndarray``
-    :param img_size: to size to coerse the images to be, e.g., (150, 150)
-    :type img_size: ``tuple``
+    :param image_size: to size to coerse the images to be, e.g., (150, 150)
+    :type image_size: ``tuple``
     :param axes: the axes to transpose the image on.
     :type axes: ``tuple``
     :return: the resized and transposed image.
     :rtype: ``ndarray``
     """
-    return np.transpose(imresize(converted_image, img_size), axes).astype('float32')
+    return np.transpose(imresize(converted_image, image_size), axes).astype('float32')
 
 
-def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=True, grayscale_first=False):
+def load_and_scale_images(list_of_images, image_size, axes=(2, 0, 1), status=True, grayscale_first=False):
     """
 
     Load and scale a list of images from a directory
 
     :param list_of_images: a list of paths to images.
     :type list_of_images: ``list`` or ``tuple``
-    :param img_size: to size to coerse the images to be, e.g., (150, 150)
-    :type img_size: ``tuple``
+    :param image_size: to size to coerse the images to be, e.g., (150, 150)
+    :type image_size: ``tuple``
     :param axes: the axes to transpose the image on.
     :type axes: ``tuple``
     :param status: if ``True``, use `tqdm` to print progress as the load progresses.
@@ -163,33 +163,33 @@ def load_and_scale_imgs(list_of_images, img_size, axes=(2, 0, 1), status=True, g
         else:
             return x
 
-    def load_func(img):
-        if 'ndarray' in str(type(img)):
-            converted_image = img
+    def load_func(image):
+        if 'ndarray' in str(type(image)):
+            converted_image = image
         else:
             # Load grayscale images by first converting them to RGB (otherwise, `imresize()` will break).
             if grayscale_first:
-                loaded_img = Image.open(img).convert("LA")
-                loaded_img = loaded_img.convert("RGB")
+                loaded_image = Image.open(image).convert("LA")
+                loaded_image = loaded_image.convert("RGB")
             else:
-                loaded_img = Image.open(img).convert("RGB")
-            converted_image = np.asarray(loaded_img)
-        return image_transposer(converted_image, img_size, axes=axes)
+                loaded_image = Image.open(image).convert("RGB")
+            converted_image = np.asarray(loaded_image)
+        return image_transposer(converted_image, image_size, axes=axes)
 
-    return np.array([load_func(img_name) for img_name in status_bar(list_of_images)]) / 255.0
+    return np.array([load_func(image_name) for image_name in status_bar(list_of_images)]) / 255.0
 
 
-def show_plt(img):
+def show_plt(image):
     """
 
-    Use matplotlib to display an img (which is represented as a matrix).
+    Use matplotlib to display an image (which is represented as a matrix).
 
-    :param img: an img represented as a matrix.
-    :type img: ``ndarray``
+    :param image: an image represented as a matrix.
+    :type image: ``ndarray``
     """
     from matplotlib import pyplot as plt
     fig, ax = plt.subplots()
-    ax.imshow(img, interpolation='nearest', cmap=plt.cm.gray)
+    ax.imshow(image, interpolation='nearest', cmap=plt.cm.gray)
     plt.show()
 
 

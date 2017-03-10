@@ -14,7 +14,7 @@ import os
 import pickle
 from tqdm import tqdm
 from warnings import warn
-from biovida.images._image_tools import load_and_scale_imgs
+from biovida.images._image_tools import load_and_scale_images
 
 from keras import callbacks
 from keras.preprocessing.image import ImageDataGenerator
@@ -583,7 +583,7 @@ class ImageRecognitionCNN(object):
         else:
             if verbose:
                 print("\n\nPreparing Images for Neural Network...")
-            images = load_and_scale_imgs(list_of_images, img_size=self.img_shape, status=status, grayscale_first=True)
+            images = load_and_scale_images(list_of_images, image_size=self.img_shape, status=status, grayscale_first=True)
 
         if verbose:
             print("\n\nGenerating Predictions...")
