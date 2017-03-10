@@ -261,14 +261,14 @@ def _largest_median_inflection(averaged_axis_values, axis, n_largest_override=No
         return median_deltas
 
 
-def _zero_var_axis_elements_remove(img, axis, rounding=3):
+def _zero_var_axis_elements_remove(image, axis, rounding=3):
     """
 
     Replaces, by axis, matrix elements with approx. no variance
     (technically using the standard deviation here).
 
-    :param img: an image represented as an array.
-    :type img: ``ndarray``
+    :param image: an image represented as an array.
+    :type image: ``ndarray``
     :param axis: 0 for columns; 1 for rows.
     :type axis: ``int``
     :param rounding: how much to round the standard deviation values for a given row/column.
@@ -276,21 +276,21 @@ def _zero_var_axis_elements_remove(img, axis, rounding=3):
     :return: a matrix with rows/columns with standard deviation == 0 replaced with zero vectors.
     :rtype: ``ndarray``
     """
-    zero_var_items = np.where(np.round(np.std(img, axis=axis), rounding) == 0)
+    zero_var_items = np.where(np.round(np.std(image, axis=axis), rounding) == 0)
     if axis == 0:
-        img[:, zero_var_items] = [0]
+        image[:, zero_var_items] = [0]
     elif axis == 1:
-        img[zero_var_items] = [0]
-    return img
+        image[zero_var_items] = [0]
+    return image
 
 
-def edge_detection(img, axis=0, n_largest_override=None):
+def edge_detection(image, axis=0, n_largest_override=None):
     """
 
     Detects edges within an image.
 
-    :param img: an image represented as a matrix
-    :type img: ``ndarray``
+    :param image: an image represented as a matrix
+    :type image: ``ndarray``
     :param axis: 0 for columns; 1 for rows.
     :type axis: ``int``
     :param n_largest_override: override the defaults for the number of inflections to report
@@ -300,11 +300,11 @@ def edge_detection(img, axis=0, n_largest_override=None):
     :rtype: ``list``
     """
     # Set rows with no ~variance to zero vectors to eliminate their muffling effect on the signal.
-    img = _zero_var_axis_elements_remove(img, axis)
+    image = _zero_var_axis_elements_remove(image, axis)
 
     # Average the remaining values
     # ToDo: it's not not clear if _array_cleaner() helps much...after all, the vector has already been averaged.
-    averaged_axis_values = _array_cleaner(np.mean(img, axis=axis))
+    averaged_axis_values = _array_cleaner(np.mean(image, axis=axis))
     return _largest_median_inflection(averaged_axis_values, axis, n_largest_override)
 
 
@@ -373,7 +373,7 @@ def _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_th
     lower_image_array = image_array.copy()[cut_off:flr]
 
     # Run an edge analysis
-    lower_bar_candidates = edge_detection(img=lower_image_array, axis=1, n_largest_override=8)
+    lower_bar_candidates = edge_detection(image=lower_image_array, axis=1, n_largest_override=8)
 
     # Apply Threshold
     thresholded_values = list(set([i[0] + cut_off for i in lower_bar_candidates if i[1] > signal_strength_threshold]))
