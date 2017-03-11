@@ -120,6 +120,21 @@ def n_sub_dirs(dir):
     return len([k for i, j, k in os.walk(dir)]) - 1
 
 
+def create_dir_if_needed(directory):
+    """
+
+    Create a directory if it does not exist.
+
+    :param directory: a path.
+    :type directory: ``str``
+    :return: ``directory``
+    :rtype: ``str``
+    """
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+    return directory
+
+
 def pstr(s):
     """
 
