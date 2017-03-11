@@ -663,7 +663,7 @@ class _CancerImageArchiveImages(object):
                 Image.fromarray(pixel_arr[layer:layer + 1][0]).convert(conversion).save(path)
                 all_save_paths.append(path)
         else:
-            warn("\nProblem converting the image for\nthe following SeriesInstanceUID:\n\n{0}\n\nCannot "
+            warn("\nProblem converting the image for\nthe following series_instance_uid:\n\n{0}\n\nCannot "
                  "stabilize {1} dimensional arrays.\nImages must be 2D or 3D.".format(series_uid, pixel_arr.ndim))
             return [], False
 
