@@ -7,6 +7,7 @@
 # Imports
 import os
 import shutil
+import numpy as np
 from math import ceil
 from scipy.ndimage import imread
 
@@ -78,10 +79,11 @@ def _train_val_test_error_checking(data_dir, target_dir, action, delete_source, 
         if len(v) < min_number_of_files:
             raise InsufficientNumberOfFiles("\nThe '{0}' subdirectory in '{1}'\nonly contains {2} files, "
                                             "which is too few to distribute over {3} target locations.\n"
-                                            "Calculation: ({4}) * ({5}) = {3}.".format(k, data_dir, len(v),
-                                                                                       min_number_of_files,
-                                                                                       ", ".join(tvt.keys()),
-                                                                                       ", ".join(existing_files.keys())))
+                                            "Calculation: "
+                                            "len([{4}]) * len([{5}]) = {3}.".format(k, data_dir, len(v),
+                                                                                    min_number_of_files,
+                                                                                    ", ".join(tvt.keys()),
+                                                                                    ", ".join(existing_files.keys())))
 
 
 def _existing_files_dict_gen(directory, to_block):
@@ -157,7 +159,7 @@ def _output_dict_with_ndarrays(dictionary):
     :return: the values for the inner nest as replaced with ``ndarrays``.
     :rtype: ``dict``
     """
-    return {k: {k2: [imread(i) for i in v2] for k2, v2 in v.items()} for k, v in dictionary.items()}
+    return {k: {k2: np.array([imread(i) for i in v2]) for k2, v2 in v.items()} for k, v in dictionary.items()}
 
 
 def train_val_test(data_dir,
@@ -206,7 +208,8 @@ def train_val_test(data_dir,
         a dictionary of the form: ``{one of 'train', 'validation', 'test': {subdirectory in `data_dir`: [file_path, file_path, ...], ...}, ...}``.
 
         - if ``action='copy'``, the dictionary returned will be exactly as shown above.
-        - if ``action='ndarray'``, 'file_path' will be replaced with the image as a ``ndarray``.
+        - if ``action='ndarray'``, 'file_path' will be replaced with the image as a ``ndarray`` and the list will be
+                                    a ``ndarray``, e.g, ``array([matrix, matrix, ...])``.
 
     :rtype: ``dict``
     :raises ``ValueError``: if the combination of ``train``, ``validation``, ``test`` which which were passed
@@ -239,7 +242,7 @@ def train_val_test(data_dir,
                     shutil.copy2(i, os.path.join(target, os.path.basename(i)))
 
     if verbose:
-        print("Structure:\n")
+        print("\nStructure:\n")
         for k, v in output_dict.items():
             print("- {0}:\n{1}".format(k, list_to_bulletpoints(v)))
 
