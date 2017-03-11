@@ -238,17 +238,17 @@ class _CancerImageArchiveRecords(object):
 
         :param study: a Cancer Imaging Archive collection (study)
         :type study: ``str``
-        :return: the yeild of passing the ``getPatientStudy`` parameter to the Cancer Imaging Archive API for a given
+        :return: the yield of passing the ``getPatientStudy`` parameter to the Cancer Imaging Archive API for a given
                  collection (study).
         :rtype: ``Pandas DataFrame``
         """
         url = '{0}/query/getPatientStudy?Collection={1}&format=csv&api_key={2}'.format(
             self.ROOT_URL, cln(study).replace(' ', self._url_sep), self.API_KEY)
         data_frame = pd.DataFrame.from_csv(url).reset_index()
-        
+
         # Convert column names from camelCase to snake_cake
         data_frame.columns = list(map(camel_to_snake_case, data_frame.columns))
-        
+
         return data_frame
 
     def _robust_study_extract(self, study):
@@ -262,7 +262,7 @@ class _CancerImageArchiveRecords(object):
         :return: see: ``_study_extract()``
         :rtype: ``Pandas DataFrame``
 
-        :raises IndexError: if both '+' and '-' fail to yeild a dataframe with nonzero length.
+        :raises IndexError: if both '+' and '-' fail to yield a dataframe with nonzero length.
         """
         study_df = self._study_extract(study)
         if study_df.shape[0] == 0:
@@ -340,8 +340,8 @@ class _CancerImageArchiveRecords(object):
         :type study: ``str``
         :param patient_dict: a value in ``study_dict`` (which is a dictionary itself).
         :type patient_dict: ``dict``
-        :return: the yeild of the TCIA ``getSeries`` param for a given patient in a given collection (study).
-                 Their sex, age, the session number (e.g., baseline = 1, baseline + 1 month = 2, etc.) and the 
+        :return: the yield of the TCIA ``getSeries`` param for a given patient in a given collection (study).
+                 Their sex, age, the session number (e.g., baseline = 1, baseline + 1 month = 2, etc.) and the
                  'study_date' (i.e., the date the study was conducted).
         :rtype: ``Pandas DataFrame``
         """
@@ -411,7 +411,7 @@ class _CancerImageArchiveRecords(object):
 
     def _get_condition_name(self, collection_series, overview_download_override):
         """
-        
+
         This method gets the name of the condition studied for a given collection (study).
         (collection_series gets reduced down to a single unique).
 
@@ -566,7 +566,7 @@ class _CancerImageArchiveImages(object):
         # Instantiate
         db = pd.DataFrame(columns=real_time_update_columns, index=db_index).replace({np.NaN: None})
         self.real_time_update_db = db
-        
+
     def _save_real_time_update_db(self):
         """
 
@@ -594,12 +594,12 @@ class _CancerImageArchiveImages(object):
         r = requests.get(url)
         z = zipfile.ZipFile(io.BytesIO(r.content))
         z.extractall(temporary_folder)
-        
+
         def file_path_full(f):
             """Construct the full path for a given file in ``z``."""
             base_name = cln(os.path.basename(f.filename))
             return os.path.join(temporary_folder, base_name) if len(base_name) else None
-        
+
         # Generate the list of paths to the dicoms
         return list(filter(None, map(file_path_full, z.filelist)))
 
@@ -983,7 +983,7 @@ class _CancerImageArchiveImages(object):
         :rtype: ``Pandas DataFrame``
         """
         # Notes on 'image_count_converted_cache':
-        # 1. a column which provides the number of images each SeriesInstanceUID yeilded
+        # 1. a column which provides the number of images each SeriesInstanceUID yielded
         # 2. values may be discrepant with the 'image_count' column because 3D images are expanded
         #    into their individual frames when saved to the converted images cache.
 
@@ -1177,7 +1177,7 @@ class CancerImageInterface(object):
 
         Limits `summary_df` to individual collections.
 
-        :param summary_df: the yeild of ``_CancerImageArchiveOverview()._all_studies_cache_mngt()``
+        :param summary_df: the yield of ``_CancerImageArchiveOverview()._all_studies_cache_mngt()``
         :type summary_df: ``Pandas DataFrame``
         :param collection: a collection (study), or iterable (e.g., list) of collections,
                            hosted by the Cancer Imaging Archive. Defaults to ``None``.
