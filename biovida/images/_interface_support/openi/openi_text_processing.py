@@ -115,9 +115,8 @@ def _apply_clinical_case_only(data_frame):
 
     Remove records (dataframe rows) which are not of clinical encounters.
 
-    Note: this is here, and not in ``openi_interface()._OpeniImages().pull_images()`` because
-    Open-i API's 'article_type (&at) parameter does not have an 'encounter' option
-    (which it probably should...).
+    Note: this is here, and not simply part of defining a search with ``openi_interface()._OpeniImages().search()``
+    because Open-i API's 'article_type' (&at) parameter does not have an 'encounter' option.
 
     :param data_frame: the ``data_frame`` as evolved in ``openi_raw_extract_and_clean()``.
     :type data_frame: ``Pandas DataFrame``
@@ -260,7 +259,7 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
                                 this parameter requires that 'article_type' is one of: 'encounter', 'case_report'.
                                 Defaults to ``True``.
     :type clinical_cases_only: ``bool``
-    :param verbose: print additional details.
+    :param verbose: if ``True`` print additional details.
     :type verbose: ``bool``
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
                        one will created. Default to ``None``, which will generate a cache in the home folder.
