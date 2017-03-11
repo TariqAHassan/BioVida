@@ -365,7 +365,7 @@ class _OpeniRecords(object):
         :type root_url: ``str``
         :param date_format: suggested: "%d/%m/%Y" (consider leaving as datetime)
         :type date_format: ``str``
-        :param verbose: print additional details.
+        :param verbose: if ``True`` print additional details.
         :type verbose: ``bool``
         :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
                        one will created. Default to ``None``, which will generate a cache in the home folder.
@@ -867,7 +867,7 @@ class OpeniInterface(object):
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
                        one will created. Default to ``None``, which will generate a cache in the home folder.
     :type cache_path: ``str`` or ``None``
-    :param verbose: print additional details.
+    :param verbose: if ``True`` print additional details.
     :type verbose: ``bool``
     """
 

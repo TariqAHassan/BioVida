@@ -509,7 +509,7 @@ class _CancerImageArchiveImages(object):
     :type dicom_modality_abbrevs: ``dict``
     :param root_url: the root URL for the the Cancer Imaging Archive's API.
     :type root_url: ``str``
-    :param verbose: print additional details.
+    :param verbose: if ``True`` print additional details.
     :type verbose: ``bool``
     :type cache_path: ``str`` or ``None``
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
@@ -1032,7 +1032,7 @@ class CancerImageInterface(object):
     :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
                        one will created. Default to ``None``, which will generate a cache in the home folder.
     :type cache_path: ``str`` or ``None``
-    :param verbose: print additional details.
+    :param verbose: if ``True`` print additional details
     :type verbose: ``bool``
     """
 
