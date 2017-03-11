@@ -139,12 +139,16 @@ def _list_divide(l, tvt):
     # Natural sorting of items in ``l``.
     l_sorted = sorted(l, key=lambda x: natural_key(os.path.basename(x)))
     tvt_sorted = sorted(tvt.items(), key=lambda x: order_dict.get(x[0]))
+
     left, divided_dict = 0, dict()
-    for e, (k, v) in enumerate(tvt_sorted):
+    for e, (k, v) in enumerate(tvt_sorted, start=1):
         right = len(l_sorted) * v
-        # Be greedy if on the last key (needed when the number of keys is odd).
-        right_rounded = ceil(right) if e == len(tvt.keys()) else int(right)
-        divided_dict[k] = l_sorted[int(left):int(left) + right_rounded]
+        if e != len(tvt.keys()):
+            right_full = int(left) + int(right)
+        else:
+            # Be greedy if on the last iteration.
+            right_full = len(l_sorted)
+        divided_dict[k] = l_sorted[int(left):right_full]
         left += right
     return sorted(divided_dict.items(), key=lambda x: order_dict.get(x[0]))
 
@@ -199,7 +203,13 @@ def train_val_test(data_dir,
                     - if ``'copy'``: copy from files from ``data_dir`` to ``target_dir`` (default).
                     - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
 
-    :param delete_source: if ``True`` delete the source subdirectories in ``data_dir``. Defaults to ``False``.
+    :param delete_source: if ``True`` delete the source subdirectories in ``data_dir`` after copying is complete. Defaults to ``False``.
+
+                          .. note::
+
+                                This can be useful for transforming a directory 'inplace',
+                                e.g., if ``data_dir`` and ``target_dir`` are the same and ``delete_source=True``.
+
     :type delete_source: ``bool``
     :param verbose: if ``True``, print the resultant structure. Defaults to ``True``.
     :type verbose: ``bool``
