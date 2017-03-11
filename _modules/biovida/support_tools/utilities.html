@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>biovida.support_tools.utilities &#8212; BioVida 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootswatch-3.3.6/simplex/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          BioVida</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/TariqAHassan/BioVida">View on GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#dependencies">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#image-data">Image Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.genomics.disgenet_interface">Genomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.diagnostics.disease_ont_interface">Diagnostics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.unification.unify_domains">Domain Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#unifying-across-domains">Unifying Across Domains</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.image_cache_mgmt">Cache Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-cache-management">Image Cache Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.support_tools.utilities">Support Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#utilities">Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Current Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <h1>Source code for biovida.support_tools.utilities</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Utilities</span>
+<span class="sd">    ~~~~~~~~~</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># Imports</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">ceil</span>
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="k">import</span> <span class="n">imread</span>
+
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">create_dir_if_needed</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Splitting into Train, Validation &amp; Test</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="InsufficientNumberOfFiles"><a class="viewcode-back" href="../../../source/biovida.html#biovida.support_tools.utilities.InsufficientNumberOfFiles">[docs]</a><span class="k">class</span> <span class="nc">InsufficientNumberOfFiles</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="k">def</span> <span class="nf">_subdirectories_in_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">to_block</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Generate a list of subdirectories in ``path``, excluding ``to_block``.</span>
+
+<span class="sd">    :param path: a system path.</span>
+<span class="sd">    :type path: ``str``</span>
+<span class="sd">    :param to_block: a list of directories to exclude from the output.</span>
+<span class="sd">    :type to_block: ``iterable``</span>
+<span class="sd">    :return: see description.</span>
+<span class="sd">    :rtype: ``list``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">to_return</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">to_block</span><span class="p">:</span>
+            <span class="n">to_return</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">to_return</span>
+
+
+<span class="k">def</span> <span class="nf">_train_val_test_error_checking</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">validation</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">,</span>
+                                   <span class="n">action</span><span class="p">,</span> <span class="n">delete_source</span><span class="p">,</span> <span class="n">existing_files</span><span class="p">,</span> <span class="n">tvt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Check for possible errors for ``train_val_test()``.</span>
+
+<span class="sd">    :param data_dir: see ``train_val_test()``.</span>
+<span class="sd">    :type data_dir: ``str``</span>
+<span class="sd">    :param train: see ``train_val_test()``.</span>
+<span class="sd">    :type train: ``int``, ``float``, ``bool`` or ``None``</span>
+<span class="sd">    :param validation: see ``train_val_test()``.</span>
+<span class="sd">    :type validation: ``int``, ``float``, ``bool`` or ``None``</span>
+<span class="sd">    :param test: see ``train_val_test()``.</span>
+<span class="sd">    :type test: ``int``, ``float``, ``bool`` or ``None``</span>
+<span class="sd">    :param target_dir: see ``train_val_test()``.</span>
+<span class="sd">    :type target_dir: ``str``</span>
+<span class="sd">    :param action: see ``train_val_test()``.</span>
+<span class="sd">    :type action: ``str``</span>
+<span class="sd">    :param delete_source: see ``train_val_test()``.</span>
+<span class="sd">    :type delete_source: ``bool``</span>
+<span class="sd">    :param existing_files: as evolved in side ``train_val_test()``.</span>
+<span class="sd">    :type existing_files: ``list``</span>
+<span class="sd">    :param tvt: as evolved in side ``train_val_test()``.</span>
+<span class="sd">    :type tvt: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tvt</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;None of `train`, `validation` and `test` are numeric.&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tvt</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`</span><span class="si">{0}</span><span class="s2">` cannot be `True`&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The following parameters do not sum to 1: </span><span class="si">{0}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">()))))</span>
+    <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`action` must be one of: &#39;copy&#39;, &#39;ndarray&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`action` cannot equal &#39;ndarray&#39; if `target_dir` is a string.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_source</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`delete_source` must be a boolean.&quot;</span><span class="p">)</span>
+    
+    <span class="n">min_number_of_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing_files</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">existing_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_number_of_files</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InsufficientNumberOfFiles</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The &#39;</span><span class="si">{0}</span><span class="s2">&#39; subdirectory in &#39;</span><span class="si">{1}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">only contains </span><span class="si">{2}</span><span class="s2"> files, &quot;</span>
+                                            <span class="s2">&quot;which is too few to distribute over </span><span class="si">{3}</span><span class="s2"> target locations.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                            <span class="s2">&quot;Calculation: (</span><span class="si">{4}</span><span class="s2">) * (</span><span class="si">{5}</span><span class="s2">) = </span><span class="si">{3}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+                                                                                       <span class="n">min_number_of_files</span><span class="p">,</span>
+                                                                                       <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                                                                                       <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">existing_files</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+
+<span class="k">def</span> <span class="nf">_existing_files_dict_gen</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">to_block</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Generate a dictionary of files in ``directory``.</span>
+<span class="sd">    </span>
+<span class="sd">    :param directory: a system path.</span>
+<span class="sd">    :type directory: ``str``</span>
+<span class="sd">    :param to_block: a list of subdirectory names to ignore.</span>
+<span class="sd">    :type to_block: ``iterable``</span>
+<span class="sd">    :return: a dictionary of the form: ``{subdirectory in ``directory``: [file_path, file_path, ...], ...}.</span>
+<span class="sd">    :rtype: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">list_dirs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">))]</span>
+
+    <span class="k">def</span> <span class="nf">list_files</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span>
+
+    <span class="n">existing_files</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">list_dirs</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">to_block</span><span class="p">:</span>
+            <span class="n">existing_files</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">list_files</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">existing_files</span>
+
+
+<span class="k">def</span> <span class="nf">_list_divide</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">tvt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Splits a list, ``l``, into proportions described in ``tvt``.</span>
+
+<span class="sd">    :param l: a &#39;list&#39; to be split according to ``tvt``.</span>
+<span class="sd">    :type l: ``list``</span>
+<span class="sd">    :param tvt: as evolved in side ``train_val_test()``.</span>
+<span class="sd">    :type tvt: ``dict``</span>
+<span class="sd">    :return: a dictionary of the form: ``{tvt_key_1: [file_path, file_path, ...], ...}``.</span>
+<span class="sd">    :rtype: ``dict``</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; l = [&#39;file/path/image_1.png&#39;, &#39;file/path/image_2.png&#39;, &#39;file/path/image_3.png&#39;, &#39;file/path/image_4.png&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; tvt = {&#39;validation&#39;: 0.5, &#39;train&#39;: 0.5}</span>
+<span class="sd">    &gt;&gt;&gt; _list_divide(l, tvt)</span>
+<span class="sd">    ...</span>
+<span class="sd">    {&#39;train&#39;: [&#39;file/path/image_1.png&#39;, &#39;file/path/image_2.png&#39;],</span>
+<span class="sd">    &#39;validation&#39;: [&#39;file/path/image_3.png&#39;, &#39;file/path/image_4.png&#39;]}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">divided_dict</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span>
+        <span class="c1"># Be greedy if on the last key</span>
+        <span class="n">right_rounded</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">right</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+        <span class="n">divided_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">left</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="n">right_rounded</span><span class="p">]</span>
+        <span class="n">left</span> <span class="o">+=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">divided_dict</span>
+
+
+<span class="k">def</span> <span class="nf">_output_dict_with_ndarrays</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Converts values (file paths) in the inner nest of ``dictionary`` to ``ndarray``s.</span>
+
+<span class="sd">    :param dictionary: a nested dictionary, where values for the inner nest are file paths.</span>
+<span class="sd">    :type dictionary: ``dict``</span>
+<span class="sd">    :return: the values for the inner nest as replaced with ``ndarrays``.</span>
+<span class="sd">    :rtype: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">{</span><span class="n">k2</span><span class="p">:</span> <span class="p">[</span><span class="n">imread</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">]</span> <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+
+<div class="viewcode-block" id="train_val_test"><a class="viewcode-back" href="../../../source/biovida.html#biovida.support_tools.utilities.train_val_test">[docs]</a><span class="k">def</span> <span class="nf">train_val_test</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span>
+                   <span class="n">train</span><span class="p">,</span>
+                   <span class="n">validation</span><span class="p">,</span>
+                   <span class="n">test</span><span class="p">,</span>
+                   <span class="n">target_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span>
+                   <span class="n">delete_source</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Splits data in ``data_dir`` into any combination of the following: &#39;train&#39;, &#39;validation&#39;, &#39;test&#39;.</span>
+
+<span class="sd">    :param data_dir: the directory containing the data. This directory should contain subdirectories (the categories)</span>
+<span class="sd">                    populated with the files.</span>
+<span class="sd">    :type data_dir: ``str``</span>
+<span class="sd">    :param train: the proportion images in ``data_dir`` to allocate to the ``train`` folder. If ``False`` or ``None``,</span>
+<span class="sd">                  no images will be allocated to ``train``.</span>
+<span class="sd">    :type train: ``int``, ``float``, ``bool`` or ``None``</span>
+<span class="sd">    :param validation: the proportion images in ``data_dir`` to allocate to the ``validation`` folder. If ``False``</span>
+<span class="sd">                       or ``None``, no images will be allocated to ``validation``.</span>
+<span class="sd">    :type validation: ``int``, ``float``, ``bool`` or ``None``</span>
+<span class="sd">    :param test: the proportion images in ``data_dir`` to allocate to the ``test`` folder. If ``False`` or ``None``,</span>
+<span class="sd">                 no images will be allocated to ``test``.</span>
+<span class="sd">    :type test: ``int``, ``float``, ``bool`` or ``None``</span>
+<span class="sd">    :param target_dir: the location to output the images to (if ``action=True``). If ``None``, the output location will</span>
+<span class="sd">                       be ``data_dir``. Defaults to ``None``.</span>
+<span class="sd">    :type target_dir: ``str``</span>
+<span class="sd">    :param action: one of:</span>
+
+<span class="sd">                    - &#39;copy&#39;: to copy from files from ``data_dir`` to ``target_dir`` (default).</span>
+<span class="sd">                    - &#39;ndarray&#39;: to return a nested dictionary of ``ndarray`` (&#39;numpy&#39;) arrays.</span>
+
+<span class="sd">    :param delete_source: if ``True`` delete the source subdirectories in ``data_dir``. Defaults to ``False``.</span>
+<span class="sd">    :type delete_source: ``bool``</span>
+<span class="sd">    :param verbose: if ``True``, print additional details. Defaults to ``True``</span>
+<span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">        a dictionary of the form: ``{one of train, validation, test: {subdirectory in `data_dir`: [file_path, file_path, ...], ...}, ...}``.</span>
+
+<span class="sd">        - if ``action=&#39;copy&#39;``, the dictionary returned will be exactly as shown above.</span>
+<span class="sd">        - if ``action=&#39;ndarray&#39;``, &#39;file_path&#39; will be replaced with the image as a ``ndarray``.</span>
+
+<span class="sd">    :rtype: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+    <span class="n">target_path</span> <span class="o">=</span> <span class="n">data_dir</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">target_dir</span>
+    <span class="n">existing_dirs</span> <span class="o">=</span> <span class="n">_subdirectories_in_path</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">to_block</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span>
+
+    <span class="c1"># Extract those of the train, validation, test (tvt) params which are numeric.</span>
+    <span class="n">tvt</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">groups</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)}</span>
+
+    <span class="c1"># Generate a dictionary of files in `data_dir`</span>
+    <span class="n">existing_files</span> <span class="o">=</span> <span class="n">_existing_files_dict_gen</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">to_block</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span>
+
+    <span class="c1"># Check for invlaid input</span>
+    <span class="n">_train_val_test_error_checking</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="n">validation</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">,</span>
+                                   <span class="n">target_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">delete_source</span><span class="o">=</span><span class="n">delete_source</span><span class="p">,</span>
+                                   <span class="n">existing_files</span><span class="o">=</span><span class="n">existing_files</span><span class="p">,</span> <span class="n">tvt</span><span class="o">=</span><span class="n">tvt</span><span class="p">)</span>
+
+    <span class="n">output_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">existing_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">_list_divide</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">tvt</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output_dict</span><span class="p">:</span>
+                <span class="n">output_dict</span><span class="p">[</span><span class="n">k2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v2</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">output_dict</span><span class="p">[</span><span class="n">k2</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">create_dir_if_needed</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">k</span><span class="p">)))</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">:</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Structure:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">output_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;- </span><span class="si">{0}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">delete_source</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">existing_dirs</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_dict</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="n">_output_dict_with_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">)</span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Tariq A. Hassan.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

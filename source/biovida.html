@@ -114,7 +114,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-cache-management">Image Cache Management</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.support_tools.printing">Support Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.support_tools.utilities">Support Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API.html#utilities">Utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#printing-tools">Printing Tools</a></li>
 </ul>
 </li>
@@ -170,12 +171,13 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#biovida-unify-domains">biovida.unify_domains</a></li>
-<li><a class="reference internal" href="#id1">biovida.unify_domains</a><ul>
+<li><a class="reference internal" href="#module-biovida.images.image_cache_mgmt">biovida.image_cache_mgmt</a><ul>
 <li><a class="reference internal" href="#image-cache-management">Image Cache Management</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-biovida.support_tools.printing">biovida.support_tools.printing module</a><ul>
+<li><a class="reference internal" href="#module-biovida.support_tools.printing">biovida.support_tools</a><ul>
 <li><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-biovida">Module contents</a></li>
@@ -251,12 +253,13 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#biovida-unify-domains">biovida.unify_domains</a></li>
-<li><a class="reference internal" href="#id1">biovida.unify_domains</a><ul>
+<li><a class="reference internal" href="#module-biovida.images.image_cache_mgmt">biovida.image_cache_mgmt</a><ul>
 <li><a class="reference internal" href="#image-cache-management">Image Cache Management</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-biovida.support_tools.printing">biovida.support_tools.printing module</a><ul>
+<li><a class="reference internal" href="#module-biovida.support_tools.printing">biovida.support_tools</a><ul>
 <li><a class="reference internal" href="#printing-tools">Printing Tools</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-biovida">Module contents</a></li>
@@ -294,7 +297,7 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; path to the location of the BioVida cache. If a cache does not exist in this location,
 one will created. Default to <code class="docutils literal"><span class="pre">None</span></code>, which will generate a cache in the home folder.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print additional details.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> print additional details.</li>
 </ul>
 </td>
 </tr>
@@ -481,7 +484,7 @@ is not currently recommended.</p>
 </li>
 <li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; path to the location of the BioVida cache. If a cache does not exist in this location,
 one will created. Default to <code class="docutils literal"><span class="pre">None</span></code>, which will generate a cache in the home folder.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print additional details.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> print additional details</li>
 </ul>
 </td>
 </tr>
@@ -1408,9 +1411,9 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <div class="section" id="biovida-unify-domains">
 <h2>biovida.unify_domains<a class="headerlink" href="#biovida-unify-domains" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="id1">
-<h2>biovida.unify_domains<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-biovida.images.image_cache_mgmt"></span><div class="section" id="image-cache-management">
+<div class="section" id="module-biovida.images.image_cache_mgmt">
+<span id="biovida-image-cache-mgmt"></span><h2>biovida.image_cache_mgmt<a class="headerlink" href="#module-biovida.images.image_cache_mgmt" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="image-cache-management">
 <h3>Image Cache Management<a class="headerlink" href="#image-cache-management" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_delete">
@@ -1513,7 +1516,7 @@ system path(s) [see example below].</li>
 </div>
 </div>
 <div class="section" id="module-biovida.support_tools.printing">
-<span id="biovida-support-tools-printing-module"></span><h2>biovida.support_tools.printing module<a class="headerlink" href="#module-biovida.support_tools.printing" title="Permalink to this headline">¶</a></h2>
+<span id="biovida-support-tools"></span><h2>biovida.support_tools<a class="headerlink" href="#module-biovida.support_tools.printing" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="printing-tools">
 <h3>Printing Tools<a class="headerlink" href="#printing-tools" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
@@ -1575,6 +1578,60 @@ e.g., <code class="docutils literal"><span class="pre">{'my_column':</span> <spa
 <li><strong>column_width_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; change limit on how wide columns can be. If <code class="docutils literal"><span class="pre">None</span></code>, no change will be made.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<span class="target" id="module-biovida.support_tools.utilities"></span><div class="section" id="utilities">
+<h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
+<dl class="exception">
+<dt id="biovida.support_tools.utilities.InsufficientNumberOfFiles">
+<em class="property">exception </em><code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">InsufficientNumberOfFiles</code><a class="reference internal" href="../_modules/biovida/support_tools/utilities.html#InsufficientNumberOfFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.InsufficientNumberOfFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biovida.support_tools.utilities.train_val_test">
+<code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data_dir</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action='copy'</em>, <em>delete_source=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits data in <code class="docutils literal"><span class="pre">data_dir</span></code> into any combination of the following: &#8216;train&#8217;, &#8216;validation&#8217;, &#8216;test&#8217;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_dir</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the directory containing the data. This directory should contain subdirectories (the categories)
+populated with the files.</li>
+<li><strong>train</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to the <code class="docutils literal"><span class="pre">train</span></code> folder. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
+no images will be allocated to <code class="docutils literal"><span class="pre">train</span></code>.</li>
+<li><strong>validation</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to the <code class="docutils literal"><span class="pre">validation</span></code> folder. If <code class="docutils literal"><span class="pre">False</span></code>
+or <code class="docutils literal"><span class="pre">None</span></code>, no images will be allocated to <code class="docutils literal"><span class="pre">validation</span></code>.</li>
+<li><strong>test</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to the <code class="docutils literal"><span class="pre">test</span></code> folder. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
+no images will be allocated to <code class="docutils literal"><span class="pre">test</span></code>.</li>
+<li><strong>target_dir</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the location to output the images to (if <code class="docutils literal"><span class="pre">action=True</span></code>). If <code class="docutils literal"><span class="pre">None</span></code>, the output location will
+be <code class="docutils literal"><span class="pre">data_dir</span></code>. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>action</strong> &#8211; <p>one of:</p>
+<ul>
+<li>&#8216;copy&#8217;: to copy from files from <code class="docutils literal"><span class="pre">data_dir</span></code> to <code class="docutils literal"><span class="pre">target_dir</span></code> (default).</li>
+<li>&#8216;ndarray&#8217;: to return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays.</li>
+</ul>
+</li>
+<li><strong>delete_source</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> delete the source subdirectories in <code class="docutils literal"><span class="pre">data_dir</span></code>. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional details. Defaults to <code class="docutils literal"><span class="pre">True</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>a dictionary of the form: <code class="docutils literal"><span class="pre">{one</span> <span class="pre">of</span> <span class="pre">train,</span> <span class="pre">validation,</span> <span class="pre">test:</span> <span class="pre">{subdirectory</span> <span class="pre">in</span> <span class="pre">`data_dir`:</span> <span class="pre">[file_path,</span> <span class="pre">file_path,</span> <span class="pre">...],</span> <span class="pre">...},</span> <span class="pre">...}</span></code>.</p>
+<ul class="simple">
+<li>if <code class="docutils literal"><span class="pre">action='copy'</span></code>, the dictionary returned will be exactly as shown above.</li>
+<li>if <code class="docutils literal"><span class="pre">action='ndarray'</span></code>, &#8216;file_path&#8217; will be replaced with the image as a <code class="docutils literal"><span class="pre">ndarray</span></code>.</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">dict</span></code></p>
 </td>
 </tr>
 </tbody>

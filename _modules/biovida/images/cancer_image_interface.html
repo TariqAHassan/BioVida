@@ -114,7 +114,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#image-cache-management">Image Cache Management</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.support_tools.printing">Support Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.support_tools.utilities">Support Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../API.html#utilities">Utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#printing-tools">Printing Tools</a></li>
 </ul>
 </li>
@@ -409,17 +410,17 @@
 
 <span class="sd">        :param study: a Cancer Imaging Archive collection (study)</span>
 <span class="sd">        :type study: ``str``</span>
-<span class="sd">        :return: the yeild of passing the ``getPatientStudy`` parameter to the Cancer Imaging Archive API for a given</span>
+<span class="sd">        :return: the yield of passing the ``getPatientStudy`` parameter to the Cancer Imaging Archive API for a given</span>
 <span class="sd">                 collection (study).</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">/query/getPatientStudy?Collection=</span><span class="si">{1}</span><span class="s1">&amp;format=csv&amp;api_key=</span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ROOT_URL</span><span class="p">,</span> <span class="n">cln</span><span class="p">(</span><span class="n">study</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url_sep</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">)</span>
         <span class="n">data_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        
+
         <span class="c1"># Convert column names from camelCase to snake_cake</span>
         <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
-        
+
         <span class="k">return</span> <span class="n">data_frame</span>
 
     <span class="k">def</span> <span class="nf">_robust_study_extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study</span><span class="p">):</span>
@@ -433,7 +434,7 @@
 <span class="sd">        :return: see: ``_study_extract()``</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 
-<span class="sd">        :raises IndexError: if both &#39;+&#39; and &#39;-&#39; fail to yeild a dataframe with nonzero length.</span>
+<span class="sd">        :raises IndexError: if both &#39;+&#39; and &#39;-&#39; fail to yield a dataframe with nonzero length.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">study_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_study_extract</span><span class="p">(</span><span class="n">study</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -511,8 +512,8 @@
 <span class="sd">        :type study: ``str``</span>
 <span class="sd">        :param patient_dict: a value in ``study_dict`` (which is a dictionary itself).</span>
 <span class="sd">        :type patient_dict: ``dict``</span>
-<span class="sd">        :return: the yeild of the TCIA ``getSeries`` param for a given patient in a given collection (study).</span>
-<span class="sd">                 Their sex, age, the session number (e.g., baseline = 1, baseline + 1 month = 2, etc.) and the </span>
+<span class="sd">        :return: the yield of the TCIA ``getSeries`` param for a given patient in a given collection (study).</span>
+<span class="sd">                 Their sex, age, the session number (e.g., baseline = 1, baseline + 1 month = 2, etc.) and the</span>
 <span class="sd">                 &#39;study_date&#39; (i.e., the date the study was conducted).</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -582,7 +583,7 @@
 
     <span class="k">def</span> <span class="nf">_get_condition_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection_series</span><span class="p">,</span> <span class="n">overview_download_override</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        </span>
+
 <span class="sd">        This method gets the name of the condition studied for a given collection (study).</span>
 <span class="sd">        (collection_series gets reduced down to a single unique).</span>
 
@@ -610,7 +611,7 @@
 
 <span class="sd">        :param study: a Cancer Imaging Archive collection (study).</span>
 <span class="sd">        :type study: ``str``</span>
-<span class="sd">        :param search_dict: a dicitionary which contains the search information provided by the user</span>
+<span class="sd">        :param search_dict: a dictionary which contains the search information provided by the user</span>
 <span class="sd">                            (as evolved inside  ``CancerImageInterface()_search_dict_gen()``.</span>
 <span class="sd">        :type search_dict: ``dict``</span>
 <span class="sd">        :param pull_time: the time the query was launched.</span>
@@ -680,7 +681,7 @@
 <span class="sd">    :type dicom_modality_abbrevs: ``dict``</span>
 <span class="sd">    :param root_url: the root URL for the the Cancer Imaging Archive&#39;s API.</span>
 <span class="sd">    :type root_url: ``str``</span>
-<span class="sd">    :param verbose: print additional details.</span>
+<span class="sd">    :param verbose: if ``True`` print additional details.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :type cache_path: ``str`` or ``None``</span>
 <span class="sd">    :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,</span>
@@ -737,7 +738,7 @@
         <span class="c1"># Instantiate</span>
         <span class="n">db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">real_time_update_columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">db_index</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="n">db</span>
-        
+
     <span class="k">def</span> <span class="nf">_save_real_time_update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -765,12 +766,12 @@
         <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
         <span class="n">z</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">temporary_folder</span><span class="p">)</span>
-        
+
         <span class="k">def</span> <span class="nf">file_path_full</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Construct the full path for a given file in ``z``.&quot;&quot;&quot;</span>
             <span class="n">base_name</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temporary_folder</span><span class="p">,</span> <span class="n">base_name</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">base_name</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-        
+
         <span class="c1"># Generate the list of paths to the dicoms</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">file_path_full</span><span class="p">,</span> <span class="n">z</span><span class="o">.</span><span class="n">filelist</span><span class="p">)))</span>
 
@@ -827,14 +828,14 @@
             <span class="n">path</span> <span class="o">=</span> <span class="n">save_path</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
             <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">pixel_arr</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">conversion</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="n">all_save_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="c1"># If ``f`` is a 3D image (e.g., segmentation dicom files), save each layer as a seperate file/image.</span>
+        <span class="c1"># If ``f`` is a 3D image (e.g., segmentation dicom files), save each layer as a separate file/image.</span>
         <span class="k">elif</span> <span class="n">pixel_arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">instance</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">pixel_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
                 <span class="n">path</span> <span class="o">=</span> <span class="n">save_path</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
                 <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">pixel_arr</span><span class="p">[</span><span class="n">layer</span><span class="p">:</span><span class="n">layer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">conversion</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
                 <span class="n">all_save_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Problem converting the image for</span><span class="se">\n</span><span class="s2">the following SeriesInstanceUID:</span><span class="se">\n\n</span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">Cannot &quot;</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Problem converting the image for</span><span class="se">\n</span><span class="s2">the following series_instance_uid:</span><span class="se">\n\n</span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">Cannot &quot;</span>
                  <span class="s2">&quot;stabilize </span><span class="si">{1}</span><span class="s2"> dimensional arrays.</span><span class="se">\n</span><span class="s2">Images must be 2D or 3D.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">series_uid</span><span class="p">,</span> <span class="n">pixel_arr</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
             <span class="k">return</span> <span class="p">[],</span> <span class="kc">False</span>
 
@@ -875,13 +876,13 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">replacement</span><span class="p">)</span> <span class="k">if</span> <span class="n">return_replacement_len</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">replacement</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_save_dicom_as_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                           <span class="n">path_to_dicom_file</span><span class="p">,</span>
-                           <span class="n">index</span><span class="p">,</span>
-                           <span class="n">pull_position</span><span class="p">,</span>
-                           <span class="n">series_uid</span><span class="p">,</span>
-                           <span class="n">save_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                           <span class="n">color</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                           <span class="n">image_format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">):</span>
+                             <span class="n">path_to_dicom_file</span><span class="p">,</span>
+                             <span class="n">index</span><span class="p">,</span>
+                             <span class="n">pull_position</span><span class="p">,</span>
+                             <span class="n">series_uid</span><span class="p">,</span>
+                             <span class="n">save_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">color</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                             <span class="n">image_format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Save a dicom image as a more common file format.</span>
@@ -1104,7 +1105,7 @@
                 <span class="c1"># Convert dicom files to `image_format`</span>
                 <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_save_dicom_as_image</span><span class="p">(</span><span class="n">path_to_dicom_file</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_position</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
-                                            <span class="n">series_uid</span><span class="o">=</span><span class="n">series_uid</span><span class="p">,</span><span class="n">save_name</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">,</span> <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">)</span>
+                                              <span class="n">series_uid</span><span class="o">=</span><span class="n">series_uid</span><span class="p">,</span><span class="n">save_name</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">,</span> <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">)</span>
 
                 <span class="c1"># Save raw dicom files, if `save_dicoms` is True.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_dicoms</span><span class="p">(</span><span class="n">save_dicoms</span><span class="p">,</span> <span class="n">dicom_files</span><span class="p">,</span> <span class="n">series_abbrev</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
@@ -1154,7 +1155,7 @@
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Notes on &#39;image_count_converted_cache&#39;:</span>
-        <span class="c1"># 1. a column which provides the number of images each SeriesInstanceUID yeilded</span>
+        <span class="c1"># 1. a column which provides the number of images each SeriesInstanceUID yielded</span>
         <span class="c1"># 2. values may be discrepant with the &#39;image_count&#39; column because 3D images are expanded</span>
         <span class="c1">#    into their individual frames when saved to the converted images cache.</span>
 
@@ -1203,7 +1204,7 @@
 <span class="sd">    :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,</span>
 <span class="sd">                       one will created. Default to ``None``, which will generate a cache in the home folder.</span>
 <span class="sd">    :type cache_path: ``str`` or ``None``</span>
-<span class="sd">    :param verbose: print additional details.</span>
+<span class="sd">    :param verbose: if ``True`` print additional details</span>
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1225,7 +1226,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">load</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_prune_rows_with_deleted_images</span><span class="p">(</span><span class="n">cache_records_db</span><span class="o">=</span><span class="n">cache_records_db</span><span class="p">,</span>
-                                                                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">],</span>
+                                                                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span>
+                                                                         <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">],</span>
                                                                 <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span><span class="p">)</span>
 
         <span class="c1"># Recompute the image_count_converted_cache column following the pruning procedure.</span>
@@ -1347,7 +1349,7 @@
 
 <span class="sd">        Limits `summary_df` to individual collections.</span>
 
-<span class="sd">        :param summary_df: the yeild of ``_CancerImageArchiveOverview()._all_studies_cache_mngt()``</span>
+<span class="sd">        :param summary_df: the yield of ``_CancerImageArchiveOverview()._all_studies_cache_mngt()``</span>
 <span class="sd">        :type summary_df: ``Pandas DataFrame``</span>
 <span class="sd">        :param collection: a collection (study), or iterable (e.g., list) of collections,</span>
 <span class="sd">                           hosted by the Cancer Imaging Archive. Defaults to ``None``.</span>
@@ -1654,7 +1656,8 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pull_success</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Data could not be harvested for any of the requested collections.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">download_failures</span><span class="p">):</span>
-            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">The following collections failed to download:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)))</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">The following collections failed to download:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)))</span>
 
         <span class="c1"># Combine all record frames</span>
         <span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">record_frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

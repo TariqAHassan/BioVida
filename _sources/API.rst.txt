@@ -52,6 +52,9 @@ Cache Management
 Support Tools
 -------------
 
+.. automodule:: biovida.support_tools.utilities
+	:members:
+
 .. automodule:: biovida.support_tools.printing
 	:members:
 

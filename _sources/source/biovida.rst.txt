@@ -90,22 +90,26 @@ biovida.unify_domains
     :undoc-members:
     :show-inheritance:
 
-biovida.unify_domains
----------------------
+biovida.image_cache_mgmt
+------------------------
 
 .. automodule:: biovida.images.image_cache_mgmt
     :members:
     :undoc-members:
     :show-inheritance:
 
-biovida.support_tools.printing module
--------------------------------------
+biovida.support_tools
+---------------------
 
 .. automodule:: biovida.support_tools.printing
     :members:
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: biovida.support_tools.utilities
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Module contents
 ---------------
