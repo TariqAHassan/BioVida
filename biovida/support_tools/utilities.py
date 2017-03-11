@@ -10,6 +10,8 @@ import shutil
 from math import ceil
 from scipy.ndimage import imread
 
+from biovida.support_tools.support_tools import isclose
+from biovida.support_tools.support_tools import natural_key
 from biovida.support_tools.support_tools import create_dir_if_needed
 from biovida.support_tools.support_tools import list_to_bulletpoints
 from biovida.support_tools.support_tools import InsufficientNumberOfFiles
@@ -39,20 +41,13 @@ def _subdirectories_in_path(path, to_block):
     return to_return
 
 
-def _train_val_test_error_checking(data_dir, train, validation, test, target_dir,
-                                   action, delete_source, existing_files, tvt):
+def _train_val_test_error_checking(data_dir, target_dir, action, delete_source, existing_files, tvt):
     """
 
     Check for possible errors for ``train_val_test()``.
 
     :param data_dir: see ``train_val_test()``.
     :type data_dir: ``str``
-    :param train: see ``train_val_test()``.
-    :type train: ``int``, ``float``, ``bool`` or ``None``
-    :param validation: see ``train_val_test()``.
-    :type validation: ``int``, ``float``, ``bool`` or ``None``
-    :param test: see ``train_val_test()``.
-    :type test: ``int``, ``float``, ``bool`` or ``None``
     :param target_dir: see ``train_val_test()``.
     :type target_dir: ``str``
     :param action: see ``train_val_test()``.
@@ -60,7 +55,7 @@ def _train_val_test_error_checking(data_dir, train, validation, test, target_dir
     :param delete_source: see ``train_val_test()``.
     :type delete_source: ``bool``
     :param existing_files: as evolved in side ``train_val_test()``.
-    :type existing_files: ``list``
+    :type existing_files: ``dict``
     :param tvt: as evolved in side ``train_val_test()``.
     :type tvt: ``dict``
     """
@@ -69,7 +64,7 @@ def _train_val_test_error_checking(data_dir, train, validation, test, target_dir
     for k, v in tvt.items():
         if v is True:
             raise ValueError("`{0}` cannot be `True`".format(k))
-    if sum(tvt.values()) != 1:
+    if not isclose(sum(tvt.values()), 1):
         raise ValueError("The following parameters do not sum to 1: {0}.".format(", ".join(sorted(tvt.keys()))))
     if action not in ('copy', 'ndarray'):
         raise ValueError("`action` must be one of: 'copy', 'ndarray'.")
@@ -123,12 +118,13 @@ def _list_divide(l, tvt):
     :type l: ``list``
     :param tvt: as evolved in side ``train_val_test()``.
     :type tvt: ``dict``
-    :return: a dictionary of the form: ``{tvt_key_1: [file_path, file_path, ...], ...}``.
-    :rtype: ``dict``
+    :return: a dictionary of the form: ``{tvt_key_1: [file_path, file_path, ...], ...}``. Sorted to ensure
+             generation order is train --> validation --> test.
+    :rtype: ``tuple``
 
     :Example:
 
-    >>> l = ['file/path/image_1.png', 'file/path/image_2.png', 'file/path/image_3.png', 'file/path/image_4.png']
+    >>> l = ['file/path/image_1.png', 'file/path/image_4.png', 'file/path/image_3.png', 'file/path/image_2.png']
     >>> tvt = {'validation': 0.5, 'train': 0.5}
     >>> _list_divide(l, tvt)
     ...
@@ -136,14 +132,19 @@ def _list_divide(l, tvt):
     'validation': ['file/path/image_3.png', 'file/path/image_4.png']}
 
     """
+    order_dict = {'train': 1, 'validation': 2, 'test': 3}
+
+    # Natural sorting of items in ``l``.
+    l_sorted = sorted(l, key=lambda x: natural_key(os.path.basename(x)))
+    tvt_sorted = sorted(tvt.items(), key=lambda x: order_dict.get(x[0]))
     left, divided_dict = 0, dict()
-    for e, (k, v) in enumerate(tvt.items()):
-        right = len(l) * v
-        # Be greedy if on the last key
+    for e, (k, v) in enumerate(tvt_sorted):
+        right = len(l_sorted) * v
+        # Be greedy if on the last key (needed when the number of keys is odd).
         right_rounded = ceil(right) if e == len(tvt.keys()) else int(right)
-        divided_dict[k] = l[int(left):int(left) + right_rounded]
+        divided_dict[k] = l_sorted[int(left):int(left) + right_rounded]
         left += right
-    return divided_dict
+    return sorted(divided_dict.items(), key=lambda x: order_dict.get(x[0]))
 
 
 def _output_dict_with_ndarrays(dictionary):
@@ -173,6 +174,11 @@ def train_val_test(data_dir,
 
     :param data_dir: the directory containing the data. This directory should contain subdirectories (the categories)
                     populated with the files.
+
+                .. warning::
+
+                        Subdirectories entitled 'train', 'validation' and 'test' will be ignored.
+
     :type data_dir: ``str``
     :param train: the proportion images in ``data_dir`` to allocate to ``train``. If ``False`` or ``None``,
                   no images will be allocated.
@@ -214,16 +220,15 @@ def train_val_test(data_dir,
     tvt = {k: v for k, v in locals().items() if k in groups and isinstance(v, (float, int)) and not isinstance(v, bool)}
 
     # Generate a dictionary of files in `data_dir`
-    existing_files = _existing_files_dict_gen(data_dir=data_dir, to_block=groups)
+    existing_files = _existing_files_dict_gen(directory=data_dir, to_block=groups)
 
-    # Check for invlaid input
-    _train_val_test_error_checking(data_dir=data_dir, train=train, validation=validation, test=test,
-                                   target_dir=target_dir, action=action, delete_source=delete_source,
-                                   existing_files=existing_files, tvt=tvt)
+    # Check for invalid input
+    _train_val_test_error_checking(data_dir=data_dir, target_dir=target_dir, action=action,
+                                   delete_source=delete_source, existing_files=existing_files, tvt=tvt)
 
     output_dict = dict()
     for k, v in existing_files.items():
-        for k2, v2 in _list_divide(v, tvt).items():
+        for k2, v2 in _list_divide(v, tvt):
             if k2 not in output_dict:
                 output_dict[k2] = {k: v2}
             else:
