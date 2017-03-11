@@ -68,8 +68,6 @@ def natural_key(string_):
         1. See http://www.codinghorror.com/blog/archives/001018.html
         2. http://stackoverflow.com/a/3033342/4898004
 
-    Modification: filter out empty strings.
-
     :param string_: any string
     :type string_: ``str``
     :return: ``string_`` split into non-numeric and numeric secions.
@@ -83,7 +81,7 @@ def natural_key(string_):
     ...
     ['item2', 'item7', 'item10'].
     """
-    return list(filter(None, [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]))
+    return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]
 
 
 def multi_replace(s, to_replace):
