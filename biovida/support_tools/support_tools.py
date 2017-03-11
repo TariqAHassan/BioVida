@@ -18,6 +18,10 @@ from six.moves.html_parser import HTMLParser
 unescape = HTMLParser().unescape
 
 
+class InsufficientNumberOfFiles(Exception):
+    pass
+
+
 def dict_reverse(d):
     """
 

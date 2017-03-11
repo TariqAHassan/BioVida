@@ -12,15 +12,12 @@ from scipy.ndimage import imread
 
 from biovida.support_tools.support_tools import create_dir_if_needed
 from biovida.support_tools.support_tools import list_to_bulletpoints
+from biovida.support_tools.support_tools import InsufficientNumberOfFiles
 
 
 # ----------------------------------------------------------------------------------------------------------
 # Splitting Files into Train, Validation and Test
 # ----------------------------------------------------------------------------------------------------------
-
-
-class InsufficientNumberOfFiles(Exception):
-    pass
 
 
 def _subdirectories_in_path(path, to_block):
@@ -172,40 +169,42 @@ def train_val_test(data_dir,
                    verbose=True):
     """
 
-    Splits data in ``data_dir`` into any combination of the following: 'train', 'validation', 'test'.
+    Splits data in ``data_dir`` into any combination of the following: ``train``, ``validation``, ``test``.
 
     :param data_dir: the directory containing the data. This directory should contain subdirectories (the categories)
                     populated with the files.
     :type data_dir: ``str``
-    :param train: the proportion images in ``data_dir`` to allocate to the ``train`` folder. If ``False`` or ``None``,
-                  no images will be allocated to ``train``.
+    :param train: the proportion images in ``data_dir`` to allocate to ``train``. If ``False`` or ``None``,
+                  no images will be allocated.
     :type train: ``int``, ``float``, ``bool`` or ``None``
-    :param validation: the proportion images in ``data_dir`` to allocate to the ``validation`` folder. If ``False``
-                       or ``None``, no images will be allocated to ``validation``.
+    :param validation: the proportion images in ``data_dir`` to allocate to ``validation``. If ``False``
+                       or ``None``, no images will be allocated.
     :type validation: ``int``, ``float``, ``bool`` or ``None``
-    :param test: the proportion images in ``data_dir`` to allocate to the ``test`` folder. If ``False`` or ``None``,
-                 no images will be allocated to ``test``.
+    :param test: the proportion images in ``data_dir`` to allocate to ``test``. If ``False`` or ``None``,
+                 no images will be allocated.
     :type test: ``int``, ``float``, ``bool`` or ``None``
     :param target_dir: the location to output the images to (if ``action=True``). If ``None``, the output location will
                        be ``data_dir``. Defaults to ``None``.
     :type target_dir: ``str``
-    :param action: one of:
+    :param action: one of: 'copy', 'ndarray'.
 
-                    - 'copy': to copy from files from ``data_dir`` to ``target_dir`` (default).
-                    - 'ndarray': to return a nested dictionary of ``ndarray`` ('numpy') arrays.
+                    - if ``'copy'``: copy from files from ``data_dir`` to ``target_dir`` (default).
+                    - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
 
     :param delete_source: if ``True`` delete the source subdirectories in ``data_dir``. Defaults to ``False``.
     :type delete_source: ``bool``
-    :param verbose: if ``True``, print additional details. Defaults to ``True``
+    :param verbose: if ``True``, print the resultant structure. Defaults to ``True``.
     :type verbose: ``bool``
     :return:
 
-        a dictionary of the form: ``{one of train, validation, test: {subdirectory in `data_dir`: [file_path, file_path, ...], ...}, ...}``.
+        a dictionary of the form: ``{one of 'train', 'validation', 'test': {subdirectory in `data_dir`: [file_path, file_path, ...], ...}, ...}``.
 
         - if ``action='copy'``, the dictionary returned will be exactly as shown above.
         - if ``action='ndarray'``, 'file_path' will be replaced with the image as a ``ndarray``.
 
     :rtype: ``dict``
+    :raises ``ValueError``: if the combination of ``train``, ``validation``, ``test`` which which were passed
+                            numeric values (i.e., ``int`` or ``float``) do not sum to 1.
     """
     groups = ('train', 'validation', 'test')
     target_path = data_dir if not isinstance(target_dir, str) else target_dir
