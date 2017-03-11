@@ -439,7 +439,7 @@ class _CancerImageArchiveRecords(object):
 
         :param study: a Cancer Imaging Archive collection (study).
         :type study: ``str``
-        :param search_dict: a dicitionary which contains the search information provided by the user
+        :param search_dict: a dictionary which contains the search information provided by the user
                             (as evolved inside  ``CancerImageInterface()_search_dict_gen()``.
         :type search_dict: ``dict``
         :param pull_time: the time the query was launched.
@@ -656,7 +656,7 @@ class _CancerImageArchiveImages(object):
             path = save_path(instance)
             Image.fromarray(pixel_arr).convert(conversion).save(path)
             all_save_paths.append(path)
-        # If ``f`` is a 3D image (e.g., segmentation dicom files), save each layer as a seperate file/image.
+        # If ``f`` is a 3D image (e.g., segmentation dicom files), save each layer as a separate file/image.
         elif pixel_arr.ndim == 3:
             for instance, layer in enumerate(range(pixel_arr.shape[0]), start=1):
                 path = save_path(instance)
@@ -704,13 +704,13 @@ class _CancerImageArchiveImages(object):
         return len(replacement) if return_replacement_len and isinstance(replacement, (list, tuple)) else None
 
     def _save_dicom_as_image(self,
-                           path_to_dicom_file,
-                           index,
-                           pull_position,
-                           series_uid,
-                           save_name=None,
-                           color=False,
-                           image_format='png'):
+                             path_to_dicom_file,
+                             index,
+                             pull_position,
+                             series_uid,
+                             save_name=None,
+                             color=False,
+                             image_format='png'):
         """
 
         Save a dicom image as a more common file format.
@@ -933,7 +933,7 @@ class _CancerImageArchiveImages(object):
                 # Convert dicom files to `image_format`
                 for e, f in enumerate(dicom_files, start=1):
                     self._save_dicom_as_image(path_to_dicom_file=f, index=index, pull_position=e,
-                                            series_uid=series_uid,save_name=series_abbrev, image_format=image_format)
+                                              series_uid=series_uid,save_name=series_abbrev, image_format=image_format)
 
                 # Save raw dicom files, if `save_dicoms` is True.
                 self._move_dicoms(save_dicoms, dicom_files, series_abbrev, index)
@@ -1054,7 +1054,8 @@ class CancerImageInterface(object):
         """
         cache_records_db = pd.read_pickle(self._cache_records_db_save_path) if load else self.cache_records_db
         self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
-                                                                columns=['cached_images_path', 'cached_dicom_images_path'],
+                                                                columns=['cached_images_path',
+                                                                         'cached_dicom_images_path'],
                                                                 save_path=self._cache_records_db_save_path)
 
         # Recompute the image_count_converted_cache column following the pruning procedure.
@@ -1483,7 +1484,8 @@ class CancerImageInterface(object):
         if len(download_failures) == len(pull_success):
             raise IndexError("Data could not be harvested for any of the requested collections.")
         elif len(download_failures):
-            warn("\n\nThe following collections failed to download:\n{0}".format(list_to_bulletpoints(download_failures)))
+            warn("\n\nThe following collections failed to download:\n{0}".format(
+                list_to_bulletpoints(download_failures)))
 
         # Combine all record frames
         records_db = pd.concat(record_frames, ignore_index=True)
