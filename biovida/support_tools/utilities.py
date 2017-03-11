@@ -8,7 +8,6 @@
 import os
 import shutil
 import numpy as np
-from math import ceil
 from scipy.ndimage import imread
 
 from biovida.support_tools.support_tools import isclose
@@ -207,7 +206,7 @@ def train_val_test(data_dir,
 
                           .. note::
 
-                                This can be useful for transforming a directory 'inplace',
+                                This can be useful for transforming a directory 'in-place',
                                 e.g., if ``data_dir`` and ``target_dir`` are the same and ``delete_source=True``.
 
     :type delete_source: ``bool``
@@ -217,13 +216,100 @@ def train_val_test(data_dir,
 
         a dictionary of the form: ``{one of 'train', 'validation', 'test': {subdirectory in `data_dir`: [file_path, file_path, ...], ...}, ...}``.
 
-        - if ``action='copy'``, the dictionary returned will be exactly as shown above.
-        - if ``action='ndarray'``, 'file_path' will be replaced with the image as a ``ndarray`` and the list will be
-                                    a ``ndarray``, e.g, ``array([matrix, matrix, ...])``.
+        - if ``action='copy'``: the dictionary returned will be exactly as shown above.
+
+        - if ``action='ndarray'``: 'file_path' will be replaced with the image as a ``ndarray`` and the list will be a ``ndarray``, e.g, ``array([matrix, matrix, ...])``.
 
     :rtype: ``dict``
     :raises ``ValueError``: if the combination of ``train``, ``validation``, ``test`` which which were passed
                             numeric values (i.e., ``int`` or ``float``) do not sum to 1.
+
+
+    .. warning::
+
+           In the case of division with a remainder, preference is as follows: `train` < `validation` < `test`.
+           For instance, if we have ``train=0.7``, ``validation=0.3``, and the number of files in a given subdirectory
+           equal to ``6`` (as in the final example below) the number of files allocated to `train` will be rounded
+           down, in favor of `validation` obtaining the final file. In this instance, `train` would obtain
+           `4` files (``floor(0.7 * 6) = 4``) and `validation` would obtain 2 files (``ceil(0.3 * 6) = 2``).
+
+
+    **Examples:**
+
+    The examples below use a sample directory entitled ``images``.
+
+    This is its structure:
+
+    .. code-block:: bash
+
+        $ tree /path/to/data/images
+        ├── ct
+        │   ├── ct_1.png
+        │   ├── ct_2.png
+        │   ├── ct_3.png
+        │   ├── ct_4.png
+        │   ├── ct_5.png
+        │   └── ct_6.png
+        └── mri
+            ├── mri_1.png
+            ├── mri_2.png
+            ├── mri_3.png
+            ├── mri_4.png
+            ├── mri_5.png
+            └── mri_6.png
+
+    |
+    | **Obtaining ndarrays**
+
+    :Example:
+
+    >>> tt = train_val_test(data_dir='/path/to/data/images', train=0.7, validation=None, test=0.3,
+    ...                     action='ndarray')
+
+    The resultant ndarrays can be unpacked into objects as follows:
+
+    >>> train_ct, train_mri = tt['train']['ct'], tt['train']['mri']
+    >>> test_ct, test_mri = tt['test']['ct'], tt['test']['mri']
+
+    |
+    | **Reorganize a Directory In-place**
+
+    :Example:
+
+    >>> tv = train_val_test(data_dir='/path/to/data/images', train=0.7, validation=0.3, test=None,
+    ...                     action='copy', delete_source=True)
+
+    Which results in the following structure:
+
+    .. code-block:: bash
+
+        $ tree /path/to/data/images
+        ├── train
+        │   ├── ct
+        │   │   ├── ct_1.png
+        │   │   ├── ct_2.png
+        │   │   ├── ct_3.png
+        │   │   └── ct_4.png
+        │   └── mri
+        │       ├── mri_1.png
+        │       ├── mri_2.png
+        │       ├── mri_3.png
+        │       └── mri_4.png
+        └── validation
+            ├── ct
+            │   ├── ct_5.png
+            │   └── ct_6.png
+            └── mri
+                ├── mri_5.png
+                └── mri_6.png
+
+    .. note::
+
+        The following changes to the snippet above would preserve the original ``ct`` and ``mri`` directories:
+
+        - setting ``delete_source=False`` (the default) and/or
+        - providing a path to ``target_dir``, e.g., ``target_dir='/path/to/output/output_data'``
+
     """
     groups = ('train', 'validation', 'test')
     target_path = data_dir if not isinstance(target_dir, str) else target_dir
@@ -261,21 +347,6 @@ def train_val_test(data_dir,
             shutil.rmtree(i)
 
     return output_dict if action == 'copy' else _output_dict_with_ndarrays(output_dict)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
