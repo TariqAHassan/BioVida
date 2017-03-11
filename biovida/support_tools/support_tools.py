@@ -22,6 +22,17 @@ class InsufficientNumberOfFiles(Exception):
     pass
 
 
+def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+    """
+
+    Test if ``a`` is close to ``b``.
+    See: https://www.python.org/dev/peps/pep-0485/#proposed-implementation.
+
+    """
+    # This is implimented in the `math` module for Python >= 3.5.
+    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+
 def dict_reverse(d):
     """
 
@@ -45,6 +56,34 @@ def is_int(i):
     """
     # Note: ``isinstance(fuzzy_threshold, bool)`` blocks `False` being evaluated as 0 (an intiger).
     return isinstance(i, int) and not isinstance(i, bool)
+
+
+def natural_key(string_):
+    """
+
+    Convert ``string_`` into a list of ``int``s and strings.
+    Useful for natural sorting of iterables.
+
+    Sources:
+        1. See http://www.codinghorror.com/blog/archives/001018.html
+        2. http://stackoverflow.com/a/3033342/4898004
+
+    Modification: filter out empty strings.
+
+    :param string_: any string
+    :type string_: ``str``
+    :return: ``string_`` split into non-numeric and numeric secions.
+    :rtype: ``list``
+
+    :Example:
+
+    >>> natural_key("item3")
+    ...['item', 3]
+    >>> sorted(['item10', 'item7', 'item2'], key=lambda x: natural_key(x))
+    ...
+    ['item2', 'item7', 'item10'].
+    """
+    return list(filter(None, [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]))
 
 
 def multi_replace(s, to_replace):
