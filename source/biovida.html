@@ -1587,55 +1587,161 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 </div>
 <span class="target" id="module-biovida.support_tools.utilities"></span><div class="section" id="utilities">
 <h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
-<dl class="exception">
-<dt id="biovida.support_tools.utilities.InsufficientNumberOfFiles">
-<em class="property">exception </em><code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">InsufficientNumberOfFiles</code><a class="reference internal" href="../_modules/biovida/support_tools/utilities.html#InsufficientNumberOfFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.InsufficientNumberOfFiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
-</dd></dl>
-
 <dl class="function">
 <dt id="biovida.support_tools.utilities.train_val_test">
 <code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data_dir</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action='copy'</em>, <em>delete_source=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits data in <code class="docutils literal"><span class="pre">data_dir</span></code> into any combination of the following: &#8216;train&#8217;, &#8216;validation&#8217;, &#8216;test&#8217;.</p>
+<dd><p>Splits data in <code class="docutils literal"><span class="pre">data_dir</span></code> into any combination of the following: <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code>, <code class="docutils literal"><span class="pre">test</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_dir</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the directory containing the data. This directory should contain subdirectories (the categories)
-populated with the files.</li>
-<li><strong>train</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to the <code class="docutils literal"><span class="pre">train</span></code> folder. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
-no images will be allocated to <code class="docutils literal"><span class="pre">train</span></code>.</li>
-<li><strong>validation</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to the <code class="docutils literal"><span class="pre">validation</span></code> folder. If <code class="docutils literal"><span class="pre">False</span></code>
-or <code class="docutils literal"><span class="pre">None</span></code>, no images will be allocated to <code class="docutils literal"><span class="pre">validation</span></code>.</li>
-<li><strong>test</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to the <code class="docutils literal"><span class="pre">test</span></code> folder. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
-no images will be allocated to <code class="docutils literal"><span class="pre">test</span></code>.</li>
+<li><strong>data_dir</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <dl class="docutils">
+<dt>the directory containing the data. This directory should contain subdirectories (the categories)</dt>
+<dd>populated with the files.</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Subdirectories entitled &#8216;train&#8217;, &#8216;validation&#8217; and &#8216;test&#8217; will be ignored.</p>
+</div>
+</li>
+<li><strong>train</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to <code class="docutils literal"><span class="pre">train</span></code>. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
+no images will be allocated.</li>
+<li><strong>validation</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to <code class="docutils literal"><span class="pre">validation</span></code>. If <code class="docutils literal"><span class="pre">False</span></code>
+or <code class="docutils literal"><span class="pre">None</span></code>, no images will be allocated.</li>
+<li><strong>test</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data_dir</span></code> to allocate to <code class="docutils literal"><span class="pre">test</span></code>. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
+no images will be allocated.</li>
 <li><strong>target_dir</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the location to output the images to (if <code class="docutils literal"><span class="pre">action=True</span></code>). If <code class="docutils literal"><span class="pre">None</span></code>, the output location will
 be <code class="docutils literal"><span class="pre">data_dir</span></code>. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>action</strong> &#8211; <p>one of:</p>
+<li><strong>action</strong> &#8211; <p>one of: &#8216;copy&#8217;, &#8216;ndarray&#8217;.</p>
 <ul>
-<li>&#8216;copy&#8217;: to copy from files from <code class="docutils literal"><span class="pre">data_dir</span></code> to <code class="docutils literal"><span class="pre">target_dir</span></code> (default).</li>
-<li>&#8216;ndarray&#8217;: to return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays.</li>
+<li>if <code class="docutils literal"><span class="pre">'copy'</span></code>: copy from files from <code class="docutils literal"><span class="pre">data_dir</span></code> to <code class="docutils literal"><span class="pre">target_dir</span></code> (default).</li>
+<li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays.</li>
 </ul>
 </li>
-<li><strong>delete_source</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> delete the source subdirectories in <code class="docutils literal"><span class="pre">data_dir</span></code>. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional details. Defaults to <code class="docutils literal"><span class="pre">True</span></code></li>
+<li><strong>delete_source</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <p>if <code class="docutils literal"><span class="pre">True</span></code> delete the source subdirectories in <code class="docutils literal"><span class="pre">data_dir</span></code> after copying is complete. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This can be useful for transforming a directory &#8216;in-place&#8217;,
+e.g., if <code class="docutils literal"><span class="pre">data_dir</span></code> and <code class="docutils literal"><span class="pre">target_dir</span></code> are the same and <code class="docutils literal"><span class="pre">delete_source=True</span></code>.</p>
+</div>
+</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the resultant structure. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>a dictionary of the form: <code class="docutils literal"><span class="pre">{one</span> <span class="pre">of</span> <span class="pre">train,</span> <span class="pre">validation,</span> <span class="pre">test:</span> <span class="pre">{subdirectory</span> <span class="pre">in</span> <span class="pre">`data_dir`:</span> <span class="pre">[file_path,</span> <span class="pre">file_path,</span> <span class="pre">...],</span> <span class="pre">...},</span> <span class="pre">...}</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>a dictionary of the form: <code class="docutils literal"><span class="pre">{one</span> <span class="pre">of</span> <span class="pre">'train',</span> <span class="pre">'validation',</span> <span class="pre">'test':</span> <span class="pre">{subdirectory</span> <span class="pre">in</span> <span class="pre">`data_dir`:</span> <span class="pre">[file_path,</span> <span class="pre">file_path,</span> <span class="pre">...],</span> <span class="pre">...},</span> <span class="pre">...}</span></code>.</p>
 <ul class="simple">
-<li>if <code class="docutils literal"><span class="pre">action='copy'</span></code>, the dictionary returned will be exactly as shown above.</li>
-<li>if <code class="docutils literal"><span class="pre">action='ndarray'</span></code>, &#8216;file_path&#8217; will be replaced with the image as a <code class="docutils literal"><span class="pre">ndarray</span></code>.</li>
+<li>if <code class="docutils literal"><span class="pre">action='copy'</span></code>: the dictionary returned will be exactly as shown above.</li>
+<li>if <code class="docutils literal"><span class="pre">action='ndarray'</span></code>: &#8216;file_path&#8217; will be replaced with the image as a <code class="docutils literal"><span class="pre">ndarray</span></code> and the list will be a <code class="docutils literal"><span class="pre">ndarray</span></code>, e.g, <code class="docutils literal"><span class="pre">array([matrix,</span> <span class="pre">matrix,</span> <span class="pre">...])</span></code>.</li>
 </ul>
 </p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">dict</span></code></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">dict</span></code></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if the combination of <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code>, <code class="docutils literal"><span class="pre">test</span></code> which which were passed
+numeric values (i.e., <code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">float</span></code>) do not sum to 1.</p>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">In the case of division with a remainder, preference is as follows: <cite>train</cite> &lt; <cite>validation</cite> &lt; <cite>test</cite>.
+For instance, if we have <code class="docutils literal"><span class="pre">train=0.7</span></code>, <code class="docutils literal"><span class="pre">validation=0.3</span></code>, and the number of files in a given subdirectory
+equal to <code class="docutils literal"><span class="pre">6</span></code> (as in the final example below) the number of files allocated to <cite>train</cite> will be rounded
+down, in favor of <cite>validation</cite> obtaining the final file. In this instance, <cite>train</cite> would obtain
+<cite>4</cite> files (<code class="docutils literal"><span class="pre">floor(0.7</span> <span class="pre">*</span> <span class="pre">6)</span> <span class="pre">=</span> <span class="pre">4</span></code>) and <cite>validation</cite> would obtain 2 files (<code class="docutils literal"><span class="pre">ceil(0.3</span> <span class="pre">*</span> <span class="pre">6)</span> <span class="pre">=</span> <span class="pre">2</span></code>).</p>
+</div>
+<p><strong>Examples:</strong></p>
+<p>The examples below use a sample directory entitled <code class="docutils literal"><span class="pre">images</span></code>.</p>
+<p>This is its structure:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ tree /path/to/data/images
+├── ct
+│   ├── ct_1.png
+│   ├── ct_2.png
+│   ├── ct_3.png
+│   ├── ct_4.png
+│   ├── ct_5.png
+│   └── ct_6.png
+└── mri
+    ├── mri_1.png
+    ├── mri_2.png
+    ├── mri_3.png
+    ├── mri_4.png
+    ├── mri_5.png
+    └── mri_6.png
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><strong>Obtaining ndarrays</strong></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tt</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/data/images&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The resultant ndarrays can be unpacked into objects as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train_ct</span><span class="p">,</span> <span class="n">train_mri</span> <span class="o">=</span> <span class="n">tt</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tt</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_ct</span><span class="p">,</span> <span class="n">test_mri</span> <span class="o">=</span> <span class="n">tt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><strong>Reorganize a Directory In-place</strong></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tv</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/data/images&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="n">delete_source</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Which results in the following structure:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ tree /path/to/data/images
+├── train
+│   ├── ct
+│   │   ├── ct_1.png
+│   │   ├── ct_2.png
+│   │   ├── ct_3.png
+│   │   └── ct_4.png
+│   └── mri
+│       ├── mri_1.png
+│       ├── mri_2.png
+│       ├── mri_3.png
+│       └── mri_4.png
+└── validation
+    ├── ct
+    │   ├── ct_5.png
+    │   └── ct_6.png
+    └── mri
+        ├── mri_5.png
+        └── mri_6.png
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The following changes to the snippet above would preserve the original <code class="docutils literal"><span class="pre">ct</span></code> and <code class="docutils literal"><span class="pre">mri</span></code> directories:</p>
+<ul class="last simple">
+<li>setting <code class="docutils literal"><span class="pre">delete_source=False</span></code> (the default) and/or</li>
+<li>providing a path to <code class="docutils literal"><span class="pre">target_dir</span></code>, e.g., <code class="docutils literal"><span class="pre">target_dir='/path/to/output/output_data'</span></code></li>
+</ul>
+</div>
 </dd></dl>
 
 </div>
