@@ -7,6 +7,7 @@
 # Imports
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from bs4 import BeautifulSoup
 
 # General Support tools
@@ -288,7 +289,7 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
     # Run Feature Extracting Tool and Join with `data_frame`.
     if verbose:
         print("\n\nExtracting Features from Text...\n")
-    extract = data_frame.progress_apply(lambda x: feature_extract(x, list_of_diseases), axis=1).tolist()
+    extract = [feature_extract(row, list_of_diseases) for _, row in tqdm(data_frame.iterrows(), total=len(data_frame))]
     data_frame = data_frame.join(pd.DataFrame(extract), how='left')
 
     if verbose:
