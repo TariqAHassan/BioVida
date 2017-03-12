@@ -11,7 +11,6 @@ import re
 import numpy as np
 import pandas as pd
 from itertools import chain
-from collections import Hashable
 from six.moves.html_parser import HTMLParser
 
 # Pull out the unescape function
@@ -29,7 +28,7 @@ def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
     See: https://www.python.org/dev/peps/pep-0485/#proposed-implementation.
 
     """
-    # This is implimented in the `math` module for Python >= 3.5.
+    # This is implemented in the `math` module for Python >= 3.5.
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
@@ -47,15 +46,29 @@ def dict_reverse(d):
 def is_int(i):
     """
 
-    Checks if the input (``i``) is an intiger in a way which is robust against booleans.
+    Checks if the input (``i``) is an integer in a way which is robust against booleans.
 
     :param i: any input
     :type i: ``any``
-    :return: whether or not the input is an intiger.
+    :return: whether or not the input is an integer.
     :rtype: ``bool``
     """
     # Note: ``isinstance(fuzzy_threshold, bool)`` blocks `False` being evaluated as 0 (an intiger).
     return isinstance(i, int) and not isinstance(i, bool)
+
+
+def is_numeric(i):
+    """
+
+    Checks if the input (``i``) is an numeric (``int`` or ``float``)
+    in a way which is robust against booleans.
+
+    :param i: any input
+    :type i: ``any``
+    :return: whether or not the input is an integer.
+    :rtype: ``bool``
+    """
+    return isinstance(i, (float, int)) and not isinstance(i, bool)
 
 
 def natural_key(string_):
