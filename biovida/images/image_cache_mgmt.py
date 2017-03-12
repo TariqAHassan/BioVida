@@ -10,6 +10,7 @@ import shutil
 import numpy as np
 import pandas as pd
 from warnings import warn
+from itertools import chain
 from collections import Counter
 
 # General Image Support Tools
@@ -575,6 +576,8 @@ def _divvy_column_selector(instance, db_to_extract, image_column, data_frame):
 def image_divvy(instance,
                 divvy_rule,
                 db_to_extract='records_db',
+                action='ndarray',
+                train_val_test_dict=None,
                 create_dirs=False,
                 allow_overwrite=True,
                 image_column=None):
@@ -595,6 +598,8 @@ def image_divvy(instance,
                     - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
 
     :type db_to_extract: ``str``
+    :param action:
+    :type action: ``str``
     :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``False``.
     :type create_dirs: ``bool``
     :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
@@ -639,29 +644,43 @@ def image_divvy(instance,
     # Define the column to copy images from.
     column_to_use = _divvy_column_selector(instance, db_to_extract, image_column, data_frame)
 
-    def divvy_rule_wrapper(row):
-        """Wrap ``divvy_rule`` to automate copying."""
-        copy_path = divvy_rule(row)
+def divvy_rule_wrapper(row):
+    """Wrap ``divvy_rule`` to automate copying."""
+    copy_path = divvy_rule(row)
+    if action == 'copy':
         if isinstance(copy_path, str):
             path_existence_handler(copy_path)
             _robust_copy(to_copy=row[column_to_use],
                          copy_path=copy_path,
                          allow_overwrite=allow_overwrite)
         else:
-            raise TypeError("String Expected.\n`divvy_rule` returned "
+            raise TypeError("String Expected. `divvy_rule` returned "
                             "an object of type '{0}'.".format(type(copy_path).__name__))
+    elif isinstance(row[column_to_use], (str, tuple, list)):
+        cache_info = [row[column_to_use]] if isinstance(row[column_to_use], str) else list(row[column_to_use])
+        return pd.Series([os.path.basename(copy_path), cache_info])
+    else:
+        return None
 
-    # Apply rule
-    _ = data_frame.apply(divvy_rule_wrapper, axis=1)
+# Apply rule
+divvy_info = data_frame.apply(lambda x: divvy_rule_wrapper(x), axis=1)
+divvy_info_groupby = divvy_info.groupby(0).apply(lambda x: x[1].tolist())
+divvy_info_dict = {k: list(chain(*v)) for k, v in d.to_dict().items()}
+
+pprint(divvy_info_dict)
+
+from pprint import pprint
 
 
 
 
 
 
-
-
-
+def my_divvy_rule(row):
+    if 'MRI' in row['modality_full']:
+        return '/your/path/here/MRI_images'
+    elif 'PET' in row['modality_full']:
+        return '/your/path/here/PET_images'
 
 
 
