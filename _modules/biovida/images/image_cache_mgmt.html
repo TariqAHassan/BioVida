@@ -184,12 +184,15 @@
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
 
+<span class="c1"># General Image Support Tools</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">ActionVoid</span>
+
 <span class="c1"># General Support Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">multimap</span>
 
-<span class="c1"># General Image Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">ActionVoid</span>
+<span class="c1"># Import Printing Tools</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools</span> <span class="k">import</span> <span class="n">pandas_pprint</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -569,7 +572,23 @@
         <span class="k">raise</span> <span class="n">ActionVoid</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Action Canceled.&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="image_delete"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.image_delete">[docs]</a><span class="k">def</span> <span class="nf">image_delete</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">delete_rule</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_pretty_print_image_delete</span><span class="p">(</span><span class="n">deleted_rows</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Pretty print ``deleted_rows``.</span>
+
+<span class="sd">    :param deleted_rows: as evolved inside ``image_delete``.</span>
+<span class="sd">    :type deleted_rows: ``dict``</span>
+<span class="sd">    :param verbose: see ``image_delete``.</span>
+<span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">deleted_rows</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Summary of Deleted Rows:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">to_print</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">deleted_rows</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># handles when values are of unequal length.</span>
+        <span class="n">pandas_pprint</span><span class="p">(</span><span class="n">to_print</span><span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="n">to_print</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">full_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">suppress_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="image_delete"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.image_delete">[docs]</a><span class="k">def</span> <span class="nf">image_delete</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">delete_rule</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Delete images from the cache.</span>
@@ -583,6 +602,10 @@
 <span class="sd">    :param delete_rule: must be one of: ``&#39;all&#39;`` (delete *all* data) or a ``function`` which (1) accepts a single</span>
 <span class="sd">                        parameter (argument) and (2) returns ``True`` when the data is to be deleted.</span>
 <span class="sd">    :type delete_rule: ``str`` or ``function``</span>
+<span class="sd">    :param verbose: if ``True``, print a</span>
+<span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    :return: a dictionary of the indicies which were dropped. Example: ``{&#39;records_db&#39;: [58, 59], &#39;cache_records_db&#39;: [158, 159]}``.</span>
+<span class="sd">    :rtype: ``dict``</span>
 
 <span class="sd">    :Example:</span>
 
@@ -607,10 +630,11 @@
 
 <span class="sd">    .. warning::</span>
 
-<span class="sd">        The function passed to ``delete_rule`` *must* return a boolean ``True``. All other object</span>
-<span class="sd">        types will be ignored.</span>
+<span class="sd">        If a function is passed to ``delete_rule`` it *must* return a boolean ``True`` to delete a row.</span>
+<span class="sd">        **All other output will be ignored**.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">index_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">_double_check_with_user</span><span class="p">()</span>
 
     <span class="n">delete_all</span> <span class="o">=</span> <span class="kc">False</span>
@@ -622,18 +646,22 @@
 
     <span class="k">def</span> <span class="nf">delete_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">enact</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Wrap delete_rule to ensure the output is a boolean.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">delete_all</span> <span class="ow">or</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+        <span class="n">do_delete</span> <span class="o">=</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">delete_all</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">do_delete</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">do_delete</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">enact</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_image_instance_image_columns</span><span class="p">[</span><span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]:</span>
                     <span class="n">_robust_delete</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># drop from the dataframe</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">True</span>   <span class="c1"># keep in the dataframe</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">index_dict</span><span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;before&#39;</span><span class="p">:</span> <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}</span>
         <span class="n">to_conserve</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="n">to_conserve</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">index_dict</span><span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">][</span><span class="s1">&#39;after&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">index_dict</span><span class="p">[</span><span class="s1">&#39;cache_records_db&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;before&#39;</span><span class="p">:</span> <span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}</span>
         <span class="c1"># Apply ``delete_rule`` to ``cache_records_db``.</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Prune ``cache_records_db`` by inspecting which images have been deleted.</span>
@@ -642,8 +670,14 @@
         <span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_relationship_mapper</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="c1"># Save the updated ``cache_records_db`` to &#39;disk&#39;.</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
+        <span class="n">index_dict</span><span class="p">[</span><span class="s1">&#39;cache_records_db&#39;</span><span class="p">][</span><span class="s1">&#39;after&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`cache_record_db` is not a DataFrame.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`cache_record_db` is not a DataFrame.&quot;</span><span class="p">)</span>
+
+    <span class="n">deleted_rows</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;before&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;after&#39;</span><span class="p">]))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">index_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">_pretty_print_image_delete</span><span class="p">(</span><span class="n">deleted_rows</span><span class="o">=</span><span class="n">deleted_rows</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">deleted_rows</span></div>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>

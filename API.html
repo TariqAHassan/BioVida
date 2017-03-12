@@ -1615,7 +1615,7 @@ column <em>is</em> an account of a given patient&#8217;s symptoms.</p>
 <h3>Image Cache Management<a class="headerlink" href="#image-cache-management" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_delete">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>instance</em>, <em>delete_rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>instance</em>, <em>delete_rule</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete images from the cache.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -1629,7 +1629,14 @@ column <em>is</em> an account of a given patient&#8217;s symptoms.</p>
 <li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
 <li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be one of: <code class="docutils literal"><span class="pre">'all'</span></code> (delete <em>all</em> data) or a <code class="docutils literal"><span class="pre">function</span></code> which (1) accepts a single
 parameter (argument) and (2) returns <code class="docutils literal"><span class="pre">True</span></code> when the data is to be deleted.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print a</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dictionary of the indicies which were dropped. Example: <code class="docutils literal"><span class="pre">{'records_db':</span> <span class="pre">[58,</span> <span class="pre">59],</span> <span class="pre">'cache_records_db':</span> <span class="pre">[158,</span> <span class="pre">159]}</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">dict</span></code></p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
@@ -1658,8 +1665,8 @@ Any images associated with this row will also be destroyed.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The function passed to <code class="docutils literal"><span class="pre">delete_rule</span></code> <em>must</em> return a boolean <code class="docutils literal"><span class="pre">True</span></code>. All other object
-types will be ignored.</p>
+<p class="last">If a function is passed to <code class="docutils literal"><span class="pre">delete_rule</span></code> it <em>must</em> return a boolean <code class="docutils literal"><span class="pre">True</span></code> to delete a row.
+<strong>All other output will be ignored</strong>.</p>
 </div>
 </dd></dl>
 
@@ -1817,7 +1824,8 @@ down, in favor of <cite>validation</cite> obtaining the final file. In this inst
 </tr>
 </tbody>
 </table>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tt</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/data/images&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.support_tools</span> <span class="k">import</span> <span class="n">train_val_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tt</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/data/images&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
 <span class="gp">... </span>                    <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1838,7 +1846,8 @@ down, in favor of <cite>validation</cite> obtaining the final file. In this inst
 </tr>
 </tbody>
 </table>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tv</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/data/images&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">biovida.support_tools</span> <span class="k">import</span> <span class="n">train_val_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tv</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/data/images&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="gp">... </span>                    <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="n">delete_source</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1920,7 +1929,7 @@ between braces.</li>
 
 <dl class="function">
 <dt id="biovida.support_tools.printing.pandas_pprint">
-<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align='right'</em>, <em>header_align='center'</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>column_width_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align='right'</em>, <em>header_align='center'</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>suppress_index=False</em>, <em>column_width_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty Print a Pandas DataFrame or Series.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1933,6 +1942,7 @@ e.g., <code class="docutils literal"><span class="pre">{'my_column':</span> <spa
 <li><strong>header_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; alignment of headers. Must be one of: &#8216;left&#8217;, &#8216;right&#8217;, &#8216;center&#8217;.</li>
 <li><strong>full_rows</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all rows.</li>
 <li><strong>full_cols</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all columns.</li>
+<li><strong>suppress_index</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, suppress the index. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>column_width_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; change limit on how wide columns can be. If <code class="docutils literal"><span class="pre">None</span></code>, no change will be made.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 </ul>
