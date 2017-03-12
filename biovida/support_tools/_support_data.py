@@ -9,7 +9,7 @@
 #     import inflect
 #     from collections import OrderedDict
 #     p = inflect.engine()
-#     d = {p.number_to_words(i): i for i in range(1, 136)}
+#     d = {p.number_to_words(i): i for i in range(1, 106)}
 #     pprint(OrderedDict(sorted(d.items(), key=lambda x: x[1])))
 #     Replace all '('; ')'. Replace "'," with "':".
 age_dict = {'one': 1,
@@ -117,34 +117,6 @@ age_dict = {'one': 1,
             'one hundred and three': 103,
             'one hundred and four': 104,
             'one hundred and five': 105,
-            'one hundred and six': 106,
-            'one hundred and seven': 107,
-            'one hundred and eight': 108,
-            'one hundred and nine': 109,
-            'one hundred and ten': 110,
-            'one hundred and eleven': 111,
-            'one hundred and twelve': 112,
-            'one hundred and thirteen': 113,
-            'one hundred and fourteen': 114,
-            'one hundred and fifteen': 115,
-            'one hundred and sixteen': 116,
-            'one hundred and seventeen': 117,
-            'one hundred and eighteen': 118,
-            'one hundred and nineteen': 119,
-            'one hundred and twenty': 120,
-            'one hundred and twenty-one': 121,
-            'one hundred and twenty-two': 122,
-            'one hundred and twenty-three': 123,
-            'one hundred and twenty-four': 124,
-            'one hundred and twenty-five': 125,
-            'one hundred and twenty-six': 126,
-            'one hundred and twenty-seven': 127,
-            'one hundred and twenty-eight': 128,
-            'one hundred and twenty-nine': 129,
-            'one hundred and thirty': 130,
-            'one hundred and thirty-one': 131,
-            'one hundred and thirty-two': 132,
-            'one hundred and thirty-three': 133,
-            'one hundred and thirty-four': 134,
-            'one hundred and thirty-five': 135
 }
+
+ages_as_tuples_rev = sorted(age_dict.items(), key=lambda x: x[-1], reverse=True)

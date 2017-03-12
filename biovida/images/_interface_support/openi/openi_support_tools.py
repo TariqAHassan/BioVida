@@ -11,11 +11,14 @@ from urllib.parse import urlsplit # handle python 2
 
 # General Support tools
 from biovida.support_tools.support_tools import cln
-from biovida.support_tools._support_data import age_dict
 from biovida.support_tools.support_tools import items_null
+from biovida.support_tools._support_data import ages_as_tuples_rev
 
 # Regex for ``extract_float()``
 non_decimal = re.compile(r'[^\d.]+')
+
+_mold = "(^| ){0}( |,|\.|\?|!|$)"
+_age_match = [(" {0} ".format(n), _mold.format(w), _mold.format(w.replace("-", " "))) for w, n in ages_as_tuples_rev]
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -171,7 +174,7 @@ def filter_unnest(l, filter_for=None):
 def num_word_to_int(input_str):
     """
 
-    Replace natural numbers from 1 to 130 with integers.
+    Replace natural numbers from 1 to 105 with integers.
 
     :param input_str: any string.
     :rtype input_str: ``str``
@@ -186,11 +189,11 @@ def num_word_to_int(input_str):
     'the disease was present from 25 until their death at 87 .'
     ...
     # However, the simple presence of the substring 'one' doesn't confuse the procedure.
-    >>> num_word_to_int(input_str="He wrote 'the oneway (sic) street is closed due to construction'.")
+    >>> num_word_to_int(input_str="the oneway (sic) street is closed due to construction.")
     ...
-    'He wrote 'the oneway (sic) street is closed due to construction''
+    'the oneway (sic) street is closed due to construction'
     ...
-    # It can also handle common punctuation
+    # It can also handle common punctuation (though it won't conserve it -- not currently needed however).
     >>> num_word_to_int(input_str="The ring was the only one, in all of history, to xyz")
     ...
     'The ring was the only 1 in all of history, to xyz'
@@ -199,12 +202,13 @@ def num_word_to_int(input_str):
     >>> num_word_to_int(input_str="one-short learning is the ultimate goal of AI research.")
     'Robust one-short learning is the one of the goals of AI research.'
     """
-    # The reversal ensures that 'twenty five' yields '25', not '20 5'.
-    for word, number in sorted(age_dict.items(), key=lambda x: x[-1], reverse=True):
-        for mold in ("^{0} ", " {0} ", " {0}[;|:|,|.|?|!]", " {0}$"):
-            for word_form in (word, word.replace("-", " ")):
-                input_str = re.sub(mold.format(word_form), " {0} ".format(str(number)), input_str, flags=re.I)
-    return cln(input_str)
+    # ToDo: faster solutions are surely possible...Without this step
+    #       biovida.images._interface_support.openi._openi_text_feature_extraction is ~4x faster.
+    # Note: the reversal (ages_as_tuples_rev) ensures that 'twenty five' yields '25', not '20 5'.
+    for (n, w1, w2) in _age_match:
+        input_str = re.sub(w1, n, input_str, flags=re.I)
+        input_str = re.sub(w2, n, input_str, flags=re.I)
+    return " ".join(input_str.split())
 
 
 def url_path_extract(url):
