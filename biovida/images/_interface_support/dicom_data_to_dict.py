@@ -4,6 +4,8 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
+# Also see: https://github.com/darcymason/pydicom/issues/319.
+
 # Imports
 import os
 import dicom
