@@ -468,7 +468,7 @@ class ImageProcessing(object):
         :type lower_crop: ``int`` (can be ``float`` if the column contains NaNs)
         :param upper_crop: row of the column produced by the ``crop_decision()`` method.
         :type upper_crop: ``int`` (can be ``float`` if the column contains NaNs)
-        :param vborder: yeild of the ``border_analysis()`` method
+        :param vborder: yield of the ``border_analysis()`` method
         :type vborder: ``int`` (can be ``float`` if the column contains NaNs)
         :param return_as_array: if True, convert the PIL object to an ``ndarray``. Defaults to True.
         :type return_as_array: ``bool``
@@ -560,7 +560,7 @@ class ImageProcessing(object):
         transformed_images = load_and_scale_images(cropped_images_for_analysis, self._ircnn.image_shape, status=status)
 
         if verbose_prediction:
-            print("\n\nAnalyzing Images for Visual Problems with Neural Network...")
+            print("\n\nScanning Images for Visual Problems with Neural Network...")
 
         # Make the predictions and Save
         self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
@@ -715,7 +715,7 @@ class ImageProcessing(object):
         :param save_rule: see ``save()``
         :type save_rule: ``str`` or ``function``
         """
-        if not isinstance(save_rule, str) or callable(save_rule):
+        if not isinstance(save_rule, str) and not callable(save_rule):
             raise TypeError("`save_rule` must be a string or function.")
 
         if 'valid_image' not in self.image_dataframe.columns:
@@ -818,11 +818,13 @@ class ImageProcessing(object):
 
         def save_rule_wrapper(row):
             """Wrap `save_rule` to ensure it is, or
-            will yeild, a valid path."""
+            will yield, a valid path."""
             if isinstance(save_rule, str):
                 save_path = save_rule
             elif callable(save_rule):
                 save_path = save_rule(row)
+                if save_path is None:
+                    return None
                 if not isinstance(save_path, str):
                     raise TypeError("String Expected.\nThe function passed to `save_rule` (`{0}`)\nreturned "
                                     "an object of type '{1}'.".format(save_rule.__name__, type(save_path).__name__))
@@ -838,14 +840,14 @@ class ImageProcessing(object):
 
         if self._verbose:
             print("\n\nSaving Images...")
-
         for index, row in self._apply_status(return_df.iterrows(), status=status, length=len(return_df)):
-            full_save_path = os.path.join(save_rule_wrapper(row), row['cached_images_path'].split(os.sep)[-1])
-
-            if allow_overwrite:
-                row['image_to_return'].save(full_save_path)
-            elif not os.path.isfile(full_save_path):
-                row['image_to_return'].save(full_save_path)
+            save_target = save_rule_wrapper(row)
+            if isinstance(save_target, str):
+                full_save_path = os.path.join(save_target, row['cached_images_path'].split(os.sep)[-1])
+                if allow_overwrite:
+                    row['image_to_return'].save(full_save_path)
+                elif not os.path.isfile(full_save_path):
+                    row['image_to_return'].save(full_save_path)
 
 
 
