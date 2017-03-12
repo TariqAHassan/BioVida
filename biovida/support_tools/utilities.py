@@ -157,13 +157,13 @@ def _train_val_test_engine(action, tvt, existing_files, target_path):
 
     Engine to power ``train_val_test()``.
 
-    :param action: as evolved in side ``train_val_test()``.
+    :param action: see``train_val_test()``.
     :type action: ``str``
     :param tvt: as evolved in side ``train_val_test()``.
     :type tvt: ``dict``
     :param existing_files: as evolved in side ``train_val_test()``.
     :type existing_files: ``dict``
-    :param target_path: as evolved in side ``train_val_test()``.
+    :param target_path: see ``train_val_test()``.
     :type target_path: ``str``
     :return: a nested dictionary of the form ``{'train'/'val'/'test': {existing_files.key: [file, file, ...], ...}, ...}``.
     :rtype: ``dict``
