@@ -12,12 +12,15 @@ import pandas as pd
 from warnings import warn
 from collections import Counter
 
+# General Image Support Tools
+from biovida.images._image_tools import ActionVoid
+
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import multimap
 
-# General Image Support Tools
-from biovida.images._image_tools import ActionVoid
+# Import Printing Tools
+from biovida.support_tools import pandas_pprint
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -397,7 +400,23 @@ def _double_check_with_user():
         raise ActionVoid("\n\nAction Canceled.")
 
 
-def image_delete(instance, delete_rule):
+def _pretty_print_image_delete(deleted_rows, verbose):
+    """
+
+    Pretty print ``deleted_rows``.
+
+    :param deleted_rows: as evolved inside ``image_delete``.
+    :type deleted_rows: ``dict``
+    :param verbose: see ``image_delete``.
+    :type verbose: ``bool``
+    """
+    if deleted_rows and verbose:
+        print("\nSummary of Deleted Rows:\n")
+        to_print = pd.DataFrame.from_dict(deleted_rows, orient='index').T  # handles when values are of unequal length.
+        pandas_pprint(to_print[sorted(to_print.columns, reverse=True)], full_rows=True, suppress_index=True)
+
+
+def image_delete(instance, delete_rule, verbose=True):
     """
 
     Delete images from the cache.
@@ -411,6 +430,10 @@ def image_delete(instance, delete_rule):
     :param delete_rule: must be one of: ``'all'`` (delete *all* data) or a ``function`` which (1) accepts a single
                         parameter (argument) and (2) returns ``True`` when the data is to be deleted.
     :type delete_rule: ``str`` or ``function``
+    :param verbose: if ``True``, print a
+    :type verbose: ``bool``
+    :return: a dictionary of the indicies which were dropped. Example: ``{'records_db': [58, 59], 'cache_records_db': [158, 159]}``.
+    :rtype: ``dict``
 
     :Example:
 
@@ -435,10 +458,11 @@ def image_delete(instance, delete_rule):
 
     .. warning::
 
-        The function passed to ``delete_rule`` *must* return a boolean ``True``. All other object
-        types will be ignored.
+        If a function is passed to ``delete_rule`` it *must* return a boolean ``True`` to delete a row.
+        **All other output will be ignored**.
 
     """
+    index_dict = dict()
     _double_check_with_user()
 
     delete_all = False
@@ -450,18 +474,22 @@ def image_delete(instance, delete_rule):
 
     def delete_rule_wrapper(row, enact):
         """Wrap delete_rule to ensure the output is a boolean."""
-        if delete_all or delete_rule(row):
+        do_delete = delete_rule(row) if callable(delete_rule) else False
+        if delete_all or (isinstance(do_delete, bool) and do_delete is True):
             if enact:
                 for c in _image_instance_image_columns[instance.__class__.__name__]:
                     _robust_delete(row[c])
-            return False
+            return False  # drop from the dataframe
         else:
-            return True
+            return True   # keep in the dataframe
 
     if isinstance(instance.records_db, pd.DataFrame):
+        index_dict['records_db'] = {'before': instance.records_db.index.tolist()}
         to_conserve = instance.records_db.apply(lambda r: delete_rule_wrapper(r, enact=False), axis=1)
         instance.records_db = instance.records_db[to_conserve.tolist()].reset_index(drop=True)
+        index_dict['records_db']['after'] = instance.records_db.index.tolist()
     if isinstance(instance.cache_records_db, pd.DataFrame):
+        index_dict['cache_records_db'] = {'before': instance.cache_records_db.index.tolist()}
         # Apply ``delete_rule`` to ``cache_records_db``.
         _ = instance.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
         # Prune ``cache_records_db`` by inspecting which images have been deleted.
@@ -470,8 +498,14 @@ def image_delete(instance, delete_rule):
         instance.cache_records_db = _relationship_mapper(instance.cache_records_db, instance.__class__.__name__)
         # Save the updated ``cache_records_db`` to 'disk'.
         instance._save_cache_records_db()
+        index_dict['cache_records_db']['after'] = instance.cache_records_db.index.tolist()
     else:
         raise TypeError("`cache_record_db` is not a DataFrame.")
+
+    deleted_rows = {k: sorted(set(v['before']) - set(v['after'])) for k, v in index_dict.items()}
+    _pretty_print_image_delete(deleted_rows=deleted_rows, verbose=verbose)
+
+    return deleted_rows
 
 
 # ----------------------------------------------------------------------------------------------------------
