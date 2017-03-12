@@ -263,6 +263,7 @@ def train_val_test(data_dir,
 
     :Example:
 
+    >>> from biovida.support_tools import train_val_test
     >>> tt = train_val_test(data_dir='/path/to/data/images', train=0.7, validation=None, test=0.3,
     ...                     action='ndarray')
 
@@ -276,6 +277,7 @@ def train_val_test(data_dir,
 
     :Example:
 
+    >>> from biovida.support_tools import train_val_test
     >>> tv = train_val_test(data_dir='/path/to/data/images', train=0.7, validation=0.3, test=None,
     ...                     action='copy', delete_source=True)
 
