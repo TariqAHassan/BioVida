@@ -39,21 +39,21 @@ def _subdirectories_in_path(path, to_block):
     return [os_join(path, i) for i in os.listdir(path) if os.path.isdir(os_join(path, i)) and i not in to_block]
 
 
-def _train_val_test_error_checking(data_dir, target_dir, action, delete_source, existing_files, tvt):
+def _train_val_test_error_checking(data, target_dir, action, delete_source, group_files_dict, tvt):
     """
 
     Check for possible errors for ``train_val_test()``.
 
-    :param data_dir: see ``train_val_test()``.
-    :type data_dir: ``str``
+    :param data: see ``train_val_test()``.
+    :type data: ``str``
     :param target_dir: see ``train_val_test()``.
     :type target_dir: ``str``
     :param action: see ``train_val_test()``.
     :type action: ``str``
     :param delete_source: see ``train_val_test()``.
     :type delete_source: ``bool``
-    :param existing_files: as evolved in side ``train_val_test()``.
-    :type existing_files: ``dict``
+    :param group_files_dict: as evolved in side ``train_val_test()``.
+    :type group_files_dict: ``dict``
     :param tvt: as evolved in side ``train_val_test()``.
     :type tvt: ``dict``
     """
@@ -64,6 +64,8 @@ def _train_val_test_error_checking(data_dir, target_dir, action, delete_source, 
             raise ValueError("`{0}` cannot be `True`".format(k))
     if not isclose(sum(tvt.values()), 1):
         raise ValueError("The following parameters do not sum to 1: {0}.".format(", ".join(sorted(tvt.keys()))))
+    if isinstance(data, dict) and not all(isinstance(i, (list, tuple)) for i in data.values()):
+        raise TypeError("The values of `data` must be lists or tuples.")
     if action not in ('copy', 'ndarray'):
         raise ValueError("`action` must be one of: 'copy', 'ndarray'.")
     if action == 'ndarray' and isinstance(target_dir, str):
@@ -71,14 +73,14 @@ def _train_val_test_error_checking(data_dir, target_dir, action, delete_source, 
     if not isinstance(delete_source, bool):
         raise TypeError("`delete_source` must be a boolean.")
     
-    min_number_of_files = len(tvt.keys()) * len(existing_files.keys())
-    for k, v in existing_files.items():
+    min_number_of_files = len(tvt.keys()) * len(group_files_dict.keys())
+    for k, v in group_files_dict.items():
         if len(v) < min_number_of_files:
             raise InsufficientNumberOfFiles("\nThe '{0}' subdirectory in '{1}'\nonly contains {2} files, "
                                             "which is too few to distribute over {3} target locations.\n"
                                             "Calculation: len([{4}]) * len([{5}]) = {3}.".format(
-                                            k, data_dir, len(v), min_number_of_files, ", ".join(tvt.keys()),
-                                            ", ".join(existing_files.keys())))
+                                            k, data, len(v), min_number_of_files, ", ".join(tvt.keys()),
+                                            ", ".join(group_files_dict.keys())))
 
 
 def _existing_files_dict_gen(directory, to_block):
@@ -152,7 +154,7 @@ def _output_dict_with_ndarrays(dictionary):
     return {k: {k2: np.array([imread(i) for i in v2]) for k2, v2 in v.items()} for k, v in dictionary.items()}
 
 
-def _train_val_test_engine(action, tvt, existing_files, target_path):
+def _train_val_test_engine(action, tvt, group_files_dict, target_path):
     """
 
     Engine to power ``train_val_test()``.
@@ -161,15 +163,15 @@ def _train_val_test_engine(action, tvt, existing_files, target_path):
     :type action: ``str``
     :param tvt: as evolved in side ``train_val_test()``.
     :type tvt: ``dict``
-    :param existing_files: as evolved in side ``train_val_test()``.
-    :type existing_files: ``dict``
+    :param group_files_dict: as evolved in side ``train_val_test()``.
+    :type group_files_dict: ``dict``
     :param target_path: see ``train_val_test()``.
     :type target_path: ``str``
-    :return: a nested dictionary of the form ``{'train'/'val'/'test': {existing_files.key: [file, file, ...], ...}, ...}``.
+    :return: a nested dictionary of the form ``{'train'/'val'/'test': {group_files_dict.key: [file, file, ...], ...}, ...}``.
     :rtype: ``dict``
     """
     output_dict = dict()
-    for k, v in existing_files.items():
+    for k, v in group_files_dict.items():
         for k2, v2 in _list_divide(v, tvt):
             if k2 not in output_dict:
                 output_dict[k2] = {k: v2}
@@ -182,7 +184,7 @@ def _train_val_test_engine(action, tvt, existing_files, target_path):
     return output_dict
 
 
-def train_val_test(data_dir,
+def train_val_test(data,
                    train,
                    validation,
                    test,
@@ -192,46 +194,50 @@ def train_val_test(data_dir,
                    verbose=True):
     """
 
-    Splits data in ``data_dir`` into any combination of the following: ``train``, ``validation``, ``test``.
+    Splits data in ``data`` into any combination of the following: ``train``, ``validation``, ``test``.
 
-    :param data_dir: the directory containing the data. This directory should contain subdirectories (the categories)
-                    populated with the files.
+    :param data: 
+    
+        - a dictionary of the form: ``{group_name: [file_path, file_path], ...}``
+        - the directory containing the data. This directory should contain subdirectories (the categories)
+          populated with the files.
 
                 .. warning::
 
-                        Subdirectories entitled 'train', 'validation' and 'test' will be ignored.
+                        If a directory is passed, subdirectories therein entitled 'train', 'validation' and 'test'
+                        will be ignored.
 
-    :type data_dir: ``str``
-    :param train: the proportion images in ``data_dir`` to allocate to ``train``. If ``False`` or ``None``,
+    :type data: ``dict`` or ``str``
+    :param train: the proportion images in ``data`` to allocate to ``train``. If ``False`` or ``None``,
                   no images will be allocated.
     :type train: ``int``, ``float``, ``bool`` or ``None``
-    :param validation: the proportion images in ``data_dir`` to allocate to ``validation``. If ``False``
+    :param validation: the proportion images in ``data`` to allocate to ``validation``. If ``False``
                        or ``None``, no images will be allocated.
     :type validation: ``int``, ``float``, ``bool`` or ``None``
-    :param test: the proportion images in ``data_dir`` to allocate to ``test``. If ``False`` or ``None``,
+    :param test: the proportion images in ``data`` to allocate to ``test``. If ``False`` or ``None``,
                  no images will be allocated.
     :type test: ``int``, ``float``, ``bool`` or ``None``
     :param target_dir: the location to output the images to (if ``action=True``). If ``None``, the output location will
-                       be ``data_dir``. Defaults to ``None``.
+                       be ``data``. Defaults to ``None``.
     :type target_dir: ``str``
     :param action: one of: 'copy', 'ndarray'.
 
-                    - if ``'copy'``: copy from files from ``data_dir`` to ``target_dir`` (default).
+                    - if ``'copy'``: copy from files from ``data`` to ``target_dir`` (default).
                     - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
 
-    :param delete_source: if ``True`` delete the source subdirectories in ``data_dir`` after copying is complete. Defaults to ``False``.
+    :param delete_source: if ``True`` delete the source subdirectories in ``data`` after copying is complete. Defaults to ``False``.
 
                           .. note::
 
                                 This can be useful for transforming a directory 'in-place',
-                                e.g., if ``data_dir`` and ``target_dir`` are the same and ``delete_source=True``.
+                                e.g., if ``data`` and ``target_dir`` are the same and ``delete_source=True``.
 
     :type delete_source: ``bool``
     :param verbose: if ``True``, print the resultant structure. Defaults to ``True``.
     :type verbose: ``bool``
     :return:
 
-        a dictionary of the form: ``{one of 'train', 'validation', 'test': {subdirectory in `data_dir`: [file_path, file_path, ...], ...}, ...}``.
+        a dictionary of the form: ``{one of 'train', 'validation', 'test': {subdirectory in `data`: [file_path, file_path, ...], ...}, ...}``.
 
         - if ``action='copy'``: the dictionary returned will be exactly as shown above.
 
@@ -281,7 +287,7 @@ def train_val_test(data_dir,
     :Example:
 
     >>> from biovida.support_tools import train_val_test
-    >>> tt = train_val_test(data_dir='/path/to/data/images', train=0.7, validation=None, test=0.3,
+    >>> tt = train_val_test(data='/path/to/data/images', train=0.7, validation=None, test=0.3,
     ...                     action='ndarray')
 
     The resultant ndarrays can be unpacked into objects as follows:
@@ -295,7 +301,7 @@ def train_val_test(data_dir,
     :Example:
 
     >>> from biovida.support_tools import train_val_test
-    >>> tv = train_val_test(data_dir='/path/to/data/images', train=0.7, validation=0.3, test=None,
+    >>> tv = train_val_test(data='/path/to/data/images', train=0.7, validation=0.3, test=None,
     ...                     action='copy', delete_source=True)
 
     Which results in the following structure:
@@ -331,21 +337,24 @@ def train_val_test(data_dir,
 
     """
     groups = ('train', 'validation', 'test')
-    target_path = data_dir if not isinstance(target_dir, str) else target_dir
-    existing_dirs = _subdirectories_in_path(data_dir, to_block=groups)
+    target_path = data if not isinstance(target_dir, str) else target_dir
+    existing_dirs = _subdirectories_in_path(data, to_block=groups)
 
     # Extract those of the train, validation, test (tvt) params which are numeric.
     tvt = {k: v for k, v in locals().items() if k in groups and is_numeric(v)}
 
-    # Generate a dictionary of files in `data_dir`
-    existing_files = _existing_files_dict_gen(directory=data_dir, to_block=groups)
+    if isinstance(data, str):
+        group_files_dict = _existing_files_dict_gen(directory=data, to_block=groups)
+    elif isinstance(data, dict):
+        groups_files_dict = data
+    else:
+        raise TypeError("`data` must be a string or dictionary.")
 
-    # Check for invalid input
-    _train_val_test_error_checking(data_dir=data_dir, target_dir=target_dir, action=action,
-                                   delete_source=delete_source, existing_files=existing_files, tvt=tvt)
+    _train_val_test_error_checking(data=data, target_dir=target_dir, action=action,
+                                   delete_source=delete_source, group_files_dict=group_files_dict, tvt=tvt)
 
     output_dict = _train_val_test_engine(action=action, tvt=tvt,
-                                         existing_files=existing_files, target_path=target_path)
+                                         group_files_dict=group_files_dict, target_path=target_path)
 
     if verbose:
         print("\nStructure:\n")
