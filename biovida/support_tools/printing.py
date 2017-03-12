@@ -252,7 +252,7 @@ def _align_pandas(data_frame, to_align='right'):
     return data_frame
 
 
-def _pandas_print_full(pd_df, full_rows, full_cols, column_width_limit):
+def _pandas_print_full(pd_df, full_rows, full_cols, suppress_index, column_width_limit):
     """
 
     Print *all* of a Pandas DataFrame.
@@ -263,6 +263,8 @@ def _pandas_print_full(pd_df, full_rows, full_cols, column_width_limit):
     :type full_rows: ``bool``
     :param full_cols: print all columns side-by-side if True. Defaults to ``True``.
     :type full_cols: ``bool``
+    :param suppress_index: see ``pandas_pprint()``.
+    :type suppress_index: ``bool``
     :param column_width_limit: change limit on how wide columns can be. If ``None``, no change will be made.
                                Defaults to ``None``.
     :type column_width_limit: ``int`` or ``None``
@@ -276,6 +278,9 @@ def _pandas_print_full(pd_df, full_rows, full_cols, column_width_limit):
     if not isinstance(column_width_limit, bool) and isinstance(column_width_limit, int):
         pd.set_option('display.width', column_width_limit)
         pd.set_option('display.max_colwidth', column_width_limit)
+
+    if suppress_index:
+        pd_df.index = [''] * pd_df.shape[0]
 
     print(pd_df)
 
@@ -295,6 +300,7 @@ def pandas_pprint(data,
                   header_align='center',
                   full_rows=False,
                   full_cols=False,
+                  suppress_index=False,
                   column_width_limit=None):
     """
 
@@ -311,6 +317,8 @@ def pandas_pprint(data,
     :type full_rows: ``bool``
     :param full_cols: print all columns.
     :type full_cols: ``bool``
+    :param suppress_index: if ``True``, suppress the index. Defaults to ``False``.
+    :type suppress_index: ``bool``
     :param column_width_limit: change limit on how wide columns can be. If ``None``, no change will be made.
                                Defaults to ``None``.
     :type column_width_limit: ``int`` or ``None``
@@ -329,8 +337,8 @@ def pandas_pprint(data,
 
     aligned_df = _align_pandas(data_copy, col_align)
     pd.set_option('colheader_justify', header_align)
-    _pandas_print_full(pd_df=aligned_df.fillna(""), full_rows=full_rows,
-                       full_cols=full_cols, column_width_limit=column_width_limit)
+    _pandas_print_full(pd_df=aligned_df.fillna(""), full_rows=full_rows, full_cols=full_cols,
+                       suppress_index=suppress_index, column_width_limit=column_width_limit)
     pd.set_option('colheader_justify', 'right')
 
 
