@@ -41,7 +41,8 @@ class _ImagesInterfaceIntegration(object):
 
     """
 
-    def _open_i_prep(self, cache_records_db):
+    @staticmethod
+    def _open_i_prep(cache_records_db):
         """
 
         A tool to clean and standardize  an ``OpeniInterface`` instance's cache record database
@@ -82,7 +83,8 @@ class _ImagesInterfaceIntegration(object):
         # Apply rename and return
         return openi_subsection.rename(columns=openi_col_rename)
 
-    def _cancer_image_prep(self, cache_records_db):
+    @staticmethod
+    def _cancer_image_prep(cache_records_db):
         """
 
         A tool to clean and standardize  an ``CancerImageInterface`` instance's cache record database
@@ -193,10 +195,11 @@ class _DiseaseOntologyIntegration(object):
     :type verbose: ``bool``
     """
 
-    def _dis_ont_dict_gen(self, ontology_df):
+    @staticmethod
+    def _dis_ont_dict_gen(ontology_df):
         """
 
-        Conver the information obtained from ``DiseaseOntInterface().pull()`` into:
+        Convert the information obtained from ``DiseaseOntInterface().pull()`` into:
 
         - a nested dictionary with ``ontology_df``'s 'name' column as the outer key (``ont_name_dict``).
           Form: ``{'name': {'disease_family' ('is_a'): tuple or None,
@@ -219,7 +222,7 @@ class _DiseaseOntologyIntegration(object):
         ont_name_dict_nest_keys = ('disease_family', 'disease_synonym', 'disease_definition')
 
         def str_split(s, split_on='; '):
-            return tuple(s.split('; ')) if isinstance(s, str) else s
+            return tuple(s.split(split_on)) if isinstance(s, str) else s
 
         for name, is_a, disease_synonym, defn in zip(*[ontology_df[c] for c in ('name', 'is_a', 'synonym', 'def')]):
             disease_synonym_split = str_split(disease_synonym)
@@ -242,14 +245,14 @@ class _DiseaseOntologyIntegration(object):
 
     def __init__(self, cache_path=None, verbose=True):
         self.verbose = verbose
-        # Load the databse
+        # Load the database
         ontology_df = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()
 
         # Obtain dictionaries
         self.ont_name_dict, self.ont_name_dict_nest_keys, self.ont_disease_synonym_dict = self._dis_ont_dict_gen(
             ontology_df)
 
-        # Conver `ont_name_dict_nest_keys` to an empty dict.
+        # Convert `ont_name_dict_nest_keys` to an empty dict.
         self.empty_nest_dict = dict.fromkeys(self.ont_name_dict_nest_keys, np.NaN)
 
         # Extract keys from the two dictionaries passed
@@ -496,7 +499,8 @@ class _DiseaseSymptomsIntegration(object):
     :type verbose: ``bool``
     """
 
-    def _disease_symptom_dict_gen(self, dis_symp_db):
+    @staticmethod
+    def _disease_symptom_dict_gen(dis_symp_db):
         """
 
         Tool to create a dictionary mapping disease to symptoms.
@@ -519,7 +523,8 @@ class _DiseaseSymptomsIntegration(object):
         # Create a disease-symptoms mapping
         self.disease_symptom_dict = self._disease_symptom_dict_gen(dis_symp_db)
 
-    def _patient_symptoms(self, data_frame):
+    @staticmethod
+    def _patient_symptoms(data_frame):
         """
 
         Match 'known_associated_symptoms' to the 'abstract' for the individual patient
@@ -589,7 +594,8 @@ class _DisgenetIntegration(object):
     :type verbose: ``bool``
     """
 
-    def _disease_gene_dict_gen(self, disgenet_df):
+    @staticmethod
+    def _disease_gene_dict_gen(disgenet_df):
         """
 
         Generates a dictionary of the form: ``{disease name: (gene name, disgenet score), ...}``
