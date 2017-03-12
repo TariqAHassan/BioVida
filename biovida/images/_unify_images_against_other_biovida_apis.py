@@ -650,18 +650,18 @@ def images_unify(interfaces, db_to_extract='cache_records_db', cache_path=None, 
 
     Unify Interfaces in the ``images`` subpackage against other BioVida APIs.
 
-    :param interfaces: See: ``biovia.unify_domains.unify_against_images()``
+    :param interfaces: See: ``biovida.unify_domains.unify_against_images()``
     :param interfaces: `list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
     :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
                           Defaults to 'cache_records_db'.
     :type db_to_extract: ``str``
-    :param cache_path: See: ``biovia.unify_domains.unify_against_images()``
+    :param cache_path: See: ``biovida.unify_domains.unify_against_images()``
     :param cache_path: `str`` or ``None``
-    :param verbose: See: ``biovia.unify_domains.unify_against_images()``
+    :param verbose: See: ``biovida.unify_domains.unify_against_images()``
     :param verbose: ``bool``
-    :param fuzzy_threshold: See: ``biovia.unify_domains.unify_against_images()``
+    :param fuzzy_threshold: See: ``biovida.unify_domains.unify_against_images()``
     :param fuzzy_threshold: ``int``, ``bool``, ``None``
-    :return: See: ``biovia.unify_domains.unify_against_images()``
+    :return: See: ``biovida.unify_domains.unify_against_images()``
     :rtype: ``Pandas DataFrame``
     """
     # Catch ``fuzzy_threshold=True`` and set to a reasonably high default.
