@@ -828,7 +828,6 @@ class ImageProcessing(object):
                 if not isinstance(save_path, str):
                     raise TypeError("String Expected.\nThe function passed to `save_rule` (`{0}`)\nreturned "
                                     "an object of type '{1}'.".format(save_rule.__name__, type(save_path).__name__))
-
             if os.path.isdir(save_path):
                 return save_path
             elif create_dirs:
