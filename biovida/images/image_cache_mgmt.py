@@ -820,7 +820,7 @@ def image_divvy(instance,
         While it is possible to pass a function to ``divvy_rule`` which returns multiple categories
         (similar to ``my_divvy_rule2()``) when divvying into *train*/*validation*/*test*, doing
         so is not recommended. Overlap between these groups is likely to lead to erroneous
-        performance metrics (e.g., accuracy).
+        performance metrics (e.g., accuracy) when assessing fitted models.
 
     """
     _image_divvy_error_checking(action=action, train_val_test_dict=train_val_test_dict)
