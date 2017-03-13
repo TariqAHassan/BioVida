@@ -578,13 +578,22 @@ def _divvy_column_selector(instance, db_to_extract, image_column, data_frame):
 def _image_divvy_wrapper_gen(divvy_rule, action, train_val_test_dict, column_to_use, create_dirs, allow_overwrite):
     """
 
-    :param divvy_rule:
-    :param action:
-    :param train_val_test_dict:
-    :param column_to_use:
-    :param create_dirs:
-    :param allow_overwrite:
-    :return:
+    Wrap the ``divvy_rule`` passed to image_divvy()
+
+    :param divvy_rule: see ``image_divvy()``.
+    :type divvy_rule: ``str`` or ``function``
+    :param action: see ``image_divvy()``.
+    :type action: ``str``
+    :param train_val_test_dict:  see ``image_divvy()``.
+    :type train_val_test_dict: ``dict``
+    :param column_to_use:  as evolved inside ``image_divvy`` by ``_divvy_column_selector()``
+    :type column_to_use: ``str``
+    :param create_dirs: see ``image_divvy()``.
+    :type create_dirs: ``bool``
+    :param allow_overwrite: see ``image_divvy()``.
+    :type allow_overwrite: ``bool``
+    :return: a function which wraps the function passed to ``divvy_rule()``.
+    :rtype: ``function``
     """
     def copy_rule_wrapper(row, copy_to):
         if isinstance(copy_to, (str, tuple, list)):
@@ -624,12 +633,18 @@ def _image_divvy_wrapper_gen(divvy_rule, action, train_val_test_dict, column_to_
 def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_test_dict):
     """
 
-    :param action:
-    :param verbose:
-    :param divvy_info:
+    Take ``divvy_info`` and pass to ``train_val_test()``
+
+    :param action: see ``image_divvy()``.
+    :type action: ``str``
+    :param verbose: see ``image_divvy()``.
+    :type verbose: ``bool``
+    :param divvy_info: as evolved inside ``image_divvy``.
     :type divvy_info: ``Pandas DataFrame``
-    :param train_val_test_dict:
-    :return:
+    :param train_val_test_dict see ``image_divvy()``.
+    :type train_val_test_dict:
+    :return: see ``train_val_test``.
+    :rtype: ``dict``
     """
     divvy_info_groupby = divvy_info.dropna().groupby(0).apply(lambda x: x[1].tolist())
     divvy_info_dict = {k: list(chain(*v)) for k, v in divvy_info_groupby.to_dict().items()}
@@ -693,21 +708,65 @@ def image_divvy(instance,
 
     >>> from biovida.images import image_divvy
     >>> from biovida.images import OpeniInterface
-    ...
+
+    **Obtain Images**
+
     >>> opi = OpeniInterface()
     >>> opi.search(image_type=['mri', 'ct'])
     >>> opi.pull()
-    ...
-    >>> def my_divvy_rule(row):
+
+    **Usage 1**: Copy Images from the Cache to a New Location
+
+    >>> image_divvy(opi, divvy_rule="/your/output/path/here/output")
+
+    **Usage 2a**: A ``divvy_rule`` which invariably returns a single save location
+
+    >>> def my_divvy_rule1(row):
     >>>     if isinstance(row['image_modality_major'], str):
-    >>>         if 'mri' in row['image_modality_major']:
+    >>>         if 'mri' == row['image_modality_major']:
     >>>             return '/your/path/here/MRI_images'
-    >>>         elif 'ct' in row['image_modality_major']:
+    >>>         elif 'ct' == row['image_modality_major']:
     >>>             return '/your/path/here/CT_images'
     ...
-    >>> image_divvy(opi, divvy_rule=my_divvy_rule)
+    >>> image_divvy(opi, divvy_rule=my_divvy_rule1)
+
+    **Usage 2b**: A ``divvy_rule`` which can return multiple save location
+
+    >>> def my_divvy_rule2(row):
+    >>>     locations = list()
+    >>>     if isinstance(row['image_modality_major'], str):
+    >>>         if 'leg' in row['abstract']:
+    >>>             locations.append('/your/path/here/leg_images')
+    >>>         if 'pelvis' in row['abstract']:
+    >>>             locations.append('/your/path/here/pelvis_images')
+    >>>     return locations
     ...
-    >>> train_val_test_dict = {'train': .7, 'test': .3, 'target_dir': 'your/path/here/output'}
+    >>> image_divvy(opi, divvy_rule=my_divvy_rule2)
+
+    **Usage 3a**: Divvying into train/validation/test
+
+    >>> def my_divvy_rule3(row):
+    >>>     if isinstance(row['image_modality_major'], str):
+    >>>         if 'mri' == row['image_modality_major']:
+    >>>             return 'mri'
+    >>>         elif 'ct' == row['image_modality_major']:
+    >>>             return 'ct'
+
+    Copying to a New Location
+
+    >>> train_val_test_dict = {'train': 0.7, 'test': 0.3, 'target_dir': '/your/path/here/output'}
+    >>> image_divvy(opi, divvy_rule=my_divvy_rule2, action='copy', train_val_test_dict=train_val_test_dict)
+
+    Obtaining ndarrays (numpy arrays)
+
+    >>> train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1}
+    >>> tvt = image_divvy(opi, divvy_rule=my_divvy_rule3, action='ndarray', train_val_test_dict=train_val_test_dict)
+
+    The resultant ndarrays can be unpacked into objects as follows:
+
+    >>> train_ct, train_mri = tvt['train']['ct'], tvt['train']['mri']
+    >>> val_ct, val_mri = tvt['validation']['ct'], tvt['validation']['mri']
+    >>> test_ct, test_mri = tvt['test']['ct'], tvt['test']['mri']
 
     """
     # ToDo: Add input checking
