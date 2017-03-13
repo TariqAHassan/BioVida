@@ -19,7 +19,9 @@ from biovida.images._image_tools import ActionVoid
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import multimap
-from biovida.support_tools.support_tools import path_existence_handler
+from biovida.support_tools.support_tools import directory_existence_handler
+
+# Utilities
 from biovida.support_tools.utilities import train_val_test
 
 # Import Printing Tools
@@ -537,7 +539,7 @@ def _image_divvy_error_checking(action, train_val_test_dict):
                 raise KeyError("Invalid `train_val_test_dict` key: '{0}'.")
 
 
-def _robust_copy(to_copy, copy_to, allow_overwrite):
+def _robust_copy(to_copy, copy_to, allow_creation, allow_overwrite):
     """
 
     Function to copy ``to_copy``.
@@ -548,9 +550,13 @@ def _robust_copy(to_copy, copy_to, allow_overwrite):
     :type to_copy: ``str``, ``list``  or ``tuple``
     :param copy_to: the location for the image
     :type copy_to: ``str``
+    :param allow_creation: if ``True``, create ``path_`` if it does not exist, else raise.
+    :type allow_creation: ``bool``
     :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
     :type allow_overwrite: ``bool``
     """
+    directory_existence_handler(path_=copy_to, allow_creation=allow_creation)
+
     def copy_util(from_path):
         if os.path.isfile(from_path):
             to_path = os.path.join(copy_to, os.path.basename(from_path))
@@ -623,9 +629,9 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
                 return None
             for i in all_copy_targets:
                 if not isinstance(i, str):
-                    raise TypeError("`divvy_rule` returned iterable containing a element which is not a string.")
-                path_existence_handler(path_=i, allow_creation=create_dirs)  # ToDo: move into _robust_copy().
-                _robust_copy(to_copy=row[column_to_use], copy_to=i, allow_overwrite=allow_overwrite)
+                    raise TypeError("`divvy_rule` returned an iterable containing a element which is not a string.")
+                _robust_copy(to_copy=row[column_to_use], copy_to=i,
+                             allow_creation=create_dirs, allow_overwrite=allow_overwrite)
         elif copy_to is not None:
             raise TypeError("String, list or tuple expected. "
                             "`divvy_rule` returned an object of type '{0}'.".format(type(copy_to).__name__))

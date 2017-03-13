@@ -163,12 +163,15 @@ def create_dir_if_needed(directory):
     return directory
 
 
-def path_existence_handler(path_, allow_creation):
+def directory_existence_handler(path_, allow_creation):
     """
 
-    :param path_:
-    :param allow_creation:
-    :return:
+    Create a directory if it does not exist.
+
+    :param path_: a system path
+    :type path_: ``str``
+    :param allow_creation: if ``True``, create ``path_`` if it does not exist, else raise.
+    :type allow_creation: ``bool``
     """
     if not os.path.isdir(path_):
         if allow_creation:
