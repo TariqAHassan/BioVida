@@ -380,7 +380,7 @@ class _OpeniRecords(object):
         self.req_limit = req_limit
 
         self.records_db = None
-        self.download_limit = 60  # set to reasonable default.
+        self.download_limit = 100  # set to reasonable default.
 
         # Sleep Time
         self.records_sleep_time = None
@@ -1099,7 +1099,7 @@ class OpeniInterface(object):
              image_size='large',
              records_sleep_time=(10, 1.5),
              images_sleep_time=(10, 1.5),
-             download_limit=60,
+             download_limit=100,
              check_cache_first=True,
              clinical_cases_only=True,
              use_image_caption=False):
@@ -1151,7 +1151,7 @@ class OpeniInterface(object):
                                 (with mean = 0, sd = 0.75).
         :type images_sleep_time: ``tuple``
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
-                              (not recommended). Defaults to 60.
+                              (not recommended). Defaults to 100.
         :type download_limit: ``int``
         :param check_cache_first: check the image cache for the image prior to downloading.
                                   If ``True`` and the image is already present, no attempt will be made to download it

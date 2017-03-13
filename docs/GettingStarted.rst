@@ -117,8 +117,7 @@ Additionally, searches can easily be reviewed:
 
 By default, graphics are excluded. This can be changed with ``search()``'s ``exclusions`` parameter.
 
-:superscript:`†` *Note:* by default, data harvesting is truncated after the first 60
-results.
+:superscript:`†` *Note:* by default, data harvesting is truncated after the first 100 results.
 
 Automated Image Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
