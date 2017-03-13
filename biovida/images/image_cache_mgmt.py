@@ -727,7 +727,7 @@ def image_divvy(instance,
     :type allow_overwrite: ``bool``
     :param image_column: the column to use when copying images. If ``None``, use ``'cached_images_path'``. Default to ``None``.
     :type image_column: ``str``
-    :param verbose:
+    :param verbose: if ``True`` print additional details. Defaults to ``True``.
     :type verbose: ``bool``
 
     :Example:
