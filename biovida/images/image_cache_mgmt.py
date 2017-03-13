@@ -516,6 +516,27 @@ def image_delete(instance, delete_rule, verbose=True):
 # ----------------------------------------------------------------------------------------------------------
 
 
+def _image_divvy_error_checking(action, train_val_test_dict):
+    """
+
+    Check for possible errors for ``image_divvy()``.
+
+    :param train_val_test_dict: see ``image_divvy()``.
+    :type action: ``str``
+    :param train_val_test_dict: see ``image_divvy()``.
+    :type train_val_test_dict: ``dict``
+    """
+    if isinstance(train_val_test_dict, dict):
+        if not train_val_test_dict:
+            raise KeyError("`train_val_test_dict` is empty")
+        if action == 'copy' and 'target_dir' not in train_val_test_dict:
+            raise KeyError("`train_val_test_dict` must contain a `target_dir` key "
+                           "if `action='copy'`.")
+        for k in train_val_test_dict:
+            if k not in ('train', 'validation', 'test', 'target_dir'):
+                raise KeyError("Invalid `train_val_test_dict` key: '{0}'.")
+
+
 def _robust_copy(to_copy, copy_to, allow_overwrite):
     """
 
@@ -575,7 +596,7 @@ def _divvy_column_selector(instance, db_to_extract, image_column, data_frame):
         raise KeyError("'{0}' is not a valid image column for '{1}'.".format(image_column, db_to_extract))
 
 
-def _image_divvy_wrapper_gen(divvy_rule, action, train_val_test_dict, column_to_use, create_dirs, allow_overwrite):
+def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to_use, create_dirs, allow_overwrite):
     """
 
     Wrap the ``divvy_rule`` passed to image_divvy()
@@ -693,7 +714,12 @@ def image_divvy(instance,
                     - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
 
     :type action: ``str``
-    :param train_val_test_dict: a dictionary
+    :param train_val_test_dict: a dictionary denoting the proportions for any of: ``'train'``, ``'validation'`` and/or ``'test'``.
+
+                        .. note:
+
+                            If ``action='copy'``, a ``'target_dir'`` key (target directory) must also be included.
+
     :type train_val_test_dict: ``None`` or ``dict``
     :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``True``.
     :type create_dirs: ``bool``
@@ -773,6 +799,10 @@ def image_divvy(instance,
     >>> val_ct, val_mri = tvt['validation']['ct'], tvt['validation']['mri']
     >>> test_ct, test_mri = tvt['test']['ct'], tvt['test']['mri']
 
+    .. note::
+
+        Divvying into *train*/*validation*/*test* is powered by the ``train_val_test`` function
+        (available :func:`here <biovida.support_tools.utilities.train_val_test>`).
 
     .. note::
 
@@ -787,7 +817,8 @@ def image_divvy(instance,
         performance metrics (e.g., accuracy).
 
     """
-    # ToDo: Add input checking
+    _image_divvy_error_checking(action=action, train_val_test_dict=train_val_test_dict)
+
     data_frame = getattr(instance, db_to_extract) if db_to_extract != 'unify_against_images' else instance
     if not isinstance(data_frame, pd.DataFrame):
         raise TypeError("{0} expected to be a DataFrame.\n"
@@ -796,10 +827,10 @@ def image_divvy(instance,
     # Define the column to copy images from.
     column_to_use = _divvy_column_selector(instance, db_to_extract, image_column, data_frame)
 
-    divvy_rule_wrapper = _image_divvy_wrapper_gen(divvy_rule=divvy_rule, action=action,
-                                                  train_val_test_dict=train_val_test_dict,
-                                                  column_to_use=column_to_use, create_dirs=create_dirs,
-                                                  allow_overwrite=allow_overwrite)
+    divvy_rule_wrapper = _image_divvy_wrappers_gen(divvy_rule=divvy_rule, action=action,
+                                                   train_val_test_dict=train_val_test_dict,
+                                                   column_to_use=column_to_use, create_dirs=create_dirs,
+                                                   allow_overwrite=allow_overwrite)
 
     def divvy_rule_apply():
         divvy_info = list()
@@ -813,7 +844,8 @@ def image_divvy(instance,
     divvy_info = divvy_rule_apply()
 
     if isinstance(divvy_info, pd.DataFrame):
-        return _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_test_dict)
+        return _image_divvy_train_val_test_wrapper(action=action, verbose=verbose, divvy_info=divvy_info,
+                                                   train_val_test_dict=train_val_test_dict)
     else:
         return None
 
