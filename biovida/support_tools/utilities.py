@@ -114,7 +114,7 @@ def _list_divide(l, tvt):
     :type tvt: ``dict``
     :return: a dictionary of the form: ``{tvt_key_1: [file_path, file_path, ...], ...}``. Sorted to ensure
              generation order is train --> validation --> test.
-    :rtype: ``tuple``
+    :rtype: ``list``
 
     .. note::
 
