@@ -336,7 +336,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=60</em>, <em>check_cache_first=True</em>, <em>clinical_cases_only=True</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=100</em>, <em>check_cache_first=True</em>, <em>clinical_cases_only=True</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <p>In addition to the columns provided by Open-i, this method will automatically generate the
 following columns by analyzing the pulled data:</p>
@@ -383,7 +383,7 @@ Note: noise is randomly added to the sleep time by sampling from a normal distri
 Note: noise is randomly added to the sleep time by sampling from a normal distribution
 (with mean = 0, sd = 0.75).</li>
 <li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
-(not recommended). Defaults to 60.</li>
+(not recommended). Defaults to 100.</li>
 <li><strong>check_cache_first</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; check the image cache for the image prior to downloading.
 If <code class="docutils literal"><span class="pre">True</span></code> and the image is already present, no attempt will be made to download it
 again.</li>
@@ -1746,6 +1746,10 @@ numeric values (i.e., <code class="docutils literal"><span class="pre">int</span
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Files are randomly shuffled prior to assignment.</p>
+</div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">In the case of division with a remainder, preference is as follows: <cite>train</cite> &lt; <cite>validation</cite> &lt; <cite>test</cite>.
@@ -1808,21 +1812,21 @@ down, in favor of <cite>validation</cite> obtaining the final file. In this inst
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ tree /path/to/data/images
 ├── train
 │   ├── ct
-│   │   ├── ct_1.png
-│   │   ├── ct_2.png
+│   │   ├── ct_4.png
+│   │   ├── ct_5.png
 │   │   ├── ct_3.png
-│   │   └── ct_4.png
+│   │   └── ct_1.png
 │   └── mri
-│       ├── mri_1.png
 │       ├── mri_2.png
-│       ├── mri_3.png
+│       ├── mri_1.png
+│       ├── mri_5.png
 │       └── mri_4.png
 └── validation
     ├── ct
-    │   ├── ct_5.png
+    │   ├── ct_2.png
     │   └── ct_6.png
     └── mri
-        ├── mri_5.png
+        ├── mri_3.png
         └── mri_6.png
 </pre></div>
 </div>
