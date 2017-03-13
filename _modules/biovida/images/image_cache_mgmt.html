@@ -688,6 +688,27 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
+<span class="k">def</span> <span class="nf">_image_divvy_error_checking</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Check for possible errors for ``image_divvy()``.</span>
+
+<span class="sd">    :param train_val_test_dict: see ``image_divvy()``.</span>
+<span class="sd">    :type action: ``str``</span>
+<span class="sd">    :param train_val_test_dict: see ``image_divvy()``.</span>
+<span class="sd">    :type train_val_test_dict: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_val_test_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">train_val_test_dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;`train_val_test_dict` is empty&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="ow">and</span> <span class="s1">&#39;target_dir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">train_val_test_dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;`train_val_test_dict` must contain a `target_dir` key &quot;</span>
+                           <span class="s2">&quot;if `action=&#39;copy&#39;`.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">train_val_test_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;target_dir&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Invalid `train_val_test_dict` key: &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">_robust_copy</span><span class="p">(</span><span class="n">to_copy</span><span class="p">,</span> <span class="n">copy_to</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -747,7 +768,7 @@
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not a valid image column for &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_column</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">_image_divvy_wrapper_gen</span><span class="p">(</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="p">,</span> <span class="n">column_to_use</span><span class="p">,</span> <span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_image_divvy_wrappers_gen</span><span class="p">(</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="p">,</span> <span class="n">column_to_use</span><span class="p">,</span> <span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Wrap the ``divvy_rule`` passed to image_divvy()</span>
@@ -865,7 +886,12 @@
 <span class="sd">                    - if ``&#39;ndarray&#39;``: return a nested dictionary of ``ndarray`` (&#39;numpy&#39;) arrays.</span>
 
 <span class="sd">    :type action: ``str``</span>
-<span class="sd">    :param train_val_test_dict: a dictionary</span>
+<span class="sd">    :param train_val_test_dict: a dictionary denoting the proportions for any of: ``&#39;train&#39;``, ``&#39;validation&#39;`` and/or ``&#39;test&#39;``.</span>
+
+<span class="sd">                        .. note:</span>
+
+<span class="sd">                            If ``action=&#39;copy&#39;``, a ``&#39;target_dir&#39;`` key (target directory) must also be included.</span>
+
 <span class="sd">    :type train_val_test_dict: ``None`` or ``dict``</span>
 <span class="sd">    :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``True``.</span>
 <span class="sd">    :type create_dirs: ``bool``</span>
@@ -945,6 +971,10 @@
 <span class="sd">    &gt;&gt;&gt; val_ct, val_mri = tvt[&#39;validation&#39;][&#39;ct&#39;], tvt[&#39;validation&#39;][&#39;mri&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; test_ct, test_mri = tvt[&#39;test&#39;][&#39;ct&#39;], tvt[&#39;test&#39;][&#39;mri&#39;]</span>
 
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Divvying into *train*/*validation*/*test* is powered by the ``train_val_test`` function</span>
+<span class="sd">        (available :func:`here &lt;biovida.support_tools.utilities.train_val_test&gt;`).</span>
 
 <span class="sd">    .. note::</span>
 
@@ -959,7 +989,8 @@
 <span class="sd">        performance metrics (e.g., accuracy).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># ToDo: Add input checking</span>
+    <span class="n">_image_divvy_error_checking</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
+
     <span class="n">data_frame</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">)</span> <span class="k">if</span> <span class="n">db_to_extract</span> <span class="o">!=</span> <span class="s1">&#39;unify_against_images&#39;</span> <span class="k">else</span> <span class="n">instance</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> expected to be a DataFrame.</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -968,10 +999,10 @@
     <span class="c1"># Define the column to copy images from.</span>
     <span class="n">column_to_use</span> <span class="o">=</span> <span class="n">_divvy_column_selector</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">,</span> <span class="n">image_column</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">)</span>
 
-    <span class="n">divvy_rule_wrapper</span> <span class="o">=</span> <span class="n">_image_divvy_wrapper_gen</span><span class="p">(</span><span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
-                                                  <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">,</span>
-                                                  <span class="n">column_to_use</span><span class="o">=</span><span class="n">column_to_use</span><span class="p">,</span> <span class="n">create_dirs</span><span class="o">=</span><span class="n">create_dirs</span><span class="p">,</span>
-                                                  <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">)</span>
+    <span class="n">divvy_rule_wrapper</span> <span class="o">=</span> <span class="n">_image_divvy_wrappers_gen</span><span class="p">(</span><span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+                                                   <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">,</span>
+                                                   <span class="n">column_to_use</span><span class="o">=</span><span class="n">column_to_use</span><span class="p">,</span> <span class="n">create_dirs</span><span class="o">=</span><span class="n">create_dirs</span><span class="p">,</span>
+                                                   <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">divvy_rule_apply</span><span class="p">():</span>
         <span class="n">divvy_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -985,7 +1016,8 @@
     <span class="n">divvy_info</span> <span class="o">=</span> <span class="n">divvy_rule_apply</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_image_divvy_train_val_test_wrapper</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">divvy_info</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_image_divvy_train_val_test_wrapper</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">divvy_info</span><span class="o">=</span><span class="n">divvy_info</span><span class="p">,</span>
+                                                   <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 

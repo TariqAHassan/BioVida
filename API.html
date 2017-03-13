@@ -1697,7 +1697,8 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 <li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays.</li>
 </ul>
 </li>
-<li><strong>train_val_test_dict</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; a dictionary</li>
+<li><strong>train_val_test_dict</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; <p>a dictionary denoting the proportions for any of: <code class="docutils literal"><span class="pre">'train'</span></code>, <code class="docutils literal"><span class="pre">'validation'</span></code> and/or <code class="docutils literal"><span class="pre">'test'</span></code>.</p>
+</li>
 <li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>image_column</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the column to use when copying images. If <code class="docutils literal"><span class="pre">None</span></code>, use <code class="docutils literal"><span class="pre">'cached_images_path'</span></code>. Default to <code class="docutils literal"><span class="pre">None</span></code>.</li>
@@ -1786,6 +1787,11 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 <span class="gp">&gt;&gt;&gt; </span><span class="n">val_ct</span><span class="p">,</span> <span class="n">val_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test_ct</span><span class="p">,</span> <span class="n">test_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Divvying into <em>train</em>/<em>validation</em>/<em>test</em> is powered by the <code class="docutils literal"><span class="pre">train_val_test</span></code> function
+(available <a class="reference internal" href="source/biovida.html#biovida.support_tools.utilities.train_val_test" title="biovida.support_tools.utilities.train_val_test"><code class="xref py py-func docutils literal"><span class="pre">here</span></code></a>).</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
