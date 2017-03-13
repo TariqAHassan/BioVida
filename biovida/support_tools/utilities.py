@@ -337,8 +337,14 @@ def train_val_test(data,
 
     """
     groups = ('train', 'validation', 'test')
-    target_path = data if not isinstance(target_dir, str) else target_dir
-    existing_dirs = _subdirectories_in_path(data, to_block=groups)
+    if isinstance(data, str) and not isinstance(target_dir, str):
+        target_path = data
+    elif isinstance(target_dir, str):
+        target_dir = target_dir
+    else:
+        raise TypeError("`target_dir` must be a system path if `data` is not.")
+
+    existing_dirs = _subdirectories_in_path(data, to_block=groups) if isinstance(data, str) else None
 
     # Extract those of the train, validation, test (tvt) params which are numeric.
     tvt = {k: v for k, v in locals().items() if k in groups and is_numeric(v)}
@@ -361,7 +367,7 @@ def train_val_test(data,
         for k, v in output_dict.items():
             print("- {0}:\n{1}".format(k, list_to_bulletpoints(v)))
 
-    if delete_source:
+    if existing_dirs is not None and delete_source:
         for i in existing_dirs:
             shutil.rmtree(i)
 
