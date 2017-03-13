@@ -804,7 +804,7 @@ def image_divvy(instance,
 
     Obtaining ndarrays (numpy arrays)
 
-    >>> train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1, 'target_dir': '/your/path/here/output'}
+    >>> train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1}
     >>> tvt = image_divvy(opi, divvy_rule=my_divvy_rule3, action='ndarray', train_val_test_dict=train_val_test_dict)
 
     The resultant ndarrays can be unpacked into objects as follows:
