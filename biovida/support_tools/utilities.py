@@ -14,7 +14,6 @@ from os.path import join as os_join
 
 from biovida.support_tools.support_tools import isclose
 from biovida.support_tools.support_tools import is_numeric
-from biovida.support_tools.support_tools import natural_key
 from biovida.support_tools.support_tools import create_dir_if_needed
 from biovida.support_tools.support_tools import list_to_bulletpoints
 from biovida.support_tools.support_tools import InsufficientNumberOfFiles
@@ -46,7 +45,7 @@ def _train_val_test_error_checking(data, target_dir, action, delete_source, grou
     Check for possible errors for ``train_val_test()``.
 
     :param data: see ``train_val_test()``.
-    :type data: ``str``
+    :type data: ``str`` or ``dict``
     :param target_dir: see ``train_val_test()``.
     :type target_dir: ``str``
     :param action: see ``train_val_test()``.
@@ -69,8 +68,8 @@ def _train_val_test_error_checking(data, target_dir, action, delete_source, grou
         raise TypeError("The values of `data` must be lists or tuples.")
     if action not in ('copy', 'ndarray'):
         raise ValueError("`action` must be one of: 'copy', 'ndarray'.")
-    if action == 'ndarray' and isinstance(target_dir, str):  # ToDo: remove.
-        raise ValueError("`action` cannot equal 'ndarray' if `target_dir` is a string.")
+    if action == 'ndarray' and isinstance(target_dir, str):
+        warn("`target_dir` has no effect when `action='ndarray'`")
     if not isinstance(delete_source, bool):
         raise TypeError("`delete_source` must be a boolean.")
     
@@ -117,27 +116,30 @@ def _list_divide(l, tvt):
              generation order is train --> validation --> test.
     :rtype: ``tuple``
 
+    .. note::
+
+        This function will randomly shuffle ``l``.
+
     :Example:
 
     >>> l = ['file/path/image_1.png', 'file/path/image_4.png', 'file/path/image_3.png', 'file/path/image_2.png']
     >>> tvt = {'validation': 0.5, 'train': 0.5}
     >>> _list_divide(l, tvt)
     ...
-    {'train': ['file/path/image_1.png', 'file/path/image_2.png'],
-    'validation': ['file/path/image_3.png', 'file/path/image_4.png']}
+    [('train', ['file/path/image_4.png', 'file/path/image_2.png']),
+    ('validation', ['file/path/image_1.png', 'file/path/image_3.png'])]
 
     """
     order_dict = {'train': 1, 'validation': 2, 'test': 3}
 
-    # Natural sorting of items in ``l``.
-    l_sorted = sorted(l, key=lambda x: natural_key(os.path.basename(x)))
+    l_shuffled = np.random.permutation(l).tolist()
     tvt_sorted = sorted(tvt.items(), key=lambda x: order_dict.get(x[0]))
 
     left, divided_dict = 0, dict()
     for e, (k, v) in enumerate(tvt_sorted, start=1):
-        right = len(l_sorted) * v
-        right_full = int(left) + int(right) if e != len(tvt.keys()) else len(l_sorted)
-        divided_dict[k] = l_sorted[int(left):right_full]
+        right = len(l_shuffled) * v
+        right_full = int(left) + int(right) if e != len(tvt.keys()) else len(l_shuffled)
+        divided_dict[k] = l_shuffled[int(left):right_full]
         left += right
     return sorted(divided_dict.items(), key=lambda x: order_dict.get(x[0]))
 
