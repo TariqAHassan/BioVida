@@ -605,7 +605,7 @@ def _divvy_column_selector(instance, db_to_extract, image_column, data_frame):
 def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to_use, create_dirs, allow_overwrite):
     """
 
-    Wrap the ``divvy_rule`` passed to image_divvy()
+    Wrap the ``divvy_rule`` passed to ``image_divvy()``.
 
     :param divvy_rule: see ``image_divvy()``.
     :type divvy_rule: ``str`` or ``function``
