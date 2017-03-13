@@ -19,6 +19,8 @@ from biovida.images._image_tools import ActionVoid
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import multimap
+from biovida.support_tools.support_tools import path_existence_handler
+from biovida.support_tools.utilities import train_val_test
 
 # Import Printing Tools
 from biovida.support_tools import pandas_pprint
@@ -433,7 +435,7 @@ def image_delete(instance, delete_rule, verbose=True):
     :type delete_rule: ``str`` or ``function``
     :param verbose: if ``True``, print a
     :type verbose: ``bool``
-    :return: a dictionary of the indicies which were dropped. Example: ``{'records_db': [58, 59], 'cache_records_db': [158, 159]}``.
+    :return: a dictionary of the indices which were dropped. Example: ``{'records_db': [58, 59], 'cache_records_db': [158, 159]}``.
     :rtype: ``dict``
 
     :Example:
@@ -514,7 +516,7 @@ def image_delete(instance, delete_rule, verbose=True):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _robust_copy(to_copy, copy_path, allow_overwrite):
+def _robust_copy(to_copy, copy_to, allow_overwrite):
     """
 
     Function to copy ``to_copy``.
@@ -523,14 +525,14 @@ def _robust_copy(to_copy, copy_path, allow_overwrite):
     :param to_copy: a file, or multiple files to delete. Note: if ``to_copy`` is not a ``string``,
                      ``list`` or ``tuple``, no action will be taken.
     :type to_copy: ``str``, ``list``  or ``tuple``
-    :param copy_path: the location for the image
-    :type copy_path: ``str``
+    :param copy_to: the location for the image
+    :type copy_to: ``str``
     :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
     :type allow_overwrite: ``bool``
     """
     def copy_util(from_path):
         if os.path.isfile(from_path):
-            to_path = os.path.join(copy_path, os.path.basename(from_path))
+            to_path = os.path.join(copy_to, os.path.basename(from_path))
             if not allow_overwrite and os.path.isfile(to_path):
                 raise FileExistsError("The following file already exists:\n{0}".format(to_path))
             shutil.copy2(from_path, to_path)
@@ -573,14 +575,84 @@ def _divvy_column_selector(instance, db_to_extract, image_column, data_frame):
         raise KeyError("'{0}' is not a valid image column for '{1}'.".format(image_column, db_to_extract))
 
 
+def _image_divvy_wrapper_gen(divvy_rule, action, train_val_test_dict, column_to_use, create_dirs, allow_overwrite):
+    """
+
+    :param divvy_rule:
+    :param action:
+    :param train_val_test_dict:
+    :param column_to_use:
+    :param create_dirs:
+    :param allow_overwrite:
+    :return:
+    """
+    def copy_rule_wrapper(row, copy_to):
+        if isinstance(copy_to, (str, tuple, list)):
+            all_copy_targets = [copy_to] if isinstance(copy_to, str) else copy_to
+            if not len(all_copy_targets):
+                return None
+            for i in all_copy_targets:
+                if not isinstance(i, str):
+                    raise TypeError("`divvy_rule` returned iterable containing a element which is not a string.")
+                path_existence_handler(path_=i, allow_creation=create_dirs)  # ToDo: move into _robust_copy().
+                _robust_copy(to_copy=row[column_to_use], copy_to=i, allow_overwrite=allow_overwrite)
+        elif copy_to is not None:
+            raise TypeError("String, list or tuple expected. "
+                            "`divvy_rule` returned an object of type '{0}'.".format(type(copy_to).__name__))
+
+    def divvy_rule_wrapper(row):
+        copy_to = divvy_rule(row)
+        if not isinstance(copy_to, (str, list, tuple)):
+            return None
+        if not len(copy_to):
+            return None
+        if action == 'copy' and not isinstance(train_val_test_dict, dict):
+            copy_rule_wrapper(row, copy_to)
+            return None
+        elif isinstance(row[column_to_use], (str, tuple, list)):
+            cache_info = [row[column_to_use]] if isinstance(row[column_to_use], str) else list(row[column_to_use])
+            if isinstance(copy_to, str):
+                return [[os.path.basename(copy_to), cache_info]]
+            elif isinstance(copy_to, (list, tuple)):
+                return [[os.path.basename(c), cache_info] for c in copy_to]
+        else:
+            return None
+
+    return divvy_rule_wrapper
+
+
+def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_test_dict):
+    """
+
+    :param action:
+    :param verbose:
+    :param divvy_info:
+    :type divvy_info: ``Pandas DataFrame``
+    :param train_val_test_dict:
+    :return:
+    """
+    divvy_info_groupby = divvy_info.dropna().groupby(0).apply(lambda x: x[1].tolist())
+    divvy_info_dict = {k: list(chain(*v)) for k, v in divvy_info_groupby.to_dict().items()}
+
+    target = train_val_test_dict.get('target_dir') if action == 'copy' else None
+    output_dict = train_val_test(data=divvy_info_dict,
+                                 train=train_val_test_dict.get('train', None),
+                                 validation=train_val_test_dict.get('validation', None),
+                                 test=train_val_test_dict.get('test', None),
+                                 target_dir=target, action=action, delete_source=False,
+                                 verbose=verbose)
+    return output_dict
+
+
 def image_divvy(instance,
                 divvy_rule,
                 db_to_extract='records_db',
-                action='ndarray',
+                action='copy',
                 train_val_test_dict=None,
-                create_dirs=False,
+                create_dirs=True,
                 allow_overwrite=True,
-                image_column=None):
+                image_column=None,
+                verbose=True):
     """
 
     Copy images from the cache to another location.
@@ -598,14 +670,24 @@ def image_divvy(instance,
                     - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
 
     :type db_to_extract: ``str``
-    :param action:
+    :param action: one of: 'copy', 'ndarray'.
+
+                    - if ``'copy'``: copy from files from the cache to (i) the location prescribed by ``divvy_rule``,
+                      when ``train_val_test_dict=None``, else (ii) the 'target_location' key in ``train_val_test_dict``.
+
+                    - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
+
     :type action: ``str``
-    :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``False``.
+    :param train_val_test_dict: a dictionary
+    :type train_val_test_dict: ``None`` or ``dict``
+    :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``True``.
     :type create_dirs: ``bool``
     :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
     :type allow_overwrite: ``bool``
     :param image_column: the column to use when copying images. If ``None``, use ``'cached_images_path'``. Default to ``None``.
     :type image_column: ``str``
+    :param verbose:
+    :type verbose: ``bool``
 
     :Example:
 
@@ -613,74 +695,56 @@ def image_divvy(instance,
     >>> from biovida.images import OpeniInterface
     ...
     >>> opi = OpeniInterface()
-    >>> opi.search(image_type=['mri', 'pet'])
+    >>> opi.search(image_type=['mri', 'ct'])
     >>> opi.pull()
     ...
     >>> def my_divvy_rule(row):
-    >>>    if 'MRI' in row['modality_full']:
-    >>>        return '/your/path/here/MRI_images'
-    >>>    elif 'PET' in row['modality_full']:
-    >>>        return '/your/path/here/PET_images'
+    >>>     if isinstance(row['image_modality_major'], str):
+    >>>         if 'mri' in row['image_modality_major']:
+    >>>             return '/your/path/here/MRI_images'
+    >>>         elif 'ct' in row['image_modality_major']:
+    >>>             return '/your/path/here/CT_images'
     ...
     >>> image_divvy(opi, divvy_rule=my_divvy_rule)
+    ...
+    >>> train_val_test_dict = {'train': .7, 'test': .3, 'target_dir': 'your/path/here/output'}
 
     """
-    # Extract the required dataframe.
+    # ToDo: Add input checking
     data_frame = getattr(instance, db_to_extract) if db_to_extract != 'unify_against_images' else instance
     if not isinstance(data_frame, pd.DataFrame):
         raise TypeError("{0} expected to be a DataFrame.\n"
                         "Got an object of type: '{1}'.".format(db_to_extract, type(data_frame).__name__))
 
-    def path_existence_handler(path):
-        """Create `path` if it does not exist and `create_dirs=True`."""
-        if not os.path.isdir(path):
-            if create_dirs:
-                os.makedirs(path)
-                print("\nThe following directory has been created:\n\n{0}\n".format(path))
-            else:
-                raise NotADirectoryError("\nNo such directory:\n'{0}'\n"
-                                         "Consider setting `create_dirs=True`.".format(path))
-
     # Define the column to copy images from.
     column_to_use = _divvy_column_selector(instance, db_to_extract, image_column, data_frame)
 
-def divvy_rule_wrapper(row):
-    """Wrap ``divvy_rule`` to automate copying."""
-    copy_path = divvy_rule(row)
-    if action == 'copy':
-        if isinstance(copy_path, str):
-            path_existence_handler(copy_path)
-            _robust_copy(to_copy=row[column_to_use],
-                         copy_path=copy_path,
-                         allow_overwrite=allow_overwrite)
-        else:
-            raise TypeError("String Expected. `divvy_rule` returned "
-                            "an object of type '{0}'.".format(type(copy_path).__name__))
-    elif isinstance(row[column_to_use], (str, tuple, list)):
-        cache_info = [row[column_to_use]] if isinstance(row[column_to_use], str) else list(row[column_to_use])
-        return pd.Series([os.path.basename(copy_path), cache_info])
+    divvy_rule_wrapper = _image_divvy_wrapper_gen(divvy_rule=divvy_rule, action=action,
+                                                  train_val_test_dict=train_val_test_dict,
+                                                  column_to_use=column_to_use, create_dirs=create_dirs,
+                                                  allow_overwrite=allow_overwrite)
+
+    def divvy_rule_apply():
+        divvy_info = list()
+        for _, row in data_frame.iterrows():
+            target = divvy_rule_wrapper(row)
+            if isinstance(target, list):
+                for t in target:
+                    divvy_info.append(t)
+        return pd.DataFrame(divvy_info) if len(divvy_info) else None
+
+    divvy_info = divvy_rule_apply()
+
+    if isinstance(divvy_info, pd.DataFrame):
+        return _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_test_dict)
     else:
         return None
 
-# Apply rule
-divvy_info = data_frame.apply(lambda x: divvy_rule_wrapper(x), axis=1)
-divvy_info_groupby = divvy_info.groupby(0).apply(lambda x: x[1].tolist())
-divvy_info_dict = {k: list(chain(*v)) for k, v in d.to_dict().items()}
-
-pprint(divvy_info_dict)
-
-from pprint import pprint
 
 
 
 
 
-
-def my_divvy_rule(row):
-    if 'MRI' in row['modality_full']:
-        return '/your/path/here/MRI_images'
-    elif 'PET' in row['modality_full']:
-        return '/your/path/here/PET_images'
 
 
 

@@ -189,6 +189,21 @@ def create_dir_if_needed(directory):
     return directory
 
 
+def path_existence_handler(path_, allow_creation):
+    """
+
+    :param path_:
+    :param allow_creation:
+    :return:
+    """
+    if not os.path.isdir(path_):
+        if allow_creation:
+            os.makedirs(path_)
+            print("\nThe following directory has been created:\n\n{0}\n".format(path_))
+        else:
+            raise NotADirectoryError("\nNo such directory:\n'{0}'\n".format(path_))
+
+
 def pstr(s):
     """
 
