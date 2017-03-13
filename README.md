@@ -12,18 +12,14 @@ neural networks.
 
 To view this project's website, please [click here].
 
-------------------------------------------------------------------------
-
-###Installation
+##Installation
 
 Latest Build:
 ```bash
 $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
-------------------------------------------------------------------------
-
-###API Overview
+##API Overview
 
 ###Image Data
 
@@ -98,8 +94,6 @@ that the model was tasked with differentiating between images which had been per
 (e.g., had arrows added) with those that had not (random cropping notwithstanding). 
 Moreover, in informal testing, this model appears to be be performing very well with new data.
 
-------------------------------------------------------------------------
-
 ###Genomic Data
 
 BioVida provides a simple interface for obtaining genomic data.
@@ -114,8 +108,6 @@ dna = DisgenetInterface()
 # 3. Pull a Database
 gdf = dna.pull('curated')
 ```
-
-------------------------------------------------------------------------
 
 ###Diagnostic Data
 
@@ -147,16 +139,12 @@ dsi = DiseaseSymptomsInterface()
 dsdf = dsi.pull()
 ```
 
-------------------------------------------------------------------------
-
-###Documentation
+##Documentation
 
 You can view a more extensive Getting Started guide by [clicking here]
 and API documentation [here].
 
-------------------------------------------------------------------------
-
-###Resources
+##Resources
 
 The [resources] document provides an account of all data sources and
 scholarly work used by BioVida.
