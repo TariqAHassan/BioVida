@@ -8,6 +8,7 @@
 import os
 import shutil
 import numpy as np
+from warnings import warn
 from scipy.ndimage import imread
 from os.path import join as os_join
 
@@ -68,7 +69,7 @@ def _train_val_test_error_checking(data, target_dir, action, delete_source, grou
         raise TypeError("The values of `data` must be lists or tuples.")
     if action not in ('copy', 'ndarray'):
         raise ValueError("`action` must be one of: 'copy', 'ndarray'.")
-    if action == 'ndarray' and isinstance(target_dir, str):
+    if action == 'ndarray' and isinstance(target_dir, str):  # ToDo: remove.
         raise ValueError("`action` cannot equal 'ndarray' if `target_dir` is a string.")
     if not isinstance(delete_source, bool):
         raise TypeError("`delete_source` must be a boolean.")
@@ -219,12 +220,13 @@ def train_val_test(data,
     :type test: ``int``, ``float``, ``bool`` or ``None``
     :param target_dir: the location to output the images to (if ``action=True``). If ``None``, the output location will
                        be ``data``. Defaults to ``None``.
-    :type target_dir: ``str``
+    :type target_dir: ``str`` or ``None``
     :param action: one of: 'copy', 'ndarray'.
 
                     - if ``'copy'``: copy from files from ``data`` to ``target_dir`` (default).
                     - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
 
+    :type action: ``str``
     :param delete_source: if ``True`` delete the source subdirectories in ``data`` after copying is complete. Defaults to ``False``.
 
                           .. note::
@@ -337,12 +339,16 @@ def train_val_test(data,
 
     """
     groups = ('train', 'validation', 'test')
-    if isinstance(data, str) and not isinstance(target_dir, str):
-        target_path = data
-    elif isinstance(target_dir, str):
-        target_dir = target_dir
+    if action == 'copy':
+        if isinstance(target_dir, str):
+            target_path = target_dir
+        elif isinstance(data, str) and not isinstance(target_dir, str):
+            target_path = data
+            warn("`target_path` is not a string; using `data` as the output location")
+        else:
+            raise TypeError("`target_dir` must be a system path if `data` is not.")
     else:
-        raise TypeError("`target_dir` must be a system path if `data` is not.")
+        target_path = None
 
     existing_dirs = _subdirectories_in_path(data, to_block=groups) if isinstance(data, str) else None
 
@@ -352,7 +358,7 @@ def train_val_test(data,
     if isinstance(data, str):
         group_files_dict = _existing_files_dict_gen(directory=data, to_block=groups)
     elif isinstance(data, dict):
-        groups_files_dict = data
+        group_files_dict = data
     else:
         raise TypeError("`data` must be a string or dictionary.")
 
