@@ -203,10 +203,10 @@ def train_val_test(data,
         - the directory containing the data. This directory should contain subdirectories (the categories)
           populated with the files.
 
-                .. warning::
+        .. warning::
 
-                        If a directory is passed, subdirectories therein entitled 'train', 'validation' and 'test'
-                        will be ignored.
+                If a directory is passed, subdirectories therein entitled 'train', 'validation' and 'test'
+                will be ignored.
 
     :type data: ``dict`` or ``str``
     :param train: the proportion images in ``data`` to allocate to ``train``. If ``False`` or ``None``,
@@ -259,7 +259,7 @@ def train_val_test(data,
            `4` files (``floor(0.7 * 6) = 4``) and `validation` would obtain 2 files (``ceil(0.3 * 6) = 2``).
 
 
-    **Examples:**
+    :Example:
 
     The examples below use a sample directory entitled ``images``.
 
@@ -284,9 +284,7 @@ def train_val_test(data,
             └── mri_6.png
 
     |
-    | **Obtaining ndarrays**
-
-    :Example:
+    | **Usage 1**: Obtaining ndarrays
 
     >>> from biovida.support_tools import train_val_test
     >>> tt = train_val_test(data='/path/to/data/images', train=0.7, validation=None, test=0.3,
@@ -298,9 +296,7 @@ def train_val_test(data,
     >>> test_ct, test_mri = tt['test']['ct'], tt['test']['mri']
 
     |
-    | **Reorganize a Directory In-place**
-
-    :Example:
+    | **Usage 2**: Reorganize a Directory In-place
 
     >>> from biovida.support_tools import train_val_test
     >>> tv = train_val_test(data='/path/to/data/images', train=0.7, validation=0.3, test=None,
@@ -332,7 +328,7 @@ def train_val_test(data,
 
     .. note::
 
-        The following changes to the snippet above would preserve the original ``ct`` and ``mri`` directories:
+        The following changes to **Usage 2** would preserve the original ``ct`` and ``mri`` directories:
 
         - setting ``delete_source=False`` (the default) and/or
         - providing a path to ``target_dir``, e.g., ``target_dir='/path/to/output/output_data'``

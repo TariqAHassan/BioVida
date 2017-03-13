@@ -709,17 +709,20 @@ def image_divvy(instance,
     >>> from biovida.images import image_divvy
     >>> from biovida.images import OpeniInterface
 
-    **Obtain Images**
+    |
+    | **Obtain Images**
 
     >>> opi = OpeniInterface()
     >>> opi.search(image_type=['mri', 'ct'])
     >>> opi.pull()
 
-    **Usage 1**: Copy Images from the Cache to a New Location
+    |
+    | **Usage 1**: Copy Images from the Cache to a New Location
 
     >>> image_divvy(opi, divvy_rule="/your/output/path/here/output")
 
-    **Usage 2a**: A ``divvy_rule`` which invariably returns a single save location
+    |
+    | **Usage 2a**: A Rule which Invariably Returns a Single Save Location
 
     >>> def my_divvy_rule1(row):
     >>>     if isinstance(row['image_modality_major'], str):
@@ -730,7 +733,8 @@ def image_divvy(instance,
     ...
     >>> image_divvy(opi, divvy_rule=my_divvy_rule1)
 
-    **Usage 2b**: A ``divvy_rule`` which can return multiple save location
+    |
+    | **Usage 2b**: A Rule which can Return Multiple Save Locations
 
     >>> def my_divvy_rule2(row):
     >>>     locations = list()
@@ -743,7 +747,8 @@ def image_divvy(instance,
     ...
     >>> image_divvy(opi, divvy_rule=my_divvy_rule2)
 
-    **Usage 3a**: Divvying into train/validation/test
+    |
+    | **Usage 3a**: Divvying into *train*/*validation*/*test*
 
     >>> def my_divvy_rule3(row):
     >>>     if isinstance(row['image_modality_major'], str):
@@ -767,6 +772,19 @@ def image_divvy(instance,
     >>> train_ct, train_mri = tvt['train']['ct'], tvt['train']['mri']
     >>> val_ct, val_mri = tvt['validation']['ct'], tvt['validation']['mri']
     >>> test_ct, test_mri = tvt['test']['ct'], tvt['test']['mri']
+
+
+    .. note::
+
+        If a function passed to ``divvy_rule`` returns a system path when a dictionary has been passed
+        to ``train_val_test_dict``, only the basename of the system path will be used.
+
+    .. warning::
+
+        While it is possible to pass a function to ``divvy_rule`` which returns multiple categories
+        (similar to ``my_divvy_rule2()``) when divvying into *train*/*validation*/*test*, doing
+        so is not recommended. Overlap between these groups is likely to lead to erroneous
+        performance metrics (e.g., accuracy).
 
     """
     # ToDo: Add input checking
