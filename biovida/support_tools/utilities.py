@@ -252,6 +252,10 @@ def train_val_test(data,
                             numeric values (i.e., ``int`` or ``float``) do not sum to 1.
 
 
+    .. note::
+
+          Files are randomly shuffled prior to assignment.
+
     .. warning::
 
            In the case of division with a remainder, preference is as follows: `train` < `validation` < `test`.
@@ -311,21 +315,21 @@ def train_val_test(data,
         $ tree /path/to/data/images
         ├── train
         │   ├── ct
-        │   │   ├── ct_1.png
-        │   │   ├── ct_2.png
+        │   │   ├── ct_4.png
+        │   │   ├── ct_5.png
         │   │   ├── ct_3.png
-        │   │   └── ct_4.png
+        │   │   └── ct_1.png
         │   └── mri
-        │       ├── mri_1.png
         │       ├── mri_2.png
-        │       ├── mri_3.png
+        │       ├── mri_1.png
+        │       ├── mri_5.png
         │       └── mri_4.png
         └── validation
             ├── ct
-            │   ├── ct_5.png
+            │   ├── ct_2.png
             │   └── ct_6.png
             └── mri
-                ├── mri_5.png
+                ├── mri_3.png
                 └── mri_6.png
 
     .. note::
