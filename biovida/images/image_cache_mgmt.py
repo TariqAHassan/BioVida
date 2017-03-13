@@ -537,6 +537,9 @@ def _image_divvy_error_checking(action, train_val_test_dict):
         for k in train_val_test_dict:
             if k not in ('train', 'validation', 'test', 'target_dir'):
                 raise KeyError("Invalid `train_val_test_dict` key: '{0}'.")
+        if action == 'ndarray' and'target_dir' in train_val_test_dict:
+            warn("The 'target_dir' key in `train_val_test_dict` has no "
+                 "effect when `action='ndarray'`.")
 
 
 def _robust_copy(to_copy, copy_to, allow_creation, allow_overwrite):
@@ -622,6 +625,8 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
     :return: a function which wraps the function passed to ``divvy_rule()``.
     :rtype: ``function``
     """
+    # ToDo: handle action='ndarray' and train_val_test_dict=None.
+
     def copy_rule_wrapper(row, copy_to):
         if isinstance(copy_to, (str, tuple, list)):
             all_copy_targets = [copy_to] if isinstance(copy_to, str) else copy_to
@@ -637,7 +642,10 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
                             "`divvy_rule` returned an object of type '{0}'.".format(type(copy_to).__name__))
 
     def divvy_rule_wrapper(row):
-        copy_to = divvy_rule(row)
+        if not isinstance(divvy_rule, str) and not callable(divvy_rule):
+            raise TypeError("`divvy_rule` must be a string or function.")
+
+        copy_to = divvy_rule(row) if callable(divvy_rule) else divvy_rule
         if not isinstance(copy_to, (str, list, tuple)):
             return None
         if not len(copy_to):
@@ -754,7 +762,7 @@ def image_divvy(instance,
     >>> image_divvy(opi, divvy_rule="/your/output/path/here/output")
 
     |
-    | **Usage 2a**: A Rule which Invariably Returns a Single Save Location
+    | **Usage 2a**: A Rule which Invariably Returns a Single Save Location for a Single Row
 
     >>> def my_divvy_rule1(row):
     >>>     if isinstance(row['image_modality_major'], str):
@@ -766,7 +774,7 @@ def image_divvy(instance,
     >>> image_divvy(opi, divvy_rule=my_divvy_rule1)
 
     |
-    | **Usage 2b**: A Rule which can Return Multiple Save Locations
+    | **Usage 2b**: A Rule which can Return Multiple Save Locations for a Single Row
 
     >>> def my_divvy_rule2(row):
     >>>     locations = list()
@@ -792,11 +800,11 @@ def image_divvy(instance,
     Copying to a New Location
 
     >>> train_val_test_dict = {'train': 0.7, 'test': 0.3, 'target_dir': '/your/path/here/output'}
-    >>> image_divvy(opi, divvy_rule=my_divvy_rule2, action='copy', train_val_test_dict=train_val_test_dict)
+    >>> image_divvy(opi, divvy_rule=my_divvy_rule3, action='copy', train_val_test_dict=train_val_test_dict)
 
     Obtaining ndarrays (numpy arrays)
 
-    >>> train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1}
+    >>> train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1, 'target_dir': '/your/path/here/output'}
     >>> tvt = image_divvy(opi, divvy_rule=my_divvy_rule3, action='ndarray', train_val_test_dict=train_val_test_dict)
 
     The resultant ndarrays can be unpacked into objects as follows:

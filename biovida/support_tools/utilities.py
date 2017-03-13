@@ -103,6 +103,22 @@ def _existing_files_dict_gen(directory, to_block):
     return {d: list_files(os_join(directory, d)) for d in directories if d not in to_block}
 
 
+def _train_val_test_dict_sort(tvt):
+    """
+
+    Sort a dictionary with any of 'train', 'validation', 'test'
+    as keys into that order.
+
+    :param tvt: a dictionary containing 'train', 'validation', 'test' keys.
+    :type tvt: ``dict``
+    :return: ``tvt`` as a list of tuples
+    :rtype: ``list``
+    :raises ``KeyError``: if any key other than 'train', 'validation', 'test' is in ``tvt``
+    """
+    order_dict = {'train': 1, 'validation': 2, 'test': 3}
+    return sorted(tvt.items(), key=lambda x: order_dict.get(x[0]))
+
+
 def _list_divide(l, tvt):
     """
 
@@ -122,7 +138,7 @@ def _list_divide(l, tvt):
 
     :Example:
 
-    >>> l = ['file/path/image_1.png', 'file/path/image_4.png', 'file/path/image_3.png', 'file/path/image_2.png']
+    >>> l = ['file/path/image_1.png', 'file/path/image_2.png', 'file/path/image_3.png', 'file/path/image_4.png']
     >>> tvt = {'validation': 0.5, 'train': 0.5}
     >>> _list_divide(l, tvt)
     ...
@@ -130,10 +146,8 @@ def _list_divide(l, tvt):
     ('validation', ['file/path/image_1.png', 'file/path/image_3.png'])]
 
     """
-    order_dict = {'train': 1, 'validation': 2, 'test': 3}
-
     l_shuffled = np.random.permutation(l).tolist()
-    tvt_sorted = sorted(tvt.items(), key=lambda x: order_dict.get(x[0]))
+    tvt_sorted = _train_val_test_dict_sort(tvt)
 
     left, divided_dict = 0, dict()
     for e, (k, v) in enumerate(tvt_sorted, start=1):
@@ -141,7 +155,7 @@ def _list_divide(l, tvt):
         right_full = int(left) + int(right) if e != len(tvt.keys()) else len(l_shuffled)
         divided_dict[k] = l_shuffled[int(left):right_full]
         left += right
-    return sorted(divided_dict.items(), key=lambda x: order_dict.get(x[0]))
+    return _train_val_test_dict_sort(divided_dict)
 
 
 def _output_dict_with_ndarrays(dictionary):
@@ -149,7 +163,7 @@ def _output_dict_with_ndarrays(dictionary):
 
     Converts values (file paths) in the inner nest of ``dictionary`` to ``ndarray``s.
 
-    :param dictionary: a nested dictionary, where values for the inner nest are file paths.
+    :param dictionary: a nested dictionary, where values for the inner nest are iterables of file paths.
     :type dictionary: ``dict``
     :return: the values for the inner nest as replaced with ``ndarrays``.
     :rtype: ``dict``
@@ -372,8 +386,8 @@ def train_val_test(data,
 
     if verbose:
         print("\nStructure:\n")
-        for k, v in output_dict.items():
-            print("- {0}:\n{1}".format(k, list_to_bulletpoints(v)))
+        for k, v in _train_val_test_dict_sort(output_dict):
+            print("- '{0}':\n{1}".format(k, list_to_bulletpoints(v)))
 
     if existing_dirs is not None and delete_source:
         for i in existing_dirs:
