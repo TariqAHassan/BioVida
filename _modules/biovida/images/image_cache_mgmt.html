@@ -867,9 +867,12 @@
 <div class="viewcode-block" id="divvy_info_to_dict"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.divvy_info_to_dict">[docs]</a><span class="k">def</span> <span class="nf">divvy_info_to_dict</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    :param divvy_info:</span>
+<span class="sd">    Convert the list evolved inside ``divvy_rule_apply()`` in</span>
+<span class="sd">    ``image_divvy()`` into a dictionary</span>
+
+<span class="sd">    :param divvy_info: a list of the form ``[[string_1, [&#39;a&#39;, &#39;b&#39;]], [string_1, [&#39;c&#39;, &#39;d&#39;]], [string_2, [&#39;e&#39;]], ...]``.</span>
 <span class="sd">    :type divvy_info: ``list``</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :return: a dictionary form: ``{string_1: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;], string_2: [&#39;e&#39;], ...}``.</span>
 <span class="sd">    :rtype: ``Pandas DataFrame``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
@@ -889,7 +892,7 @@
                 <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Grouping cached images.</span>
+<span class="sd">    Grouping Cached Images.</span>
 
 <span class="sd">    :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of</span>
 <span class="sd">                     ``OpeniInterface`` or ``CancerImageInterface``.</span>
@@ -1077,9 +1080,6 @@
         <span class="k">return</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">divvy_info</span></div>
-
-
-
 
 
 
