@@ -692,7 +692,7 @@ def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_t
     return output_dict
 
 
-def divvy_info_to_dict(divvy_info):
+def _divvy_info_to_dict(divvy_info):
     """
 
     Convert the list evolved inside ``divvy_rule_apply()`` in
@@ -892,7 +892,7 @@ def image_divvy(instance,
             if isinstance(target, list):
                 for t in target:
                     divvy_info.append(t)
-        return divvy_info_to_dict(divvy_info) if len(divvy_info) else None
+        return _divvy_info_to_dict(divvy_info) if len(divvy_info) else None
 
     divvy_info = divvy_rule_apply()
 
