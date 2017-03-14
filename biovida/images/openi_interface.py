@@ -1140,15 +1140,15 @@ class OpeniInterface(object):
 
         :type new_records_pull: ``bool``
         :param image_size: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
-                          If ``None``, no attempt will be made to download images.
+                                    If ``None``, no attempt will be made to download images.
         :type image_size: ``str`` or ``None``
         :param records_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
-                               Note: noise is randomly added to the sleep time by sampling from a normal distribution
-                               (with mean = 0, sd = 0.75).
+                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution
+                                   (with mean = 0, sd = 0.75).
         :type records_sleep_time: ``tuple``
         :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
-                                Note: noise is randomly added to the sleep time by sampling from a normal distribution
-                                (with mean = 0, sd = 0.75).
+                                  Note: noise is randomly added to the sleep time by sampling from a normal distribution
+                                  (with mean = 0, sd = 0.75).
         :type images_sleep_time: ``tuple``
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 100.
@@ -1162,8 +1162,8 @@ class OpeniInterface(object):
                                     Defaults to ``True``.
         :type clinical_cases_only: ``bool``
         :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
-                                  of problematic image properties (e.g., 'arrows') likely to corrupt
-                                  a dataset intended for machine learning. Defaults to ``False``.
+                                  of problematic image properties (e.g., 'arrows') likely to corrupt a dataset.
+                                  Defaults to ``False``.
         :type use_image_caption: ``bool``
         :return: a DataFrame with the record information.
                  If ``image_size`` is not None, images will also be harvested and cached.
