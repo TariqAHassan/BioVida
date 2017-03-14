@@ -185,6 +185,7 @@
 <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="k">import</span> <span class="n">imread</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">os_join</span>
 
+<span class="c1"># General Support Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">isclose</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">is_numeric</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
@@ -286,7 +287,7 @@
 <span class="sd">    :type tvt: ``dict``</span>
 <span class="sd">    :return: ``tvt`` as a list of tuples</span>
 <span class="sd">    :rtype: ``list``</span>
-<span class="sd">    :raises ``KeyError``: if any key other than &#39;train&#39;, &#39;validation&#39;, &#39;test&#39; is in ``tvt``</span>
+<span class="sd">    :raises ``KeyError``: if any key other than &#39;train&#39;, &#39;validation&#39; or &#39;test&#39; is in ``tvt``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">order_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
@@ -406,7 +407,7 @@
                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Splits data in ``data`` into any combination of the following: ``train``, ``validation``, ``test``.</span>
+<span class="sd">    Split ``data`` into any combination of the following: ``train``, ``validation`` and/or ``test``.</span>
 
 <span class="sd">    :param data: </span>
 <span class="sd">    </span>
@@ -591,7 +592,7 @@
 
     <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">output_dict</span>
-    <span class="k">else</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
 
 

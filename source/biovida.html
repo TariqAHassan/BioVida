@@ -1500,6 +1500,15 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 </ul>
 </li>
 <li><strong>train_val_test_dict</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; <p>a dictionary denoting the proportions for any of: <code class="docutils literal"><span class="pre">'train'</span></code>, <code class="docutils literal"><span class="pre">'validation'</span></code> and/or <code class="docutils literal"><span class="pre">'test'</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last">
+<li>If <code class="docutils literal"><span class="pre">action='copy'</span></code>, a <code class="docutils literal"><span class="pre">'target_dir'</span></code> key (target directory) <em>must</em> also be included.</li>
+<li>To delete the source files, a <code class="docutils literal"><span class="pre">'delete_source'</span></code> key may be included (optional).
+The corresponding value provided <em>must</em> be a boolean. If no such key key is provided,
+<code class="docutils literal"><span class="pre">'delete_source'</span></code> defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+</ul>
+</div>
 </li>
 <li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
@@ -1715,7 +1724,7 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 <dl class="function">
 <dt id="biovida.support_tools.utilities.train_val_test">
 <code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action='copy'</em>, <em>delete_source=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits data in <code class="docutils literal"><span class="pre">data</span></code> into any combination of the following: <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code>, <code class="docutils literal"><span class="pre">test</span></code>.</p>
+<dd><p>Split <code class="docutils literal"><span class="pre">data</span></code> into any combination of the following: <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code> and/or <code class="docutils literal"><span class="pre">test</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

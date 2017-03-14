@@ -657,9 +657,9 @@
             <span class="k">if</span> <span class="n">enact</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_image_instance_image_columns</span><span class="p">[</span><span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]:</span>
                     <span class="n">_robust_delete</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># drop from the dataframe</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># drop row from the dataframe</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>   <span class="c1"># keep in the dataframe</span>
+            <span class="k">return</span> <span class="kc">True</span>   <span class="c1"># keep row in the dataframe</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="n">index_dict</span><span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;before&#39;</span><span class="p">:</span> <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}</span>
@@ -672,9 +672,7 @@
         <span class="n">_</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">delete_rule_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Prune ``cache_records_db`` by inspecting which images have been deleted.</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">_load_prune_cache_records_db</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="c1"># Map relationships, if applicable.</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_relationship_mapper</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="c1"># Save the updated ``cache_records_db`` to &#39;disk&#39;.</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
         <span class="n">index_dict</span><span class="p">[</span><span class="s1">&#39;cache_records_db&#39;</span><span class="p">][</span><span class="s1">&#39;after&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -713,7 +711,7 @@
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;`train_val_test_dict` must contain a `target_dir` key &quot;</span>
                            <span class="s2">&quot;if `action=&#39;copy&#39;`.&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">train_val_test_dict</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;target_dir&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;target_dir&#39;</span><span class="p">,</span> <span class="s1">&#39;delete_source&#39;</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Invalid `train_val_test_dict` key: &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span> <span class="ow">and</span> <span class="s1">&#39;target_dir&#39;</span> <span class="ow">in</span> <span class="n">train_val_test_dict</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The &#39;target_dir&#39; entry in `train_val_test_dict` has no</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -855,11 +853,12 @@
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">target</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_dir&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">delete_source</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;delete_source&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="kc">False</span>
     <span class="n">output_dict</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">divvy_info</span><span class="p">,</span>
                                  <span class="n">train</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                                  <span class="n">validation</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                                  <span class="n">test</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                                 <span class="n">target_dir</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">delete_source</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                 <span class="n">target_dir</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">delete_source</span><span class="o">=</span><span class="n">delete_source</span><span class="p">,</span>
                                  <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">output_dict</span>
 
@@ -917,9 +916,12 @@
 <span class="sd">    :type db_to_extract: ``str``</span>
 <span class="sd">    :param train_val_test_dict: a dictionary denoting the proportions for any of: ``&#39;train&#39;``, ``&#39;validation&#39;`` and/or ``&#39;test&#39;``.</span>
 
-<span class="sd">                        .. note:</span>
+<span class="sd">                        .. note::</span>
 
-<span class="sd">                            If ``action=&#39;copy&#39;``, a ``&#39;target_dir&#39;`` key (target directory) must also be included.</span>
+<span class="sd">                            * If ``action=&#39;copy&#39;``, a ``&#39;target_dir&#39;`` key (target directory) *must* also be included.</span>
+<span class="sd">                            * To delete the source files, a ``&#39;delete_source&#39;`` key may be included (optional).</span>
+<span class="sd">                              The corresponding value provided *must* be a boolean. If no such key key is provided,</span>
+<span class="sd">                              ``&#39;delete_source&#39;`` defaults to ``False``.</span>
 
 <span class="sd">    :type train_val_test_dict: ``None`` or ``dict``</span>
 <span class="sd">    :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``True``.</span>
@@ -1075,8 +1077,6 @@
         <span class="k">return</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">divvy_info</span></div>
-
-
 
 
 
