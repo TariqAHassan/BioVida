@@ -773,8 +773,8 @@ def image_divvy(instance,
           * If ``action='ndarray'`` and ``train_val_test_dict`` is not a dictionary, this function will
             return a dictionary of the form ``{string returned by divvy_rule(): array([Image Matrix, Image Matrix, ...]), ...}``.
 
-          * If ``train_val_test_dict`` is a dictionary, the output is determined by
-            :func:`utilities.train_val_test <biovida.support_tools.utilities.train_val_test>`.
+          * If ``train_val_test_dict`` is a dictionary, the output is powered by utilities.train_val_test
+            (available :func:`here <biovida.support_tools.utilities.train_val_test>`).
 
     :rtype: ``dict``
 
@@ -856,11 +856,6 @@ def image_divvy(instance,
     >>> train_ct, train_mri = tvt['train']['ct'], tvt['train']['mri']
     >>> val_ct, val_mri = tvt['validation']['ct'], tvt['validation']['mri']
     >>> test_ct, test_mri = tvt['test']['ct'], tvt['test']['mri']
-
-    .. note::
-
-        Divvying into *train/validation/test* is powered by the ``utilities.train_val_test`` function
-        (available :func:`here <biovida.support_tools.utilities.train_val_test>`).
 
     .. note::
 
