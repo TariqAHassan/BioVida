@@ -46,6 +46,19 @@ nonessential_openi_columns = [
 ]
 
 
+possible_openi_image_processing_cols = [
+    'grayscale',
+    'medpix_logo_bounding_box',
+    'hbar',
+    'hborder',
+    'vborder',
+    'upper_crop',
+    'lower_crop',
+    'visual_image_problems',
+    'valid_image'
+]
+
+
 # ----------------------------------------------------------------------------------------------------------
 # Tools
 # ----------------------------------------------------------------------------------------------------------
