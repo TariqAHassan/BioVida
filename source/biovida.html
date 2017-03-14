@@ -1416,25 +1416,6 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <div class="section" id="image-cache-management">
 <h3>Image Cache Management<a class="headerlink" href="#image-cache-management" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
-<dt id="biovida.images.image_cache_mgmt.divvy_info_to_dict">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">divvy_info_to_dict</code><span class="sig-paren">(</span><em>divvy_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#divvy_info_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.divvy_info_to_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the list evolved inside <code class="docutils literal"><span class="pre">divvy_rule_apply()</span></code> in
-<code class="docutils literal"><span class="pre">image_divvy()</span></code> into a dictionary</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>divvy_info</strong> (<code class="docutils literal"><span class="pre">list</span></code>) &#8211; a list of the form <code class="docutils literal"><span class="pre">[[string_1,</span> <span class="pre">['a',</span> <span class="pre">'b']],</span> <span class="pre">[string_1,</span> <span class="pre">['c',</span> <span class="pre">'d']],</span> <span class="pre">[string_2,</span> <span class="pre">['e']],</span> <span class="pre">...]</span></code>.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a dictionary form: <code class="docutils literal"><span class="pre">{string_1:</span> <span class="pre">['a',</span> <span class="pre">'b',</span> <span class="pre">'c',</span> <span class="pre">'d'],</span> <span class="pre">string_2:</span> <span class="pre">['e'],</span> <span class="pre">...}</span></code>.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_delete">
 <code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>instance</em>, <em>delete_rule</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete images from the cache.</p>
