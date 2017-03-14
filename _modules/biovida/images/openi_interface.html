@@ -1312,15 +1312,15 @@
 
 <span class="sd">        :type new_records_pull: ``bool``</span>
 <span class="sd">        :param image_size: one of: &#39;large&#39;, &#39;grid150&#39;, &#39;thumb&#39;, &#39;thumb_large&#39; or ``None``. Defaults to &#39;large&#39;.</span>
-<span class="sd">                          If ``None``, no attempt will be made to download images.</span>
+<span class="sd">                                    If ``None``, no attempt will be made to download images.</span>
 <span class="sd">        :type image_size: ``str`` or ``None``</span>
 <span class="sd">        :param records_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.</span>
-<span class="sd">                               Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
-<span class="sd">                               (with mean = 0, sd = 0.75).</span>
+<span class="sd">                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
+<span class="sd">                                   (with mean = 0, sd = 0.75).</span>
 <span class="sd">        :type records_sleep_time: ``tuple``</span>
 <span class="sd">        :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.</span>
-<span class="sd">                                Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
-<span class="sd">                                (with mean = 0, sd = 0.75).</span>
+<span class="sd">                                  Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
+<span class="sd">                                  (with mean = 0, sd = 0.75).</span>
 <span class="sd">        :type images_sleep_time: ``tuple``</span>
 <span class="sd">        :param download_limit: max. number of results to download. If ``None``, no limit will be imposed</span>
 <span class="sd">                              (not recommended). Defaults to 100.</span>
@@ -1334,8 +1334,8 @@
 <span class="sd">                                    Defaults to ``True``.</span>
 <span class="sd">        :type clinical_cases_only: ``bool``</span>
 <span class="sd">        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence</span>
-<span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt</span>
-<span class="sd">                                  a dataset intended for machine learning. Defaults to ``False``.</span>
+<span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt a dataset.</span>
+<span class="sd">                                  Defaults to ``False``.</span>
 <span class="sd">        :type use_image_caption: ``bool``</span>
 <span class="sd">        :return: a DataFrame with the record information.</span>
 <span class="sd">                 If ``image_size`` is not None, images will also be harvested and cached.</span>

@@ -180,15 +180,16 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="k">import</span> <span class="n">imread</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">os_join</span>
 
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">isclose</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">is_numeric</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">create_dir_if_needed</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">InsufficientNumberOfFiles</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">directory_existence_handler</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -275,6 +276,22 @@
     <span class="k">return</span> <span class="p">{</span><span class="n">d</span><span class="p">:</span> <span class="n">list_files</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">directories</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">to_block</span><span class="p">}</span>
 
 
+<span class="k">def</span> <span class="nf">_train_val_test_dict_sort</span><span class="p">(</span><span class="n">tvt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Sort a dictionary with any of &#39;train&#39;, &#39;validation&#39;, &#39;test&#39;</span>
+<span class="sd">    as keys into that order.</span>
+
+<span class="sd">    :param tvt: a dictionary containing &#39;train&#39;, &#39;validation&#39;, &#39;test&#39; keys.</span>
+<span class="sd">    :type tvt: ``dict``</span>
+<span class="sd">    :return: ``tvt`` as a list of tuples</span>
+<span class="sd">    :rtype: ``list``</span>
+<span class="sd">    :raises ``KeyError``: if any key other than &#39;train&#39;, &#39;validation&#39;, &#39;test&#39; is in ``tvt``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">order_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+
 <span class="k">def</span> <span class="nf">_list_divide</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">tvt</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -294,7 +311,7 @@
 
 <span class="sd">    :Example:</span>
 
-<span class="sd">    &gt;&gt;&gt; l = [&#39;file/path/image_1.png&#39;, &#39;file/path/image_4.png&#39;, &#39;file/path/image_3.png&#39;, &#39;file/path/image_2.png&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; l = [&#39;file/path/image_1.png&#39;, &#39;file/path/image_2.png&#39;, &#39;file/path/image_3.png&#39;, &#39;file/path/image_4.png&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; tvt = {&#39;validation&#39;: 0.5, &#39;train&#39;: 0.5}</span>
 <span class="sd">    &gt;&gt;&gt; _list_divide(l, tvt)</span>
 <span class="sd">    ...</span>
@@ -302,10 +319,8 @@
 <span class="sd">    (&#39;validation&#39;, [&#39;file/path/image_1.png&#39;, &#39;file/path/image_3.png&#39;])]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">order_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
-
     <span class="n">l_shuffled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">tvt_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">tvt_sorted</span> <span class="o">=</span> <span class="n">_train_val_test_dict_sort</span><span class="p">(</span><span class="n">tvt</span><span class="p">)</span>
 
     <span class="n">left</span><span class="p">,</span> <span class="n">divided_dict</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tvt_sorted</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -313,20 +328,42 @@
         <span class="n">right_full</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">right</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_shuffled</span><span class="p">)</span>
         <span class="n">divided_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">l_shuffled</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">left</span><span class="p">):</span><span class="n">right_full</span><span class="p">]</span>
         <span class="n">left</span> <span class="o">+=</span> <span class="n">right</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">divided_dict</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">_train_val_test_dict_sort</span><span class="p">(</span><span class="n">divided_dict</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_output_dict_with_ndarrays</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Converts values (file paths) in the inner nest of ``dictionary`` to ``ndarray``s.</span>
+<span class="sd">    Converts values (list of file paths) of a ``dictionary`` to ``ndarray``s.</span>
 
-<span class="sd">    :param dictionary: a nested dictionary, where values for the inner nest are file paths.</span>
+<span class="sd">    :param dictionary: a nested dictionary, where values for the inner nest are iterables of file paths.</span>
 <span class="sd">    :type dictionary: ``dict``</span>
+<span class="sd">    :param dimensions: dimensions of ``dictionary``. ``1`` for an unnested dictionary, ``2`` for a nested dictionary.</span>
+<span class="sd">    :type dimensions: ``int``</span>
+<span class="sd">    :param verbose: if ``True``, print additional information and a conversion status bar.</span>
+<span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :return: the values for the inner nest as replaced with ``ndarrays``.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">{</span><span class="n">k2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">imread</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">])</span> <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">def</span> <span class="nf">idenity_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Converting Images to ndarrays...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">status_inner</span><span class="p">,</span> <span class="n">status_outer</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">,</span> <span class="n">idenity_func</span>
+        <span class="k">elif</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">status_inner</span><span class="p">,</span> <span class="n">status_outer</span> <span class="o">=</span> <span class="n">idenity_func</span><span class="p">,</span> <span class="n">tqdm</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">status_inner</span> <span class="o">=</span> <span class="n">status_outer</span> <span class="o">=</span> <span class="n">idenity_func</span>
+
+    <span class="k">def</span> <span class="nf">values_to_ndarrays</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">imread</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">])</span> <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">status_inner</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
+
+    <span class="k">if</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">values_to_ndarrays</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">values_to_ndarrays</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">status_outer</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
 
 
 <span class="k">def</span> <span class="nf">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">target_path</span><span class="p">):</span>
@@ -353,7 +390,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">output_dict</span><span class="p">[</span><span class="n">k2</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2</span>
             <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
-                <span class="n">target</span> <span class="o">=</span> <span class="n">create_dir_if_needed</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">os_join</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">k</span><span class="p">)))</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">directory_existence_handler</span><span class="p">(</span><span class="n">path_</span><span class="o">=</span><span class="n">os_join</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">k</span><span class="p">)),</span> <span class="n">allow_creation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">:</span>
                     <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">output_dict</span>
@@ -413,11 +450,12 @@
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :return:</span>
 
-<span class="sd">        a dictionary of the form: ``{one of &#39;train&#39;, &#39;validation&#39;, &#39;test&#39;: {subdirectory in `data`: [file_path, file_path, ...], ...}, ...}``.</span>
+<span class="sd">        a dictionary of the form: ``{one of &#39;train&#39;, &#39;validation&#39; or &#39;test&#39;: {subdirectory in `data`: [file_path, file_path, ...], ...}, ...}``.</span>
 
 <span class="sd">        - if ``action=&#39;copy&#39;``: the dictionary returned will be exactly as shown above.</span>
 
-<span class="sd">        - if ``action=&#39;ndarray&#39;``: &#39;file_path&#39; will be replaced with the image as a ``ndarray`` and the list will be a ``ndarray``, e.g, ``array([matrix, matrix, ...])``.</span>
+<span class="sd">        - if ``action=&#39;ndarray&#39;``: &#39;file_path&#39; will be replaced with the image as a ``ndarray`` and the list will be</span>
+<span class="sd">          ``ndarray``s, i.e., ``array([Image Matrix, Image Matrix, ...])``.</span>
 
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    :raises ``ValueError``: if the combination of ``train``, ``validation``, ``test`` which which were passed</span>
@@ -544,14 +582,17 @@
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Structure:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">output_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;- </span><span class="si">{0}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_train_val_test_dict_sort</span><span class="p">(</span><span class="n">output_dict</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;- &#39;</span><span class="si">{0}</span><span class="s2">&#39;:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
 
     <span class="k">if</span> <span class="n">existing_dirs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">delete_source</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">existing_dirs</span><span class="p">:</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">output_dict</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="n">_output_dict_with_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">output_dict</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
 
 
 

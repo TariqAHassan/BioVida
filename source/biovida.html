@@ -391,8 +391,8 @@ again.</li>
 this parameter requires that &#8216;article_type&#8217; is one of: &#8216;encounter&#8217;, &#8216;case_report&#8217;.
 Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>use_image_caption</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> block downloading of an image if its caption suggests the presence
-of problematic image properties (e.g., &#8216;arrows&#8217;) likely to corrupt
-a dataset intended for machine learning. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+of problematic image properties (e.g., &#8216;arrows&#8217;) likely to corrupt a dataset.
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1416,6 +1416,23 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <div class="section" id="image-cache-management">
 <h3>Image Cache Management<a class="headerlink" href="#image-cache-management" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
+<dt id="biovida.images.image_cache_mgmt.divvy_info_to_dict">
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">divvy_info_to_dict</code><span class="sig-paren">(</span><em>divvy_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#divvy_info_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.divvy_info_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>divvy_info</strong> (<code class="docutils literal"><span class="pre">list</span></code>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_delete">
 <code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>instance</em>, <em>delete_rule</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete images from the cache.</p>
@@ -1431,7 +1448,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
 <li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be one of: <code class="docutils literal"><span class="pre">'all'</span></code> (delete <em>all</em> data) or a <code class="docutils literal"><span class="pre">function</span></code> which (1) accepts a single
 parameter (argument) and (2) returns <code class="docutils literal"><span class="pre">True</span></code> when the data is to be deleted.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print a</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional information.</li>
 </ul>
 </td>
 </tr>
@@ -1474,8 +1491,8 @@ Any images associated with this row will also be destroyed.</p>
 
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_divvy">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>db_to_extract='records_db'</em>, <em>action='copy'</em>, <em>train_val_test_dict=None</em>, <em>create_dirs=True</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy images from the cache to another location.</p>
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>action='ndarray'</em>, <em>db_to_extract='records_db'</em>, <em>train_val_test_dict=None</em>, <em>create_dirs=True</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grouping cached images.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1485,18 +1502,18 @@ Any images associated with this row will also be destroyed.</p>
 <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
 <li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
 system path(s) [see example below].</li>
-<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>the database to use. Must be one of:</p>
-<ul>
-<li>&#8216;records_db&#8217;: the dataframe resulting from the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code>.</li>
-<li>&#8216;cache_records_db&#8217;: the cache dataframe for <code class="docutils literal"><span class="pre">instance</span></code>.</li>
-<li>&#8216;unify_against_images&#8217;: the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code>.</li>
-</ul>
-</li>
-<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: &#8216;copy&#8217;, &#8216;ndarray&#8217;.</p>
+<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: <code class="docutils literal"><span class="pre">'copy'</span></code>, <code class="docutils literal"><span class="pre">'ndarray'</span></code>.</p>
 <ul>
 <li>if <code class="docutils literal"><span class="pre">'copy'</span></code>: copy from files from the cache to (i) the location prescribed by <code class="docutils literal"><span class="pre">divvy_rule</span></code>,
 when <code class="docutils literal"><span class="pre">train_val_test_dict=None</span></code>, else (ii) the &#8216;target_location&#8217; key in <code class="docutils literal"><span class="pre">train_val_test_dict</span></code>.</li>
-<li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays.</li>
+<li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays (default).</li>
+</ul>
+</li>
+<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>the database to use. Must be one of:</p>
+<ul>
+<li>&#8216;records_db&#8217;: the dataframe resulting from the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code> (default).</li>
+<li>&#8216;cache_records_db&#8217;: the cache dataframe for <code class="docutils literal"><span class="pre">instance</span></code>.</li>
+<li>&#8216;unify_against_images&#8217;: the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code>.</li>
 </ul>
 </li>
 <li><strong>train_val_test_dict</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; <p>a dictionary denoting the proportions for any of: <code class="docutils literal"><span class="pre">'train'</span></code>, <code class="docutils literal"><span class="pre">'validation'</span></code> and/or <code class="docutils literal"><span class="pre">'test'</span></code>.</p>
@@ -1506,6 +1523,28 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 <li><strong>image_column</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the column to use when copying images. If <code class="docutils literal"><span class="pre">None</span></code>, use <code class="docutils literal"><span class="pre">'cached_images_path'</span></code>. Default to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> print additional details. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li>If <code class="docutils literal"><span class="pre">divvy_rule</span></code> is a string:<ul>
+<li>If <code class="docutils literal"><span class="pre">action='copy'</span></code> and <code class="docutils literal"><span class="pre">train_val_test_dict</span></code> is not dictionary, this function will
+return a dictionary of the form <code class="docutils literal"><span class="pre">{divvy_rule:</span> <span class="pre">[cache_file_path,</span> <span class="pre">cache_file_path,</span> <span class="pre">...],</span> <span class="pre">...}</span></code>.</li>
+</ul>
+</li>
+<li>If <code class="docutils literal"><span class="pre">divvy_rule</span></code> is a function:<ul>
+<li>If <code class="docutils literal"><span class="pre">action='copy'</span></code> and <code class="docutils literal"><span class="pre">train_val_test_dict</span></code> is not a dictionary, this function will
+return a dictionary of the form <code class="docutils literal"><span class="pre">{string</span> <span class="pre">returned</span> <span class="pre">by</span> <span class="pre">divvy_rule():</span> <span class="pre">[cache_file_path,</span> <span class="pre">cache_file_path,</span> <span class="pre">...],</span> <span class="pre">...}</span></code>.</li>
+<li>If <code class="docutils literal"><span class="pre">action='ndarray'</span></code> and <code class="docutils literal"><span class="pre">train_val_test_dict</span></code> is not a dictionary, this function will
+return a dictionary of the form <code class="docutils literal"><span class="pre">{string</span> <span class="pre">returned</span> <span class="pre">by</span> <span class="pre">divvy_rule():</span> <span class="pre">array([Image</span> <span class="pre">Matrix,</span> <span class="pre">Image</span> <span class="pre">Matrix,</span> <span class="pre">...]),</span> <span class="pre">...}</span></code>.</li>
+<li>If <code class="docutils literal"><span class="pre">train_val_test_dict</span></code> is a dictionary, the output is determined by
+<a class="reference internal" href="#biovida.support_tools.utilities.train_val_test" title="biovida.support_tools.utilities.train_val_test"><code class="xref py py-func docutils literal"><span class="pre">utilities.train_val_test</span></code></a>.</li>
+</ul>
+</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">dict</span></code></p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
@@ -1527,28 +1566,47 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
-<div class="line"><strong>Usage 1</strong>: Copy Images from the Cache to a New Location</div>
+<div class="line"><strong>Usage 1a</strong>: Copy Images from the Cache to a New Location</div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="s2">&quot;/your/output/path/here/output&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="s2">&quot;/your/output/path/here/output&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
-<div class="line"><strong>Usage 2a</strong>: A Rule which Invariably Returns a Single Save Location</div>
+<div class="line"><strong>Usage 1b</strong>: Converting to <code class="docutils literal"><span class="pre">ndarrays</span></code></div>
 </div>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_divvy_rule1</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="s1">&#39;mri&#39;</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">return</span> <span class="s1">&#39;mri&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">elif</span> <span class="s1">&#39;ct&#39;</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="k">return</span> <span class="s1">&#39;ct&#39;</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nd_data</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The resultant <code class="docutils literal"><span class="pre">ndarrays</span></code> accessed as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ct_images</span> <span class="o">=</span> <span class="n">nd_data</span><span class="p">[</span><span class="s1">&#39;ct&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mri_images</span> <span class="o">=</span> <span class="n">nd_data</span><span class="p">[</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><strong>Usage 2a</strong>: A Rule which Invariably Returns a Single Save Location for a Single Row</div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_divvy_rule2</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="s1">&#39;mri&#39;</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]:</span>
 <span class="gp">&gt;&gt;&gt; </span>            <span class="k">return</span> <span class="s1">&#39;/your/path/here/MRI_images&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">elif</span> <span class="s1">&#39;ct&#39;</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]:</span>
 <span class="gp">&gt;&gt;&gt; </span>            <span class="k">return</span> <span class="s1">&#39;/your/path/here/CT_images&#39;</span>
 <span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule2</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
-<div class="line"><strong>Usage 2b</strong>: A Rule which can Return Multiple Save Locations</div>
+<div class="line"><strong>Usage 2b</strong>: A Rule which can Return Multiple Save Locations for a Single Row</div>
 </div>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_divvy_rule2</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">locations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -1559,32 +1617,24 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 <span class="gp">&gt;&gt;&gt; </span>            <span class="n">locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/your/path/here/pelvis_images&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">locations</span>
 <span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule2</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
-<div class="line"><strong>Usage 3a</strong>: Divvying into <em>train</em>/<em>validation</em>/<em>test</em></div>
+<div class="line"><strong>Usage 3</strong>: Divvying into <em>train/validation/test</em></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_divvy_rule3</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="s1">&#39;mri&#39;</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]:</span>
-<span class="gp">&gt;&gt;&gt; </span>            <span class="k">return</span> <span class="s1">&#39;mri&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="k">elif</span> <span class="s1">&#39;ct&#39;</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]:</span>
-<span class="gp">&gt;&gt;&gt; </span>            <span class="k">return</span> <span class="s1">&#39;ct&#39;</span>
-</pre></div>
-</div>
-<p>Copying to a New Location</p>
+<p><strong>i</strong>. Copying to a New Location (reusing <code class="docutils literal"><span class="pre">my_divvy_rule1</span></code>)</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train_val_test_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;target_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;/your/path/here/output&#39;</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule2</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Obtaining ndarrays (numpy arrays)</p>
+<p><strong>ii</strong>. Obtaining <code class="docutils literal"><span class="pre">ndarrays</span></code> (numpy arrays)</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train_val_test_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">tvt</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule3</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tvt</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The resultant ndarrays can be unpacked into objects as follows:</p>
+<p>The resultant <code class="docutils literal"><span class="pre">ndarrays</span></code> can be unpacked into objects as follows:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train_ct</span><span class="p">,</span> <span class="n">train_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">val_ct</span><span class="p">,</span> <span class="n">val_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test_ct</span><span class="p">,</span> <span class="n">test_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
@@ -1592,7 +1642,7 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Divvying into <em>train</em>/<em>validation</em>/<em>test</em> is powered by the <code class="docutils literal"><span class="pre">train_val_test</span></code> function
+<p class="last">Divvying into <em>train/validation/test</em> is powered by the <code class="docutils literal"><span class="pre">utilities.train_val_test</span></code> function
 (available <a class="reference internal" href="#biovida.support_tools.utilities.train_val_test" title="biovida.support_tools.utilities.train_val_test"><code class="xref py py-func docutils literal"><span class="pre">here</span></code></a>).</p>
 </div>
 <div class="admonition note">
@@ -1603,7 +1653,7 @@ to <code class="docutils literal"><span class="pre">train_val_test_dict</span></
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">While it is possible to pass a function to <code class="docutils literal"><span class="pre">divvy_rule</span></code> which returns multiple categories
-(similar to <code class="docutils literal"><span class="pre">my_divvy_rule2()</span></code>) when divvying into <em>train</em>/<em>validation</em>/<em>test</em>, doing
+(similar to <code class="docutils literal"><span class="pre">my_divvy_rule2()</span></code>) when divvying into <em>train/validation/test</em>, doing
 so is not recommended. Overlap between these groups is likely to lead to erroneous
 performance metrics (e.g., accuracy) when assessing fitted models.</p>
 </div>
@@ -1729,10 +1779,11 @@ e.g., if <code class="docutils literal"><span class="pre">data</span></code> and
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>a dictionary of the form: <code class="docutils literal"><span class="pre">{one</span> <span class="pre">of</span> <span class="pre">'train',</span> <span class="pre">'validation',</span> <span class="pre">'test':</span> <span class="pre">{subdirectory</span> <span class="pre">in</span> <span class="pre">`data`:</span> <span class="pre">[file_path,</span> <span class="pre">file_path,</span> <span class="pre">...],</span> <span class="pre">...},</span> <span class="pre">...}</span></code>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>a dictionary of the form: <code class="docutils literal"><span class="pre">{one</span> <span class="pre">of</span> <span class="pre">'train',</span> <span class="pre">'validation'</span> <span class="pre">or</span> <span class="pre">'test':</span> <span class="pre">{subdirectory</span> <span class="pre">in</span> <span class="pre">`data`:</span> <span class="pre">[file_path,</span> <span class="pre">file_path,</span> <span class="pre">...],</span> <span class="pre">...},</span> <span class="pre">...}</span></code>.</p>
 <ul class="simple">
 <li>if <code class="docutils literal"><span class="pre">action='copy'</span></code>: the dictionary returned will be exactly as shown above.</li>
-<li>if <code class="docutils literal"><span class="pre">action='ndarray'</span></code>: &#8216;file_path&#8217; will be replaced with the image as a <code class="docutils literal"><span class="pre">ndarray</span></code> and the list will be a <code class="docutils literal"><span class="pre">ndarray</span></code>, e.g, <code class="docutils literal"><span class="pre">array([matrix,</span> <span class="pre">matrix,</span> <span class="pre">...])</span></code>.</li>
+<li>if <code class="docutils literal"><span class="pre">action='ndarray'</span></code>: &#8216;file_path&#8217; will be replaced with the image as a <code class="docutils literal"><span class="pre">ndarray</span></code> and the list will be
+<code class="docutils literal"><span class="pre">ndarray``s,</span> <span class="pre">i.e.,</span> <span class="pre">``array([Image</span> <span class="pre">Matrix,</span> <span class="pre">Image</span> <span class="pre">Matrix,</span> <span class="pre">...])</span></code>.</li>
 </ul>
 </p>
 </td>
