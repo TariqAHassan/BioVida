@@ -931,6 +931,9 @@ def feature_extract(x, list_of_diseases):
                                         image_caption=image_caption, image_mention=image_mention,
                                         list_of_diseases=list_of_diseases)
 
+    if isinstance(d['diagnosis'], str):
+        d['diagnosis'] = d['diagnosis'].lower()
+
     pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration_years', _illness_duration_guess)]
     for (k, func) in pairs:
         d[k] = func(background, abstract, image_caption, image_mention)
