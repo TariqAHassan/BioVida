@@ -85,6 +85,9 @@ class ImageProcessing(object):
         # Extract the records_db/cache_records_db database
         self.image_dataframe = self._extract_db(instance, db_to_extract)
 
+        if 'cached_images_path' not in self.image_dataframe.columns:
+            raise KeyError("No 'cached_images_path' column in '{0}'.".format(db_to_extract))
+
         # Extract path to the MedPix Logo
         self._medpix_path = instance._created_image_dirs['medpix_logo']
 
