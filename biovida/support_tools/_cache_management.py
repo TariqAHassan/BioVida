@@ -88,7 +88,6 @@ def _directory_creator(cache_path=None, verbose=True):
 
     Required:
       - biovida_cache
-      - biovida_cache/search_cache
       - biovida_cache/images_cache
       - biovida_cache/genomics_cache
       - biovida_cache/diagnostics_cache
@@ -128,7 +127,7 @@ def _directory_creator(cache_path=None, verbose=True):
         created_dirs.append("biovida_cache")
 
     # Check if 'search', 'images', 'genomics' and 'diagnostics' caches exist, if not create them.
-    sub_dirs_made = _sub_directory_creator(root_path, ['search_cache', 'images_cache', 'genomics_cache', 'diagnostics_cache'])
+    sub_dirs_made = _sub_directory_creator(root_path, ['images_cache', 'genomics_cache', 'diagnostics_cache'])
 
     # Record Created Dirs
     created_dirs += {k: v for k, v in sub_dirs_made.items() if k[1] is True}.values()
