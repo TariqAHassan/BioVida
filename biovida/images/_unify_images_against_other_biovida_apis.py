@@ -96,7 +96,7 @@ class _ImagesInterfaceIntegration(object):
             db_cln, openi_columns = self._add_additional_columns(db_cln, openi_columns)
 
         openi_col_rename = {'diagnosis': 'disease', 'cached_images_path': 'files_path'}
-        openi_subsection['article_type'] = openi_subsection['article_type'].replace({'encounter': 'case report'})
+        db_cln['article_type'] = db_cln['article_type'].replace({'encounter': 'case report'})
 
         # Define subsection based on `openi_columns`
         openi_subsection = db_cln[openi_columns]
