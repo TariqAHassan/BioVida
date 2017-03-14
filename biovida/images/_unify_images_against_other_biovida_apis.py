@@ -42,28 +42,28 @@ class _ImagesInterfaceIntegration(object):
     """
 
     @staticmethod
-    def _open_i_prep(cache_records_db):
+    def _open_i_prep(db):
         """
 
         A tool to clean and standardize  an ``OpeniInterface`` instance's cache record database
 
-        :param cache_records_db: the cache record database from an ``OpeniInterface`` instance.
-        :type cache_records_db: ``Pandas DataFrame``
-        :return: a cleaned and standardize ``cache_records_db``
+        :param db: the cache record database from an ``OpeniInterface`` instance.
+        :type db: ``Pandas DataFrame``
+        :return: a cleaned and standardize ``db``
         :rtype: ``Pandas DataFrame``
         """
         # Deep copy the input to prevent mutating the original in memory.
-        cache_records_db_cln = cache_records_db.copy(deep=True)
+        db_cln = db.copy(deep=True)
 
         # Column which provides a guess, based on the text, on which imaging modality created the image.
-        cache_records_db_cln['modality_best_guess'] = cache_records_db_cln.apply(
+        db_cln['modality_best_guess'] = db_cln.apply(
             lambda x: x['imaging_modality_from_text'] if isinstance(x['imaging_modality_from_text'], str) else x[
                 'modality_full'],
             axis=1
         )
 
         # Convert the 'cached_images_path' column from a series of string to a series of tuples.
-        cache_records_db_cln['cached_images_path'] = cache_records_db_cln['cached_images_path'].map(
+        db_cln['cached_images_path'] = db_cln['cached_images_path'].map(
             lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore'
         )
 
@@ -75,7 +75,7 @@ class _ImagesInterfaceIntegration(object):
         openi_col_rename = {'diagnosis': 'disease', 'cached_images_path': 'files_path'}
 
         # Define subsection based on `openi_columns`
-        openi_subsection = cache_records_db_cln[openi_columns]
+        openi_subsection = db_cln[openi_columns]
 
         # Add a column to allow the user to identify the API which provided the data
         openi_subsection['source_api'] = ['openi'] * openi_subsection.shape[0]
@@ -84,14 +84,14 @@ class _ImagesInterfaceIntegration(object):
         return openi_subsection.rename(columns=openi_col_rename)
 
     @staticmethod
-    def _cancer_image_prep(cache_records_db):
+    def _cancer_image_prep(db):
         """
 
         A tool to clean and standardize  an ``CancerImageInterface`` instance's cache record database
 
-        :param cache_records_db: the cache record database from an ``CancerImageInterface`` instance.
-        :type cache_records_db: ``Pandas DataFrame``
-        :return: a cleaned and standardize ``cache_records_db``
+        :param db: the cache record database from an ``CancerImageInterface`` instance.
+        :type db: ``Pandas DataFrame``
+        :return: a cleaned and standardize ``db``
         :rtype: ``Pandas DataFrame``
         """
         # Define columns to keep
@@ -106,10 +106,10 @@ class _ImagesInterfaceIntegration(object):
                                    'cached_images_path': 'files_path'}
 
         # Deep copy the input to prevent mutating the original in memory.
-        cache_records_db_cln = cache_records_db.copy(deep=True)
+        db_cln = db.copy(deep=True)
 
         # Define subsection based on `cancer_image_columns`
-        cancer_image_subsection = cache_records_db_cln[cancer_image_columns]
+        cancer_image_subsection = db_cln[cancer_image_columns]
 
         # Add an 'abstract' column
         cancer_image_subsection['abstract'] = np.NaN
@@ -135,9 +135,8 @@ class _ImagesInterfaceIntegration(object):
         """
 
         Standardize interfaces.
-        Note: classes are assumed to have a class attr called ``cache_records_db``.
 
-        yields a single dataframe with the following columns:
+        This method yields a single dataframe with the following columns:
 
          - 'abstract'*
          - 'image_id'
@@ -302,8 +301,7 @@ class _DiseaseOntologyIntegration(object):
         :return: information on the disease (see ``_dis_ont_dict_gen()``).
         :rtype: ``dict`` or ``None``
         """
-        # ToDo: change to ``isinstance(disease, str)``.
-        if items_null(disease) or disease is None:
+        if not isinstance(disease, str):
             return None
         elif disease in self.ont_name_dict:
             return self.ont_name_dict[disease]
