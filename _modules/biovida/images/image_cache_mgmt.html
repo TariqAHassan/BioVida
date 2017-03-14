@@ -979,7 +979,7 @@
 <span class="sd">    ...</span>
 <span class="sd">    &gt;&gt;&gt; nd_data = image_divvy(opi, divvy_rule=my_divvy_rule1, action=&#39;ndarray&#39;)</span>
 
-<span class="sd">    The resultant ``ndarrays`` accessed as follows:</span>
+<span class="sd">    The resultant ``ndarrays`` can be extracted as follows:</span>
 
 <span class="sd">    &gt;&gt;&gt; ct_images = nd_data[&#39;ct&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; mri_images = nd_data[&#39;mri&#39;]</span>
@@ -1023,7 +1023,7 @@
 <span class="sd">    &gt;&gt;&gt; train_val_test_dict = {&#39;train&#39;: 0.7, &#39;validation&#39;: 0.2, &#39;test&#39;: 0.1}</span>
 <span class="sd">    &gt;&gt;&gt; tvt = image_divvy(opi, divvy_rule=my_divvy_rule1, action=&#39;ndarray&#39;, train_val_test_dict=train_val_test_dict)</span>
 
-<span class="sd">    The resultant ``ndarrays`` can be unpacked into objects as follows:</span>
+<span class="sd">    The resultant ``ndarrays`` can be unpacked as follows:</span>
 
 <span class="sd">    &gt;&gt;&gt; train_ct, train_mri = tvt[&#39;train&#39;][&#39;ct&#39;], tvt[&#39;train&#39;][&#39;mri&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; val_ct, val_mri = tvt[&#39;validation&#39;][&#39;ct&#39;], tvt[&#39;validation&#39;][&#39;mri&#39;]</span>
