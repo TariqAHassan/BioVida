@@ -7,7 +7,6 @@
 # Imports
 import re
 import string
-from itertools import chain
 from bs4 import BeautifulSoup
 from collections import defaultdict
 
@@ -18,6 +17,7 @@ from biovida.images._interface_support.openi.openi_support_tools import multiple
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import multi_replace
 from biovida.support_tools.support_tools import remove_from_head_tail
 from biovida.support_tools.support_tools import remove_html_bullet_points
@@ -109,7 +109,7 @@ def _abstract_parser(abstract):
                 if len(contents) == 2:
                     value = remove_from_head_tail(contents[-1], char=";")
                     if isinstance(value, str) and len(value):
-                        parsed_abstract[key] = value
+                        parsed_abstract[key] = cln(unescape(value))
 
     return parsed_abstract if parsed_abstract else None
 
@@ -462,7 +462,7 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
     possible_diseases = list()
     for e, source in enumerate((problems, title, background, image_caption, image_mention, abstract)):
         if isinstance(source, str) and len(source):
-            source_clean = cln(source).lower()
+            source_clean = cln(unescape(source)).lower()
             for d in list_of_diseases:
                 if d in source_clean:
                     possible_diseases.append([source_clean.find(d), d])
@@ -913,6 +913,8 @@ def feature_extract(x, list_of_diseases):
     :return: dictionary with the keys listed in the description.
     :rtype: ``dict``
     """
+    # Note: it may be useful to use 'unescape' here, e.g., unescape(x[c])...but no reason to support doing so currently.
+    # However, if this were to occur, 'abstract' would need to be excluded in the service of ``_abstract_parser()``.
     unpacked_values = [x[c] for c in ('abstract', 'problems', 'title', 'image_caption', 'image_mention')]
     abstract, problems, title, image_caption, image_mention = unpacked_values
 
