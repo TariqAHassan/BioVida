@@ -14,7 +14,7 @@ from biovida.images._unify_images_against_other_biovida_apis import images_unify
 
 
 def unify_against_images(interfaces,
-                         db_to_extract='cache_records_db',
+                         db_to_extract='records_db',
                          cache_path=None,
                          verbose=True,
                          fuzzy_threshold=False):
@@ -23,10 +23,17 @@ def unify_against_images(interfaces,
     Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)
     with Diagnostic and Genomic Data.
 
-    :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a list.
-    :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
-    :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
-                      Defaults to 'cache_records_db'.
+    :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``, or some
+                           combination inside an iterable.
+    :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``.
+    :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db' or 'image_dataframe'.
+                          Defaults to 'records_db'.
+
+                    .. note::
+
+                        If an instance of ``ImageProcessing`` is passed to ``interfaces``, the ``image_dataframe``
+                        attribute will be extracted regardless of the value passed to this argument.
+
     :type db_to_extract: ``str``
     :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
                        Default to ``None`` (which will generate a cache in the home folder).
@@ -97,8 +104,6 @@ def unify_against_images(interfaces,
     """
     return images_unify(interfaces=interfaces, db_to_extract=db_to_extract, cache_path=cache_path,
                         verbose=verbose, fuzzy_threshold=fuzzy_threshold)
-
-
 
 
 
