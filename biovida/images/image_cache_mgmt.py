@@ -754,7 +754,7 @@ def image_divvy(instance,
     :type create_dirs: ``bool``
     :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
     :type allow_overwrite: ``bool``
-    :param image_column: the column to use when copying images. If ``None``, use ``'cached_images_path'``. Default to ``None``.
+    :param image_column: the column to use when copying images. If ``None``, use ``'cached_images_path'``. Defaults to ``None``.
     :type image_column: ``str``
     :param verbose: if ``True`` print additional details. Defaults to ``True``.
     :type verbose: ``bool``
