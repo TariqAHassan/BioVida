@@ -1,3 +1,11 @@
+Convolutional Neural Network Training
+=====================================
+
+This directory contains the tools to create the training 
+data for the convolutional neural network in the
+``biovida.images.models.image_classification`` module.
+
+
 Image Cleaning
 ==============
 
@@ -18,10 +26,3 @@ Outline for ``biovida.images.models.image_processing``:
 | Look for other text in the image |           if true, ban (or find crop).           |     Unsolved     |            Yes            |
 
 ---
-
-Convolutional Neural Network Training
-=====================================
-
-This directory contains the tools to create the training 
-data for the convolutional neural network in the
-``biovida.images.models.image_classification`` module.
