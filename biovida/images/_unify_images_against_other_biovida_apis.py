@@ -89,14 +89,14 @@ class _ImagesInterfaceIntegration(object):
             lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore')
 
         # Define columns to keep
-        openi_columns = ['abstract', 'image_id', 'image_caption', 'modality_best_guess', 'age',
+        openi_columns = ['abstract', 'article_type', 'image_id', 'image_caption', 'modality_best_guess', 'age',
                          'sex', 'diagnosis', 'query', 'pull_time', 'cached_images_path']
 
         if isinstance(self._additional_columns, list):
             db_cln, openi_columns = self._add_additional_columns(db_cln, openi_columns)
 
-        # Column name changes
         openi_col_rename = {'diagnosis': 'disease', 'cached_images_path': 'files_path'}
+        openi_subsection['article_type'] = openi_subsection['article_type'].replace({'encounter': 'case report'})
 
         # Define subsection based on `openi_columns`
         openi_subsection = db_cln[openi_columns]
@@ -133,7 +133,7 @@ class _ImagesInterfaceIntegration(object):
         """
         # Define columns to keep
         cancer_image_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age',
-                                'sex', 'cancer_type', 'query', 'pull_time', 'cached_images_path']
+                                'sex', 'article_type', 'cancer_type', 'query', 'pull_time', 'cached_images_path']
 
         # Column name changes (based on `_open_i_prep`).
         cancer_image_col_rename = {'series_instance_uid': 'image_id',
@@ -575,10 +575,10 @@ class _DiseaseSymptomsIntegration(object):
         self.disease_symptom_dict = self._disease_symptom_dict_gen(dis_symp_db)
 
     @staticmethod
-    def _patient_symptoms(data_frame):
+    def _mentioned_symptoms(data_frame):
         """
 
-        Match 'known_associated_symptoms' to the 'abstract' for the individual patient
+        Match 'known_associated_symptoms' to the 'abstract' for the given row.
 
         :param data_frame: ``updated_data_frame`` as evolved in ``_DiseaseSymptomsIntegration().integration()``.
         :type data_frame: ``Pandas DataFrame``
@@ -620,7 +620,7 @@ class _DiseaseSymptomsIntegration(object):
                                                    new_column_name='known_associated_symptoms')
 
         # Find 'known_associated_symptoms' which individual patients presented with by scanning the abstract
-        updated_data_frame['patient_symptoms'] = self._patient_symptoms(updated_data_frame)
+        updated_data_frame['mentioned_symptoms'] = self._mentioned_symptoms(updated_data_frame)
 
         # Drop the 'abstract' column as it is no longer needed
         del updated_data_frame['abstract']

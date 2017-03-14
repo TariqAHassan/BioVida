@@ -72,7 +72,7 @@ def unify_against_images(interfaces,
         * 'disease_synonym'
         * 'disease_definition'
         * 'known_associated_symptoms'
-        * 'patient_symptoms'
+        * 'mentioned_symptoms'
         * 'known_associated_genes'
 
 
@@ -84,8 +84,9 @@ def unify_against_images(interfaces,
 
         The ``'known_associated_symptoms'`` and ``'known_associated_genes'`` columns denote symptoms and genes
         known to be associated with the disease the patient presented with. **These columns are not an account
-        of the symptomatology or genotype of the patients themselves**. Conversely, the ``'patient_symptoms'``
-        column *is* an account of a given patient's symptoms.
+        of the symptomatology or genotype of the patients themselves**. Conversely, the ``'mentioned_symptoms'``
+        column is an account of a given patient's symptoms *if* the data is from a clinical 'encounter'
+        (or 'case report').
 
     :Example:
 
