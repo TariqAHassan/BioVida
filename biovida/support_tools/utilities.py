@@ -8,15 +8,16 @@
 import os
 import shutil
 import numpy as np
+from tqdm import tqdm
 from warnings import warn
 from scipy.ndimage import imread
 from os.path import join as os_join
 
 from biovida.support_tools.support_tools import isclose
 from biovida.support_tools.support_tools import is_numeric
-from biovida.support_tools.support_tools import create_dir_if_needed
 from biovida.support_tools.support_tools import list_to_bulletpoints
 from biovida.support_tools.support_tools import InsufficientNumberOfFiles
+from biovida.support_tools.support_tools import directory_existence_handler
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -158,17 +159,39 @@ def _list_divide(l, tvt):
     return _train_val_test_dict_sort(divided_dict)
 
 
-def _output_dict_with_ndarrays(dictionary):
+def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
     """
 
-    Converts values (file paths) in the inner nest of ``dictionary`` to ``ndarray``s.
+    Converts values (list of file paths) of a ``dictionary`` to ``ndarray``s.
 
     :param dictionary: a nested dictionary, where values for the inner nest are iterables of file paths.
     :type dictionary: ``dict``
+    :param dimensions: dimensions of ``dictionary``. ``1`` for an unnested dictionary, ``2`` for a nested dictionary.
+    :type dimensions: ``int``
+    :param verbose: if ``True``, print additional information and a conversion status bar.
+    :type verbose: ``bool``
     :return: the values for the inner nest as replaced with ``ndarrays``.
     :rtype: ``dict``
     """
-    return {k: {k2: np.array([imread(i) for i in v2]) for k2, v2 in v.items()} for k, v in dictionary.items()}
+    def idenity_func(x):
+        return x
+
+    if verbose:
+        print("\nConverting Images to ndarrays...")
+        if dimensions == 1:
+            status_inner, status_outer = tqdm, idenity_func
+        elif dimensions == 2:
+            status_inner, status_outer = idenity_func, tqdm
+    else:
+        status_inner = status_outer = idenity_func
+
+    def values_to_ndarrays(d):
+        return {k2: np.array([imread(i) for i in v2]) for k2, v2 in status_inner(d.items())}
+
+    if dimensions == 1:
+        return values_to_ndarrays(dictionary)
+    elif dimensions == 2:
+        return {k: values_to_ndarrays(v) for k, v in status_outer(dictionary.items())}
 
 
 def _train_val_test_engine(action, tvt, group_files_dict, target_path):
@@ -195,7 +218,7 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path):
             else:
                 output_dict[k2][k] = v2
             if action == 'copy':
-                target = create_dir_if_needed(directory=os_join(target_path, os_join(k2, k)))
+                target = directory_existence_handler(path_=os_join(target_path, os_join(k2, k)), allow_creation=True)
                 for i in v2:
                     shutil.copy2(i, os_join(target, os.path.basename(i)))
     return output_dict
@@ -255,11 +278,12 @@ def train_val_test(data,
     :type verbose: ``bool``
     :return:
 
-        a dictionary of the form: ``{one of 'train', 'validation', 'test': {subdirectory in `data`: [file_path, file_path, ...], ...}, ...}``.
+        a dictionary of the form: ``{one of 'train', 'validation' or 'test': {subdirectory in `data`: [file_path, file_path, ...], ...}, ...}``.
 
         - if ``action='copy'``: the dictionary returned will be exactly as shown above.
 
-        - if ``action='ndarray'``: 'file_path' will be replaced with the image as a ``ndarray`` and the list will be a ``ndarray``, e.g, ``array([matrix, matrix, ...])``.
+        - if ``action='ndarray'``: 'file_path' will be replaced with the image as a ``ndarray`` and the list will be
+          ``ndarray``s, i.e., ``array([Image Matrix, Image Matrix, ...])``.
 
     :rtype: ``dict``
     :raises ``ValueError``: if the combination of ``train``, ``validation``, ``test`` which which were passed
@@ -393,7 +417,10 @@ def train_val_test(data,
         for i in existing_dirs:
             shutil.rmtree(i)
 
-    return output_dict if action == 'copy' else _output_dict_with_ndarrays(output_dict)
+    if action == 'copy':
+        return output_dict
+    else:
+        return _file_paths_dict_to_ndarrays(output_dict, dimensions=2, verbose=verbose)
 
 
 

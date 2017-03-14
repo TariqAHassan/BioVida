@@ -148,37 +148,28 @@ def n_sub_dirs(dir):
     return len([k for i, j, k in os.walk(dir)]) - 1
 
 
-def create_dir_if_needed(directory):
-    """
-
-    Create a directory if it does not exist.
-
-    :param directory: a path.
-    :type directory: ``str``
-    :return: ``directory``
-    :rtype: ``str``
-    """
-    if not os.path.isdir(directory):
-        os.makedirs(directory)
-    return directory
-
-
-def directory_existence_handler(path_, allow_creation):
+def directory_existence_handler(path_, allow_creation=True, verbose=False):
     """
 
     Create a directory if it does not exist.
 
     :param path_: a system path
     :type path_: ``str``
-    :param allow_creation: if ``True``, create ``path_`` if it does not exist, else raise.
+    :param allow_creation: if ``True``, create ``path_`` if it does not exist, else raise. Defaults to ``True``.
     :type allow_creation: ``bool``
+    :param verbose: if ``True`` print when a directory is created.
+    :type verbose: ``bool``
+    :return: ``path_``
+    :rtype: ``str``
     """
     if not os.path.isdir(path_):
         if allow_creation:
             os.makedirs(path_)
-            print("\nThe following directory has been created:\n\n{0}\n".format(path_))
+            if verbose:
+                print("\nThe following directory has been created:\n\n{0}\n".format(path_))
         else:
-            raise NotADirectoryError("\nNo such directory:\n'{0}'\n".format(path_))
+            raise NotADirectoryError("No such directory:\n'{0}'\n".format(path_))
+    return path_
 
 
 def pstr(s):

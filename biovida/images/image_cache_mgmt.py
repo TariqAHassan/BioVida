@@ -10,8 +10,8 @@ import shutil
 import numpy as np
 import pandas as pd
 from warnings import warn
-from itertools import chain
 from collections import Counter
+from collections import defaultdict
 
 # General Image Support Tools
 from biovida.images._image_tools import ActionVoid
@@ -23,6 +23,7 @@ from biovida.support_tools.support_tools import directory_existence_handler
 
 # Utilities
 from biovida.support_tools.utilities import train_val_test
+from biovida.support_tools.utilities import _file_paths_dict_to_ndarrays
 
 # Import Printing Tools
 from biovida.support_tools import pandas_pprint
@@ -435,7 +436,7 @@ def image_delete(instance, delete_rule, verbose=True):
     :param delete_rule: must be one of: ``'all'`` (delete *all* data) or a ``function`` which (1) accepts a single
                         parameter (argument) and (2) returns ``True`` when the data is to be deleted.
     :type delete_rule: ``str`` or ``function``
-    :param verbose: if ``True``, print a
+    :param verbose: if ``True``, print additional information.
     :type verbose: ``bool``
     :return: a dictionary of the indices which were dropped. Example: ``{'records_db': [58, 59], 'cache_records_db': [158, 159]}``.
     :rtype: ``dict``
@@ -518,16 +519,21 @@ def image_delete(instance, delete_rule, verbose=True):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _image_divvy_error_checking(action, train_val_test_dict):
+def _image_divvy_error_checking(divvy_rule, action, train_val_test_dict):
     """
 
     Check for possible errors for ``image_divvy()``.
 
+    :param divvy_rule: see ``image_divvy()``.
+    :type divvy_rule: ``str`` or ``function``
     :param train_val_test_dict: see ``image_divvy()``.
     :type action: ``str``
     :param train_val_test_dict: see ``image_divvy()``.
     :type train_val_test_dict: ``dict``
     """
+    if not isinstance(divvy_rule, str) and not callable(divvy_rule):
+        raise TypeError("`divvy_rule` must be a string or function.")
+
     if isinstance(train_val_test_dict, dict):
         if not train_val_test_dict:
             raise KeyError("`train_val_test_dict` is empty")
@@ -537,8 +543,8 @@ def _image_divvy_error_checking(action, train_val_test_dict):
         for k in train_val_test_dict:
             if k not in ('train', 'validation', 'test', 'target_dir'):
                 raise KeyError("Invalid `train_val_test_dict` key: '{0}'.")
-        if action == 'ndarray' and'target_dir' in train_val_test_dict:
-            warn("The 'target_dir' key in `train_val_test_dict` has no "
+        if action == 'ndarray' and 'target_dir' in train_val_test_dict:
+            warn("\nThe 'target_dir' entry in `train_val_test_dict` has no\n"
                  "effect when `action='ndarray'`.")
 
 
@@ -558,7 +564,7 @@ def _robust_copy(to_copy, copy_to, allow_creation, allow_overwrite):
     :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
     :type allow_overwrite: ``bool``
     """
-    directory_existence_handler(path_=copy_to, allow_creation=allow_creation)
+    _ = directory_existence_handler(path_=copy_to, allow_creation=allow_creation, verbose=True)
 
     def copy_util(from_path):
         if os.path.isfile(from_path):
@@ -625,8 +631,6 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
     :return: a function which wraps the function passed to ``divvy_rule()``.
     :rtype: ``function``
     """
-    # ToDo: handle action='ndarray' and train_val_test_dict=None.
-
     def copy_rule_wrapper(row, copy_to):
         if isinstance(copy_to, (str, tuple, list)):
             all_copy_targets = [copy_to] if isinstance(copy_to, str) else copy_to
@@ -634,7 +638,8 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
                 return None
             for i in all_copy_targets:
                 if not isinstance(i, str):
-                    raise TypeError("`divvy_rule` returned an iterable containing a element which is not a string.")
+                    raise TypeError("`divvy_rule` returned an iterable containing "
+                                    "a element which is not a string.")
                 _robust_copy(to_copy=row[column_to_use], copy_to=i,
                              allow_creation=create_dirs, allow_overwrite=allow_overwrite)
         elif copy_to is not None:
@@ -642,18 +647,14 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
                             "`divvy_rule` returned an object of type '{0}'.".format(type(copy_to).__name__))
 
     def divvy_rule_wrapper(row):
-        if not isinstance(divvy_rule, str) and not callable(divvy_rule):
-            raise TypeError("`divvy_rule` must be a string or function.")
-
         copy_to = divvy_rule(row) if callable(divvy_rule) else divvy_rule
         if not isinstance(copy_to, (str, list, tuple)):
             return None
-        if not len(copy_to):
+        if isinstance(copy_to, (list, tuple)) and not len(copy_to):
             return None
         if action == 'copy' and not isinstance(train_val_test_dict, dict):
             copy_rule_wrapper(row, copy_to)
-            return None
-        elif isinstance(row[column_to_use], (str, tuple, list)):
+        if isinstance(row[column_to_use], (str, tuple, list)):
             cache_info = [row[column_to_use]] if isinstance(row[column_to_use], str) else list(row[column_to_use])
             if isinstance(copy_to, str):
                 return [[os.path.basename(copy_to), cache_info]]
@@ -674,18 +675,15 @@ def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_t
     :type action: ``str``
     :param verbose: see ``image_divvy()``.
     :type verbose: ``bool``
-    :param divvy_info: as evolved inside ``image_divvy``.
-    :type divvy_info: ``Pandas DataFrame``
+    :param divvy_info: as evolved inside ``image_divvy`` (by ``divvy_info_data_frame_to_dict()``).
+    :type divvy_info: ``dict``
     :param train_val_test_dict see ``image_divvy()``.
     :type train_val_test_dict:
     :return: see ``train_val_test``.
     :rtype: ``dict``
     """
-    divvy_info_groupby = divvy_info.dropna().groupby(0).apply(lambda x: x[1].tolist())
-    divvy_info_dict = {k: list(chain(*v)) for k, v in divvy_info_groupby.to_dict().items()}
-
     target = train_val_test_dict.get('target_dir') if action == 'copy' else None
-    output_dict = train_val_test(data=divvy_info_dict,
+    output_dict = train_val_test(data=divvy_info,
                                  train=train_val_test_dict.get('train', None),
                                  validation=train_val_test_dict.get('validation', None),
                                  test=train_val_test_dict.get('test', None),
@@ -694,10 +692,24 @@ def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_t
     return output_dict
 
 
+def divvy_info_to_dict(divvy_info):
+    """
+
+    :param divvy_info:
+    :type divvy_info: ``list``
+    :return:
+    :rtype: ``Pandas DataFrame``
+    """
+    d = defaultdict(list)
+    for (k, v) in divvy_info:
+        d[k] += v
+    return dict(d)
+
+
 def image_divvy(instance,
                 divvy_rule,
+                action='ndarray',
                 db_to_extract='records_db',
-                action='copy',
                 train_val_test_dict=None,
                 create_dirs=True,
                 allow_overwrite=True,
@@ -705,7 +717,7 @@ def image_divvy(instance,
                 verbose=True):
     """
 
-    Copy images from the cache to another location.
+    Grouping cached images.
 
     :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
                      ``OpeniInterface`` or ``CancerImageInterface``.
@@ -713,21 +725,21 @@ def image_divvy(instance,
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
     :type divvy_rule: ``function``
-    :param db_to_extract: the database to use. Must be one of:
-
-                    - 'records_db': the dataframe resulting from the most recent ``search()`` & ``pull()``.
-                    - 'cache_records_db': the cache dataframe for ``instance``.
-                    - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
-
-    :type db_to_extract: ``str``
-    :param action: one of: 'copy', 'ndarray'.
+    :param action: one of: ``'copy'``, ``'ndarray'``.
 
                     - if ``'copy'``: copy from files from the cache to (i) the location prescribed by ``divvy_rule``,
                       when ``train_val_test_dict=None``, else (ii) the 'target_location' key in ``train_val_test_dict``.
 
-                    - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
+                    - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays (default).
 
     :type action: ``str``
+    :param db_to_extract: the database to use. Must be one of:
+
+                - 'records_db': the dataframe resulting from the most recent ``search()`` & ``pull()`` (default).
+                - 'cache_records_db': the cache dataframe for ``instance``.
+                - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
+
+    :type db_to_extract: ``str``
     :param train_val_test_dict: a dictionary denoting the proportions for any of: ``'train'``, ``'validation'`` and/or ``'test'``.
 
                         .. note:
@@ -743,6 +755,25 @@ def image_divvy(instance,
     :type image_column: ``str``
     :param verbose: if ``True`` print additional details. Defaults to ``True``.
     :type verbose: ``bool``
+    :return:
+
+        * If ``divvy_rule`` is a string:
+
+          * If ``action='copy'`` and ``train_val_test_dict`` is not dictionary, this function will
+            return a dictionary of the form ``{divvy_rule: [cache_file_path, cache_file_path, ...], ...}``.
+
+        * If ``divvy_rule`` is a function:
+
+          * If ``action='copy'`` and ``train_val_test_dict`` is not a dictionary, this function will
+            return a dictionary of the form ``{string returned by divvy_rule(): [cache_file_path, cache_file_path, ...], ...}``.
+
+          * If ``action='ndarray'`` and ``train_val_test_dict`` is not a dictionary, this function will
+            return a dictionary of the form ``{string returned by divvy_rule(): array([Image Matrix, Image Matrix, ...]), ...}``.
+
+          * If ``train_val_test_dict`` is a dictionary, the output is determined by
+            :func:`utilities.train_val_test <biovida.support_tools.utilities.train_val_test>`.
+
+    :rtype: ``dict``
 
     :Example:
 
@@ -757,21 +788,38 @@ def image_divvy(instance,
     >>> opi.pull()
 
     |
-    | **Usage 1**: Copy Images from the Cache to a New Location
+    | **Usage 1a**: Copy Images from the Cache to a New Location
 
-    >>> image_divvy(opi, divvy_rule="/your/output/path/here/output")
+    >>> image_divvy(opi, divvy_rule="/your/output/path/here/output", action='copy')
+
+    |
+    | **Usage 1b**: Converting to ``ndarrays``
+
+    >>> def my_divvy_rule1(row):
+    >>>     if isinstance(row['image_modality_major'], str):
+    >>>         if 'mri' == row['image_modality_major']:
+    >>>             return 'mri'
+    >>>         elif 'ct' == row['image_modality_major']:
+    >>>             return 'ct'
+    ...
+    >>> nd_data = image_divvy(opi, divvy_rule=my_divvy_rule1, action='ndarray')
+
+    The resultant ``ndarrays`` accessed as follows:
+
+    >>> ct_images = nd_data['ct']
+    >>> mri_images = nd_data['mri']
 
     |
     | **Usage 2a**: A Rule which Invariably Returns a Single Save Location for a Single Row
 
-    >>> def my_divvy_rule1(row):
+    >>> def my_divvy_rule2(row):
     >>>     if isinstance(row['image_modality_major'], str):
     >>>         if 'mri' == row['image_modality_major']:
     >>>             return '/your/path/here/MRI_images'
     >>>         elif 'ct' == row['image_modality_major']:
     >>>             return '/your/path/here/CT_images'
     ...
-    >>> image_divvy(opi, divvy_rule=my_divvy_rule1)
+    >>> image_divvy(opi, divvy_rule=my_divvy_rule2, action='copy')
 
     |
     | **Usage 2b**: A Rule which can Return Multiple Save Locations for a Single Row
@@ -785,29 +833,22 @@ def image_divvy(instance,
     >>>             locations.append('/your/path/here/pelvis_images')
     >>>     return locations
     ...
-    >>> image_divvy(opi, divvy_rule=my_divvy_rule2)
+    >>> image_divvy(opi, divvy_rule=my_divvy_rule2, action='copy')
 
     |
-    | **Usage 3a**: Divvying into *train*/*validation*/*test*
+    | **Usage 3**: Divvying into *train/validation/test*
 
-    >>> def my_divvy_rule3(row):
-    >>>     if isinstance(row['image_modality_major'], str):
-    >>>         if 'mri' == row['image_modality_major']:
-    >>>             return 'mri'
-    >>>         elif 'ct' == row['image_modality_major']:
-    >>>             return 'ct'
-
-    Copying to a New Location
+    **i**. Copying to a New Location (reusing ``my_divvy_rule1``)
 
     >>> train_val_test_dict = {'train': 0.7, 'test': 0.3, 'target_dir': '/your/path/here/output'}
-    >>> image_divvy(opi, divvy_rule=my_divvy_rule3, action='copy', train_val_test_dict=train_val_test_dict)
+    >>> image_divvy(opi, divvy_rule=my_divvy_rule1, action='copy', train_val_test_dict=train_val_test_dict)
 
-    Obtaining ndarrays (numpy arrays)
+    **ii**. Obtaining ``ndarrays`` (numpy arrays)
 
     >>> train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1}
-    >>> tvt = image_divvy(opi, divvy_rule=my_divvy_rule3, action='ndarray', train_val_test_dict=train_val_test_dict)
+    >>> tvt = image_divvy(opi, divvy_rule=my_divvy_rule1, action='ndarray', train_val_test_dict=train_val_test_dict)
 
-    The resultant ndarrays can be unpacked into objects as follows:
+    The resultant ``ndarrays`` can be unpacked into objects as follows:
 
     >>> train_ct, train_mri = tvt['train']['ct'], tvt['train']['mri']
     >>> val_ct, val_mri = tvt['validation']['ct'], tvt['validation']['mri']
@@ -815,7 +856,7 @@ def image_divvy(instance,
 
     .. note::
 
-        Divvying into *train*/*validation*/*test* is powered by the ``train_val_test`` function
+        Divvying into *train/validation/test* is powered by the ``utilities.train_val_test`` function
         (available :func:`here <biovida.support_tools.utilities.train_val_test>`).
 
     .. note::
@@ -826,12 +867,12 @@ def image_divvy(instance,
     .. warning::
 
         While it is possible to pass a function to ``divvy_rule`` which returns multiple categories
-        (similar to ``my_divvy_rule2()``) when divvying into *train*/*validation*/*test*, doing
+        (similar to ``my_divvy_rule2()``) when divvying into *train/validation/test*, doing
         so is not recommended. Overlap between these groups is likely to lead to erroneous
         performance metrics (e.g., accuracy) when assessing fitted models.
 
     """
-    _image_divvy_error_checking(action=action, train_val_test_dict=train_val_test_dict)
+    _image_divvy_error_checking(divvy_rule=divvy_rule, action=action, train_val_test_dict=train_val_test_dict)
 
     data_frame = getattr(instance, db_to_extract) if db_to_extract != 'unify_against_images' else instance
     if not isinstance(data_frame, pd.DataFrame):
@@ -853,15 +894,21 @@ def image_divvy(instance,
             if isinstance(target, list):
                 for t in target:
                     divvy_info.append(t)
-        return pd.DataFrame(divvy_info) if len(divvy_info) else None
+        return divvy_info_to_dict(divvy_info) if len(divvy_info) else None
 
     divvy_info = divvy_rule_apply()
 
-    if isinstance(divvy_info, pd.DataFrame):
+    if isinstance(divvy_info, dict) and isinstance(train_val_test_dict, dict):
         return _image_divvy_train_val_test_wrapper(action=action, verbose=verbose, divvy_info=divvy_info,
                                                    train_val_test_dict=train_val_test_dict)
-    else:
-        return None
+    elif isinstance(divvy_info, dict) and action == 'ndarray':
+        return _file_paths_dict_to_ndarrays(divvy_info, dimensions=1, verbose=verbose)
+    elif isinstance(divvy_info, dict) and action == 'copy':
+        return divvy_info
+
+
+
+
 
 
 
