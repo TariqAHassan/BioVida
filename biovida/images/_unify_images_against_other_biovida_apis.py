@@ -4,7 +4,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Note: To use these tools, see ``biovia.unify_domains.unify_against_images``
+# Note: To use these tools, see ``biovia.unify_domains.unify_against_images()``
 
 # Imports
 import numpy as np
@@ -23,7 +23,11 @@ from biovida.support_tools.support_tools import is_int
 from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
 
+# Image Tools
 from biovida.images._image_tools import try_fuzzywuzzy_import
+
+# Open-i Specific Tools
+from biovida.images._interface_support.openi.openi_support_tools import possible_openi_image_processing_cols
 
 # Start tqdm
 tqdm.pandas(desc='status')
@@ -41,15 +45,35 @@ class _ImagesInterfaceIntegration(object):
 
     """
 
-    @staticmethod
-    def _open_i_prep(db):
+    def __init__(self):
+        self._additional_columns = None
+
+    def _add_additional_columns(self, db, list_of_columns):
         """
 
-        A tool to clean and standardize  an ``OpeniInterface`` instance's cache record database
+        Add ``self._additional_columns`` to ``db`` and ``list_of_columns``
 
-        :param db: the cache record database from an ``OpeniInterface`` instance.
+        :param list_of_columns: as present in ``_open_i_prep()`` or ``_cancer_image_prep()``.
+        :type list_of_columns: ``list``
+        :param db: as passed to ``_open_i_prep()`` or ``_cancer_image_prep()``.
         :type db: ``Pandas DataFrame``
-        :return: a cleaned and standardize ``db``
+        :return: see description.
+        :rtype: ``tuple``
+        """
+        for c in self._additional_columns:
+            list_of_columns.append(c)
+            if c not in db.columns:
+                db[c] = [None] * db.shape[0]
+        return db, list_of_columns
+
+    def _open_i_prep(self, db):
+        """
+
+        A tool to clean and standardize a database from a ``OpeniInterface`` instance.
+
+        :param db: a database from an ``OpeniInterface`` instance.
+        :type db: ``Pandas DataFrame``
+        :return: a cleaned and standardize ``db``.
         :rtype: ``Pandas DataFrame``
         """
         # Deep copy the input to prevent mutating the original in memory.
@@ -58,18 +82,18 @@ class _ImagesInterfaceIntegration(object):
         # Column which provides a guess, based on the text, on which imaging modality created the image.
         db_cln['modality_best_guess'] = db_cln.apply(
             lambda x: x['imaging_modality_from_text'] if isinstance(x['imaging_modality_from_text'], str) else x[
-                'modality_full'],
-            axis=1
-        )
+                'modality_full'], axis=1)
 
         # Convert the 'cached_images_path' column from a series of string to a series of tuples.
         db_cln['cached_images_path'] = db_cln['cached_images_path'].map(
-            lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore'
-        )
+            lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore')
 
         # Define columns to keep
         openi_columns = ['abstract', 'image_id', 'image_caption', 'modality_best_guess', 'age',
                          'sex', 'diagnosis', 'query', 'pull_time', 'cached_images_path']
+
+        if isinstance(self._additional_columns, list):
+            db_cln, openi_columns = self._add_additional_columns(db_cln, openi_columns)
 
         # Column name changes
         openi_col_rename = {'diagnosis': 'disease', 'cached_images_path': 'files_path'}
@@ -83,15 +107,28 @@ class _ImagesInterfaceIntegration(object):
         # Apply rename and return
         return openi_subsection.rename(columns=openi_col_rename)
 
-    @staticmethod
-    def _cancer_image_prep(db):
+    def _image_processing_prep(self, db):
         """
 
-        A tool to clean and standardize  an ``CancerImageInterface`` instance's cache record database
+        A tool to clean and standardize a database from a ``ImageProcessing`` instance.
 
-        :param db: the cache record database from an ``CancerImageInterface`` instance.
+        :param db: a database from a ``ImageProcessing`` instance.
         :type db: ``Pandas DataFrame``
-        :return: a cleaned and standardize ``db``
+        :return: a cleaned and standardize ``db``.
+        :rtype: ``Pandas DataFrame``
+        """
+        # Note: if the ``ImageProcessing`` class is updated to handle
+        # instances other than ``OpeniInterface``, this approach will need to be updated.
+        return self._open_i_prep(db)
+
+    def _cancer_image_prep(self, db):
+        """
+
+        A tool to clean and standardize a database from a ``CancerImageInterface`` instance.
+
+        :param db: a database from a ``CancerImageInterface`` instance.
+        :type db: ``Pandas DataFrame``
+        :return: a cleaned and standardize ``db``.
         :rtype: ``Pandas DataFrame``
         """
         # Define columns to keep
@@ -108,6 +145,9 @@ class _ImagesInterfaceIntegration(object):
         # Deep copy the input to prevent mutating the original in memory.
         db_cln = db.copy(deep=True)
 
+        if isinstance(self._additional_columns, list):
+            db_cln, cancer_image_columns = self._add_additional_columns(db_cln, cancer_image_columns)
+
         # Define subsection based on `cancer_image_columns`
         cancer_image_subsection = db_cln[cancer_image_columns]
 
@@ -120,16 +160,19 @@ class _ImagesInterfaceIntegration(object):
         # Apply rename and return
         return cancer_image_subsection.rename(columns=cancer_image_col_rename)
 
-    def prep_class_dict_gen(self):
+    @property
+    def _prep_class_dict(self):
         """
 
-        Generate a dictionary which maps image interface classes to
+        Return a dictionary which maps image interface classes to
         the methods designed to handle them.
 
         :return: a dictionary mapping class names to functions.
         :rtype: ``dict``
         """
-        return {'OpeniInterface': self._open_i_prep, 'CancerImageInterface': self._cancer_image_prep}
+        return {'OpeniInterface': self._open_i_prep,
+                'CancerImageInterface': self._cancer_image_prep,
+                'ImageProcessing': self._image_processing_prep}
 
     def integration(self, interfaces, db_to_extract):
         """
@@ -153,28 +196,38 @@ class _ImagesInterfaceIntegration(object):
 
          *NOTE: this column will be dropped after passing through ``_DiseaseSymptomsIntegration().integration()``.
 
-        :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a tuple.
-        :rtype interfaces: ``tuple``, ``list``, ``OpeniInterface`` class or ``CancerImageInterface`` class.
+        :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``, or some
+                           combination inside an iterable.
+        :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``.
         :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
         :type db_to_extract: ``str``
         :return: standardize interfaces
         :rtype: ``Pandas DataFrame``
         """
-        prep_class_dict = self.prep_class_dict_gen()
-
         # Handle instances being passed 'raw'
         interfaces = [interfaces] if not isinstance(interfaces, (list, tuple)) else interfaces
+        if 'ImageProcessing' in [type(i).__name__ for i in interfaces]:
+            self._additional_columns = possible_openi_image_processing_cols
 
         frames = list()
         for class_instance in interfaces:
-            func = prep_class_dict[type(class_instance).__name__]
-            database = getattr(class_instance, db_to_extract)
+            interface_name = type(class_instance).__name__
+            func = self._prep_class_dict[interface_name]
+            if interface_name == 'ImageProcessing':
+                database = getattr(class_instance, "image_dataframe")
+            else:
+                database = getattr(class_instance, db_to_extract)
             if not isinstance(database, pd.DataFrame):
                 raise ValueError("The {0} instance's '{1}' database must be of type DataFrame,\nnot "
-                                 "'{2}'.".format(type(class_instance).__name__, db_to_extract, type(database).__name__))
+                                 "'{2}'.".format(interface_name, db_to_extract, type(database).__name__))
             frames.append(func(database))
 
-        return pd.concat(frames, ignore_index=True)
+        self._additional_columns = None  # reset
+
+        combined_df = pd.concat(frames, ignore_index=True)
+        combined_df['disease'] = combined_df['disease'].map(lambda x: x.lower() if isinstance(x, str) else x)
+
+        return combined_df.fillna(np.NaN)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -223,6 +276,7 @@ class _DiseaseOntologyIntegration(object):
         def str_split(s, split_on='; '):
             return tuple(s.split(split_on)) if isinstance(s, str) else s
 
+        # ToDo: change to iterrows().
         for name, is_a, disease_synonym, defn in zip(*[ontology_df[c] for c in ('name', 'is_a', 'synonym', 'def')]):
             disease_synonym_split = str_split(disease_synonym)
             if not items_null(name):
@@ -278,7 +332,7 @@ class _DiseaseOntologyIntegration(object):
 
         # Simply use the first disease name related to the disease_synonym.
         # Note: this *assumes* that which 'name' is chosen from the list is irrelevant.
-        # If the disease ontology database is not consistant, this assumption is invalid.
+        # If the disease ontology database is not consistent, this assumption is invalid.
         disease_info = deepcopy(self.ont_name_dict[ont_dis_names[0]])
         # Remove the synonym from the 'disease_synonym' key and add 'ont_dis_names'
         if isinstance(disease_info['disease_synonym'], tuple):
@@ -350,7 +404,7 @@ class _DiseaseOntologyIntegration(object):
     def integration(self, data_frame, fuzzy_threshold=False):
         """
 
-        Create the 'disease_family', 'disease_synonym' and 'disease_definition' colums to ``data_frame``
+        Create the 'disease_family', 'disease_synonym' and 'disease_definition' columns to ``data_frame``
         using Disease Ontology data.
 
         :param data_frame: a dataframe which has been passed through ``_ImagesInterfaceIntegration().integration()``
@@ -368,8 +422,7 @@ class _DiseaseOntologyIntegration(object):
 
         # Extract disease information using the Disease Ontology database
         disease_ontology_data = data_frame['disease'].progress_map(
-            lambda x: self._find_disease_info(x, fuzzy_threshold)
-        )
+            lambda x: self._find_disease_info(x, fuzzy_threshold))
 
         # Convert `disease_ontology_data` to a dataframe
         disease_ontology_addition = pd.DataFrame(disease_ontology_data.tolist())
@@ -532,8 +585,8 @@ class _DiseaseSymptomsIntegration(object):
         :return: a series with tuples of 'known_associated_symptoms' found in 'abstract'.
         :rtype: ``Pandas Series``
         """
-        # ToDo: 'abstract' could yield erroneous answers; use 'problems' and 'mesh'; 'abstract' only
-        #       if article_type in ['case report', 'encounter'] (requires adding such a column to CancerImage data).
+        # ToDo: 'abstract' could yield erroneous answers; use 'problems' and 'mesh'; 'abstract' only if
+        #       article_type in ['case report', 'encounter'] (requires adding such a column to CancerImage data).
         def match_symptoms(x):
             """Find items in 'known_associated_symptoms' in 'abstract'."""
             if isinstance(x['known_associated_symptoms'], (list, tuple)) and isinstance(x['abstract'], str):
@@ -566,7 +619,7 @@ class _DiseaseSymptomsIntegration(object):
                                                    fuzzy_threshold=fuzzy_threshold,
                                                    new_column_name='known_associated_symptoms')
 
-        # Find 'known_associated_symptoms' which individual patients presented with by scaning the abstract
+        # Find 'known_associated_symptoms' which individual patients presented with by scanning the abstract
         updated_data_frame['patient_symptoms'] = self._patient_symptoms(updated_data_frame)
 
         # Drop the 'abstract' column as it is no longer needed
@@ -643,7 +696,7 @@ class _DisgenetIntegration(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def images_unify(interfaces, db_to_extract='cache_records_db', cache_path=None, verbose=True, fuzzy_threshold=False):
+def images_unify(interfaces, db_to_extract='records_db', cache_path=None, verbose=True, fuzzy_threshold=False):
     """
 
     Unify Interfaces in the ``images`` subpackage against other BioVida APIs.
@@ -651,7 +704,7 @@ def images_unify(interfaces, db_to_extract='cache_records_db', cache_path=None, 
     :param interfaces: See: ``biovida.unify_domains.unify_against_images()``
     :param interfaces: `list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
     :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
-                          Defaults to 'cache_records_db'.
+                          Defaults to 'records_db'.
     :type db_to_extract: ``str``
     :param cache_path: See: ``biovida.unify_domains.unify_against_images()``
     :param cache_path: `str`` or ``None``
