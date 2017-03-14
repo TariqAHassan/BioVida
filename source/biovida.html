@@ -1538,8 +1538,8 @@ return a dictionary of the form <code class="docutils literal"><span class="pre"
 return a dictionary of the form <code class="docutils literal"><span class="pre">{string</span> <span class="pre">returned</span> <span class="pre">by</span> <span class="pre">divvy_rule():</span> <span class="pre">[cache_file_path,</span> <span class="pre">cache_file_path,</span> <span class="pre">...],</span> <span class="pre">...}</span></code>.</li>
 <li>If <code class="docutils literal"><span class="pre">action='ndarray'</span></code> and <code class="docutils literal"><span class="pre">train_val_test_dict</span></code> is not a dictionary, this function will
 return a dictionary of the form <code class="docutils literal"><span class="pre">{string</span> <span class="pre">returned</span> <span class="pre">by</span> <span class="pre">divvy_rule():</span> <span class="pre">array([Image</span> <span class="pre">Matrix,</span> <span class="pre">Image</span> <span class="pre">Matrix,</span> <span class="pre">...]),</span> <span class="pre">...}</span></code>.</li>
-<li>If <code class="docutils literal"><span class="pre">train_val_test_dict</span></code> is a dictionary, the output is determined by
-<a class="reference internal" href="#biovida.support_tools.utilities.train_val_test" title="biovida.support_tools.utilities.train_val_test"><code class="xref py py-func docutils literal"><span class="pre">utilities.train_val_test</span></code></a>.</li>
+<li>If <code class="docutils literal"><span class="pre">train_val_test_dict</span></code> is a dictionary, the output is powered by utilities.train_val_test
+(available <a class="reference internal" href="#biovida.support_tools.utilities.train_val_test" title="biovida.support_tools.utilities.train_val_test"><code class="xref py py-func docutils literal"><span class="pre">here</span></code></a>).</li>
 </ul>
 </li>
 </ul>
@@ -1641,11 +1641,6 @@ return a dictionary of the form <code class="docutils literal"><span class="pre"
 <span class="gp">&gt;&gt;&gt; </span><span class="n">val_ct</span><span class="p">,</span> <span class="n">val_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test_ct</span><span class="p">,</span> <span class="n">test_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Divvying into <em>train/validation/test</em> is powered by the <code class="docutils literal"><span class="pre">utilities.train_val_test</span></code> function
-(available <a class="reference internal" href="#biovida.support_tools.utilities.train_val_test" title="biovida.support_tools.utilities.train_val_test"><code class="xref py py-func docutils literal"><span class="pre">here</span></code></a>).</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
