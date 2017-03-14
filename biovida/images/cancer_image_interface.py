@@ -454,7 +454,6 @@ class _CancerImageArchiveRecords(object):
         :return: a dataframe of all baseline images
         :rtype: ``Pandas DataFrame``
         """
-        # Summarize a study by patient
         study_dict = self._summarize_study_by_patient(study)
 
         # Check for invalid `patient_limit` values:
@@ -475,10 +474,8 @@ class _CancerImageArchiveRecords(object):
         # Concatenate baselines frame for each patient
         patient_study_df = pd.concat(frames, ignore_index=True)
 
-        # Add Study name
+        patient_study_df['article_type'] = ['case report'] * patient_study_df.shape[0]
         patient_study_df['study_name'] = study
-
-        # Add the Name of the illness
         patient_study_df['cancer_type'] = self._get_condition_name(patient_study_df['collection'],
                                                                    overview_download_override)
 
