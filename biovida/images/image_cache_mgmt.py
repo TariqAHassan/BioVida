@@ -807,7 +807,7 @@ def image_divvy(instance,
     ...
     >>> nd_data = image_divvy(opi, divvy_rule=my_divvy_rule1, action='ndarray')
 
-    The resultant ``ndarrays`` accessed as follows:
+    The resultant ``ndarrays`` can be extracted as follows:
 
     >>> ct_images = nd_data['ct']
     >>> mri_images = nd_data['mri']
@@ -851,7 +851,7 @@ def image_divvy(instance,
     >>> train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1}
     >>> tvt = image_divvy(opi, divvy_rule=my_divvy_rule1, action='ndarray', train_val_test_dict=train_val_test_dict)
 
-    The resultant ``ndarrays`` can be unpacked into objects as follows:
+    The resultant ``ndarrays`` can be unpacked as follows:
 
     >>> train_ct, train_mri = tvt['train']['ct'], tvt['train']['mri']
     >>> val_ct, val_mri = tvt['validation']['ct'], tvt['validation']['mri']
