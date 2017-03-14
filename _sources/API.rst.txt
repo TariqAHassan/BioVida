@@ -43,8 +43,8 @@ Domain Integration
 .. automodule:: biovida.unification.unify_domains
 	:members:
 
-Cache Management
-----------------
+Cache Manipulation
+------------------
 
 .. automodule:: biovida.images.image_cache_mgmt
 	:members:
