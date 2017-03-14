@@ -1413,7 +1413,7 @@ class CancerImageInterface(object):
 
         - 3D images are saved as individual frames.
 
-        - Images have the following format:
+        - Images file names in the cache adhere to the following format:
 
             ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale ('default')].image_format``
 
