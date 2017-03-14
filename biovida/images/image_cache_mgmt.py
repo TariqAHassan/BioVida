@@ -485,9 +485,9 @@ def image_delete(instance, delete_rule, verbose=True):
             if enact:
                 for c in _image_instance_image_columns[instance.__class__.__name__]:
                     _robust_delete(row[c])
-            return False  # drop from the dataframe
+            return False  # drop row from the dataframe
         else:
-            return True   # keep in the dataframe
+            return True   # keep row in the dataframe
 
     if isinstance(instance.records_db, pd.DataFrame):
         index_dict['records_db'] = {'before': instance.records_db.index.tolist()}
@@ -500,9 +500,7 @@ def image_delete(instance, delete_rule, verbose=True):
         _ = instance.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
         # Prune ``cache_records_db`` by inspecting which images have been deleted.
         instance._load_prune_cache_records_db(load=False)
-        # Map relationships, if applicable.
         instance.cache_records_db = _relationship_mapper(instance.cache_records_db, instance.__class__.__name__)
-        # Save the updated ``cache_records_db`` to 'disk'.
         instance._save_cache_records_db()
         index_dict['cache_records_db']['after'] = instance.cache_records_db.index.tolist()
     else:
@@ -541,7 +539,7 @@ def _image_divvy_error_checking(divvy_rule, action, train_val_test_dict):
             raise KeyError("`train_val_test_dict` must contain a `target_dir` key "
                            "if `action='copy'`.")
         for k in train_val_test_dict:
-            if k not in ('train', 'validation', 'test', 'target_dir'):
+            if k not in ('train', 'validation', 'test', 'target_dir', 'delete_source'):
                 raise KeyError("Invalid `train_val_test_dict` key: '{0}'.")
         if action == 'ndarray' and 'target_dir' in train_val_test_dict:
             warn("\nThe 'target_dir' entry in `train_val_test_dict` has no\n"
@@ -683,11 +681,12 @@ def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_t
     :rtype: ``dict``
     """
     target = train_val_test_dict.get('target_dir') if action == 'copy' else None
+    delete_source = train_val_test_dict.get('delete_source', False) if action == 'copy' else False
     output_dict = train_val_test(data=divvy_info,
                                  train=train_val_test_dict.get('train', None),
                                  validation=train_val_test_dict.get('validation', None),
                                  test=train_val_test_dict.get('test', None),
-                                 target_dir=target, action=action, delete_source=False,
+                                 target_dir=target, action=action, delete_source=delete_source,
                                  verbose=verbose)
     return output_dict
 
@@ -745,9 +744,12 @@ def image_divvy(instance,
     :type db_to_extract: ``str``
     :param train_val_test_dict: a dictionary denoting the proportions for any of: ``'train'``, ``'validation'`` and/or ``'test'``.
 
-                        .. note:
+                        .. note::
 
-                            If ``action='copy'``, a ``'target_dir'`` key (target directory) must also be included.
+                            * If ``action='copy'``, a ``'target_dir'`` key (target directory) *must* also be included.
+                            * To delete the source files, a ``'delete_source'`` key may be included (optional).
+                              The corresponding value provided *must* be a boolean. If no such key key is provided,
+                              ``'delete_source'`` defaults to ``False``.
 
     :type train_val_test_dict: ``None`` or ``dict``
     :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist. Defaults to ``True``.
@@ -903,8 +905,6 @@ def image_divvy(instance,
         return _file_paths_dict_to_ndarrays(divvy_info, dimensions=1, verbose=verbose)
     elif isinstance(divvy_info, dict) and action == 'copy':
         return divvy_info
-
-
 
 
 
