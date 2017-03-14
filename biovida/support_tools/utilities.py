@@ -13,6 +13,7 @@ from warnings import warn
 from scipy.ndimage import imread
 from os.path import join as os_join
 
+# General Support Tools
 from biovida.support_tools.support_tools import isclose
 from biovida.support_tools.support_tools import is_numeric
 from biovida.support_tools.support_tools import list_to_bulletpoints
@@ -114,7 +115,7 @@ def _train_val_test_dict_sort(tvt):
     :type tvt: ``dict``
     :return: ``tvt`` as a list of tuples
     :rtype: ``list``
-    :raises ``KeyError``: if any key other than 'train', 'validation', 'test' is in ``tvt``
+    :raises ``KeyError``: if any key other than 'train', 'validation' or 'test' is in ``tvt``
     """
     order_dict = {'train': 1, 'validation': 2, 'test': 3}
     return sorted(tvt.items(), key=lambda x: order_dict.get(x[0]))
@@ -234,7 +235,7 @@ def train_val_test(data,
                    verbose=True):
     """
 
-    Splits data in ``data`` into any combination of the following: ``train``, ``validation``, ``test``.
+    Split ``data`` into any combination of the following: ``train``, ``validation`` and/or ``test``.
 
     :param data: 
     
@@ -419,7 +420,7 @@ def train_val_test(data,
 
     if action == 'copy':
         return output_dict
-    else:
+    elif action == 'ndarray':
         return _file_paths_dict_to_ndarrays(output_dict, dimensions=2, verbose=verbose)
 
 
