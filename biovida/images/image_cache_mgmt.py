@@ -695,9 +695,12 @@ def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_t
 def divvy_info_to_dict(divvy_info):
     """
 
-    :param divvy_info:
+    Convert the list evolved inside ``divvy_rule_apply()`` in
+    ``image_divvy()`` into a dictionary
+
+    :param divvy_info: a list of the form ``[[string_1, ['a', 'b']], [string_1, ['c', 'd']], [string_2, ['e']], ...]``.
     :type divvy_info: ``list``
-    :return:
+    :return: a dictionary form: ``{string_1: ['a', 'b', 'c', 'd'], string_2: ['e'], ...}``.
     :rtype: ``Pandas DataFrame``
     """
     d = defaultdict(list)
@@ -717,7 +720,7 @@ def image_divvy(instance,
                 verbose=True):
     """
 
-    Grouping cached images.
+    Grouping Cached Images.
 
     :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
                      ``OpeniInterface`` or ``CancerImageInterface``.
@@ -905,9 +908,6 @@ def image_divvy(instance,
         return _file_paths_dict_to_ndarrays(divvy_info, dimensions=1, verbose=verbose)
     elif isinstance(divvy_info, dict) and action == 'copy':
         return divvy_info
-
-
-
 
 
 
