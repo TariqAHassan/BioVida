@@ -17,8 +17,15 @@ from biovida.support_tools._support_data import ages_as_tuples_rev
 # Regex for ``extract_float()``
 non_decimal = re.compile(r'[^\d.]+')
 
-_mold = "(^| ){0}( |,|\.|\?|!|$)"
-_age_match = [(" {0} ".format(n), _mold.format(w), _mold.format(w.replace("-", " "))) for w, n in ages_as_tuples_rev]
+def _age_word_regex(age_num_word):
+    _mold = "(^| ){0}( |,|\.|\?|!|$)"
+    if '-' not in age_num_word:
+        to_compile = _mold.format(age_num_word)
+    else:
+        to_compile = _mold.format(age_num_word.replace("-", "[-| ]"))
+    return re.compile(to_compile, flags=re.I)
+
+_age_match = tuple([(" {0} ".format(n), _age_word_regex(w)) for w, n in ages_as_tuples_rev])
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -197,9 +204,9 @@ def num_word_to_int(input_str):
 
     :Example:
 
-    >>> num_word_to_int(input_str="the disease was present from twenty five until their death at eighty-seven.")
+    >>> num_word_to_int(input_str="the disease was present from twenty  five until their death at eighty-seven.")
     ...
-    'the disease was present from 25 until their death at 87 .'
+    'the disease was present from 25 until their death at 87'
     ...
     # However, the simple presence of the substring 'one' doesn't confuse the procedure.
     >>> num_word_to_int(input_str="the oneway (sic) street is closed due to construction.")
@@ -212,16 +219,16 @@ def num_word_to_int(input_str):
     'The ring was the only 1 in all of history, to xyz'
     ...
     # It is also not confused by common expressions (assuming the number is < 20).
-    >>> num_word_to_int(input_str="one-short learning is the ultimate goal of AI research.")
-    'Robust one-short learning is the one of the goals of AI research.'
+    >>> num_word_to_int(input_str="one-shot learning is the ultimate goal of AI research.")
+    'Robust one-shot learning is the one of the goals of AI research.'
     """
-    # ToDo: faster solutions are surely possible...Without this step
+    # ToDo: faster solutions are surely possible...Without this step,
     #       biovida.images._interface_support.openi._openi_text_feature_extraction is ~4x faster.
     # Note: the reversal (ages_as_tuples_rev) ensures that 'twenty five' yields '25', not '20 5'.
-    for (n, w1, w2) in _age_match:
-        input_str = re.sub(w1, n, input_str, flags=re.I)
-        input_str = re.sub(w2, n, input_str, flags=re.I)
-    return " ".join(input_str.split())
+    input_str_clean = " ".join(input_str.split()).strip()
+    for (n, w) in _age_match:
+        input_str_clean = re.sub(w, n, input_str_clean)
+    return " ".join(input_str_clean.split()).strip()
 
 
 def url_path_extract(url):

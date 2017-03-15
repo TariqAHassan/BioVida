@@ -116,7 +116,7 @@ age_dict = {'one': 1,
             'one hundred and two': 102,
             'one hundred and three': 103,
             'one hundred and four': 104,
-            'one hundred and five': 105,
+            'one hundred and five': 105
 }
 
-ages_as_tuples_rev = sorted(age_dict.items(), key=lambda x: x[-1], reverse=True)
+ages_as_tuples_rev = tuple(sorted(age_dict.items(), key=lambda x: x[-1], reverse=True))
