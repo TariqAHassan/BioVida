@@ -57,16 +57,15 @@ def unify_against_images(interfaces,
     .. hlist::
         :columns: 4
 
-        * 'image_id'
-        * 'image_caption'
-        * 'modality_best_guess'
         * 'age'
-        * 'sex'
+        * 'article_type'
         * 'disease'
-        * 'query'
+        * 'image_caption'
+        * 'image_id'
+        * 'modality_best_guess'
         * 'pull_time'
-        * 'harvest_success'
-        * 'files_path'
+        * 'query'
+        * 'sex'
         * 'source_api'
         * 'disease_family'
         * 'disease_synonym'
@@ -85,8 +84,8 @@ def unify_against_images(interfaces,
         The ``'known_associated_symptoms'`` and ``'known_associated_genes'`` columns denote symptoms and genes
         known to be associated with the disease the patient presented with. **These columns are not an account
         of the symptomatology or genotype of the patients themselves**. Conversely, the ``'mentioned_symptoms'``
-        column is an account of a given patient's symptoms *if* the data is from a clinical 'encounter'
-        (or 'case report').
+        column is an account of a given patient's symptoms *if* the data is from a clinical case
+        (i.e., ``article_type`` equals 'case report').
 
     :Example:
 
