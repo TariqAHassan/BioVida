@@ -1140,7 +1140,13 @@ class OpeniInterface(object):
 
         :type new_records_pull: ``bool``
         :param image_size: one of: 'large', 'grid150', 'thumb', 'thumb_large' or ``None``. Defaults to 'large'.
-                                    If ``None``, no attempt will be made to download images.
+                          If ``None``, no attempt will be made to download images.
+
+                        .. warning::
+
+                                The analyses performed by the ``image_processing.ImageProcessing`` class are
+                                most accurate with large images.
+
         :type image_size: ``str`` or ``None``
         :param records_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
                                    Note: noise is randomly added to the sleep time by sampling from a normal distribution
