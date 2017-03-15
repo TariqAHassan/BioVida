@@ -1447,7 +1447,7 @@ class CancerImageInterface(object):
                                    This parameter is not case sensitive. Defaults to ``None``.
         :type allowed_modalities: ``list`` or ``tuple``
         :param image_format: format for the image, e.g., 'png', 'jpg', etc. If ``None``, images will not be downloaded.
-                           Defaults to 'png'.
+                             Defaults to 'png'.
         :type image_format: ``str``
         :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.
         :type save_dicoms: ``bool``
