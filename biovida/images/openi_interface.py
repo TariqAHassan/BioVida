@@ -39,9 +39,8 @@ from biovida.images._interface_support.openi.openi_support_tools import nonessen
 # Open-i API Parameters Information
 from biovida.images._interface_support.openi.openi_parameters import openi_search_information
 
-# Open-i Raw Text Processing
+from biovida.images._interface_support.openi._openi_image_id_processing import image_id_short_gen
 from biovida.images._interface_support.openi.openi_text_processing import openi_raw_extract_and_clean
-from biovida.images._interface_support.openi._openi_text_feature_extraction import image_id_short_gen
 
 
 # Cache Management
