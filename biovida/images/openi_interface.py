@@ -218,7 +218,7 @@ class _OpeniSearch(object):
 
             # Report invalid `search_parameter`
             if search_dict is None:
-                raise ValueError("'{0}' is not a valid parameter to pass to the Open-i API".format(search_parameter))
+                raise ValueError("'{0}' is not a valid parameter to pass to the Open-i API.".format(search_parameter))
 
             # Remove exclusions term
             opts = [i for i in search_dict[1].keys() if i not in exclusions]
