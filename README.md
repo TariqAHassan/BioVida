@@ -12,20 +12,20 @@ neural networks.
 
 To view this project's website, please [click here].
 
-##Installation
+## Installation
 
 Latest Build:
 ```bash
 $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
-##API Overview
+## API Overview
 
-###Image Data
+### Image Data
 
 In just a few lines of code, you can download and clean images from various biomedical image databases.
 
-####Cancer Imaging Archive
+#### Cancer Imaging Archive
 ```python
 # 1. Import the interface for the Cancer Imaging Archive
 from biovida.images import CancerImageInterface
@@ -40,7 +40,7 @@ cii.search(location='extremities')
 cdf = cii.pull()
 ```
 
-####Open-i BioMedical Image Search Engine
+#### Open-i BioMedical Image Search Engine
 ```python
 
 # 1. Import the Interface for the NIH's Open-i API.
@@ -56,7 +56,7 @@ opi.search(query=None, image_type=['mri', 'ct'])  # Results Found: 134,113.
 search_df = opi.pull()
 ```
 
-####Automated Image Data Cleaning
+#### Automated Image Data Cleaning
 ```python
 # 1. Import Image Processing Tools
 from biovida.images import ImageProcessing
@@ -94,7 +94,7 @@ that the model was tasked with differentiating between images which had been per
 (e.g., had arrows added) with those that had not (random cropping notwithstanding). 
 Moreover, in informal testing, this model appears to be be performing very well with new data.
 
-###Genomic Data
+### Genomic Data
 
 BioVida provides a simple interface for obtaining genomic data.
 
@@ -109,7 +109,7 @@ dna = DisgenetInterface()
 gdf = dna.pull('curated')
 ```
 
-###Diagnostic Data
+### Diagnostic Data
 
 BioVida also makes it easy to obtain diagnostics data.
 
@@ -139,12 +139,12 @@ dsi = DiseaseSymptomsInterface()
 dsdf = dsi.pull()
 ```
 
-##Documentation
+## Documentation
 
 You can view a more extensive Getting Started guide by [clicking here]
 and API documentation [here].
 
-##Resources
+## Resources
 
 The [resources] document provides an account of all data sources and
 scholarly work used by BioVida.
