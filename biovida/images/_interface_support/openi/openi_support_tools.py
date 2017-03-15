@@ -38,6 +38,7 @@ nonessential_openi_columns = [
     'detailed_query_url',
     'fulltext_html_url',
     'get_article_figures',
+    'image_id',
     'img_grid150',
     'img_large',
     'img_thumb',
