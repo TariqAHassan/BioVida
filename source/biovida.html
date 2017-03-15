@@ -374,8 +374,16 @@ column is obtained by analyzing the text associated with the image. This analysi
 truncate or otherwise modify <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code> and then download images.</p>
 </div>
 </li>
-<li><strong>image_size</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; one of: &#8216;large&#8217;, &#8216;grid150&#8217;, &#8216;thumb&#8217;, &#8216;thumb_large&#8217; or <code class="docutils literal"><span class="pre">None</span></code>. Defaults to &#8216;large&#8217;.
-If <code class="docutils literal"><span class="pre">None</span></code>, no attempt will be made to download images.</li>
+<li><strong>image_size</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <dl class="docutils">
+<dt>one of: &#8216;large&#8217;, &#8216;grid150&#8217;, &#8216;thumb&#8217;, &#8216;thumb_large&#8217; or <code class="docutils literal"><span class="pre">None</span></code>. Defaults to &#8216;large&#8217;.</dt>
+<dd>If <code class="docutils literal"><span class="pre">None</span></code>, no attempt will be made to download images.</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The analyses performed by the <code class="docutils literal"><span class="pre">image_processing.ImageProcessing</span></code> class are
+most accurate with large images.</p>
+</div>
+</li>
 <li><strong>records_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
 Note: noise is randomly added to the sleep time by sampling from a normal distribution
 (with mean = 0, sd = 0.75).</li>

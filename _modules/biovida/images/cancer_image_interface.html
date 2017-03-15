@@ -626,7 +626,6 @@
 <span class="sd">        :return: a dataframe of all baseline images</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Summarize a study by patient</span>
         <span class="n">study_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summarize_study_by_patient</span><span class="p">(</span><span class="n">study</span><span class="p">)</span>
 
         <span class="c1"># Check for invalid `patient_limit` values:</span>
@@ -647,10 +646,8 @@
         <span class="c1"># Concatenate baselines frame for each patient</span>
         <span class="n">patient_study_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># Add Study name</span>
+        <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;article_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;case report&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;study_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">study</span>
-
-        <span class="c1"># Add the Name of the illness</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;cancer_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_condition_name</span><span class="p">(</span><span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">],</span>
                                                                    <span class="n">overview_download_override</span><span class="p">)</span>
 
@@ -1622,7 +1619,7 @@
 <span class="sd">                                   This parameter is not case sensitive. Defaults to ``None``.</span>
 <span class="sd">        :type allowed_modalities: ``list`` or ``tuple``</span>
 <span class="sd">        :param image_format: format for the image, e.g., &#39;png&#39;, &#39;jpg&#39;, etc. If ``None``, images will not be downloaded.</span>
-<span class="sd">                           Defaults to &#39;png&#39;.</span>
+<span class="sd">                             Defaults to &#39;png&#39;.</span>
 <span class="sd">        :type image_format: ``str``</span>
 <span class="sd">        :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.</span>
 <span class="sd">        :type save_dicoms: ``bool``</span>

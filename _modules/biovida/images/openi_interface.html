@@ -1312,7 +1312,13 @@
 
 <span class="sd">        :type new_records_pull: ``bool``</span>
 <span class="sd">        :param image_size: one of: &#39;large&#39;, &#39;grid150&#39;, &#39;thumb&#39;, &#39;thumb_large&#39; or ``None``. Defaults to &#39;large&#39;.</span>
-<span class="sd">                                    If ``None``, no attempt will be made to download images.</span>
+<span class="sd">                          If ``None``, no attempt will be made to download images.</span>
+
+<span class="sd">                        .. warning::</span>
+
+<span class="sd">                                The analyses performed by the ``image_processing.ImageProcessing`` class are</span>
+<span class="sd">                                most accurate with large images.</span>
+
 <span class="sd">        :type image_size: ``str`` or ``None``</span>
 <span class="sd">        :param records_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.</span>
 <span class="sd">                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>

@@ -257,6 +257,9 @@
         <span class="c1"># Extract the records_db/cache_records_db database</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_db</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="s1">&#39;cached_images_path&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No &#39;cached_images_path&#39; column in &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_to_extract</span><span class="p">))</span>
+
         <span class="c1"># Extract path to the MedPix Logo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_medpix_path</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;medpix_logo&#39;</span><span class="p">]</span>
 

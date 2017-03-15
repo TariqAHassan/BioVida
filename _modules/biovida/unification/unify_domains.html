@@ -186,7 +186,7 @@
 
 
 <div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../API.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="p">,</span>
-                         <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;cache_records_db&#39;</span><span class="p">,</span>
+                         <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span>
                          <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                          <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -195,10 +195,17 @@
 <span class="sd">    Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)</span>
 <span class="sd">    with Diagnostic and Genomic Data.</span>
 
-<span class="sd">    :param interfaces: instances of: ``OpeniInterface``, ``CancerImageInterface`` or both inside a list.</span>
-<span class="sd">    :type interfaces: ``list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``</span>
-<span class="sd">    :param db_to_extract: the database to use. Must be one of: &#39;records_db&#39;, &#39;cache_records_db&#39;.</span>
-<span class="sd">                      Defaults to &#39;cache_records_db&#39;.</span>
+<span class="sd">    :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``, or some</span>
+<span class="sd">                           combination inside an iterable.</span>
+<span class="sd">    :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``.</span>
+<span class="sd">    :param db_to_extract: the database to use. Must be one of: &#39;records_db&#39;, &#39;cache_records_db&#39; or &#39;image_dataframe&#39;.</span>
+<span class="sd">                          Defaults to &#39;records_db&#39;.</span>
+
+<span class="sd">                    .. note::</span>
+
+<span class="sd">                        If an instance of ``ImageProcessing`` is passed to ``interfaces``, the ``image_dataframe``</span>
+<span class="sd">                        attribute will be extracted regardless of the value passed to this argument.</span>
+
 <span class="sd">    :type db_to_extract: ``str``</span>
 <span class="sd">    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.</span>
 <span class="sd">                       Default to ``None`` (which will generate a cache in the home folder).</span>
@@ -222,22 +229,21 @@
 <span class="sd">    .. hlist::</span>
 <span class="sd">        :columns: 4</span>
 
-<span class="sd">        * &#39;image_id&#39;</span>
-<span class="sd">        * &#39;image_caption&#39;</span>
-<span class="sd">        * &#39;modality_best_guess&#39;</span>
 <span class="sd">        * &#39;age&#39;</span>
-<span class="sd">        * &#39;sex&#39;</span>
+<span class="sd">        * &#39;article_type&#39;</span>
 <span class="sd">        * &#39;disease&#39;</span>
-<span class="sd">        * &#39;query&#39;</span>
+<span class="sd">        * &#39;image_caption&#39;</span>
+<span class="sd">        * &#39;image_id&#39;</span>
+<span class="sd">        * &#39;modality_best_guess&#39;</span>
 <span class="sd">        * &#39;pull_time&#39;</span>
-<span class="sd">        * &#39;harvest_success&#39;</span>
-<span class="sd">        * &#39;files_path&#39;</span>
+<span class="sd">        * &#39;query&#39;</span>
+<span class="sd">        * &#39;sex&#39;</span>
 <span class="sd">        * &#39;source_api&#39;</span>
 <span class="sd">        * &#39;disease_family&#39;</span>
 <span class="sd">        * &#39;disease_synonym&#39;</span>
 <span class="sd">        * &#39;disease_definition&#39;</span>
 <span class="sd">        * &#39;known_associated_symptoms&#39;</span>
-<span class="sd">        * &#39;patient_symptoms&#39;</span>
+<span class="sd">        * &#39;mentioned_symptoms&#39;</span>
 <span class="sd">        * &#39;known_associated_genes&#39;</span>
 
 
@@ -249,8 +255,9 @@
 
 <span class="sd">        The ``&#39;known_associated_symptoms&#39;`` and ``&#39;known_associated_genes&#39;`` columns denote symptoms and genes</span>
 <span class="sd">        known to be associated with the disease the patient presented with. **These columns are not an account</span>
-<span class="sd">        of the symptomatology or genotype of the patients themselves**. Conversely, the ``&#39;patient_symptoms&#39;``</span>
-<span class="sd">        column *is* an account of a given patient&#39;s symptoms.</span>
+<span class="sd">        of the symptomatology or genotype of the patients themselves**. Conversely, the ``&#39;mentioned_symptoms&#39;``</span>
+<span class="sd">        column is an account of a given patient&#39;s symptoms *if* the data is from a clinical case</span>
+<span class="sd">        (i.e., ``article_type`` equals &#39;case report&#39;).</span>
 
 <span class="sd">    :Example:</span>
 
@@ -269,8 +276,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">images_unify</span><span class="p">(</span><span class="n">interfaces</span><span class="o">=</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="n">db_to_extract</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
                         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="n">fuzzy_threshold</span><span class="p">)</span></div>
-
-
 
 
 

@@ -340,8 +340,16 @@ column is obtained by analyzing the text associated with the image. This analysi
 truncate or otherwise modify <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code> and then download images.</p>
 </div>
 </li>
-<li><strong>image_size</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; one of: &#8216;large&#8217;, &#8216;grid150&#8217;, &#8216;thumb&#8217;, &#8216;thumb_large&#8217; or <code class="docutils literal"><span class="pre">None</span></code>. Defaults to &#8216;large&#8217;.
-If <code class="docutils literal"><span class="pre">None</span></code>, no attempt will be made to download images.</li>
+<li><strong>image_size</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <dl class="docutils">
+<dt>one of: &#8216;large&#8217;, &#8216;grid150&#8217;, &#8216;thumb&#8217;, &#8216;thumb_large&#8217; or <code class="docutils literal"><span class="pre">None</span></code>. Defaults to &#8216;large&#8217;.</dt>
+<dd>If <code class="docutils literal"><span class="pre">None</span></code>, no attempt will be made to download images.</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The analyses performed by the <code class="docutils literal"><span class="pre">image_processing.ImageProcessing</span></code> class are
+most accurate with large images.</p>
+</div>
+</li>
 <li><strong>records_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
 Note: noise is randomly added to the sleep time by sampling from a normal distribution
 (with mean = 0, sd = 0.75).</li>
@@ -1513,7 +1521,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <h3>Unifying Across Domains<a class="headerlink" href="#unifying-across-domains" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
-<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>db_to_extract='cache_records_db'</em>, <em>cache_path=None</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>db_to_extract='records_db'</em>, <em>cache_path=None</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tool to unify image interfaces (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
 with Diagnostic and Genomic Data.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1521,9 +1529,18 @@ with Diagnostic and Genomic Data.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>interfaces</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; instances of: <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or both inside a list.</li>
-<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the database to use. Must be one of: &#8216;records_db&#8217;, &#8216;cache_records_db&#8217;.
-Defaults to &#8216;cache_records_db&#8217;.</li>
+<li><strong>interfaces</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">ImageProcessing</span></code>.) &#8211; any one of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">ImageProcessing</span></code>, or some
+combination inside an iterable.</li>
+<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <dl class="docutils">
+<dt>the database to use. Must be one of: &#8216;records_db&#8217;, &#8216;cache_records_db&#8217; or &#8216;image_dataframe&#8217;.</dt>
+<dd>Defaults to &#8216;records_db&#8217;.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If an instance of <code class="docutils literal"><span class="pre">ImageProcessing</span></code> is passed to <code class="docutils literal"><span class="pre">interfaces</span></code>, the <code class="docutils literal"><span class="pre">image_dataframe</span></code>
+attribute will be extracted regardless of the value passed to this argument.</p>
+</div>
+</li>
 <li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
 Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
@@ -1547,20 +1564,19 @@ large databases, such as those this function integrates, is very computationally
 </table>
 <p>This function evolves a DataFrame with the following columns:</p>
 <table class="hlist"><tr><td><ul class="simple">
-<li>&#8216;image_id&#8217;</li>
-<li>&#8216;image_caption&#8217;</li>
-<li>&#8216;modality_best_guess&#8217;</li>
 <li>&#8216;age&#8217;</li>
-<li>&#8216;sex&#8217;</li>
-</ul>
-</td><td><ul class="simple">
+<li>&#8216;article_type&#8217;</li>
 <li>&#8216;disease&#8217;</li>
-<li>&#8216;query&#8217;</li>
-<li>&#8216;pull_time&#8217;</li>
-<li>&#8216;harvest_success&#8217;</li>
+<li>&#8216;image_caption&#8217;</li>
 </ul>
 </td><td><ul class="simple">
-<li>&#8216;files_path&#8217;</li>
+<li>&#8216;image_id&#8217;</li>
+<li>&#8216;modality_best_guess&#8217;</li>
+<li>&#8216;pull_time&#8217;</li>
+<li>&#8216;query&#8217;</li>
+</ul>
+</td><td><ul class="simple">
+<li>&#8216;sex&#8217;</li>
 <li>&#8216;source_api&#8217;</li>
 <li>&#8216;disease_family&#8217;</li>
 <li>&#8216;disease_synonym&#8217;</li>
@@ -1568,7 +1584,7 @@ large databases, such as those this function integrates, is very computationally
 </td><td><ul class="simple">
 <li>&#8216;disease_definition&#8217;</li>
 <li>&#8216;known_associated_symptoms&#8217;</li>
-<li>&#8216;patient_symptoms&#8217;</li>
+<li>&#8216;mentioned_symptoms&#8217;</li>
 <li>&#8216;known_associated_genes&#8217;</li>
 </ul>
 </td></tr></table>
@@ -1580,8 +1596,9 @@ large databases, such as those this function integrates, is very computationally
 <p class="first admonition-title">Warning</p>
 <p class="last">The <code class="docutils literal"><span class="pre">'known_associated_symptoms'</span></code> and <code class="docutils literal"><span class="pre">'known_associated_genes'</span></code> columns denote symptoms and genes
 known to be associated with the disease the patient presented with. <strong>These columns are not an account
-of the symptomatology or genotype of the patients themselves</strong>. Conversely, the <code class="docutils literal"><span class="pre">'patient_symptoms'</span></code>
-column <em>is</em> an account of a given patient&#8217;s symptoms.</p>
+of the symptomatology or genotype of the patients themselves</strong>. Conversely, the <code class="docutils literal"><span class="pre">'mentioned_symptoms'</span></code>
+column is an account of a given patient&#8217;s symptoms <em>if</em> the data is from a clinical case
+(i.e., <code class="docutils literal"><span class="pre">article_type</span></code> equals &#8216;case report&#8217;).</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
