@@ -18,11 +18,11 @@ from biovida.support_tools._support_data import ages_as_tuples_rev
 non_decimal = re.compile(r'[^\d.]+')
 
 def _age_word_regex(age_num_word):
-    _mold = "(^| ){0}( |,|\.|\?|!|$)"
+    mold = "(^| ){0}( |,|\.|\?|!|$)"
     if '-' not in age_num_word:
-        to_compile = _mold.format(age_num_word)
+        to_compile = mold.format(age_num_word)
     else:
-        to_compile = _mold.format(age_num_word.replace("-", "[-| ]"))
+        to_compile = mold.format(age_num_word.replace("-", "[-| ]"))
     return re.compile(to_compile, flags=re.I)
 
 _age_match = tuple([(" {0} ".format(n), _age_word_regex(w)) for w, n in ages_as_tuples_rev])
