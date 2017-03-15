@@ -68,7 +68,7 @@ ip = ImageProcessing(opi)
 idf = ip.auto()
 
 # 4. Save the Cleaned Images
-ip.save("/save/directory/")
+ip.save("/save/directory")
 ```
 
 Notes:
