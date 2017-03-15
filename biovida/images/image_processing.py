@@ -26,7 +26,7 @@ from biovida.images._interface_support.openi.openi_support_tools import nonessen
 # Models
 from biovida.images.models.border_detection import border_detection
 from biovida.images.models.template_matching import robust_match_template
-from biovida.images.models.image_classification import ImageRecognitionCNN
+from biovida.images.models.image_classification import ImageClassificationCNN
 
 # Suppress Pandas' SettingWithCopyWarning
 pd.options.mode.chained_assignment = None
@@ -95,7 +95,7 @@ class ImageProcessing(object):
         tqdm.pandas("status")
 
         # Load the CNN
-        self._ircnn = ImageRecognitionCNN()
+        self._ircnn = ImageClassificationCNN()
 
         # Load the model weights and architecture.
         model_path = pkg_resources.resource_filename('biovida', 'images/_resources/visual_image_problems_model.h5')
@@ -553,7 +553,7 @@ class ImageProcessing(object):
         # Apply crop
         cropped_images_for_analysis = self._cropper(data_frame=None, return_as_array=True)
 
-        # Transform the cropped images into a form `ImageRecognitionCNN.predict()` can accept
+        # Transform the cropped images into a form `ImageClassificationCNN.predict()` can accept
         if self._verbose and self._print_update:
             print("\n\nPreparing Images for Neural Network...")
             verbose_prediction = True

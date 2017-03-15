@@ -6,4 +6,4 @@ from biovida.images.image_cache_mgmt import image_delete
 from biovida.images.openi_interface import OpeniInterface
 from biovida.images.image_processing import ImageProcessing
 from biovida.images.cancer_image_interface import CancerImageInterface
-from biovida.images.models.image_classification import ImageRecognitionCNN
+from biovida.images.models.image_classification import ImageClassificationCNN

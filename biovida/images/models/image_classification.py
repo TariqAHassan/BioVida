@@ -32,7 +32,7 @@ from keras.optimizers import RMSprop, SGD
 # performs the preprocessing described in https://arxiv.org/pdf/1409.1556.pdf
 
 
-class ImageRecognitionCNN(object):
+class ImageClassificationCNN(object):
     """
 
     Keras Convolutional Neural Networks Interface.
@@ -410,12 +410,12 @@ class ImageRecognitionCNN(object):
 
         :param first_format: action the model
         :type first_format: ``str``
-        :param second_format: name of an ``ImageRecognitionCNN`` method.
+        :param second_format: name of an ``ImageClassificationCNN`` method.
         :type second_format: ``str``
         :raises: ``AttributeError`` composed from `first_format` and `second_format`.
         """
         if self.model is None:
-            raise AttributeError("The model cannot be {0} until `ImageRecognitionCNN().{1}()` "
+            raise AttributeError("The model cannot be {0} until `ImageClassificationCNN().{1}()` "
                                  "has been called.{2}".format(first_format, second_format, additional))
 
     def fit(self, nb_epoch=10, min_delta=0.1, patience=3):
@@ -429,7 +429,7 @@ class ImageRecognitionCNN(object):
         :type min_delta: ``float``
         :param patience: see ``keras.callbacks.EarlyStopping()``.
         :type patience: ``int``
-        :raises: ``AttributeError`` if ``ImageRecognitionCNN().convnet()`` is yet to be called.
+        :raises: ``AttributeError`` if ``ImageClassificationCNN().convnet()`` is yet to be called.
         """
         self._model_existence_check("fit and validated", "convnet")
 
@@ -481,7 +481,7 @@ class ImageRecognitionCNN(object):
         :type path: ``str``
         :param overwrite: overwrite the existing copy of the data
         :type overwrite: ``bool``
-        :raises: ``AttributeError`` if ``ImageRecognitionCNN().fit()`` is yet to be called.
+        :raises: ``AttributeError`` if ``ImageClassificationCNN().fit()`` is yet to be called.
         """
         self._model_existence_check("saved", "fit",  " Alternatively, you can call .load().")
         save_path = self._data_path if (path is None and self._data_path is not None) else path
@@ -522,7 +522,7 @@ class ImageRecognitionCNN(object):
         :param override_existing: If True and a model has already been instantiated, override this replace this model.
                                   Defaults to ``False``.
         :type override_existing: ``bool``
-        :param default_model_load: load the default model if ``ImageRecognitionCNN().convnet()`` has not been called.
+        :param default_model_load: load the default model if ``ImageClassificationCNN().convnet()`` has not been called.
                                    Defaults to ``False``.
         :type default_model_load: ``bool``
         :raises: ``AttributeError`` if a model is currently instantiated.
@@ -571,7 +571,7 @@ class ImageRecognitionCNN(object):
         if self.model is None:
             raise AttributeError("Predictions cannot be made until a model is loaded or trained.")
 
-        def status_bar(x): # ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)
+        def status_bar(x):  # ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)
             return tqdm(x) if status else x
 
         number_ndarray = ['ndarray' in str(type(i)) for i in list_of_images]
