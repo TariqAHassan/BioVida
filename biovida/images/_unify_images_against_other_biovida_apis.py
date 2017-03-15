@@ -20,7 +20,6 @@ from biovida.diagnostics.disease_symptoms_interface import DiseaseSymptomsInterf
 
 # Support Tools
 from biovida.support_tools.support_tools import is_int
-from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import items_null
 
 # Image Tools
@@ -84,18 +83,19 @@ class _ImagesInterfaceIntegration(object):
             lambda x: x['imaging_modality_from_text'] if isinstance(x['imaging_modality_from_text'], str) else x[
                 'modality_full'], axis=1)
 
-        # Convert the 'cached_images_path' column from a series of string to a series of tuples.
-        db_cln['cached_images_path'] = db_cln['cached_images_path'].map(
-            lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore')
-
         # Define columns to keep
-        openi_columns = ['abstract', 'article_type', 'image_id', 'image_caption', 'modality_best_guess', 'age',
-                         'sex', 'diagnosis', 'query', 'pull_time', 'cached_images_path']
+        openi_columns = ['abstract', 'article_type', 'image_id', 'image_caption',
+                         'modality_best_guess', 'age', 'sex', 'diagnosis', 'query', 'pull_time']
+
+        # Allow for cases where images have not been downloaded.
+        if 'cached_images_path' in db_cln.columns:
+            openi_columns.append('cached_images_path')
+            db_cln['cached_images_path'] = db_cln['cached_images_path'].map(
+                lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore')
 
         if isinstance(self._additional_columns, list):
             db_cln, openi_columns = self._add_additional_columns(db_cln, openi_columns)
 
-        openi_col_rename = {'diagnosis': 'disease', 'cached_images_path': 'files_path'}
         db_cln['article_type'] = db_cln['article_type'].replace({'encounter': 'case report'})
 
         # Define subsection based on `openi_columns`
@@ -104,7 +104,7 @@ class _ImagesInterfaceIntegration(object):
         # Add a column to allow the user to identify the API which provided the data
         openi_subsection['source_api'] = ['openi'] * openi_subsection.shape[0]
 
-        # Apply rename and return
+        openi_col_rename = {'diagnosis': 'disease'}
         return openi_subsection.rename(columns=openi_col_rename)
 
     def _image_processing_prep(self, db):
@@ -133,14 +133,17 @@ class _ImagesInterfaceIntegration(object):
         """
         # Define columns to keep
         cancer_image_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age',
-                                'sex', 'article_type', 'cancer_type', 'query', 'pull_time', 'cached_images_path']
+                                'sex', 'article_type', 'cancer_type', 'query', 'pull_time']
 
-        # Column name changes (based on `_open_i_prep`).
+        # Allow for cases where images have not been downloaded.
+        if 'cached_images_path' in db.columns:
+            cancer_image_columns.append('cached_images_path')
+
+        # Column name changes (based on ``_open_i_prep()``).
         cancer_image_col_rename = {'series_instance_uid': 'image_id',
                                    'series_description': 'image_caption',
                                    'modality_full': 'modality_best_guess',
-                                   'cancer_type': 'disease',
-                                   'cached_images_path': 'files_path'}
+                                   'cancer_type': 'disease'}
 
         # Deep copy the input to prevent mutating the original in memory.
         db_cln = db.copy(deep=True)
@@ -418,7 +421,7 @@ class _DiseaseOntologyIntegration(object):
             raise ValueError("`fuzzy_threshold` cannot be `True`. Please provide a specific integer on ``(0, 100]``.")
 
         if self.verbose:
-            header("Integrating Disease Ontology Data... ")
+            print("\nIntegrating Disease Ontology Data...")
 
         # Extract disease information using the Disease Ontology database
         disease_ontology_data = data_frame['disease'].progress_map(
@@ -585,8 +588,7 @@ class _DiseaseSymptomsIntegration(object):
         :return: a series with tuples of 'known_associated_symptoms' found in 'abstract'.
         :rtype: ``Pandas Series``
         """
-        # ToDo: 'abstract' could yield erroneous answers; use 'problems' and 'mesh'; 'abstract' only if
-        #       article_type in ['case report', 'encounter'] (requires adding such a column to CancerImage data).
+        # ToDo: consider using 'mesh' and 'problems' cols - would have to be added in ``_ImagesInterfaceIntegration()``.
         def match_symptoms(x):
             """Find items in 'known_associated_symptoms' in 'abstract'."""
             if isinstance(x['known_associated_symptoms'], (list, tuple)) and isinstance(x['abstract'], str):
@@ -611,7 +613,7 @@ class _DiseaseSymptomsIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         if self.verbose:
-            header("Integrating Disease Symptoms Data... ")
+            print("\nIntegrating Disease Symptoms Data...")
 
         # Generate a 'known_associated_symptoms' columns
         updated_data_frame = _resource_integration(data_frame=data_frame,
@@ -683,7 +685,7 @@ class _DisgenetIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         if self.verbose:
-            header("Integrating DisGeNET Data... ")
+            print("\nIntegrating DisGeNET Data...")
 
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_gene_dict,
