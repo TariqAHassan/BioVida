@@ -18,7 +18,6 @@ from biovida.support_tools.support_tools import remove_html_bullet_points
 
 # Image Support Tools
 from biovida.images._image_tools import NoResultsFound
-from biovida.images._image_tools import resetting_label
 
 # General Support Tools
 from biovida.support_tools.support_tools import camel_to_snake_case
@@ -30,6 +29,7 @@ from biovida.images._interface_support.openi.openi_parameters import openi_image
 
 # Tools for Text Feature Extraction
 from biovida.images._interface_support.openi._openi_text_feature_extraction import feature_extract
+from biovida.images._interface_support.openi._openi_text_feature_extraction import image_id_short_gen
 
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
@@ -192,7 +192,7 @@ def _df_make_hashable(data_frame):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _df_fill_nan(data_frame):
+def _data_frame_fill_nan(data_frame):
     """
 
     Replace terms that are synonymous with NA with NaNs.
@@ -216,16 +216,21 @@ def _df_fill_nan(data_frame):
     return data_frame.fillna(np.NaN)
 
 
-def _df_clean(data_frame):
+def _data_frame_clean(data_frame, verbose):
     """
 
     Clean the text information.
 
     :param data_frame: the dataframe evolved inside ``openi_raw_extract_and_clean``.
     :type data_frame: ``Pandas DataFrame``
+    :param verbose: if ``True`` print additional details.
+    :type verbose: ``bool``
     :return: cleaned ``data_frame``.
     :rtype:  ``Pandas DataFrame``
     """
+    if verbose:
+        print("\n\nCleaning Text Information...\n")
+
     # Clean the abstract
     data_frame['abstract'] = data_frame['abstract'].map(abstract_cleaner)
 
@@ -238,10 +243,10 @@ def _df_clean(data_frame):
         lambda x: openi_image_type_params.get(cln(x).lower(), x), na_action='ignore')
 
     # Label the number of instance of repeating 'uid's.
-    data_frame['uid_instance'] = resetting_label(data_frame['uid'].tolist())
+    data_frame = image_id_short_gen(data_frame)
 
     # Replace missing Values with with NaN and Return
-    return _df_fill_nan(data_frame)
+    return _data_frame_fill_nan(data_frame)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -292,9 +297,7 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
     extract = [feature_extract(row, list_of_diseases) for _, row in tqdm(data_frame.iterrows(), total=len(data_frame))]
     data_frame = data_frame.join(pd.DataFrame(extract), how='left')
 
-    if verbose:
-        print("\n\nCleaning Text Information...\n")
-    return _df_clean(data_frame)
+    return _data_frame_clean(data_frame, verbose=verbose)
 
 
 

@@ -69,39 +69,6 @@ def try_fuzzywuzzy_import():
         raise ImportError(error_msg)
 
 
-def resetting_label(to_label):
-    """
-
-    Label repeats in a list.
-
-    :param to_label: a list with repeating elements.
-    :type to_label: ``tuple`` or ``list``
-    :return: a list of string of the form shown in the example below.
-    :rtype: ``list``
-
-    :Example:
-
-    >>> resetting_label(['a', 'a', 'a', 'b', 'b', 'z', 'a'])
-    ...
-    ['a_1', 'a_2', 'a_3', 'b_1', 'b_2', 'z_1', 'a_4']
-
-    """
-    def formatted_label(existing_name, label):
-        """Joins the items in `to_label` with the label number generated below."""
-        return "{0}_{1}".format(existing_name, str(label))
-
-    all_labels = list()
-    label_record = dict.fromkeys(set(filter(lambda x: isinstance(x, str), to_label)), 1)
-    for i in to_label:
-        if not isinstance(i, str):
-            all_labels.append(i)
-        else:
-            all_labels.append(formatted_label(cln(i), label_record[i]))
-            label_record[i] += 1
-
-    return all_labels
-
-
 def load_image_rescale(path_to_image, gray_only=False):
     """
 
@@ -109,6 +76,9 @@ def load_image_rescale(path_to_image, gray_only=False):
 
     :param path_to_image: the address of the image.
     :type path_to_image: ``str``
+    :param gray_only: if ``True``, simply convert to grayscale and return.
+                      Otherwise, read-in, flatten and convert to grayscale. Default to ``False``.
+    :type gray_only: ``bool``
     :return: the image as a matrix.
     :rtype: ``ndarray``
     """

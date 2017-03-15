@@ -15,6 +15,7 @@ from six.moves.html_parser import HTMLParser
 
 # Pull out the unescape function
 unescape = HTMLParser().unescape
+_only_numeric_regex = re.compile(r'[^\d.]+')
 
 
 class InsufficientNumberOfFiles(Exception):
@@ -71,7 +72,7 @@ def is_numeric(i):
     return isinstance(i, (float, int)) and not isinstance(i, bool)
 
 
-def multi_replace(s, to_replace):
+def multi_replace(s, to_replace, replace_with=""):
     """
 
     Run a replace against ``s`` for every item in ``to_replace``.
@@ -80,11 +81,13 @@ def multi_replace(s, to_replace):
     :type s: ``str``
     :param to_replace: strings to replace in ``s``
     :type to_replace: ``tuple`` or ``list``
+    :param replace_with: to replace items in ``to_replace`` with.
+    :type replace_with: ``str``
     :return: ``s`` with all items in ``to_replace`` replaced with "".
     :type: ``str``
     """
     for tr in to_replace:
-        s = s.replace(tr, "")
+        s = s.replace(tr, replace_with)
     return s
 
 
@@ -327,7 +330,7 @@ def images_in_dir(dir, return_len=False):
     return len(n_images) if return_len else n_images
 
 
-def only_numeric(s):
+def only_numeric(s, float_output=True):
     """
 
     Remove all non-numeric characters from a string
@@ -335,12 +338,19 @@ def only_numeric(s):
 
     :param s: a string containing numbers
     :type s: ``str``
+    :param float_output: if ``True``, ``float`` the output.
+    :type float_output: ``bool``
     :return: the number contained within ``s``.
     :rtype: ``float`` or ``None``
     """
     # See: http://stackoverflow.com/a/947789/4898004
-    cleaned = re.sub(r'[^\d.]+', '', s).strip()
-    return float(cleaned) if len(cleaned) else np.NaN
+    cleaned = re.sub(_only_numeric_regex, '', s).strip()
+    if len(cleaned) and float_output:
+        return float(cleaned)
+    elif len(cleaned):
+        return cleaned
+    else:
+        return np.NaN
 
 
 def multimap(data_frame, columns, func):

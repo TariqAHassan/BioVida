@@ -185,7 +185,7 @@ def _records_db_merge(interface_name,
                       columns_with_dicts,
                       duplicates_subset_columns,
                       rows_to_conserve_func=None,
-                      post_concat_mapping=None,
+                      post_concat_func=None,
                       columns_with_iterables_to_sort=None):
     """
 
@@ -210,8 +210,11 @@ def _records_db_merge(interface_name,
 
     :type duplicates_subset_columns: ``list`` or ``tuple``
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
-                                  in fact, present in the cahce. If not, remove it from the database to be saved.
+                                  in fact, present in the cache. If not, remove it from the database to be saved.
     :type rows_to_conserve_func: ``function``
+    :param post_concat_func: a function to apply to ``combined_dbs`` after it is generated.
+                             This function should accept and return a dataframe.
+    :type post_concat_func: ``function``
     :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
                                   prior to dropping. Defaults to ``None``.
     :type columns_with_iterables_to_sort: ``list`` or ``tuple``
@@ -219,21 +222,16 @@ def _records_db_merge(interface_name,
     :rtype: ``Pandas DataFrame``
     """
     # Note: this function does not explicitly handle cases where combined_dbs has length 0, no obvious need to though.
-
-    # Load in the current database and combine with the `records_db_update` database
     combined_dbs = pd.concat([current_records_db, records_db_update], ignore_index=True)
 
     # Mark each row to conserve order following ``pandas.drop_duplicates()``.
     combined_dbs['__temp_order__'] = range(combined_dbs.shape[0])
 
-    # Analyze which rows to drop
-    if rows_to_conserve_func is not None:
+    if callable(rows_to_conserve_func):
         combined_dbs = combined_dbs[combined_dbs.apply(rows_to_conserve_func, axis=1)]
 
-    # Apply post merge mapping
-    if isinstance(post_concat_mapping, (list, tuple)) and len(post_concat_mapping) == 3:
-        column_name, column_to_extract, func = post_concat_mapping
-        combined_dbs[column_name] = func(combined_dbs[column_to_extract].tolist())
+    if callable(post_concat_func):
+        combined_dbs = post_concat_func(combined_dbs)
 
     # Note: Typically these will be 'in sync'. However, if they are not, preference is given
     # to 'biovida_version' s.t. the data harvested with the latest version is given preference.

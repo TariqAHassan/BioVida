@@ -20,7 +20,6 @@ from biovida import __version__
 # General Image Support Tools
 from biovida.images._image_tools import TIME_FORMAT
 from biovida.images._image_tools import NoResultsFound
-from biovida.images._image_tools import resetting_label
 from biovida.images._image_tools import sleep_with_noise
 
 # Database Management
@@ -42,6 +41,8 @@ from biovida.images._interface_support.openi.openi_parameters import openi_searc
 
 # Open-i Raw Text Processing
 from biovida.images._interface_support.openi.openi_text_processing import openi_raw_extract_and_clean
+from biovida.images._interface_support.openi._openi_text_feature_extraction import image_id_short_gen
+
 
 # Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
@@ -940,7 +941,7 @@ class OpeniInterface(object):
                                                       columns_with_dicts=('query', 'parsed_abstract'),
                                                       duplicates_subset_columns=duplicates_subset_columns,
                                                       rows_to_conserve_func=rows_to_conserve_func,
-                                                      post_concat_mapping=('uid_instance', 'uid', resetting_label))
+                                                      post_concat_func=image_id_short_gen)
 
         # Save to disk
         self._save_cache_records_db()
