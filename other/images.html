@@ -850,8 +850,8 @@ trained to detect.</p>
 <span class="target" id="module-biovida.images.models.image_classification"></span><div class="section" id="image-classification">
 <h2>Image Classification<a class="headerlink" href="#image-classification" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="biovida.images.models.image_classification.ImageRecognitionCNN">
-<em class="property">class </em><code class="descclassname">biovida.images.models.image_classification.</code><code class="descname">ImageRecognitionCNN</code><span class="sig-paren">(</span><em>data_path=None</em>, <em>image_shape=(150</em>, <em>150)</em>, <em>rescale=0.00392156862745098</em>, <em>shear_range=0.05</em>, <em>zoom_range=0.3</em>, <em>horizontal_flip=True</em>, <em>vertical_flip=False</em>, <em>batch_size=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageRecognitionCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageRecognitionCNN" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.models.image_classification.ImageClassificationCNN">
+<em class="property">class </em><code class="descclassname">biovida.images.models.image_classification.</code><code class="descname">ImageClassificationCNN</code><span class="sig-paren">(</span><em>data_path=None</em>, <em>image_shape=(150</em>, <em>150)</em>, <em>rescale=0.00392156862745098</em>, <em>shear_range=0.05</em>, <em>zoom_range=0.3</em>, <em>horizontal_flip=True</em>, <em>vertical_flip=False</em>, <em>batch_size=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keras Convolutional Neural Networks Interface.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -876,8 +876,8 @@ Defaults to 4.</li>
 </tbody>
 </table>
 <dl class="method">
-<dt id="biovida.images.models.image_classification.ImageRecognitionCNN.convnet">
-<code class="descname">convnet</code><span class="sig-paren">(</span><em>model_to_use='default'</em>, <em>loss='binary_crossentropy'</em>, <em>optimizer='default'</em>, <em>metrics=('accuracy'</em>, <em>)</em>, <em>output_layer_activation='sigmoid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageRecognitionCNN.convnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageRecognitionCNN.convnet" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.models.image_classification.ImageClassificationCNN.convnet">
+<code class="descname">convnet</code><span class="sig-paren">(</span><em>model_to_use='default'</em>, <em>loss='binary_crossentropy'</em>, <em>optimizer='default'</em>, <em>metrics=('accuracy'</em>, <em>)</em>, <em>output_layer_activation='sigmoid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.convnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.convnet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define and Compile the Image Recognition Convolutional Neural Network.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -907,8 +907,8 @@ See: <code class="docutils literal"><span class="pre">keras.models.Sequential()<
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.images.models.image_classification.ImageRecognitionCNN.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>nb_epoch=10</em>, <em>min_delta=0.1</em>, <em>patience=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageRecognitionCNN.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageRecognitionCNN.fit" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.models.image_classification.ImageClassificationCNN.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>nb_epoch=10</em>, <em>min_delta=0.1</em>, <em>patience=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model to the training data and run a validation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -921,7 +921,7 @@ See: <code class="docutils literal"><span class="pre">keras.models.Sequential()<
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">AttributeError</span></code> if <code class="docutils literal"><span class="pre">ImageRecognitionCNN().convnet()</span></code> is yet to be called.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">AttributeError</span></code> if <code class="docutils literal"><span class="pre">ImageClassificationCNN().convnet()</span></code> is yet to be called.</p>
 </td>
 </tr>
 </tbody>
@@ -929,8 +929,8 @@ See: <code class="docutils literal"><span class="pre">keras.models.Sequential()<
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.images.models.image_classification.ImageRecognitionCNN.load">
-<code class="descname">load</code><span class="sig-paren">(</span><em>path</em>, <em>override_existing=False</em>, <em>default_model_load=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageRecognitionCNN.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageRecognitionCNN.load" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.models.image_classification.ImageClassificationCNN.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>path</em>, <em>override_existing=False</em>, <em>default_model_load=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a model from disk.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -940,7 +940,7 @@ See: <code class="docutils literal"><span class="pre">keras.models.Sequential()<
 <li><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; path to save the data to.See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
 <li><strong>override_existing</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If True and a model has already been instantiated, override this replace this model.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>default_model_load</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; load the default model if <code class="docutils literal"><span class="pre">ImageRecognitionCNN().convnet()</span></code> has not been called.
+<li><strong>default_model_load</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; load the default model if <code class="docutils literal"><span class="pre">ImageClassificationCNN().convnet()</span></code> has not been called.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
@@ -953,8 +953,8 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.images.models.image_classification.ImageRecognitionCNN.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>list_of_images</em>, <em>status=True</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageRecognitionCNN.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageRecognitionCNN.predict" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.models.image_classification.ImageClassificationCNN.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>list_of_images</em>, <em>status=True</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate Predictions for a list of images.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -978,8 +978,8 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.images.models.image_classification.ImageRecognitionCNN.save">
-<code class="descname">save</code><span class="sig-paren">(</span><em>save_name</em>, <em>path=None</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageRecognitionCNN.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageRecognitionCNN.save" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.models.image_classification.ImageClassificationCNN.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>save_name</em>, <em>path=None</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the weights from a trained model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -993,7 +993,7 @@ will be added automatically.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">AttributeError</span></code> if <code class="docutils literal"><span class="pre">ImageRecognitionCNN().fit()</span></code> is yet to be called.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">AttributeError</span></code> if <code class="docutils literal"><span class="pre">ImageClassificationCNN().fit()</span></code> is yet to be called.</p>
 </td>
 </tr>
 </tbody>

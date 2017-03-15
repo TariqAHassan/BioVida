@@ -204,7 +204,7 @@
 <span class="c1"># performs the preprocessing described in https://arxiv.org/pdf/1409.1556.pdf</span>
 
 
-<div class="viewcode-block" id="ImageRecognitionCNN"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN">[docs]</a><span class="k">class</span> <span class="nc">ImageRecognitionCNN</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN">[docs]</a><span class="k">class</span> <span class="nc">ImageClassificationCNN</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Keras Convolutional Neural Networks Interface.</span>
@@ -513,7 +513,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">nb_classes</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="n">output_layer_activation</span><span class="p">))</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.convnet"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.convnet">[docs]</a>    <span class="k">def</span> <span class="nf">convnet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="ImageClassificationCNN.convnet"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.convnet">[docs]</a>    <span class="k">def</span> <span class="nf">convnet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">model_to_use</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
                 <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;binary_crossentropy&#39;</span><span class="p">,</span>
                 <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
@@ -582,15 +582,15 @@
 
 <span class="sd">        :param first_format: action the model</span>
 <span class="sd">        :type first_format: ``str``</span>
-<span class="sd">        :param second_format: name of an ``ImageRecognitionCNN`` method.</span>
+<span class="sd">        :param second_format: name of an ``ImageClassificationCNN`` method.</span>
 <span class="sd">        :type second_format: ``str``</span>
 <span class="sd">        :raises: ``AttributeError`` composed from `first_format` and `second_format`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;The model cannot be </span><span class="si">{0}</span><span class="s2"> until `ImageRecognitionCNN().</span><span class="si">{1}</span><span class="s2">()` &quot;</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;The model cannot be </span><span class="si">{0}</span><span class="s2"> until `ImageClassificationCNN().</span><span class="si">{1}</span><span class="s2">()` &quot;</span>
                                  <span class="s2">&quot;has been called.</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">first_format</span><span class="p">,</span> <span class="n">second_format</span><span class="p">,</span> <span class="n">additional</span><span class="p">))</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.fit"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN.fit"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Fit the model to the training data and run a validation.</span>
@@ -601,7 +601,7 @@
 <span class="sd">        :type min_delta: ``float``</span>
 <span class="sd">        :param patience: see ``keras.callbacks.EarlyStopping()``.</span>
 <span class="sd">        :type patience: ``int``</span>
-<span class="sd">        :raises: ``AttributeError`` if ``ImageRecognitionCNN().convnet()`` is yet to be called.</span>
+<span class="sd">        :raises: ``AttributeError`` if ``ImageClassificationCNN().convnet()`` is yet to be called.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_existence_check</span><span class="p">(</span><span class="s2">&quot;fit and validated&quot;</span><span class="p">,</span> <span class="s2">&quot;convnet&quot;</span><span class="p">)</span>
 
@@ -641,7 +641,7 @@
         <span class="n">save_location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_support.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_name</span><span class="p">))</span>
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_location</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.save"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN.save"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Save the weights from a trained model.</span>
@@ -653,7 +653,7 @@
 <span class="sd">        :type path: ``str``</span>
 <span class="sd">        :param overwrite: overwrite the existing copy of the data</span>
 <span class="sd">        :type overwrite: ``bool``</span>
-<span class="sd">        :raises: ``AttributeError`` if ``ImageRecognitionCNN().fit()`` is yet to be called.</span>
+<span class="sd">        :raises: ``AttributeError`` if ``ImageClassificationCNN().fit()`` is yet to be called.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_existence_check</span><span class="p">(</span><span class="s2">&quot;saved&quot;</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span>  <span class="s2">&quot; Alternatively, you can call .load().&quot;</span><span class="p">)</span>
         <span class="n">save_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="k">if</span> <span class="p">(</span><span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">path</span>
@@ -684,7 +684,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_classes</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.load"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default_model_load</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN.load"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default_model_load</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Load a model from disk.</span>
@@ -694,7 +694,7 @@
 <span class="sd">        :param override_existing: If True and a model has already been instantiated, override this replace this model.</span>
 <span class="sd">                                  Defaults to ``False``.</span>
 <span class="sd">        :type override_existing: ``bool``</span>
-<span class="sd">        :param default_model_load: load the default model if ``ImageRecognitionCNN().convnet()`` has not been called.</span>
+<span class="sd">        :param default_model_load: load the default model if ``ImageClassificationCNN().convnet()`` has not been called.</span>
 <span class="sd">                                   Defaults to ``False``.</span>
 <span class="sd">        :type default_model_load: ``bool``</span>
 <span class="sd">        :raises: ``AttributeError`` if a model is currently instantiated.</span>
@@ -726,7 +726,7 @@
         <span class="n">predictions</span> <span class="o">=</span> <span class="p">((</span><span class="n">data_classes_reversed</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">single_image_prediction</span><span class="p">))</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImageRecognitionCNN.predict"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageRecognitionCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_images</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN.predict"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_images</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Generate Predictions for a list of images.</span>
@@ -743,7 +743,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Predictions cannot be made until a model is loaded or trained.&quot;</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">status_bar</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="c1"># ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)</span>
+        <span class="k">def</span> <span class="nf">status_bar</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>  <span class="c1"># ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)</span>
             <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">status</span> <span class="k">else</span> <span class="n">x</span>
 
         <span class="n">number_ndarray</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ndarray&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_of_images</span><span class="p">]</span>

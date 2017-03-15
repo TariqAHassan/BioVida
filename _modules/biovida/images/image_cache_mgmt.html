@@ -357,7 +357,7 @@
                       <span class="n">columns_with_dicts</span><span class="p">,</span>
                       <span class="n">duplicates_subset_columns</span><span class="p">,</span>
                       <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">post_concat_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">post_concat_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">columns_with_iterables_to_sort</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -382,8 +382,11 @@
 
 <span class="sd">    :type duplicates_subset_columns: ``list`` or ``tuple``</span>
 <span class="sd">    :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,</span>
-<span class="sd">                                  in fact, present in the cahce. If not, remove it from the database to be saved.</span>
+<span class="sd">                                  in fact, present in the cache. If not, remove it from the database to be saved.</span>
 <span class="sd">    :type rows_to_conserve_func: ``function``</span>
+<span class="sd">    :param post_concat_func: a function to apply to ``combined_dbs`` after it is generated.</span>
+<span class="sd">                             This function should accept and return a dataframe.</span>
+<span class="sd">    :type post_concat_func: ``function``</span>
 <span class="sd">    :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted</span>
 <span class="sd">                                  prior to dropping. Defaults to ``None``.</span>
 <span class="sd">    :type columns_with_iterables_to_sort: ``list`` or ``tuple``</span>
@@ -391,21 +394,16 @@
 <span class="sd">    :rtype: ``Pandas DataFrame``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Note: this function does not explicitly handle cases where combined_dbs has length 0, no obvious need to though.</span>
-
-    <span class="c1"># Load in the current database and combine with the `records_db_update` database</span>
     <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">current_records_db</span><span class="p">,</span> <span class="n">records_db_update</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Mark each row to conserve order following ``pandas.drop_duplicates()``.</span>
     <span class="n">combined_dbs</span><span class="p">[</span><span class="s1">&#39;__temp_order__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">combined_dbs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-    <span class="c1"># Analyze which rows to drop</span>
-    <span class="k">if</span> <span class="n">rows_to_conserve_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">):</span>
         <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="p">[</span><span class="n">combined_dbs</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
 
-    <span class="c1"># Apply post merge mapping</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post_concat_mapping</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">post_concat_mapping</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="n">column_name</span><span class="p">,</span> <span class="n">column_to_extract</span><span class="p">,</span> <span class="n">func</span> <span class="o">=</span> <span class="n">post_concat_mapping</span>
-        <span class="n">combined_dbs</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">[</span><span class="n">column_to_extract</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">post_concat_func</span><span class="p">):</span>
+        <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">post_concat_func</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">)</span>
 
     <span class="c1"># Note: Typically these will be &#39;in sync&#39;. However, if they are not, preference is given</span>
     <span class="c1"># to &#39;biovida_version&#39; s.t. the data harvested with the latest version is given preference.</span>
