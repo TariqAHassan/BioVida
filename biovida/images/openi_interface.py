@@ -99,7 +99,7 @@ class _OpeniSearch(object):
 
         # Check all other params
         for k, v in search_arguments.items():
-            # Hault if query or `v` is NoneType
+            # Halt if query or `v` is NoneType
             if k != 'query' and v is not None:
                 # Check type
                 if not isinstance(v, (list, tuple)) and v is not None:
