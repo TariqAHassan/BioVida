@@ -22,6 +22,7 @@ from biovida.support_tools.support_tools import data_frame_col_drop
 from biovida.images._image_tools import load_and_scale_images
 
 from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
+from biovida.images._interface_support.openi.openi_support_tools import grayscale_openi_modalities
 from biovida.images._resources._visual_image_problems_supported_types import trained_open_i_modality_types
 
 
@@ -641,7 +642,7 @@ class ImageProcessing(object):
         # Ban Verbosity
         self._print_update = False
 
-    def auto_decision(self, image_problem_threshold, require_grayscale, valid_floor=0.01):
+    def auto_decision(self, image_problem_threshold, valid_floor=0.01):
         """
 
         Automatically generate 'valid_image' column in the `image_dataframe`
@@ -653,27 +654,23 @@ class ImageProcessing(object):
                                         which contains a image problem probability above `0.5` will be marked
                                         as invalid.
         :type image_problem_threshold: ``float``
-        :param require_grayscale: if True, require that images are grayscale to be considered valid.
-        :type require_grayscale: ``bool``
         :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
         :type valid_floor: ``float``
         """
-        # ToDo: make `require_grayscale` flexible s.t. it can be imposed only on images of a certain type (e.g., MRI).
         for i in ('grayscale', 'visual_image_problems'):
             if i not in self.image_dataframe.columns:
                 raise KeyError("`image_dataframe` does not contain a '{0}' column.".format(i))
 
+        # ToDo: add variable image_problem_threshold (e.g., only block arrows and grids).
         def image_validity(x):
-            if not items_null(x['grayscale']) and x['grayscale'] == False and require_grayscale:
+            imm = x['image_modality_major']
+            if x['grayscale'] is False and isinstance(imm, str) and imm in grayscale_openi_modalities:
                 return False
             # Block if the 'image_caption' column suggests the presence of a problem.
             elif isinstance(x['image_problems_from_text'], (list, tuple)) and len(x['image_problems_from_text']):
                 return False
-            else:  # ToDo: add variable image_problem_threshold (e.g., only block arrows and grids).
-                # if all image problem confidence is < image_problem_threshold, return True; else False.
+            elif isinstance(x['visual_image_problems'], (list, tuple)):
                 vip = x['visual_image_problems']
-                if not isinstance(vip, (list, tuple)):
-                    return None
                 if vip[0][0] == 'valid_img' and vip[0][1] < valid_floor:
                     return False
                 elif vip[0][0] != 'valid_img' and vip[0][1] > image_problem_threshold:
@@ -682,6 +679,8 @@ class ImageProcessing(object):
                     return False
                 else:
                     return True
+            else:
+                return True  # ToDo: change this default
 
         self.image_dataframe['valid_image'] = self.image_dataframe.apply(image_validity, axis=1).fillna(np.NaN)
 
@@ -689,7 +688,6 @@ class ImageProcessing(object):
              image_problem_threshold=0.275,
              valid_floor=0.01,
              limit_to_known_modalities=True,
-             require_grayscale=True,
              new_analysis=False,
              status=True):
         """
@@ -700,8 +698,6 @@ class ImageProcessing(object):
         :type image_problem_threshold: ``float``
         :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
         :type valid_floor: ``float``
-        :param require_grayscale: see ``auto_decision()``. Defaults to ``True``.
-        :type require_grayscale: ``bool``
         :param limit_to_known_modalities: if ``True``, remove model predicts for image modalities
                                           the model has not explicitly been trained on. Defaults to ``True``.
         :type limit_to_known_modalities: ``bool``
@@ -719,7 +715,6 @@ class ImageProcessing(object):
 
         # Run Auto Decision
         self.auto_decision(image_problem_threshold=image_problem_threshold,
-                           require_grayscale=require_grayscale,
                            valid_floor=valid_floor)
 
         return self.image_dataframe

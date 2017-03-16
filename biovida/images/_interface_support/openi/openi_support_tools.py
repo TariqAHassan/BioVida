@@ -74,6 +74,18 @@ possible_openi_image_processing_cols = [
 ]
 
 
+grayscale_openi_modalities = [
+    # Modalities, as enumerated in
+    # the 'image_modality_major'
+    # column which are grayscale.
+    # MRI is assumed to be structural.
+    'ct',
+    'mri',
+    'ultrasound',
+    'x_ray',
+]
+
+
 # ----------------------------------------------------------------------------------------------------------
 # Tools
 # ----------------------------------------------------------------------------------------------------------
