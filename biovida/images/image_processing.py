@@ -26,7 +26,6 @@ from biovida.images._resources._model_metadata import trained_open_i_modality_ty
 from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
 from biovida.images._interface_support.openi.openi_support_tools import grayscale_openi_modalities
 
-
 # Models
 from biovida.images.models.border_detection import border_detection
 from biovida.images.models.template_matching import robust_match_template
@@ -910,28 +909,3 @@ class ImageProcessing(object):
                     row['image_to_return'].save(full_save_path)
                 elif not os.path.isfile(full_save_path):
                     row['image_to_return'].save(full_save_path)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
