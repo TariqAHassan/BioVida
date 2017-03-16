@@ -176,11 +176,6 @@
 <span class="sd">    ~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># Resources Used:</span>
-<span class="c1">#    - https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html</span>
-<span class="c1">#    - https://blog.rescale.com/neural-networks-using-keras-on-rescale/</span>
-<span class="c1">#    - http://cs231n.github.io</span>
-
 <span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
@@ -746,16 +741,17 @@
         <span class="k">def</span> <span class="nf">status_bar</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>  <span class="c1"># ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)</span>
             <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">status</span> <span class="k">else</span> <span class="n">x</span>
 
-        <span class="n">number_ndarray</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ndarray&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_of_images</span><span class="p">]</span>
+        <span class="n">is_ndarray</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_of_images</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">number_ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_ndarray</span><span class="p">):</span>
             <span class="n">images</span> <span class="o">=</span> <span class="n">list_of_images</span>
-        <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">number_ndarray</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">is_ndarray</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only some of the items in `list_of_images` we found to be `ndarrays`.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Preparing Images for Neural Network...&quot;</span><span class="p">)</span>
-            <span class="n">images</span> <span class="o">=</span> <span class="n">load_and_scale_images</span><span class="p">(</span><span class="n">list_of_images</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">grayscale_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">load_and_scale_images</span><span class="p">(</span><span class="n">list_of_images</span><span class="o">=</span><span class="n">list_of_images</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">,</span>
+                                           <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">grayscale_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Generating Predictions...&quot;</span><span class="p">)</span>

@@ -696,7 +696,7 @@ contains a cache of all analyses run as new columns.</p>
 </table>
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto">
-<code class="descname">auto</code><span class="sig-paren">(</span><em>image_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>require_grayscale=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto</code><span class="sig-paren">(</span><em>image_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>limit_to_known_modalities=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically carry out all aspects of image preprocessing (recommended).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -705,7 +705,8 @@ contains a cache of all analyses run as new columns.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>image_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <cite>0.275</cite>.</li>
 <li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
-<li><strong>require_grayscale</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code></li>
+<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
+the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
@@ -724,7 +725,7 @@ contains a cache of all analyses run as new columns.</p>
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto_analysis">
-<code class="descname">auto_analysis</code><span class="sig-paren">(</span><em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto_analysis</code><span class="sig-paren">(</span><em>limit_to_known_modalities=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically use the class methods to analyze the <code class="docutils literal"><span class="pre">image_dataframe</span></code> using default
 parameter values for class methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -732,6 +733,8 @@ parameter values for class methods.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
+the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
@@ -743,7 +746,7 @@ parameter values for class methods.</p>
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto_decision">
-<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>image_problem_threshold</em>, <em>require_grayscale</em>, <em>valid_floor=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>image_problem_threshold</em>, <em>valid_floor=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically generate &#8216;valid_image&#8217; column in the <cite>image_dataframe</cite>
 column by deciding whether or not images are valid using default parameter values for class methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -756,7 +759,6 @@ to cause the image to be marked as invalid.
 For instance, a threshold value of <cite>0.5</cite> would mean that any image
 which contains a image problem probability above <cite>0.5</cite> will be marked
 as invalid.</li>
-<li><strong>require_grayscale</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if True, require that images are grayscale to be considered valid.</li>
 <li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
 </ul>
 </td>
@@ -913,7 +915,7 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.visual_image_problems">
-<code class="descname">visual_image_problems</code><span class="sig-paren">(</span><em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.visual_image_problems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.visual_image_problems" title="Permalink to this definition">¶</a></dt>
+<code class="descname">visual_image_problems</code><span class="sig-paren">(</span><em>limit_to_known_modalities=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.visual_image_problems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.visual_image_problems" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is powered by a Convolutional Neural Network which
 computes probabilities for the presence of problematic image properties or types.</p>
 <p>Currently, the model can identify the follow problems:</p>
@@ -926,6 +928,8 @@ computes probabilities for the presence of problematic image properties or types
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
+the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
