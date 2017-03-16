@@ -1,7 +1,7 @@
 """
 
-    List of Image Types Supported by Image Classification Model
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Metadata on what the Model has Been Trained to Classify
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
 
@@ -15,19 +15,5 @@ trained_open_i_modality_types = (
     # 'ultrasound',
     # 'x_ray',
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
