@@ -17,13 +17,14 @@ from scipy.misc import imread
 # General tools
 from biovida.support_tools.support_tools import items_null
 from biovida.support_tools.support_tools import data_frame_col_drop
+from biovida.support_tools.support_tools import list_to_bulletpoints
 
 # Tools form the image subpackage
 from biovida.images._image_tools import load_and_scale_images
 
+from biovida.images._resources._model_metadata import trained_open_i_modality_types
 from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
 from biovida.images._interface_support.openi.openi_support_tools import grayscale_openi_modalities
-from biovida.images._resources._visual_image_problems_supported_types import trained_open_i_modality_types
 
 
 # Models
@@ -85,6 +86,7 @@ class ImageProcessing(object):
 
     def __init__(self, instance, db_to_extract='records_db', model_location=None, verbose=True):
         self._verbose = verbose
+        self.known_image_problems = ('arrows', 'asterisks', 'grids')
 
         if "OpeniInterface" != type(instance).__name__:
             raise ValueError("`instance` must be a `OpeniInterface` instance.")
@@ -600,15 +602,10 @@ class ImageProcessing(object):
         self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
                                                                             status=status, verbose=False)
 
-        def modality_limit(row):
-            imm = row['image_modality_major']
-            if isinstance(imm, str) and imm in trained_open_i_modality_types:
-                return row['visual_image_problems']
-            else:
-                return np.NaN
-
         if limit_to_known_modalities:  # ToDo: Temporary. Future: avoid passing through the model in the first place.
-            self.image_dataframe['visual_image_problems'] = self.image_dataframe.apply(modality_limit, axis=1)
+            for index, row in self.image_dataframe.iterrows():
+                if row['image_modality_major'] not in trained_open_i_modality_types:
+                    self.image_dataframe.set_value(index, 'image_modality_major', np.NaN)
 
     def auto_analysis(self, limit_to_known_modalities=True, new_analysis=False, status=True):
         """
@@ -642,10 +639,68 @@ class ImageProcessing(object):
         # Ban Verbosity
         self._print_update = False
 
-    def auto_decision(self, image_problem_threshold, valid_floor=0.01):
+    @staticmethod
+    def _invalidity_image_test(row, image_problem_threshold, problems_to_ignore, valid_floor):
         """
 
-        Automatically generate 'valid_image' column in the `image_dataframe`
+        Test if ``row`` is an invalid image.
+
+        :param row: as passed by ``pandas.DataFrame.apply(func, axis=1)``
+        :type row: ``Pandas Series`
+        :param image_problem_threshold: see ``auto_decision()`
+        :type image_problem_threshold: ``float``
+        :param problems_to_ignore: see ``auto_decision()`
+        :type problems_to_ignore: ``None``, ``list`` or ``tuple``
+        :param valid_floor: see ``auto_decision()`
+        :type valid_floor: ``float``
+        :return: a list of the form ``[invalid image (boolean), reasons for decision if the former is True]``, wrapped
+                 in a pandas series so it can be neatly split into two columns when ``_invalidity_image_test()``
+                 is used with ``.apply()``.
+        :rtype: ``Pandas Series``
+        """
+        def image_problems_from_text_test(ipft):
+            problem = False
+            if not isinstance(problems_to_ignore, (list, tuple)) and \
+                    isinstance(ipft, (list, tuple)) and len(ipft):
+                problem = True
+            elif (isinstance(problems_to_ignore, (list, tuple)) and
+                  isinstance(ipft, (list, tuple)) and len([i for i in ipft if i not in problems_to_ignore])):
+                problem = True
+            return ['image_problems_from_text'] if problem else []
+
+        def visual_image_problems_test(vip):
+            if isinstance(problems_to_ignore, (list, tuple)):
+                vip_ = [i for i in vip if i[0] not in problems_to_ignore]
+            else:
+                vip_ = vip
+
+            problem = False
+            if len(vip_) == 1:
+                if vip_[0][0] == 'valid_img' and vip_[0][1] < valid_floor:
+                    problem = True
+            else:
+                if vip_[0][0] == 'valid_img' and vip_[0][1] < valid_floor:
+                    problem = True
+                elif vip_[0][0] == 'valid_img' and vip_[1][1] > image_problem_threshold:
+                    problem = True
+                elif vip_[0][0] != 'valid_img' and vip_[0][1] > image_problem_threshold:
+                    problem = True
+            return ['visual_image_problems'] if problem else []
+
+        reasons = list()
+        if row['grayscale'] is False and row['image_modality_major'] in grayscale_openi_modalities:
+            reasons.append('grayscale')
+        if isinstance(row['image_problems_from_text'], (list, tuple)):
+            reasons += image_problems_from_text_test(ipft=row['image_problems_from_text'])
+        if isinstance(row['visual_image_problems'], (list, tuple)):
+            reasons += visual_image_problems_test(vip=row['visual_image_problems'])
+
+        return pd.Series([len(reasons) > 0, tuple(sorted(reasons)) if len(reasons) else None])
+
+    def auto_decision(self, image_problem_threshold, problems_to_ignore=None, valid_floor=0.01):
+        """
+
+        Automatically generate 'invalid_image' column in the `image_dataframe`
         column by deciding whether or not images are valid using default parameter values for class methods.
 
         :param image_problem_threshold: a scalar from 0 to 1 which specifies the threshold value required
@@ -654,42 +709,32 @@ class ImageProcessing(object):
                                         which contains a image problem probability above `0.5` will be marked
                                         as invalid.
         :type image_problem_threshold: ``float``
+        :param problems_to_ignore: image problems to ignore. See ``INSTANCE.known_image_problems`` for valid values.
+                                   Defaults to ``None``.
+        :type problems_to_ignore: ``None``, ``list`` or ``tuple``
         :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
         :type valid_floor: ``float``
         """
-        for i in ('grayscale', 'visual_image_problems'):
+        for i in ('grayscale', 'image_problems_from_text', 'visual_image_problems'):
             if i not in self.image_dataframe.columns:
                 raise KeyError("`image_dataframe` does not contain a '{0}' column.".format(i))
 
-        # ToDo: add variable image_problem_threshold (e.g., only block arrows and grids).
-        def image_validity(x):
-            imm = x['image_modality_major']
-            if x['grayscale'] is False and isinstance(imm, str) and imm in grayscale_openi_modalities:
-                return False
-            # Block if the 'image_caption' column suggests the presence of a problem.
-            elif isinstance(x['image_problems_from_text'], (list, tuple)) and len(x['image_problems_from_text']):
-                return False
-            elif isinstance(x['visual_image_problems'], (list, tuple)):
-                vip = x['visual_image_problems']
-                if vip[0][0] == 'valid_img' and vip[0][1] < valid_floor:
-                    return False
-                elif vip[0][0] != 'valid_img' and vip[0][1] > image_problem_threshold:
-                    return False
-                elif vip[0][0] == 'valid_img' and vip[1][1] > image_problem_threshold:
-                    return False
-                else:
-                    return True
-            else:
-                return True  # ToDo: change this default
+        if isinstance(problems_to_ignore, (list, tuple)):
+            for i in problems_to_ignore:
+                if i not in self.known_image_problems or i == 'valid_img':
+                    raise ValueError("`problems_to_ignore` may only contain the following:\n"
+                                     "{0}".format(list_to_bulletpoints(self.known_image_problems)))
+        elif problems_to_ignore is not None:
+            raise ValueError("`problems_to_ignore` must be a `string`, `list` or `tuple`.")
 
-        self.image_dataframe['valid_image'] = self.image_dataframe.apply(image_validity, axis=1).fillna(np.NaN)
+        test_results = self.image_dataframe.apply(
+            lambda r: self._invalidity_image_test(r, image_problem_threshold, problems_to_ignore, valid_floor), axis=1)
+        self.image_dataframe['invalid_image'] = test_results[0]
+        self.image_dataframe['invalid_image_reasons'] = test_results[1].fillna(np.NaN)
 
-    def auto(self,
-             image_problem_threshold=0.275,
-             valid_floor=0.01,
-             limit_to_known_modalities=True,
-             new_analysis=False,
-             status=True):
+    def auto(self, image_problem_threshold=0.275,
+             valid_floor=0.01, limit_to_known_modalities=True,
+             problems_to_ignore=None, new_analysis=False, status=True):
         """
 
         Automatically carry out all aspects of image preprocessing (recommended).
@@ -701,6 +746,9 @@ class ImageProcessing(object):
         :param limit_to_known_modalities: if ``True``, remove model predicts for image modalities
                                           the model has not explicitly been trained on. Defaults to ``True``.
         :type limit_to_known_modalities: ``bool``
+        :param problems_to_ignore: image problems to ignore. See ``INSTANCE.known_image_problems`` for valid values.
+                                   Defaults to ``None``.
+        :type problems_to_ignore: ``None``, ``list`` or ``tuple``
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
         :param status: display status bar. Defaults to ``True``.
@@ -715,6 +763,7 @@ class ImageProcessing(object):
 
         # Run Auto Decision
         self.auto_decision(image_problem_threshold=image_problem_threshold,
+                           problems_to_ignore=problems_to_ignore,
                            valid_floor=valid_floor)
 
         return self.image_dataframe
@@ -730,8 +779,8 @@ class ImageProcessing(object):
         if not isinstance(save_rule, str) and not callable(save_rule):
             raise TypeError("`save_rule` must be a string or function.")
 
-        if 'valid_image' not in self.image_dataframe.columns:
-            raise KeyError("`image_dataframe` must contain a 'valid_image' column which uses booleans to\n"
+        if 'invalid_image' not in self.image_dataframe.columns:
+            raise KeyError("`image_dataframe` must contain a 'invalid_image' column which uses booleans to\n"
                            "indicate whether or not to include an entry in the cleaned dataset.\n"
                            "To automate this process, consider using the `auto_decision()` method.")
 
@@ -746,12 +795,16 @@ class ImageProcessing(object):
         :type convert_to_rgb: ``bool``
         :param status: see ``save()``
         :type status: ``bool``
-        :return: ``self.image_dataframe`` where the 'valid_image' column is ``True``, with the addition of
+        :return: ``self.image_dataframe`` where the 'invalid_image' column is ``True``, with the addition of
                   a 'image_to_return' populated by PIL image to be saved to disk.
         :rtype: ``Pandas DataFrame``
         """
-        # Limit this operation to subsection of the dataframe where valid_image is `True`.
-        return_df = self.image_dataframe[self.image_dataframe['valid_image'] == True].reset_index(drop=True).copy(deep=True)
+        if 'invalid_image' not in self.image_dataframe:
+            raise KeyError("No `invalid_image` column in `image_dataframe`;\n"
+                           "required to determine output.")
+
+        return_df = self.image_dataframe[
+            self.image_dataframe['invalid_image'] != True].reset_index(drop=True).copy(deep=True)
 
         if crop_images:
             if self._verbose:
