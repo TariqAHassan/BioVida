@@ -22,6 +22,8 @@ from biovida.support_tools.support_tools import data_frame_col_drop
 from biovida.images._image_tools import load_and_scale_images
 
 from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
+from biovida.images._resources._visual_image_problems_supported_types import open_i_modality_types
+
 
 # Models
 from biovida.images.models.border_detection import border_detection
@@ -514,7 +516,7 @@ class ImageProcessing(object):
         Uses `_apply_cropping()` to apply cropping to images in a dataframe.
 
         :param data_frame: a dataframe with 'cached_images_path', 'lower_crop', 'upper_crop' and 'vborder' columns.
-                          if None ``image_dataframe`` is used.
+                          If ``None`` ``image_dataframe`` is used.
         :type data_frame: ``None`` or ``Pandas DataFrame``
         :param return_as_array: if True, convert the PIL object to an ``ndarray``. Defaults to True.
         :type return_as_array: ``bool``
@@ -541,7 +543,6 @@ class ImageProcessing(object):
                                                  vborder=row['vborder'],
                                                  return_as_array=return_as_array,
                                                  convert_to_rgb=convert_to_rgb)
-
             all_cropped_images.append(cropped_image)
 
         return all_cropped_images
@@ -555,18 +556,16 @@ class ImageProcessing(object):
         :type status: ``bool``
         """
         # Apply crop
-        cropped_images_for_analysis = self._cropper(data_frame=None, return_as_array=True)
+        cropped_images_for_analysis = self._cropper(return_as_array=True)
 
         # Transform the cropped images into a form `ImageClassificationCNN.predict()` can accept
         if self._verbose and self._print_update:
             print("\n\nPreparing Images for Neural Network...")
-            verbose_prediction = True
-        else:
-            verbose_prediction = False
 
-        transformed_images = load_and_scale_images(cropped_images_for_analysis, self._ircnn.image_shape, status=status)
+        transformed_images = load_and_scale_images(list_of_images=cropped_images_for_analysis,
+                                                   image_size=self._ircnn.image_shape, status=status)
 
-        if verbose_prediction:
+        if self._verbose and self._print_update:
             print("\n\nScanning Images for Visual Problems with Neural Network...")
 
         # Make the predictions and Save
@@ -645,10 +644,10 @@ class ImageProcessing(object):
         column by deciding whether or not images are valid using default parameter values for class methods.
 
         :param image_problem_threshold: a scalar from 0 to 1 which specifies the threshold value required
-                                      to cause the image to be marked as invalid.
-                                      For instance, a threshold value of `0.5` would mean that any image
-                                      which contains a image problem probability above `0.5` will be marked
-                                      as invalid.
+                                        to cause the image to be marked as invalid.
+                                        For instance, a threshold value of `0.5` would mean that any image
+                                        which contains a image problem probability above `0.5` will be marked
+                                        as invalid.
         :type image_problem_threshold: ``float``
         :param require_grayscale: if True, require that images are grayscale to be considered valid.
         :type require_grayscale: ``bool``

@@ -583,7 +583,8 @@ class ImageClassificationCNN(object):
         else:
             if verbose:
                 print("\n\nPreparing Images for Neural Network...")
-            images = load_and_scale_images(list_of_images, image_size=self.image_shape, status=status, grayscale_first=True)
+            images = load_and_scale_images(list_of_images=list_of_images, image_size=self.image_shape,
+                                           status=status, grayscale_first=True)
 
         if verbose:
             print("\n\nGenerating Predictions...")
