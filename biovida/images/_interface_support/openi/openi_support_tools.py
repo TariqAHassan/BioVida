@@ -219,7 +219,7 @@ def num_word_to_int(input_str):
     # However, the simple presence of the substring 'one' doesn't confuse the procedure.
     >>> num_word_to_int(input_str="the oneway (sic) street is closed due to construction.")
     ...
-    'the oneway (sic) street is closed due to construction'
+    'the oneway (sic) street is closed due to construction.'
     ...
     # It can also handle common punctuation (though it won't conserve it -- not currently needed however).
     >>> num_word_to_int(input_str="The ring was the only one, in all of history, to xyz")
@@ -227,8 +227,8 @@ def num_word_to_int(input_str):
     'The ring was the only 1 in all of history, to xyz'
     ...
     # It is also not confused by common expressions (assuming the number is < 20).
-    >>> num_word_to_int(input_str="one-shot learning is the ultimate goal of AI research.")
-    'Robust one-shot learning is the one of the goals of AI research.'
+    >>> num_word_to_int(input_str="Robust one-shot learning is one of the ultimate goal of AI research.")
+    'Robust one-shot learning is 1 of the ultimate goal of AI research.'
     """
     # ToDo: faster solutions are surely possible...Without this step,
     #       biovida.images._interface_support.openi._openi_text_feature_extraction is ~4x faster.
