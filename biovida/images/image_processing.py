@@ -37,6 +37,10 @@ class ImageProcessing(object):
 
     This class is designed to allow easy analysis of cached image data.
 
+    .. note:
+
+            Currently this class only supports instances of ``OpeniInterface``.
+
     :param instance: an instance of the ``biovida.images.openi_interface.OpenInterface()`` class.
     :type instance: ``OpenInterface Class``
     :param db_to_extract: ``records_db`` or``cache_records_db``. Defaults to 'records_db'.
