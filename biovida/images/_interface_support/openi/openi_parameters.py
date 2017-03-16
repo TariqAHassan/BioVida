@@ -12,7 +12,7 @@ from biovida.support_tools.support_tools import dict_reverse
 def _parser(s):
     """
     
-    Tool to Conver the lists on https://openi.nlm.nih.gov/services.php?it=xg to dicts.
+    Tool to convert the lists on https://openi.nlm.nih.gov/services.php?it=xg to dicts.
     
     :param s: string copied from the URL above
     :return:
@@ -26,7 +26,6 @@ def _parser(s):
 
     # Generate the dict
     return {cln(k[1]): lower_join(k[0]) for k in split_string if set(k) != set([''])}
-
 
 
 openi_video_params = {
@@ -49,7 +48,7 @@ openi_image_type_params = {
 
 
 openi_image_type_modality_full = {
-    # Written to cohere with yield of `cancer_imaging_prameters.py`'s
+    # Written to cohere with yield of `cancer_imaging_parameters.py`'s
     # `CancerImageArchiveParams().dicom_modality_abbreviations()` method.
     'c': 'Computed Tomography (CT)',
     'g': 'Graphic',
@@ -195,9 +194,6 @@ def openi_search_information():
 
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
     return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
-
-
-
 
 
 
