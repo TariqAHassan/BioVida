@@ -547,31 +547,7 @@ class ImageProcessing(object):
 
         return all_cropped_images
 
-    def _image_problems_predictions(self, status):
-        """
-
-        Carries out the actual computations for the ``visual_image_problems()`` method.
-
-        :param status: display status bar. Defaults to True.
-        :type status: ``bool``
-        """
-        # Apply crop
-        cropped_images_for_analysis = self._cropper(return_as_array=True)
-
-        # Transform the cropped images into a form `ImageClassificationCNN.predict()` can accept
-        if self._verbose and self._print_update:
-            print("\n\nPreparing Images for Neural Network...")
-
-        transformed_images = load_and_scale_images(list_of_images=cropped_images_for_analysis,
-                                                   image_size=self._ircnn.image_shape, status=status)
-
-        if self._verbose and self._print_update:
-            print("\n\nScanning Images for Visual Problems with Neural Network...")
-
-        self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
-                                                                            status=status, verbose=False)
-
-    def visual_image_problems(self, new_analysis=False, status=True):
+    def visual_image_problems(self, limit_to_known_modalities=True, new_analysis=False, status=True):
         """
 
         This method is powered by a Convolutional Neural Network which
@@ -582,6 +558,9 @@ class ImageProcessing(object):
         - arrows in images
         - images arrayed as grids
 
+        :param limit_to_known_modalities: if ``True``, remove model predicts for image modalities
+                                          the model has not explicitly been trained on. Defaults to ``True``.
+        :type limit_to_known_modalities: ``bool``
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
         :param status: display status bar. Defaults to ``True``.
@@ -605,15 +584,40 @@ class ImageProcessing(object):
         it believes all of the other images are likely devoid of problems it has been
         trained to detect.
         """
-        if 'visual_image_problems' not in self.image_dataframe.columns or new_analysis:
-            self._image_problems_predictions(status=status)
+        if 'visual_image_problems' in self.image_dataframe.columns and not new_analysis:
+            return None
 
-    def auto_analysis(self, new_analysis=False, status=True):
+        cropped_images_for_analysis = self._cropper(return_as_array=True)
+
+        if self._verbose and self._print_update:
+            print("\n\nPreparing Images for Neural Network...")
+        transformed_images = load_and_scale_images(list_of_images=cropped_images_for_analysis,
+                                                   image_size=self._ircnn.image_shape, status=status)
+
+        if self._verbose and self._print_update:
+            print("\n\nScanning Images for Visual Problems with Neural Network...")
+        self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
+                                                                            status=status, verbose=False)
+
+        def modality_limit(row):
+            imm = row['image_modality_major']
+            if isinstance(imm, str) and imm in trained_open_i_modality_types:
+                return row['visual_image_problems']
+            else:
+                return np.NaN
+
+        if limit_to_known_modalities:  # ToDo: Temporary. Future: avoid passing through the model in the first place.
+            self.image_dataframe['visual_image_problems'] = self.image_dataframe.apply(modality_limit, axis=1)
+
+    def auto_analysis(self, limit_to_known_modalities=True, new_analysis=False, status=True):
         """
 
         Automatically use the class methods to analyze the ``image_dataframe`` using default
         parameter values for class methods.
 
+        :param limit_to_known_modalities: if ``True``, remove model predicts for image modalities
+                                          the model has not explicitly been trained on. Defaults to ``True``.
+        :type limit_to_known_modalities: ``bool``
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
         :param status: display status bar. Defaults to ``True``.
@@ -631,7 +635,8 @@ class ImageProcessing(object):
         self.crop_decision(new_analysis=new_analysis)
 
         # Generate predictions
-        self.visual_image_problems(new_analysis=new_analysis, status=status)
+        self.visual_image_problems(limit_to_known_modalities=limit_to_known_modalities,
+                                   new_analysis=new_analysis, status=status)
 
         # Ban Verbosity
         self._print_update = False
@@ -666,21 +671,24 @@ class ImageProcessing(object):
                 return False
             else:  # ToDo: add variable image_problem_threshold (e.g., only block arrows and grids).
                 # if all image problem confidence is < image_problem_threshold, return True; else False.
-                i = x['visual_image_problems']
-                if i[0][0] == 'valid_img' and i[0][1] < valid_floor:
+                vip = x['visual_image_problems']
+                if not isinstance(vip, (list, tuple)):
+                    return None
+                if vip[0][0] == 'valid_img' and vip[0][1] < valid_floor:
                     return False
-                elif i[0][0] != 'valid_img' and i[0][1] > image_problem_threshold:
+                elif vip[0][0] != 'valid_img' and vip[0][1] > image_problem_threshold:
                     return False
-                elif i[0][0] == 'valid_img' and i[1][1] > image_problem_threshold:
+                elif vip[0][0] == 'valid_img' and vip[1][1] > image_problem_threshold:
                     return False
                 else:
                     return True
 
-        self.image_dataframe['valid_image'] = self.image_dataframe.apply(image_validity, axis=1)
+        self.image_dataframe['valid_image'] = self.image_dataframe.apply(image_validity, axis=1).fillna(np.NaN)
 
     def auto(self,
              image_problem_threshold=0.275,
              valid_floor=0.01,
+             limit_to_known_modalities=True,
              require_grayscale=True,
              new_analysis=False,
              status=True):
@@ -692,8 +700,11 @@ class ImageProcessing(object):
         :type image_problem_threshold: ``float``
         :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
         :type valid_floor: ``float``
-        :param require_grayscale: see ``auto_decision()``. Defaults to ``True``
+        :param require_grayscale: see ``auto_decision()``. Defaults to ``True``.
         :type require_grayscale: ``bool``
+        :param limit_to_known_modalities: if ``True``, remove model predicts for image modalities
+                                          the model has not explicitly been trained on. Defaults to ``True``.
+        :type limit_to_known_modalities: ``bool``
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
         :param status: display status bar. Defaults to ``True``.
@@ -703,7 +714,8 @@ class ImageProcessing(object):
         :rtype: ``Pandas DataFrame``
         """
         # Run Auto Analysis
-        self.auto_analysis(new_analysis=new_analysis, status=status)
+        self.auto_analysis(limit_to_known_modalities=limit_to_known_modalities,
+                           new_analysis=new_analysis, status=status)
 
         # Run Auto Decision
         self.auto_decision(image_problem_threshold=image_problem_threshold,
