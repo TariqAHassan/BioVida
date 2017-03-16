@@ -131,7 +131,7 @@ def load_and_scale_images(list_of_images, image_size, axes=(2, 0, 1), status=Tru
             return x
 
     def load_func(image):
-        if 'ndarray' in str(type(image)):
+        if 'ndarray' == type(image).__name__:
             converted_image = image
         else:
             # Load grayscale images by first converting them to RGB (otherwise, `imresize()` will break).

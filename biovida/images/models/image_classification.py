@@ -4,11 +4,6 @@
     ~~~~~~~~~~~~~~~~~~~~
 
 """
-# Resources Used:
-#    - https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
-#    - https://blog.rescale.com/neural-networks-using-keras-on-rescale/
-#    - http://cs231n.github.io
-
 # Imports
 import os
 import pickle
@@ -574,11 +569,11 @@ class ImageClassificationCNN(object):
         def status_bar(x):  # ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)
             return tqdm(x) if status else x
 
-        number_ndarray = ['ndarray' in str(type(i)) for i in list_of_images]
+        is_ndarray = [type(i).__name__ == 'ndarray' for i in list_of_images]
 
-        if all(number_ndarray):
+        if all(is_ndarray):
             images = list_of_images
-        elif any(number_ndarray):
+        elif any(is_ndarray):
             raise ValueError("Only some of the items in `list_of_images` we found to be `ndarrays`.")
         else:
             if verbose:

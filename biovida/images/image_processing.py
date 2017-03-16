@@ -22,7 +22,7 @@ from biovida.support_tools.support_tools import data_frame_col_drop
 from biovida.images._image_tools import load_and_scale_images
 
 from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
-from biovida.images._resources._visual_image_problems_supported_types import open_i_modality_types
+from biovida.images._resources._visual_image_problems_supported_types import trained_open_i_modality_types
 
 
 # Models
@@ -530,10 +530,10 @@ class ImageProcessing(object):
         if self._verbose and self._print_update:
             print("\n\nComputing Crop Locations...")
 
-        if data_frame is None:
-            df = self.image_dataframe
-        else:
+        if isinstance(data_frame, pd.DataFrame):
             df = data_frame
+        else:
+            df = self.image_dataframe
 
         all_cropped_images = list()
         for index, row in self._apply_status(df.iterrows(), status=status, length=len(df)):
@@ -568,7 +568,6 @@ class ImageProcessing(object):
         if self._verbose and self._print_update:
             print("\n\nScanning Images for Visual Problems with Neural Network...")
 
-        # Make the predictions and Save
         self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
                                                                             status=status, verbose=False)
 
@@ -750,10 +749,8 @@ class ImageProcessing(object):
         if crop_images:
             if self._verbose:
                 print("\n\nCropping Images...")
-            return_df['image_to_return'] = self._cropper(data_frame=return_df,
-                                                        return_as_array=False,
-                                                        convert_to_rgb=convert_to_rgb,
-                                                        status=status)
+            return_df['image_to_return'] = self._cropper(data_frame=return_df, return_as_array=False,
+                                                         convert_to_rgb=convert_to_rgb, status=status)
         else:
             if self._verbose:
                 print("\n\nLoading Images...")
