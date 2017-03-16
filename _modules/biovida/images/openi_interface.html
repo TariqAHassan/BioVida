@@ -1338,6 +1338,12 @@
 <span class="sd">        :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,</span>
 <span class="sd">                                    this parameter requires that &#39;article_type&#39; is one of: &#39;encounter&#39;, &#39;case_report&#39;.</span>
 <span class="sd">                                    Defaults to ``True``.</span>
+
+<span class="sd">                    .. note::</span>
+
+<span class="sd">                        If ``True``, this parameter will often result in fewer records being returned than</span>
+<span class="sd">                        the ``download_limit``.</span>
+
 <span class="sd">        :type clinical_cases_only: ``bool``</span>
 <span class="sd">        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence</span>
 <span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt a dataset.</span>
