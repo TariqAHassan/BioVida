@@ -1163,12 +1163,13 @@ class CancerImageInterface(object):
 
         Save the current ``records_db``.
 
-        :param path: a system path.
+        :param path: a system path ending with the '.p' file extension.
         :type path: ``str``
         """
         if not isinstance(self.records_db, pd.DataFrame):
             raise TypeError("`records_db` is not a DataFrame.")
-        self.records_db.to_pickle(path)
+        save_path = "{0}.p" if not path.endswith(".p") else path
+        self.records_db.to_pickle(save_path)
 
     def load_records_db(self, path):
         """
