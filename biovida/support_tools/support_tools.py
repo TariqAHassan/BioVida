@@ -16,6 +16,8 @@ from six.moves.html_parser import HTMLParser
 # Pull out the unescape function
 unescape = HTMLParser().unescape
 _only_numeric_regex = re.compile(r'[^\d.]+')
+_cln_extent_1_regex = re.compile('\s\s+')
+_cln_extent_2_regex = re.compile('\s+')
 
 
 class InsufficientNumberOfFiles(Exception):
@@ -252,9 +254,9 @@ def cln(i, extent=1, strip=True):
     to_return = ""
     if isinstance(i, str) and i != "":
         if extent == 1:
-            to_return = re.sub(r"\s\s+", " ", i)
+            to_return = re.sub(_cln_extent_1_regex, " ", i)
         elif extent == 2:
-            to_return = re.sub(r"\s+", "", i)
+            to_return = re.sub(_cln_extent_2_regex, "", i)
     else:
         return i
 
