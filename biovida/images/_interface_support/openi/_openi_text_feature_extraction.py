@@ -678,8 +678,8 @@ def _extract_enumerations(input_str):
 
     :param input_str: any string.
     :type input_str: ``str``
-    :return: enumerations present in `input_str`.
-    :rtype: ``list``
+    :return: enumerations present in `input_str`. Returns ``None`` if ``input_str`` is empty.
+    :rtype: ``None`` or ``list``
 
     :Example:
 
@@ -693,6 +693,9 @@ def _extract_enumerations(input_str):
 
     # Further clean the input
     cleaned_input = cln(floating_point_numbers_removed, extent=2).replace("-", "").lower()
+
+    if not len(cleaned_input):
+        return None
 
     # Define a list to populate
     enumerations = list()
@@ -785,8 +788,8 @@ def _enumerations_guess(image_caption, enumerations_grid_threshold):
             return True
     else:
         # Fall back to standard enumerations
-        enums = _extract_enumerations(image_caption_reduced_confusion)
-        if _enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
+        enums = _extract_enumerations(input_str=image_caption_reduced_confusion)
+        if isinstance(enums, list) and _enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
             return True
         else:
             return False
@@ -852,7 +855,9 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
     ...
     ('arrows', 'asterisks', 'grids')
     """
-    # Initialize
+    if not isinstance(image_caption, str) or not len(cln(image_caption, extent=2)):
+        return None
+
     features = []
 
     # Look for markers
