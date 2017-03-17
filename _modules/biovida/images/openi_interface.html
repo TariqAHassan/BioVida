@@ -1168,6 +1168,28 @@
         <span class="c1"># Load in databases in &#39;databases/__temp__&#39;, if they exist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_latent_temp_dir</span><span class="p">()</span>
 
+<div class="viewcode-block" id="OpeniInterface.save_records_db"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.save_records_db">[docs]</a>    <span class="k">def</span> <span class="nf">save_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Save the current ``records_db``.</span>
+
+<span class="sd">        :param path: a system path.</span>
+<span class="sd">        :type path: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`records_db` is not a DataFrame.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OpeniInterface.load_records_db"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.load_records_db">[docs]</a>    <span class="k">def</span> <span class="nf">load_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Load a ``records_db``</span>
+
+<span class="sd">        :param path: a system path.</span>
+<span class="sd">        :type path: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return `records_db` with nonessential columns removed.&quot;&quot;&quot;</span>

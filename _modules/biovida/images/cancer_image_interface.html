@@ -646,7 +646,7 @@
         <span class="c1"># Concatenate baselines frame for each patient</span>
         <span class="n">patient_study_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;article_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;case report&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;article_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;case_report&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;study_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">study</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;cancer_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_condition_name</span><span class="p">(</span><span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">],</span>
                                                                    <span class="n">overview_download_override</span><span class="p">)</span>
@@ -1329,6 +1329,28 @@
 
         <span class="c1"># Load in databases in &#39;databases/__temp__&#39;, if they exist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_latent_temp_dir</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CancerImageInterface.save_records_db"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.cancer_image_interface.CancerImageInterface.save_records_db">[docs]</a>    <span class="k">def</span> <span class="nf">save_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Save the current ``records_db``.</span>
+
+<span class="sd">        :param path: a system path.</span>
+<span class="sd">        :type path: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`records_db` is not a DataFrame.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CancerImageInterface.load_records_db"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db">[docs]</a>    <span class="k">def</span> <span class="nf">load_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Load a ``records_db``.</span>
+
+<span class="sd">        :param path: a system path.</span>
+<span class="sd">        :type path: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

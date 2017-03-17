@@ -310,6 +310,20 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 </dd></dl>
 
 <dl class="method">
+<dt id="biovida.images.openi_interface.OpeniInterface.load_records_db">
+<code class="descname">load_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.load_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.load_records_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a <code class="docutils literal"><span class="pre">records_db</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.options">
 <code class="descname">options</code><span class="sig-paren">(</span><em>search_parameter</em>, <em>print_options=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Options for parameters of <code class="docutils literal"><span class="pre">search()</span></code>.</p>
@@ -433,6 +447,20 @@ If <code class="docutils literal"><span class="pre">image_size</span></code> is 
 </dd></dl>
 
 <dl class="method">
+<dt id="biovida.images.openi_interface.OpeniInterface.save_records_db">
+<code class="descname">save_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.save_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.save_records_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the current <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.search">
 <code class="descname">search</code><span class="sig-paren">(</span><em>query=None, image_type=None, rankby=None, article_type=None, subset=None, collection=None, fields=None, specialties=None, video=None, exclusions=['graphics'], print_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tool to generate a search term (URL) for the NIH&#8217;s Open-i API.
@@ -541,6 +569,20 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 </dd></dl>
 
 <dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.load_records_db">
+<code class="descname">load_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.load_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.pull">
 <code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>image_format='png'</em>, <em>save_dicoms=False</em>, <em>check_cache_first=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
@@ -622,6 +664,20 @@ downloaded again.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.save_records_db">
+<code class="descname">save_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.save_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.save_records_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the current <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.search">
 <code class="descname">search</code><span class="sig-paren">(</span><em>collection=None</em>, <em>cancer_type=None</em>, <em>location=None</em>, <em>modality=None</em>, <em>download_override=False</em>, <em>pretty_print=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to Search for studies on the Cancer Imaging Archive.</p>
@@ -696,7 +752,7 @@ contains a cache of all analyses run as new columns.</p>
 </table>
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto">
-<code class="descname">auto</code><span class="sig-paren">(</span><em>image_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>limit_to_known_modalities=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto</code><span class="sig-paren">(</span><em>image_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>limit_to_known_modalities=True</em>, <em>problems_to_ignore=None</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically carry out all aspects of image preprocessing (recommended).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -707,6 +763,8 @@ contains a cache of all analyses run as new columns.</p>
 <li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
 <li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
 the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
+Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
@@ -746,8 +804,8 @@ the model has not explicitly been trained on. Defaults to <code class="docutils 
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto_decision">
-<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>image_problem_threshold</em>, <em>valid_floor=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
-<dd><p>Automatically generate &#8216;valid_image&#8217; column in the <cite>image_dataframe</cite>
+<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>image_problem_threshold</em>, <em>problems_to_ignore=None</em>, <em>valid_floor=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically generate &#8216;invalid_image&#8217; column in the <cite>image_dataframe</cite>
 column by deciding whether or not images are valid using default parameter values for class methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -759,6 +817,8 @@ to cause the image to be marked as invalid.
 For instance, a threshold value of <cite>0.5</cite> would mean that any image
 which contains a image problem probability above <cite>0.5</cite> will be marked
 as invalid.</li>
+<li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
+Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 <li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
 </ul>
 </td>
