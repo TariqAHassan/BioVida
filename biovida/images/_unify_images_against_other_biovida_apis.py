@@ -96,7 +96,7 @@ class _ImagesInterfaceIntegration(object):
         if isinstance(self._additional_columns, list):
             db_cln, openi_columns = self._add_additional_columns(db_cln, openi_columns)
 
-        db_cln['article_type'] = db_cln['article_type'].replace({'encounter': 'case report'})
+        db_cln['article_type'] = db_cln['article_type'].replace({'encounter': 'case_report'})
 
         # Define subsection based on `openi_columns`
         openi_subsection = db_cln[openi_columns]

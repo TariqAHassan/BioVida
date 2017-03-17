@@ -85,7 +85,7 @@ def unify_against_images(interfaces,
         known to be associated with the disease the patient presented with. **These columns are not an account
         of the symptomatology or genotype of the patients themselves**. Conversely, the ``'mentioned_symptoms'``
         column is an account of a given patient's symptoms *if* the data is from a clinical case
-        (i.e., ``article_type`` equals 'case report').
+        (i.e., ``article_type`` equals 'case_report').
 
     :Example:
 

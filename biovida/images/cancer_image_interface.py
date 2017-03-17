@@ -474,7 +474,7 @@ class _CancerImageArchiveRecords(object):
         # Concatenate baselines frame for each patient
         patient_study_df = pd.concat(frames, ignore_index=True)
 
-        patient_study_df['article_type'] = ['case report'] * patient_study_df.shape[0]
+        patient_study_df['article_type'] = ['case_report'] * patient_study_df.shape[0]
         patient_study_df['study_name'] = study
         patient_study_df['cancer_type'] = self._get_condition_name(patient_study_df['collection'],
                                                                    overview_download_override)

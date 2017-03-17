@@ -74,8 +74,7 @@ def article_type_lookup(article_type_abbrev):
     if not isinstance(article_type_abbrev, str):
         return article_type_abbrev
 
-    rslt = openi_article_type_params.get(cln(article_type_abbrev).lower(), None)
-    return cln(rslt.replace("_", " ")) if isinstance(rslt, str) else article_type_abbrev
+    return openi_article_type_params.get(cln(article_type_abbrev).lower(), None)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -123,7 +122,7 @@ def _apply_clinical_case_only(data_frame):
     :return: see description.
     :rtype: ``Pandas DataFrame``
     """
-    clinical_article_types = ('encounter', 'case report')
+    clinical_article_types = ('encounter', 'case_report')
 
     def test(article_type):
         if isinstance(article_type, str) and article_type in clinical_article_types:

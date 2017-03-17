@@ -876,7 +876,7 @@ def _background_extract(d):
 
     :param d: the ``d`` dictionary as evolved inside ``feature_extract()``.
     :type d: ``dict``
-    :return: the study background/history (or case information, e.g., 'case report').
+    :return: the study background/history (or case information, e.g., 'case_report').
     :rtype: ``None`` or ``str``
     """
     # Extract the background/history
