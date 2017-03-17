@@ -584,6 +584,10 @@ class _OpeniRecords(object):
         """
         if isinstance(download_limit, int):
             self.download_limit = download_limit
+        elif download_limit is None:
+            self.download_limit = None
+        else:
+            raise TypeError("`download_limit` must be an `int` or `None`")
 
         # Get a list of lists with the bounds
         bounds, download_no = self.openi_bounds(total)
