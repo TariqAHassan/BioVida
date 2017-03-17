@@ -110,7 +110,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../API.html#unifying-across-domains">Unifying Across Domains</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.image_cache_mgmt">Cache Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.image_cache_mgmt">Cache Manipulation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#image-cache-management">Image Cache Management</a></li>
 </ul>
 </li>
@@ -286,24 +286,6 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>download_override=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_symptoms_interface.html#DiseaseSymptomsInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.pull" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct a dataframe by combining the <cite>Rephetio Medline</cite> and <cite>Human Symptoms Disease Network</cite> databases.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a combined dataframe with the following columns: &#8216;common_disease_name&#8217; and &#8216;common_symptom_term&#8217;.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.rephetio_ml_pull">
 <code class="descname">rephetio_ml_pull</code><span class="sig-paren">(</span><em>download_override=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_symptoms_interface.html#DiseaseSymptomsInterface.rephetio_ml_pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.rephetio_ml_pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the Rephetio Medline Database.</p>
@@ -314,6 +296,24 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the Rephetio Medline database as a DataFrame.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.pull">
+<code class="descname">pull</code><span class="sig-paren">(</span><em>download_override=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_symptoms_interface.html#DiseaseSymptomsInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_symptoms_interface.DiseaseSymptomsInterface.pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a dataframe by combining the <cite>Rephetio Medline</cite> and <cite>Human Symptoms Disease Network</cite> databases.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a combined dataframe with the following columns: &#8216;common_disease_name&#8217; and &#8216;common_symptom_term&#8217;.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
 </tr>

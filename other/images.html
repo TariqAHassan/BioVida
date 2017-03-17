@@ -212,10 +212,18 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
-<dt id="biovida.images.openi_interface.OpeniInterface.cache_records_db_short">
-<code class="descname">cache_records_db_short</code><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.cache_records_db_short" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return <cite>cache_records_db</cite> with nonessential columns removed.</p>
+<dl class="method">
+<dt id="biovida.images.openi_interface.OpeniInterface.save_records_db">
+<code class="descname">save_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.save_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.save_records_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the current <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path ending with the &#8216;.p&#8217; file extension.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -230,6 +238,18 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="biovida.images.openi_interface.OpeniInterface.records_db_short">
+<code class="descname">records_db_short</code><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.records_db_short" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>records_db</cite> with nonessential columns removed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="biovida.images.openi_interface.OpeniInterface.cache_records_db_short">
+<code class="descname">cache_records_db_short</code><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.cache_records_db_short" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>cache_records_db</cite> with nonessential columns removed.</p>
 </dd></dl>
 
 <dl class="method">
@@ -255,6 +275,48 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.openi_interface.OpeniInterface.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>query=None, image_type=None, rankby=None, article_type=None, subset=None, collection=None, fields=None, specialties=None, video=None, exclusions=['graphics'], print_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tool to generate a search term (URL) for the NIH&#8217;s Open-i API.
+The computed term is stored as a class attribute (<code class="docutils literal"><span class="pre">INSTANCE.current_search_url</span></code>)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>query</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a search term. <code class="docutils literal"><span class="pre">None</span></code> will be converted to an empty string.</li>
+<li><strong>image_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('image_type')</span></code> for valid values.</li>
+<li><strong>rankby</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('rankby')</span></code> for valid values.</li>
+<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values. Defaults to &#8216;case_report&#8217;.</li>
+<li><strong>subset</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('subset')</span></code> for valid values.</li>
+<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('collection')</span></code> for valid values.</li>
+<li><strong>fields</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('fields')</span></code> for valid values.</li>
+<li><strong>specialties</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('specialties')</span></code> for valid values.</li>
+<li><strong>video</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('video')</span></code> for valid values.</li>
+<li><strong>exclusions</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>one or both of: &#8216;graphics&#8217;, &#8216;multipanel&#8217;. Defaults to <code class="docutils literal"><span class="pre">['graphics']</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Excluding &#8216;multipanel&#8217; can result in images that <em>are</em> multipanel
+being returned from Open-i API. For this reason, including &#8216;multipanel&#8217;
+is not currently recommended.</p>
+</div>
+</li>
+<li><strong>print_results</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the number of search results.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If passing a single option to <code class="docutils literal"><span class="pre">image_type</span></code>, <code class="docutils literal"><span class="pre">rankby</span></code>, <code class="docutils literal"><span class="pre">article_type</span></code>, <code class="docutils literal"><span class="pre">subset</span></code>,
+<code class="docutils literal"><span class="pre">collection</span></code>, <code class="docutils literal"><span class="pre">fields</span></code>, <code class="docutils literal"><span class="pre">specialties</span></code> or <code class="docutils literal"><span class="pre">video</span></code>, a string can be used, e.g.,
+<code class="docutils literal"><span class="pre">...image_type='ct')</span></code>. For multiple values, a list or tuple must be used, e.g.,
+<code class="docutils literal"><span class="pre">...image_type=('ct',</span> <span class="pre">'mri')</span></code>.</p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -349,68 +411,6 @@ If <code class="docutils literal"><span class="pre">image_size</span></code> is 
 </table>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="biovida.images.openi_interface.OpeniInterface.records_db_short">
-<code class="descname">records_db_short</code><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.records_db_short" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return <cite>records_db</cite> with nonessential columns removed.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.openi_interface.OpeniInterface.save_records_db">
-<code class="descname">save_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.save_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.save_records_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the current <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path ending with the &#8216;.p&#8217; file extension.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.openi_interface.OpeniInterface.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>query=None, image_type=None, rankby=None, article_type=None, subset=None, collection=None, fields=None, specialties=None, video=None, exclusions=['graphics'], print_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.search" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tool to generate a search term (URL) for the NIH&#8217;s Open-i API.
-The computed term is stored as a class attribute (<code class="docutils literal"><span class="pre">INSTANCE.current_search_url</span></code>)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>query</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a search term. <code class="docutils literal"><span class="pre">None</span></code> will be converted to an empty string.</li>
-<li><strong>image_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('image_type')</span></code> for valid values.</li>
-<li><strong>rankby</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('rankby')</span></code> for valid values.</li>
-<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values. Defaults to &#8216;case_report&#8217;.</li>
-<li><strong>subset</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('subset')</span></code> for valid values.</li>
-<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('collection')</span></code> for valid values.</li>
-<li><strong>fields</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('fields')</span></code> for valid values.</li>
-<li><strong>specialties</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('specialties')</span></code> for valid values.</li>
-<li><strong>video</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('video')</span></code> for valid values.</li>
-<li><strong>exclusions</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>one or both of: &#8216;graphics&#8217;, &#8216;multipanel&#8217;. Defaults to <code class="docutils literal"><span class="pre">['graphics']</span></code>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Excluding &#8216;multipanel&#8217; can result in images that <em>are</em> multipanel
-being returned from Open-i API. For this reason, including &#8216;multipanel&#8217;
-is not currently recommended.</p>
-</div>
-</li>
-<li><strong>print_results</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the number of search results.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If passing a single option to <code class="docutils literal"><span class="pre">image_type</span></code>, <code class="docutils literal"><span class="pre">rankby</span></code>, <code class="docutils literal"><span class="pre">article_type</span></code>, <code class="docutils literal"><span class="pre">subset</span></code>,
-<code class="docutils literal"><span class="pre">collection</span></code>, <code class="docutils literal"><span class="pre">fields</span></code>, <code class="docutils literal"><span class="pre">specialties</span></code> or <code class="docutils literal"><span class="pre">video</span></code>, a string can be used, e.g.,
-<code class="docutils literal"><span class="pre">...image_type='ct')</span></code>. For multiple values, a list or tuple must be used, e.g.,
-<code class="docutils literal"><span class="pre">...image_type=('ct',</span> <span class="pre">'mri')</span></code>.</p>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -439,10 +439,85 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.save_records_db">
+<code class="descname">save_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.save_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.save_records_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the current <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path ending with the &#8216;.p&#8217; file extension.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.load_records_db">
+<code class="descname">load_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.load_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.records_db_short">
+<code class="descname">records_db_short</code><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.records_db_short" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>records_db</cite> with nonessential columns removed.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.cache_records_db_short">
 <code class="descname">cache_records_db_short</code><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.cache_records_db_short" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <cite>cache_records_db</cite> with nonessential columns removed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>collection=None</em>, <em>cancer_type=None</em>, <em>location=None</em>, <em>modality=None</em>, <em>download_override=False</em>, <em>pretty_print=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to Search for studies on the Cancer Imaging Archive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a collection (study), or iterable (e.g., list) of collections,
+hosted by the Cancer Imaging Archive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>cancer_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a string or list/tuple of specifying cancer types. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>location</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a string or list/tuple of specifying body locations. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>modality</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the type of imaging technology. See: <code class="docutils literal"><span class="pre">CancerImageInterface().dicom_modality_abbrevs</span></code> for
+valid values. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the search results. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dataframe containing the search results.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CancerImageInterface</span><span class="p">(</span><span class="n">YOUR_API_KEY_HERE</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cancer_type</span><span class="o">=</span><span class="s1">&#39;carcinoma&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;head&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">   collection                   cancer_type                          modalities         subjects    location</span>
+<span class="go">0  TCGA-HNSC            Head and Neck Squamous Cell Carcinoma  CT, MR, PT                 164     [Head, Neck]</span>
+<span class="go">1  QIN-HeadNeck         Head and Neck Carcinomas               PT, CT, SR, SEG, RWV       156     [Head, Neck]</span>
+<span class="go">      ...                          ...                                  ...               ...         ...</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -468,20 +543,6 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code></p>
 </td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.cancer_image_interface.CancerImageInterface.load_records_db">
-<code class="descname">load_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.load_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path.</td>
 </tr>
 </tbody>
 </table>
@@ -562,67 +623,6 @@ downloaded again.</p>
 </table>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="biovida.images.cancer_image_interface.CancerImageInterface.records_db_short">
-<code class="descname">records_db_short</code><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.records_db_short" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return <cite>records_db</cite> with nonessential columns removed.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.cancer_image_interface.CancerImageInterface.save_records_db">
-<code class="descname">save_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.save_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.save_records_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the current <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path ending with the &#8216;.p&#8217; file extension.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.cancer_image_interface.CancerImageInterface.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>collection=None</em>, <em>cancer_type=None</em>, <em>location=None</em>, <em>modality=None</em>, <em>download_override=False</em>, <em>pretty_print=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.search" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to Search for studies on the Cancer Imaging Archive.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a collection (study), or iterable (e.g., list) of collections,
-hosted by the Cancer Imaging Archive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>cancer_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a string or list/tuple of specifying cancer types. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>location</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a string or list/tuple of specifying body locations. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>modality</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the type of imaging technology. See: <code class="docutils literal"><span class="pre">CancerImageInterface().dicom_modality_abbrevs</span></code> for
-valid values. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
-Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the search results. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dataframe containing the search results.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CancerImageInterface</span><span class="p">(</span><span class="n">YOUR_API_KEY_HERE</span><span class="p">)</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cancer_type</span><span class="o">=</span><span class="s1">&#39;carcinoma&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;head&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
-<span class="go">   collection                   cancer_type                          modalities         subjects    location</span>
-<span class="go">0  TCGA-HNSC            Head and Neck Squamous Cell Carcinoma  CT, MR, PT                 164     [Head, Neck]</span>
-<span class="go">1  QIN-HeadNeck         Head and Neck Carcinomas               PT, CT, SR, SEG, RWV       156     [Head, Neck]</span>
-<span class="go">      ...                          ...                                  ...               ...         ...</span>
-</pre></div>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -651,35 +651,138 @@ contains a cache of all analyses run as new columns.</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="biovida.images.image_processing.ImageProcessing.image_dataframe_short">
+<code class="descname">image_dataframe_short</code><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.image_dataframe_short" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>image_dataframe</cite> with nonessential columns removed.</p>
+</dd></dl>
+
 <dl class="method">
-<dt id="biovida.images.image_processing.ImageProcessing.auto">
-<code class="descname">auto</code><span class="sig-paren">(</span><em>image_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>limit_to_known_modalities=True</em>, <em>problems_to_ignore=None</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Automatically carry out all aspects of image preprocessing (recommended).</p>
+<dt id="biovida.images.image_processing.ImageProcessing.grayscale_analysis">
+<code class="descname">grayscale_analysis</code><span class="sig-paren">(</span><em>new_analysis=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.grayscale_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.grayscale_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the images to determine whether or not they are grayscale
+(uses the PIL image library).</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd><ul class="first last simple">
+<li>this tool is very conservative (very small amounts of &#8216;color&#8217; will yield <cite>False</cite>).</li>
+<li>the exception to the above rule is the <em>very rare</em> case of an image which even split
+of red, green and blue.</li>
+</ul>
+</dd>
+</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>image_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <cite>0.275</cite>.</li>
-<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
-<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
-the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
-Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.logo_analysis">
+<code class="descname">logo_analysis</code><span class="sig-paren">(</span><em>match_quality_threshold=0.25</em>, <em>xy_position_threshold=(0.3333333333333333</em>, <em>0.4)</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_image_cropping=(0.15</em>, <em>0.5)</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.logo_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.logo_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
+populate the the &#8216;medpix_logo_bounding_box&#8217; of <code class="docutils literal"><span class="pre">image_dataframe</span></code> with its bounding box.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>match_quality_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the minimum match quality required to accept the match.
+See: <code class="docutils literal"><span class="pre">skimage.feature.match_template()</span></code> for more information.</li>
+<li><strong>xy_position_threshold</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: (x_greater_check, y_greater_check).
+For instance the default (<code class="docutils literal"><span class="pre">(1/3.0,</span> <span class="pre">1/2.5)</span></code>) requires that the
+x position of the logo is greater than 1/3 of the image&#8217;s width
+and less than 1/2.5 of the image&#8217;s height.</li>
+<li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
+<li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
+<li><strong>base_image_cropping</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code></li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.border_analysis">
+<code class="descname">border_analysis</code><span class="sig-paren">(</span><em>signal_strength_threshold=0.25</em>, <em>min_border_separation=0.15</em>, <em>lower_bar_search_space=0.9</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.border_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.border_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for <code class="docutils literal"><span class="pre">biovida.images.models.border_detection.border_detection()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<li><strong>min_border_separation</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the <cite>image_dataframe</cite>, complete with the results of all possible analyses
-(using default parameter values).</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
-</td>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.crop_decision">
+<code class="descname">crop_decision</code><span class="sig-paren">(</span><em>new_analysis=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.crop_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.crop_decision" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.visual_image_problems">
+<code class="descname">visual_image_problems</code><span class="sig-paren">(</span><em>limit_to_known_modalities=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.visual_image_problems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.visual_image_problems" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is powered by a Convolutional Neural Network which
+computes probabilities for the presence of problematic image properties or types.</p>
+<p>Currently, the model can identify the follow problems:</p>
+<ul class="simple">
+<li>arrows in images</li>
+<li>images arrayed as grids</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
+the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DataFrame</span><span class="p">[</span><span class="s1">&#39;visual_image_problems&#39;</span><span class="p">]</span>
+<span class="gp">...</span>
+<span class="go">0 [(&#39;valid_img&#39;, 0.97158539), (&#39;arrows&#39;, 0.066939682), (&#39;grids&#39;, 0.0010551035)]</span>
+<span class="go">1 [(&#39;valid_img&#39;, 0.98873705), (&#39;arrows&#39;, 0.024444019), (&#39;grids&#39;, 0.0001462775)]</span>
+<span class="go">2 [(&#39;valid_img&#39;, 0.89019465), (&#39;arrows&#39;, 0.16754828), (&#39;grids&#39;, 0.009004808)]</span>
+<span class="go">3 [(&#39;grids&#39;, 0.85855108), (&#39;valid_img&#39;, 0.0002961561), (&#39;arrows&#39;, 6.8026602e-09)]</span>
+</pre></div>
+</div>
+<p>The first value in the tuple represents the problem identified and second
+value represents its associated probability. For example, in the final row
+we can see that the model strongly &#8216;believes&#8217; both that the image is, in fact,
+an image composed of several smaller images (forming an image &#8216;grid&#8217;). Conversely,
+it believes all of the other images are likely devoid of problems it has been
+trained to detect.</p>
 </dd></dl>
 
 <dl class="method">
@@ -729,91 +832,30 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.images.image_processing.ImageProcessing.border_analysis">
-<code class="descname">border_analysis</code><span class="sig-paren">(</span><em>signal_strength_threshold=0.25</em>, <em>min_border_separation=0.15</em>, <em>lower_bar_search_space=0.9</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.border_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.border_analysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wrapper for <code class="docutils literal"><span class="pre">biovida.images.models.border_detection.border_detection()</span></code>.</p>
+<dt id="biovida.images.image_processing.ImageProcessing.auto">
+<code class="descname">auto</code><span class="sig-paren">(</span><em>image_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>limit_to_known_modalities=True</em>, <em>problems_to_ignore=None</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically carry out all aspects of image preprocessing (recommended).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
-<li><strong>min_border_separation</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
-<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <cite>0.275</cite>.</li>
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
+<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
+the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
+Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 <li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.image_processing.ImageProcessing.crop_decision">
-<code class="descname">crop_decision</code><span class="sig-paren">(</span><em>new_analysis=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.crop_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.crop_decision" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the <cite>image_dataframe</cite>, complete with the results of all possible analyses
+(using default parameter values).</p>
+</td>
 </tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.image_processing.ImageProcessing.grayscale_analysis">
-<code class="descname">grayscale_analysis</code><span class="sig-paren">(</span><em>new_analysis=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.grayscale_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.grayscale_analysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Analyze the images to determine whether or not they are grayscale
-(uses the PIL image library).</p>
-<dl class="docutils">
-<dt>Note:</dt>
-<dd><ul class="first last simple">
-<li>this tool is very conservative (very small amounts of &#8216;color&#8217; will yield <cite>False</cite>).</li>
-<li>the exception to the above rule is the <em>very rare</em> case of an image which even split
-of red, green and blue.</li>
-</ul>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="biovida.images.image_processing.ImageProcessing.image_dataframe_short">
-<code class="descname">image_dataframe_short</code><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.image_dataframe_short" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return <cite>image_dataframe</cite> with nonessential columns removed.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.image_processing.ImageProcessing.logo_analysis">
-<code class="descname">logo_analysis</code><span class="sig-paren">(</span><em>match_quality_threshold=0.25</em>, <em>xy_position_threshold=(0.3333333333333333</em>, <em>0.4)</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_image_cropping=(0.15</em>, <em>0.5)</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.logo_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.logo_analysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
-populate the the &#8216;medpix_logo_bounding_box&#8217; of <code class="docutils literal"><span class="pre">image_dataframe</span></code> with its bounding box.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>match_quality_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the minimum match quality required to accept the match.
-See: <code class="docutils literal"><span class="pre">skimage.feature.match_template()</span></code> for more information.</li>
-<li><strong>xy_position_threshold</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: (x_greater_check, y_greater_check).
-For instance the default (<code class="docutils literal"><span class="pre">(1/3.0,</span> <span class="pre">1/2.5)</span></code>) requires that the
-x position of the logo is greater than 1/3 of the image&#8217;s width
-and less than 1/2.5 of the image&#8217;s height.</li>
-<li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
-<li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
-<li><strong>base_image_cropping</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code></li>
-<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-</ul>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
 </td>
 </tr>
 </tbody>
@@ -872,48 +914,6 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">my_save_rule</span><span class="p">)</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.image_processing.ImageProcessing.visual_image_problems">
-<code class="descname">visual_image_problems</code><span class="sig-paren">(</span><em>limit_to_known_modalities=True</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.visual_image_problems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.visual_image_problems" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is powered by a Convolutional Neural Network which
-computes probabilities for the presence of problematic image properties or types.</p>
-<p>Currently, the model can identify the follow problems:</p>
-<ul class="simple">
-<li>arrows in images</li>
-<li>images arrayed as grids</li>
-</ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
-the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Examples:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DataFrame</span><span class="p">[</span><span class="s1">&#39;visual_image_problems&#39;</span><span class="p">]</span>
-<span class="gp">...</span>
-<span class="go">0 [(&#39;valid_img&#39;, 0.97158539), (&#39;arrows&#39;, 0.066939682), (&#39;grids&#39;, 0.0010551035)]</span>
-<span class="go">1 [(&#39;valid_img&#39;, 0.98873705), (&#39;arrows&#39;, 0.024444019), (&#39;grids&#39;, 0.0001462775)]</span>
-<span class="go">2 [(&#39;valid_img&#39;, 0.89019465), (&#39;arrows&#39;, 0.16754828), (&#39;grids&#39;, 0.009004808)]</span>
-<span class="go">3 [(&#39;grids&#39;, 0.85855108), (&#39;valid_img&#39;, 0.0002961561), (&#39;arrows&#39;, 6.8026602e-09)]</span>
-</pre></div>
-</div>
-<p>The first value in the tuple represents the problem identified and second
-value represents its associated probability. For example, in the final row
-we can see that the model strongly &#8216;believes&#8217; both that the image is, in fact,
-an image composed of several smaller images (forming an image &#8216;grid&#8217;). Conversely,
-it believes all of the other images are likely devoid of problems it has been
-trained to detect.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1001,6 +1001,29 @@ See: <code class="docutils literal"><span class="pre">keras.models.Sequential()<
 </dd></dl>
 
 <dl class="method">
+<dt id="biovida.images.models.image_classification.ImageClassificationCNN.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>save_name</em>, <em>path=None</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the weights from a trained model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>save_name</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; name of the file. Do not include the &#8216;.h5&#8217; extension as it
+will be added automatically.</li>
+<li><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; path to save the data to. See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
+<li><strong>overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; overwrite the existing copy of the data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">AttributeError</span></code> if <code class="docutils literal"><span class="pre">ImageClassificationCNN().fit()</span></code> is yet to be called.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.load">
 <code class="descname">load</code><span class="sig-paren">(</span><em>path</em>, <em>override_existing=False</em>, <em>default_model_load=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a model from disk.</p>
@@ -1043,29 +1066,6 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">list</span></code></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="biovida.images.models.image_classification.ImageClassificationCNN.save">
-<code class="descname">save</code><span class="sig-paren">(</span><em>save_name</em>, <em>path=None</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the weights from a trained model.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>save_name</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; name of the file. Do not include the &#8216;.h5&#8217; extension as it
-will be added automatically.</li>
-<li><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; path to save the data to. See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
-<li><strong>overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; overwrite the existing copy of the data</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">AttributeError</span></code> if <code class="docutils literal"><span class="pre">ImageClassificationCNN().fit()</span></code> is yet to be called.</p>
 </td>
 </tr>
 </tbody>
