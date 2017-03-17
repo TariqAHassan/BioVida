@@ -59,6 +59,9 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
+# Sort Order
+autodoc_member_order = 'bysource'
+
 # General information about the project.
 project = 'BioVida'
 copyright = '2017, Tariq A. Hassan'
