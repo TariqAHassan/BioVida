@@ -996,6 +996,28 @@ class OpeniInterface(object):
         # Load in databases in 'databases/__temp__', if they exist
         self._latent_temp_dir()
 
+    def save_records_db(self, path):
+        """
+
+        Save the current ``records_db``.
+
+        :param path: a system path.
+        :type path: ``str``
+        """
+        if not isinstance(self.records_db, pd.DataFrame):
+            raise TypeError("`records_db` is not a DataFrame.")
+        self.records_db.to_pickle(path)
+
+    def load_records_db(self, path):
+        """
+
+        Load a ``records_db``
+
+        :param path: a system path.
+        :type path: ``str``
+        """
+        self.records_db = pd.read_pickle(path)
+
     @property
     def records_db_short(self):
         """Return `records_db` with nonessential columns removed."""
