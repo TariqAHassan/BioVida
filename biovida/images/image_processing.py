@@ -639,22 +639,22 @@ class ImageProcessing(object):
         self._print_update = False
 
     @staticmethod
-    def _invalidity_image_test(row, image_problem_threshold, problems_to_ignore, valid_floor):
+    def _invalid_image_tests(row, image_problem_threshold, problems_to_ignore, valid_floor):
         """
 
-        Test if ``row`` is an invalid image.
+        Tests to determine if ``row`` references an image with properties and/or features
+        likely to be problematic when training a model.
 
-        :param row: as passed by ``pandas.DataFrame.apply(func, axis=1)``
-        :type row: ``Pandas Series`
-        :param image_problem_threshold: see ``auto_decision()`
+        :param row: as passed by ``pandas.DataFrame.apply(func, axis=1)``.
+        :type row: ``Pandas Series``
+        :param image_problem_threshold: see ``auto_decision()``.
         :type image_problem_threshold: ``float``
-        :param problems_to_ignore: see ``auto_decision()`
+        :param problems_to_ignore: see ``auto_decision()``.
         :type problems_to_ignore: ``None``, ``list`` or ``tuple``
-        :param valid_floor: see ``auto_decision()`
+        :param valid_floor: see ``auto_decision()``.
         :type valid_floor: ``float``
         :return: a list of the form ``[invalid image (boolean), reasons for decision if the former is True]``, wrapped
-                 in a pandas series so it can be neatly split into two columns when ``_invalidity_image_test()``
-                 is used with ``.apply()``.
+                 in a pandas series so it can be neatly split into two columns when called via. ``DataFrame.apply()``.
         :rtype: ``Pandas Series``
         """
         def image_problems_from_text_test(ipft):
@@ -727,7 +727,7 @@ class ImageProcessing(object):
             raise ValueError("`problems_to_ignore` must be a `string`, `list` or `tuple`.")
 
         test_results = self.image_dataframe.apply(
-            lambda r: self._invalidity_image_test(r, image_problem_threshold, problems_to_ignore, valid_floor), axis=1)
+            lambda r: self._invalid_image_tests(r, image_problem_threshold, problems_to_ignore, valid_floor), axis=1)
         self.image_dataframe['invalid_image'] = test_results[0]
         self.image_dataframe['invalid_image_reasons'] = test_results[1].fillna(np.NaN)
 
