@@ -18,7 +18,6 @@ from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.layers import Activation, Dropout, Flatten, Dense, Input, merge
 from keras.optimizers import RMSprop, SGD
 
-
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
 # Solution: replace "tf" with "th" in ~/.keras/keras.json.
 # Note: `MaxPooling2D` has a `dim_ordering` param which can do the same thing.
@@ -584,43 +583,3 @@ class ImageClassificationCNN(object):
         if verbose:
             print("\n\nGenerating Predictions...")
         return [self._prediction_labels(i) for i in status_bar(self.model.predict(images))]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
