@@ -18,7 +18,6 @@ from biovida.images._interface_support.openi.openi_support_tools import multiple
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import unescape
-from biovida.support_tools.support_tools import only_numeric
 from biovida.support_tools.support_tools import multi_replace
 from biovida.support_tools.support_tools import remove_from_head_tail
 from biovida.support_tools.support_tools import remove_html_bullet_points
