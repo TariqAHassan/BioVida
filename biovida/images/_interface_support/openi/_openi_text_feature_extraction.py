@@ -19,7 +19,6 @@ from biovida.images._interface_support.openi.openi_support_tools import multiple
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import unescape
 from biovida.support_tools.support_tools import multi_replace
-from biovida.support_tools.support_tools import remove_from_head_tail
 from biovida.support_tools.support_tools import remove_html_bullet_points
 
 # Data
@@ -106,8 +105,8 @@ def _abstract_parser(abstract):
             if len(key):
                 # Look for Value
                 contents = p.contents
-                if len(contents) == 2:
-                    value = remove_from_head_tail(contents[-1], char=";")
+                if len(contents) == 2 and all(isinstance(c, str) for c in contents):
+                    value = contents[-1].strip(";")
                     if isinstance(value, str) and len(value):
                         parsed_abstract[key] = cln(unescape(value))
 

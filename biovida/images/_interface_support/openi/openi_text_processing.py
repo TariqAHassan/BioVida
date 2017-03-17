@@ -13,7 +13,6 @@ from bs4 import BeautifulSoup
 # General Support tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import unescape
-from biovida.support_tools.support_tools import remove_from_head_tail
 from biovida.support_tools.support_tools import remove_html_bullet_points
 
 # Image Support Tools
@@ -53,8 +52,8 @@ def abstract_cleaner(abstract):
         return np.NaN
 
     soup = BeautifulSoup(remove_html_bullet_points(abstract).replace("<b>", ". "), 'lxml')
-    cleaned = soup.text.replace(" ; ", " ").replace("..", ".").replace(".;", ";")
-    return remove_from_head_tail(cleaned, char=".") + "."
+    cleaned = soup.text.replace(" ; ", " ").replace("..", ".").replace(".;", ";").strip()
+    return cleaned.strip(".") + "."
 
 
 # ----------------------------------------------------------------------------------------------------------

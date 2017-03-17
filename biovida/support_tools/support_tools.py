@@ -119,26 +119,6 @@ def remove_html_bullet_points(html):
     return cln(remove_line_breaks(no_points).replace(" ;", "; "))
 
 
-def remove_from_head_tail(s, char):
-    """
-
-    Remove ``char`` from the head and tail of ``s``.
-
-    :param s: ``s`` as evolved inside ``_abstract_parser()``.
-    :type s: ``str``
-    :param char: the character to remove from the head and tail of ``s``.
-    :type char: ``str``
-    :return: see description.
-    :rtype: ``str``
-    """
-    cleaned = cln(s)
-    if cleaned.startswith(char):
-        cleaned = cleaned[1:]
-    if cleaned.endswith(char):
-        cleaned = cleaned[:-1]
-    return cln(cleaned)
-
-
 def n_sub_dirs(dir):
     """
 
