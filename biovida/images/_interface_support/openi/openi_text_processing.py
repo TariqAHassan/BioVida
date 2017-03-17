@@ -67,14 +67,16 @@ def article_type_lookup(article_type_abbrev):
 
     Lookup the full article type from the shorthand used by the Open-i API.
 
-    :param article_type_abbrev: values as passed via. ``data_frame['article_type'].map(...)`` in
+    :param article_type_abbrev: values as passed via. ``data_frame['article_type'].map(...)``.
     :return: the full article type name.
     :rtype: ``str``
     """
+    # Note: It appears that, at the time of writing (March 16, 2017), Open-i has switched
+    # to transforming this data on their end. However, this function remains as a safeguard.
     if not isinstance(article_type_abbrev, str):
         return article_type_abbrev
 
-    return openi_article_type_params.get(cln(article_type_abbrev).lower(), None)
+    return openi_article_type_params.get(cln(article_type_abbrev).lower(), article_type_abbrev)
 
 
 # ----------------------------------------------------------------------------------------------------------
