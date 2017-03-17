@@ -313,32 +313,34 @@ def _ethnicity_guess_engine(image_summary_info):
     :return: tuple of the form ('ethnicity', 'sex'), ('ethnicity', None) or (None, None).
     :type: ``tuple``
     """
-    # Init
     e_matches, s_matches = set(), set()
 
     # Clean the input
     image_summary_info_cln = cln(image_summary_info)
 
-    # Define long form of references to ethnicity
-    long_form_ethnicities = [('caucasian', 'white'),
-                             ('black', 'african american'),
-                             ('latino',),
-                             ('hispanic',),
-                             ('asian',),
-                             ('native american',),
-                             ('pacific islander', 'pacific island'),
-                             ('first nations',),
-                             ('aboriginal',)]
+    def eth(ethnicity):
+        return ["{0} {1}".format(ethnicity, s) for s in ['adult', 'male', 'female']]
 
-    for i in long_form_ethnicities:
-        for j in i:
+    # Define long form of references to ethnicity
+    long_form_ethnicities = {
+        'caucasian': ['caucasian'] + eth('white'),
+        'black': ['african american'] + eth('black'),
+        'latino': ['latino'],
+        'asian': ['asian'],
+        'native american': ['native american'],
+        'pacific islander': ['pacific islander'],
+        'first nations': ['first nations'],
+        'aboriginal': ['aboriginal']
+    }
+
+    for k, v in long_form_ethnicities.items():
+        for j in v:
             if j in image_summary_info_cln.lower():
                 if not ('caucasian' in e_matches and j == 'asian'):  # 'asian' is a substring in 'caucasian'.
-                    e_matches.add(i[0])
+                    e_matches.add(k)
 
-    # Define short form of references to ethnicity
-    short_form_ethnicities = [(' AM ', 'asian', 'male'), (' AF ', 'asian', 'female'),
-                              (' BM ', 'black', 'male'), (' BF ', 'black', 'female'),
+    # Define short form of references to ethnicity. ToDo: use regex to anchor text.
+    short_form_ethnicities = [(' BM ', 'black', 'male'), (' BF ', 'black', 'female'),
                               (' WM ', 'caucasian', 'male'), (' WF ', 'caucasian', 'female')]
 
     for (abbrev, eth, sex) in short_form_ethnicities:
@@ -346,7 +348,6 @@ def _ethnicity_guess_engine(image_summary_info):
             e_matches.add(eth)
             s_matches.add(sex)
 
-    # Render output
     patient_ethnicity = list(e_matches)[0] if len(e_matches) == 1 else None
     patient_sex = list(s_matches)[0] if len(s_matches) == 1 else None
 
