@@ -106,7 +106,7 @@ def _abstract_parser(abstract):
                 # Look for Value
                 contents = p.contents
                 if len(contents) == 2 and all(isinstance(c, str) for c in contents):
-                    value = contents[-1].strip(";")
+                    value = cln(contents[-1]).strip(";")
                     if isinstance(value, str) and len(value):
                         parsed_abstract[key] = cln(unescape(value))
 
