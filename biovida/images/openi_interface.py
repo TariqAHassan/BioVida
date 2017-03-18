@@ -1131,7 +1131,7 @@ class OpeniInterface(object):
              images_sleep_time=(10, 1.5),
              download_limit=100,
              check_cache_first=True,
-             clinical_cases_only=True,
+             clinical_cases_only=False,
              use_image_caption=False):
         """
 
@@ -1195,7 +1195,7 @@ class OpeniInterface(object):
         :type check_cache_first: ``bool``
         :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,
                                     this parameter requires that 'article_type' is one of: 'encounter', 'case_report'.
-                                    Defaults to ``True``.
+                                    Defaults to ``False``.
 
                     .. note::
 
