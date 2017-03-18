@@ -1022,6 +1022,7 @@ class OpeniInterface(object):
         :type path: ``str``
         """
         self.records_db = pd.read_pickle(path)
+        self._pull_time = self.records_db['pull_time'].unique()[0]
 
     @property
     def records_db_short(self):
@@ -1115,7 +1116,6 @@ class OpeniInterface(object):
                                      exclusions=exclusions,
                                      print_results=print_results)
 
-        # Save the search to the 'outer' class instance
         self.current_query = search['query']
         self.current_search_url = search['search_url']
         self.current_search_total = search['current_search_total']
@@ -1212,10 +1212,8 @@ class OpeniInterface(object):
         if self.current_query is None:
             raise ValueError("`search()` must be called before `pull()`.")
 
-        # Note the time the pull request was made
         self._pull_time = datetime.now()
 
-        # Pull Records
         if new_records_pull:
             self.records_db = self._Records.records_pull(search_url=self.current_search_url,
                                                          to_harvest=self._current_search_to_harvest,
@@ -1226,9 +1224,7 @@ class OpeniInterface(object):
                                                          clinical_cases_only=clinical_cases_only,
                                                          download_limit=download_limit)
 
-        # Pull Images
         if isinstance(image_size, str):
-            # Pull the images.
             self.records_db = self._Images.pull_images(records_db=self.records_db,
                                                        image_size=image_size,
                                                        pull_time=self._pull_time.strftime(TIME_FORMAT),
@@ -1239,8 +1235,6 @@ class OpeniInterface(object):
             # Add the new records_db datafame with the existing `cache_records_db`.
             self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
                                                  records_db_update=self.records_db)
-
-            # Delete the 'databases/__temp__' folder.
             shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
 
         return self.records_db
