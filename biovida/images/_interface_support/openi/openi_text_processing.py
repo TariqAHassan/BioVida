@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from bs4 import BeautifulSoup
+from collections import Counter
 
 # General Support tools
 from biovida.support_tools.support_tools import cln
@@ -31,6 +32,9 @@ from biovida.images._interface_support.openi._openi_text_feature_extraction impo
 
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+
+# Start tqdm
+tqdm.pandas(desc='status')
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -249,6 +253,38 @@ def _data_frame_clean(data_frame, verbose):
 
 
 # ----------------------------------------------------------------------------------------------------------
+# Image Caption Count Analysis
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _unique_image_caption_dict_gen(data_frame, verbose):
+    """
+
+    :param data_frame:
+    :param verbose:
+    :return:
+    """
+    large_data_frame = 25000
+
+    def counter_wrapper(l):
+        l_cleaned = filter(lambda x: isinstance(x, str) and len(cln(x)), l)
+        count_dict = dict(Counter(l_cleaned))
+        return {k: v == 1 for k, v in count_dict.items()} if count_dict else None
+
+    def counter_wrapper_apply(row):
+        return counter_wrapper(row['image_caption'].tolist())
+
+    if len(data_frame) >= large_data_frame:
+        if verbose:
+            print("\n\nAnalyzing Image Caption Frequency...")
+        d = data_frame.groupby('uid').progress_apply(counter_wrapper_apply).to_dict()
+    else:
+        d = data_frame.groupby('uid').apply(counter_wrapper_apply).to_dict()
+
+    return {k: v for k, v in d.items() if v is not None}
+
+
+# ----------------------------------------------------------------------------------------------------------
 # Outward Facing Tool
 # ----------------------------------------------------------------------------------------------------------
 
@@ -272,13 +308,9 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
     :return: see description.
     :rtype:  ``Pandas DataFrame``
     """
-    # Convert column names to snake_case
     data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
-
-    # Add potentially missing columns
     data_frame = _df_add_missing_columns(data_frame)
 
-    # Look up the article type
     data_frame['article_type'] = data_frame['article_type'].map(article_type_lookup, na_action='ignore')
 
     if clinical_cases_only:
@@ -287,14 +319,24 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
     # Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
     data_frame = _df_make_hashable(data_frame)
 
-    # Obtain a list of disease names
     list_of_diseases = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()['name'].tolist()
+    unique_image_caption_dict = _unique_image_caption_dict_gen(data_frame=data_frame, verbose=verbose)
+
+    def feature_extract_wrapper(row):
+        caption_unique_bool = unique_image_caption_dict.get(row['uid'], {}).get(row['image_caption'], False)
+        return feature_extract(row, list_of_diseases=list_of_diseases, image_caption_unique=caption_unique_bool)
 
     # Run Feature Extracting Tool and Join with `data_frame`.
     if verbose:
         print("\n\nExtracting Features from Text...\n")
-    extract = [feature_extract(row, list_of_diseases) for _, row in tqdm(data_frame.iterrows(), total=len(data_frame))]
-    data_frame = data_frame.join(pd.DataFrame(extract), how='left')
+    extract = [feature_extract_wrapper(row) for _, row in tqdm(data_frame.iterrows(), total=len(data_frame))]
+    extract_df = pd.DataFrame(extract)
+
+    if not any(c in data_frame.columns for c in extract_df.columns):
+        data_frame = data_frame.join(extract_df, how='left')
+    else:
+        for c in extract_df.columns:
+            data_frame[c] = extract_df[c]
 
     return _data_frame_clean(data_frame, verbose=verbose)
 

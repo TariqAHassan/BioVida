@@ -18,6 +18,7 @@ from biovida.images._interface_support.openi.openi_support_tools import multiple
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import unescape
+from biovida.support_tools.support_tools import order_set
 from biovida.support_tools.support_tools import multi_replace
 from biovida.support_tools.support_tools import remove_html_bullet_points
 
@@ -459,6 +460,8 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
     'pancreatitis'
 
     """
+    # ToDO: this is very computationally expensive and rather ineffective. Replace!
+
     possible_diseases = list()
     for e, source in enumerate((problems, title, background, image_caption, image_mention, abstract)):
         if isinstance(source, str) and len(source):
@@ -659,6 +662,9 @@ def _image_plane_guess(image_caption):
     :return: see description.
     :rtype: ``str`` or ``None``
     """
+    if not isinstance(image_caption, str):
+        return None
+
     image_caption_clean = cln(image_caption).lower()
     plane_terms = [['axial', 'transverse'], ['coronal'], ['sagittal']]
     planes = [p[0] for p in plane_terms if any(i in image_caption_clean for i in p)]
@@ -754,9 +760,12 @@ def _enumerations_test(l):
     # If the above check yielded a False, ``l`` must be junk, e.g., ``['a', 'ml', 'jp']``.
     elif all(i.isalpha() for i in l):
         return False
-    # Check for numeric enumeration
-    elif list(l) == list(map(str, range(1, len(l) + 1))):
+    # Check for numeric enumeration, e.g., ['1', '2', '3', '4'].
+    elif order_set(l) == list(map(str, range(1, len(l) + 1))):
         return True
+    # Block simple enumerations that do not start at 1, e.g., ['2', '3', '4'].
+    elif all(i.isdigit() for i in l):
+        return False
     # Check for a combination
     elif all(alnum_check(i) for i in l):
         return True
@@ -781,7 +790,7 @@ def _enumerations_guess(image_caption, enumerations_grid_threshold):
     image_caption_clean_lower = cln(image_caption_reduced_confusion, extent=2).lower()
 
     # Check for markers of enumeration like '(a-e)', '(a,e)', '(b and c)'.
-    match_on = ["[(|\[][a-z]" + i + "[a-z][)|\]]" for i in ("-", ",", "and")] + ["[a-z]~[a-z]"]
+    match_on = ["[(|\[][a-z]" + i + "[a-z][)|\]]" for i in ("-", "and")] + ["[a-z]~[a-z]"]
     for regex in match_on:
         if len(re.findall(regex, image_caption_clean_lower)):
             return True
@@ -833,7 +842,7 @@ def _markers_guess(image_caption):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
+def _problematic_image_features(image_caption, image_caption_unique, enumerations_grid_threshold=2):
     """
 
     Currently determines whether or not the image contains
@@ -841,6 +850,8 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
 
     :param image_caption: an element from the 'image_caption' column.
     :type image_caption: ``str``
+    :param image_caption_unique:
+    :type image_caption_unique: ``bool``
     :param enumerations_grid_threshold: the number of enumerations required to 'believe' the image is actually a
                                         'grid' of images, e.g., '1a. here we. 1b, rather' would suffice if this
                                         parameter is equal to `2`.
@@ -854,7 +865,7 @@ def _problematic_image_features(image_caption, enumerations_grid_threshold=2):
     ...
     ('arrows', 'asterisks', 'grids')
     """
-    if not isinstance(image_caption, str) or not len(cln(image_caption, extent=2)):
+    if not image_caption_unique or not isinstance(image_caption, str) or not len(cln(image_caption, extent=2)):
         return None
 
     features = []
@@ -897,7 +908,7 @@ def _background_extract(d):
     return background
 
 
-def feature_extract(x, list_of_diseases):
+def feature_extract(x, list_of_diseases, image_caption_unique):
     """
 
     Tool to extract text features from patient summaries.
@@ -915,6 +926,8 @@ def feature_extract(x, list_of_diseases):
     :type x: ``Pandas Series``
     :param list_of_diseases: a list of diseases (e.g., via ``DiseaseOntInterface().pull()['name'].tolist()``)
     :type list_of_diseases: ``list``
+    :param image_caption_unique:
+    :type image_caption_unique: ``bool``
     :return: dictionary with the keys listed in the description.
     :rtype: ``dict``
     """
@@ -923,10 +936,7 @@ def feature_extract(x, list_of_diseases):
     unpacked_values = [x[c] for c in ('abstract', 'problems', 'title', 'image_caption', 'image_mention')]
     abstract, problems, title, image_caption, image_mention = unpacked_values
 
-    # Initialize by converting the abstract into a dictionary
     d = {'parsed_abstract': _abstract_parser(abstract)}
-
-    # Extract the background/history
     background = _background_extract(d)
 
     # Extract diagnosis -- will typically only work for MedPix images
@@ -947,10 +957,9 @@ def feature_extract(x, list_of_diseases):
 
     d['imaging_modality_from_text'] = _imaging_modality_guess(abstract, image_caption, image_mention)
     d['image_plane'] = _image_plane_guess(image_caption)
-    d['image_problems_from_text'] = _problematic_image_features(image_caption)
+    d['image_problems_from_text'] = _problematic_image_features(image_caption, image_caption_unique)
     d['ethnicity'], eth_sex = _ethnicity_guess(background, abstract, image_caption, image_mention)
 
-    # Try to Extract Age from Ethnicity analysis
     if d['sex'] is None and eth_sex is not None:
         d['sex'] = eth_sex
 

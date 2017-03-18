@@ -17,17 +17,7 @@ from biovida.support_tools._support_data import ages_as_tuples_rev
 # Regex for ``extract_float()``
 non_decimal = re.compile(r'[^\d.]+')
 
-
-def _age_word_regex(age_num_word):
-    mold = "(^| ){0}( |,|\.|\?|!|$)"
-    if '-' not in age_num_word:
-        to_compile = mold.format(age_num_word)
-    else:
-        to_compile = mold.format(age_num_word.replace("-", "[-| ]"))
-    return re.compile(to_compile, flags=re.I)
-
-
-_age_match = tuple([(" {0} ".format(n), _age_word_regex(w)) for w, n in ages_as_tuples_rev])
+ages_as_tuples_rev_spaced = [(" {0} ".format(w), str(n)) for (w, n) in ages_as_tuples_rev]
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -242,13 +232,20 @@ def num_word_to_int(input_str):
     >>> num_word_to_int(input_str="Robust one-shot learning is one of the ultimate goal of AI research.")
     'Robust one-shot learning is 1 of the ultimate goal of AI research.'
     """
-    # ToDo: faster solutions are surely possible...Without this step,
-    #       biovida.images._interface_support.openi._openi_text_feature_extraction is ~4x faster.
-    # Note: the reversal (ages_as_tuples_rev) ensures that 'twenty five' yields '25', not '20 5'.
-    input_str_clean = " ".join(input_str.split()).strip()
-    for (n, w) in _age_match:
-        input_str_clean = re.sub(w, n, input_str_clean)
-    return " ".join(input_str_clean.split()).strip()
+    # Note: this is rather crude, but far faster than the prior regex solution.
+
+    input_str_clean = " ".join(input_str.split()).strip().strip(".").strip(";")
+    input_str_formatted = " {0} ".format(input_str_clean)
+
+    for (w, n) in ages_as_tuples_rev_spaced:
+        formmated_n = " {0} ".format(n)
+        input_str_formatted = input_str_formatted.replace(w, formmated_n)
+        input_str_formatted = input_str_formatted.replace(w.replace("-", " "), formmated_n)
+
+        formmated_n = " {0}".format(n)
+        input_str_formatted = input_str_formatted.replace("{0},".format(w.rstrip()), formmated_n)
+        input_str_formatted = input_str_formatted.replace("{0},".format(w.replace("-", " ").rstrip()), formmated_n)
+    return " ".join(input_str_formatted.split())
 
 
 def url_path_extract(url):

@@ -46,6 +46,22 @@ def dict_reverse(d):
     return {v: k for k, v in d.items()}
 
 
+def order_set(l):
+    """
+
+    Reduce ``l`` to uniques while preserving order.
+
+    :param l: an iterable
+    :type l: ``iterable``
+    :return: see description.
+    """
+    to_return = list()
+    for i in l:
+        if i not in to_return:
+            to_return.append(i)
+    return to_return
+
+
 def is_int(i):
     """
 
