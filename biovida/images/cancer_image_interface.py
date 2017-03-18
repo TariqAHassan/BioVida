@@ -1180,7 +1180,11 @@ class CancerImageInterface(object):
         :type path: ``str``
         """
         self.records_db = pd.read_pickle(path)
-        self._pull_time = self.records_db['pull_time'].unique()[0]
+        self._pull_time = self.records_db['pull_time'].iloc[0]
+        last_query = self.records_db['query'].iloc[0]
+        last_query['print_results'] = False
+        last_query['download_override'] = False
+        self.search(**last_query)
 
     @property
     def records_db_short(self):

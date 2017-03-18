@@ -1022,7 +1022,10 @@ class OpeniInterface(object):
         :type path: ``str``
         """
         self.records_db = pd.read_pickle(path)
-        self._pull_time = self.records_db['pull_time'].unique()[0]
+        self._pull_time = self.records_db['pull_time'].iloc[0]
+        last_query = self.records_db['query'].iloc[0]
+        last_query['print_results'] = False
+        self.search(**last_query)
 
     @property
     def records_db_short(self):
@@ -1209,8 +1212,10 @@ class OpeniInterface(object):
         :rtype: ``Pandas DataFrame``
         :raises ``ValueError``: if ``search()`` has not been called.
         """
-        if self.current_query is None:
+        if self.records_db is None and new_records_pull:
             raise ValueError("`search()` must be called before `pull()`.")
+        elif not new_records_pull and isinstance(image_size, str) and not isinstance(self.records_db, pd.DataFrame):
+            raise TypeError("`records_db` is not a dataframe.")
 
         self._pull_time = datetime.now()
 
