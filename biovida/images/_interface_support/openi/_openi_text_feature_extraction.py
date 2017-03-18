@@ -850,7 +850,7 @@ def _problematic_image_features(image_caption, image_caption_unique, enumeration
 
     :param image_caption: an element from the 'image_caption' column.
     :type image_caption: ``str``
-    :param image_caption_unique:
+    :param image_caption_unique: whether or not the caption is unique with respect to the 'uid'.
     :type image_caption_unique: ``bool``
     :param enumerations_grid_threshold: the number of enumerations required to 'believe' the image is actually a
                                         'grid' of images, e.g., '1a. here we. 1b, rather' would suffice if this
@@ -865,6 +865,8 @@ def _problematic_image_features(image_caption, image_caption_unique, enumeration
     ...
     ('arrows', 'asterisks', 'grids')
     """
+    # Note: if ``image_caption_unique`` is not true, then the caption likely do not refer to the
+    # current image, but with multiple images for the given 'uid'.
     if not image_caption_unique or not isinstance(image_caption, str) or not len(cln(image_caption, extent=2)):
         return None
 
@@ -926,7 +928,7 @@ def feature_extract(x, list_of_diseases, image_caption_unique):
     :type x: ``Pandas Series``
     :param list_of_diseases: a list of diseases (e.g., via ``DiseaseOntInterface().pull()['name'].tolist()``)
     :type list_of_diseases: ``list``
-    :param image_caption_unique:
+    :param image_caption_unique: whether or not the caption is unique with respect to the 'uid'.
     :type image_caption_unique: ``bool``
     :return: dictionary with the keys listed in the description.
     :rtype: ``dict``

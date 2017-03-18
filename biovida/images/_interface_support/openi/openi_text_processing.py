@@ -260,11 +260,17 @@ def _data_frame_clean(data_frame, verbose):
 def _unique_image_caption_dict_gen(data_frame, verbose):
     """
 
-    :param data_frame:
-    :param verbose:
-    :return:
+    Generate a dictionary of the form:
+    ``{'uid': {'image caption goes here': unique (bool), ...}, ...}``
+
+    :param data_frame: as evolved in ``openi_raw_extract_and_clean()``
+    :type data_frame: ``Pandas DataFrame``
+    :param verbose: if ``True`` print additional details.
+    :type verbose: ``bool``
+    :return: see description
+    :rtype: ``dict``
     """
-    large_data_frame = 25000
+    large_data_frame = 25000  # after this number of rows, show a progress bar.
 
     def counter_wrapper(l):
         l_cleaned = filter(lambda x: isinstance(x, str) and len(cln(x)), l)
