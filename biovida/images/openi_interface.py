@@ -7,6 +7,7 @@
 # Imports
 import os
 import shutil
+import pickle
 import requests
 import numpy as np
 import pandas as pd
@@ -643,13 +644,9 @@ class _OpeniImages(object):
         self.image_save_location = image_save_location
         self._verbose = verbose
 
-        # Settings
-        self._check_cache_first = None
-
         # Database
         self.records_db_images = None
         self.real_time_update_db = None
-        self.real_time_update_db_path = None
 
         self.temp_directory_path = os.path.join(database_save_location, "__temp__")
 
@@ -672,24 +669,12 @@ class _OpeniImages(object):
         :param pull_time: see ``pull_images()``
         :type pull_time: ``str``
         """
-        # Define the path to save `self.real_time_update_db` to.
-        self.real_time_update_db_path = os.path.join(self.temp_directory_path, "{0}__update_db.p".format(pull_time))
-
         # Define columns
         real_time_update_columns = ['cached_images_path', 'download_success']
 
         # Instantiate
         db = pd.DataFrame(columns=real_time_update_columns, index=db_index).replace({np.NaN: None})
         self.real_time_update_db = db
-
-    def _save_real_time_update_db(self):
-        """
-
-        Save the ``real_time_update_db`` to disk.
-
-        """
-        # Save the `real_time_update_db` to disk.
-        self.real_time_update_db.to_pickle(self.real_time_update_db_path)
 
     def _image_titler(self, url, image_size):
         """
@@ -733,13 +718,9 @@ class _OpeniImages(object):
         :rtype: ``int``
         """
         image_downloaded = 0
-        check_first = self._check_cache_first
 
         def proceed_with_download(image_save_path):
-            if check_first:
-                return not os.path.isfile(image_save_path)
-            else:
-                return True
+            return not os.path.isfile(image_save_path)
 
         try:
             # Only download if the file does not already exist in the cache.
@@ -756,11 +737,9 @@ class _OpeniImages(object):
 
             self.real_time_update_db.set_value(index, 'cached_images_path', image_save_path)
             self.real_time_update_db.set_value(index, 'download_success', True)
-            self._save_real_time_update_db()
         except:
             self.real_time_update_db.set_value(index, 'cached_images_path', np.NaN)
             self.real_time_update_db.set_value(index, 'download_success', False)
-            self._save_real_time_update_db()
 
         return image_downloaded
 
@@ -803,7 +782,12 @@ class _OpeniImages(object):
                 sleep_with_noise(amount_of_time=images_sleep_time[1])
                 download_count = 0  # reset
 
-    def pull_images(self, records_db, image_size, pull_time, images_sleep_time, check_cache_first, use_image_caption):
+    def pull_images(self,
+                    records_db,
+                    image_size,
+                    pull_time,
+                    images_sleep_time,
+                    use_image_caption):
         """
 
         Pull images based in ``records_db``.
@@ -818,11 +802,6 @@ class _OpeniImages(object):
                                    Note: noise is randomly added to the sleep time by sampling from a normal distribution
                                    (with mean = 0, sd = 0.75).
         :type images_sleep_time: ``tuple``
-        :param check_cache_first: check the image cache for the image prior to downloading.
-                                  If ``True`` and the image is already present, no attempt will be made to download it
-                                  again. If ``False`` the image will be downloaded regardless of whether or not it is
-                                  detected in the cache.
-        :type check_cache_first: ``bool``
         :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
                                   a dataset intended for machine learning. Defaults to ``False``.
@@ -830,12 +809,11 @@ class _OpeniImages(object):
         :return: `records_db` with the addition of `cached_images_path` and `download_success` columns.
         :rtype: ``Pandas DataFrame``
         """
-        self._check_cache_first = check_cache_first
         self._create_temp_directory_path()
         self.records_db_images = records_db.copy(deep=True)
-        
-        # Save `records_db_images` to the __temp__ folder
-        self.records_db_images.to_pickle(os.path.join(self.temp_directory_path, "{0}__records_db.p".format(pull_time)))
+
+        self.settings_path = os.path.join(self.temp_directory_path, "image_pull_settings.p")
+        pickle.dump({k: v for k, v in locals().items() if k != 'self'}, open(self.settings_path, "wb"))
 
         # Instantiate `self.real_time_update_db`
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index, pull_time=pull_time)
@@ -904,14 +882,15 @@ class OpeniInterface(object):
 
         """
         if os.path.isdir(self._Images.temp_directory_path):
-            # Load the latent database(s).
-            records_db_update = _load_temp_dbs(temp_db_path=self._Images.temp_directory_path)
-            if records_db_update is not None:
-                # Update `self.current_records_db`.
-                self._openi_cache_records_db_handler(current_records_db=self.cache_records_db,
-                                                     records_db_update=records_db_update)
-                # Delete the latent 'databases/__temp__' folder.
-                shutil.rmtree(self._cache_records_db_save_path, ignore_errors=True)
+            temp_dir = self._Images.temp_directory_path
+            latent_pickles = [os.path.join(temp_dir, i) for i in os.listdir(temp_dir) if i.endswith(".p")]
+            if len(latent_pickles):
+                settings_dict = pickle.load(open(latent_pickles[0], "rb"))
+                settings_dict_for_pull = {k: v for k, v in settings_dict.items() if k not in ['records_db', 'pull_time']}
+
+                print("\n\nResuming Download...")
+                self.load_records_db(records_db=settings_dict['records_db'])
+                self.pull(**settings_dict_for_pull, new_records_pull=False)
 
     def _openi_cache_records_db_handler(self, current_records_db, records_db_update):
         """
@@ -997,7 +976,7 @@ class OpeniInterface(object):
         else:
             self.cache_records_db = None
 
-        # Load in databases in 'databases/__temp__', if they exist
+        # Load in a latent database in 'databases/__temp__', if one exists
         self._latent_temp_dir()
 
     def save_records_db(self, path):
@@ -1013,19 +992,21 @@ class OpeniInterface(object):
         save_path = "{0}.p" if not path.endswith(".p") else path
         self.records_db.to_pickle(save_path)
 
-    def load_records_db(self, path):
+    def load_records_db(self, records_db):
         """
 
         Load a ``records_db``
 
-        :param path: a system path.
-        :type path: ``str``
+        :param records_db: a system path or ``records_db`` itself.
+        :type records_db: ``str``
         """
-        self.records_db = pd.read_pickle(path)
+        if isinstance(records_db, pd.DataFrame):
+            self.records_db = records_db
+        else:
+            self.records_db = pd.read_pickle(records_db)
         self._pull_time = self.records_db['pull_time'].iloc[0]
         last_query = self.records_db['query'].iloc[0]
-        last_query['print_results'] = False
-        self.search(**last_query)
+        self.search(**last_query, print_results=False)
 
     @property
     def records_db_short(self):
@@ -1130,7 +1111,6 @@ class OpeniInterface(object):
              records_sleep_time=(10, 1.5),
              images_sleep_time=(10, 1.5),
              download_limit=100,
-             check_cache_first=True,
              clinical_cases_only=False,
              use_image_caption=False):
         """
@@ -1189,10 +1169,6 @@ class OpeniInterface(object):
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 100.
         :type download_limit: ``int``
-        :param check_cache_first: check the image cache for the image prior to downloading.
-                                  If ``True`` and the image is already present, no attempt will be made to download it
-                                  again.
-        :type check_cache_first: ``bool``
         :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,
                                     this parameter requires that 'article_type' is one of: 'encounter', 'case_report'.
                                     Defaults to ``False``.
@@ -1217,7 +1193,8 @@ class OpeniInterface(object):
         elif not new_records_pull and isinstance(image_size, str) and not isinstance(self.records_db, pd.DataFrame):
             raise TypeError("`records_db` is not a dataframe.")
 
-        self._pull_time = datetime.now()
+        if new_records_pull is not False:
+            self._pull_time = datetime.now()
 
         if new_records_pull:
             self.records_db = self._Records.records_pull(search_url=self.current_search_url,
@@ -1234,7 +1211,6 @@ class OpeniInterface(object):
                                                        image_size=image_size,
                                                        pull_time=self._pull_time.strftime(TIME_FORMAT),
                                                        images_sleep_time=images_sleep_time,
-                                                       check_cache_first=check_cache_first,
                                                        use_image_caption=use_image_caption)
 
             # Add the new records_db datafame with the existing `cache_records_db`.
