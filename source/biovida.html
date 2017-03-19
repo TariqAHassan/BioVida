@@ -319,13 +319,13 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.load_records_db">
-<code class="descname">load_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.load_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.load_records_db" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_records_db</code><span class="sig-paren">(</span><em>records_db</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.load_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.load_records_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a <code class="docutils literal"><span class="pre">records_db</span></code></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
 </tr>
 </tbody>
 </table>
@@ -412,7 +412,7 @@ is not currently recommended.</p>
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=100</em>, <em>check_cache_first=True</em>, <em>clinical_cases_only=True</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=100</em>, <em>clinical_cases_only=False</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <p>In addition to the columns provided by Open-i, this method will automatically generate the
 following columns by analyzing the pulled data:</p>
@@ -468,13 +468,10 @@ Note: noise is randomly added to the sleep time by sampling from a normal distri
 (with mean = 0, sd = 0.75).</li>
 <li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
 (not recommended). Defaults to 100.</li>
-<li><strong>check_cache_first</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; check the image cache for the image prior to downloading.
-If <code class="docutils literal"><span class="pre">True</span></code> and the image is already present, no attempt will be made to download it
-again.</li>
 <li><strong>clinical_cases_only</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <dl class="docutils">
 <dt>if <code class="docutils literal"><span class="pre">True</span></code> require that the data harvested is of a clinical case. Specifically,</dt>
 <dd>this parameter requires that &#8216;article_type&#8217; is one of: &#8216;encounter&#8217;, &#8216;case_report&#8217;.
-Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</dd>
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</dd>
 </dl>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

@@ -257,10 +257,12 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span> <span class="n">model_location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_to_extract</span> <span class="o">=</span> <span class="n">db_to_extract</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">known_image_problems</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;arrows&#39;</span><span class="p">,</span> <span class="s1">&#39;asterisks&#39;</span><span class="p">,</span> <span class="s1">&#39;grids&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;OpeniInterface&quot;</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`instance` must be a `OpeniInterface` instance.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="n">instance</span>
 
         <span class="c1"># Extract the records_db/cache_records_db database</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_db</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">)</span>
@@ -811,22 +813,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_print_update</span> <span class="o">=</span> <span class="kc">False</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_invalidity_image_test</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">image_problem_threshold</span><span class="p">,</span> <span class="n">problems_to_ignore</span><span class="p">,</span> <span class="n">valid_floor</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_invalid_image_tests</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">image_problem_threshold</span><span class="p">,</span> <span class="n">problems_to_ignore</span><span class="p">,</span> <span class="n">valid_floor</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Test if ``row`` is an invalid image.</span>
+<span class="sd">        Tests to determine if ``row`` references an image with properties and/or features</span>
+<span class="sd">        likely to be problematic when training a model.</span>
 
-<span class="sd">        :param row: as passed by ``pandas.DataFrame.apply(func, axis=1)``</span>
-<span class="sd">        :type row: ``Pandas Series`</span>
-<span class="sd">        :param image_problem_threshold: see ``auto_decision()`</span>
+<span class="sd">        :param row: as passed by ``pandas.DataFrame.apply(func, axis=1)``.</span>
+<span class="sd">        :type row: ``Pandas Series``</span>
+<span class="sd">        :param image_problem_threshold: see ``auto_decision()``.</span>
 <span class="sd">        :type image_problem_threshold: ``float``</span>
-<span class="sd">        :param problems_to_ignore: see ``auto_decision()`</span>
+<span class="sd">        :param problems_to_ignore: see ``auto_decision()``.</span>
 <span class="sd">        :type problems_to_ignore: ``None``, ``list`` or ``tuple``</span>
-<span class="sd">        :param valid_floor: see ``auto_decision()`</span>
+<span class="sd">        :param valid_floor: see ``auto_decision()``.</span>
 <span class="sd">        :type valid_floor: ``float``</span>
 <span class="sd">        :return: a list of the form ``[invalid image (boolean), reasons for decision if the former is True]``, wrapped</span>
-<span class="sd">                 in a pandas series so it can be neatly split into two columns when ``_invalidity_image_test()``</span>
-<span class="sd">                 is used with ``.apply()``.</span>
+<span class="sd">                 in a pandas series so it can be neatly split into two columns when called via. ``DataFrame.apply()``.</span>
 <span class="sd">        :rtype: ``Pandas Series``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">image_problems_from_text_test</span><span class="p">(</span><span class="n">ipft</span><span class="p">):</span>
@@ -899,7 +901,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`problems_to_ignore` must be a `string`, `list` or `tuple`.&quot;</span><span class="p">)</span>
 
         <span class="n">test_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invalidity_image_test</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">image_problem_threshold</span><span class="p">,</span> <span class="n">problems_to_ignore</span><span class="p">,</span> <span class="n">valid_floor</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invalid_image_tests</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">image_problem_threshold</span><span class="p">,</span> <span class="n">problems_to_ignore</span><span class="p">,</span> <span class="n">valid_floor</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;invalid_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;invalid_image_reasons&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span></div>
 
