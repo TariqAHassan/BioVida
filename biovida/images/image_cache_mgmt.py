@@ -360,8 +360,9 @@ def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
 _image_instance_image_columns = {
     # Note: the first item should be the default.
     'OpeniInterface': ('cached_images_path',),
-    'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path'),
+    'ImageProcessing': ('cached_images_path',),
     'unify_against_images': ('cached_images_path',),
+    'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path')
 }
 
 
@@ -415,9 +416,12 @@ def _pretty_print_image_delete(deleted_rows, verbose):
     :type verbose: ``bool``
     """
     if deleted_rows and verbose:
-        print("\nSummary of Deleted Rows:\n")
+        print("\nIndices of Deleted Rows:\n")
         to_print = pd.DataFrame.from_dict(deleted_rows, orient='index').T  # handles when values are of unequal length.
-        pandas_pprint(to_print[sorted(to_print.columns, reverse=True)], full_rows=True, suppress_index=True)
+        if len(to_print):
+            pandas_pprint(to_print[sorted(to_print.columns, reverse=True)], full_rows=True, suppress_index=True)
+        else:
+            print("\nNo Rows Deleted.")
 
 
 def image_delete(instance, delete_rule, verbose=True):
@@ -466,43 +470,74 @@ def image_delete(instance, delete_rule, verbose=True):
         **All other output will be ignored**.
 
     """
+    # ToDo: refactor. This function is very cumbersome.
     index_dict = dict()
     _double_check_with_user()
 
-    delete_all = False
     if isinstance(delete_rule, str):
         if cln(delete_rule).lower() == 'all':
             delete_all = True
         else:
             raise ValueError("`delete_rule` must be 'all' or a `function`.")
+    else:
+        delete_all = False
+
+    image_columns = _image_instance_image_columns[instance.__class__.__name__]
 
     def delete_rule_wrapper(row, enact):
         """Wrap delete_rule to ensure the output is a boolean."""
         do_delete = delete_rule(row) if callable(delete_rule) else False
         if delete_all or (isinstance(do_delete, bool) and do_delete is True):
             if enact:
-                for c in _image_instance_image_columns[instance.__class__.__name__]:
+                for c in image_columns:
                     _robust_delete(row[c])
             return False  # drop row from the dataframe
         else:
             return True   # keep row in the dataframe
 
-    if isinstance(instance.records_db, pd.DataFrame):
-        index_dict['records_db'] = {'before': instance.records_db.index.tolist()}
-        to_conserve = instance.records_db.apply(lambda r: delete_rule_wrapper(r, enact=False), axis=1)
-        instance.records_db = instance.records_db[to_conserve.tolist()].reset_index(drop=True)
-        index_dict['records_db']['after'] = instance.records_db.index.tolist()
-    if isinstance(instance.cache_records_db, pd.DataFrame):
-        index_dict['cache_records_db'] = {'before': instance.cache_records_db.index.tolist()}
-        # Apply ``delete_rule`` to ``cache_records_db``.
-        _ = instance.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
-        # Prune ``cache_records_db`` by inspecting which images have been deleted.
-        instance._load_prune_cache_records_db(load=False)
-        instance.cache_records_db = _relationship_mapper(instance.cache_records_db, instance.__class__.__name__)
-        instance._save_cache_records_db()
-        index_dict['cache_records_db']['after'] = instance.cache_records_db.index.tolist()
+    def index_dict_update(data_frame_name, stage, data_frame):
+        if stage == 'before':
+            index_dict[data_frame_name] = {stage: data_frame.index.tolist()}
+        elif stage == 'after':
+            index_dict[data_frame_name][stage] = data_frame.index.tolist()
+
+    def non_cache_db(data_frame_name, data_frame, enact):
+        """Handle `records_db` and `image_dataframe`."""
+        index_dict_update(data_frame_name, stage='before', data_frame=data_frame)
+        to_conserve = data_frame.apply(lambda r: delete_rule_wrapper(r, enact=enact), axis=1).tolist()
+        data_frame = data_frame[to_conserve].reset_index(drop=True)
+        index_dict_update(data_frame_name, stage='after', data_frame=data_frame)
+        return data_frame, to_conserve
+
+    if instance.__class__.__name__ == 'ImageProcessing':
+        instance.image_dataframe, to_conserve = non_cache_db('image_dataframe', instance.image_dataframe, enact=True)
+        if instance.db_to_extract == 'records_db':
+            instance.instance.records_db = instance.instance.records_db[to_conserve].reset_index(drop=True)
+        elif isinstance(instance.instance.records_db, pd.DataFrame):
+            index_dict_update('records_db', 'before', data_frame=instance.instance.records_db)
+            to_conserve = instance.instance.records_db[image_columns[0]].map(
+                lambda x: os.path.isfile(x) if isinstance(x, str) else False)
+            instance.instance.records_db = instance.instance.records_db[to_conserve].reset_index(drop=True)
+            index_dict_update('records_db', 'after', data_frame=instance.instance.records_db)
+
+        if isinstance(instance.instance.cache_records_db, pd.DataFrame):
+            index_dict_update('cache_records_db', 'before', data_frame=instance.instance.cache_records_db)
+            instance.instance._load_prune_cache_records_db(load=False)
+            index_dict_update('cache_records_db', 'after', data_frame=instance.instance.cache_records_db)
+        else:
+            raise TypeError("`cache_record_db` is not a DataFrame.")
     else:
-        raise TypeError("`cache_record_db` is not a DataFrame.")
+        if isinstance(instance.records_db, pd.DataFrame):
+            instance.records_db, _ = non_cache_db('records_db', instance.records_db, enact=False)
+        if isinstance(instance.cache_records_db, pd.DataFrame):
+            index_dict_update('cache_records_db', 'before', data_frame=instance.cache_records_db)
+            _ = instance.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
+            instance._load_prune_cache_records_db(load=False)
+            instance.cache_records_db = _relationship_mapper(instance.cache_records_db, instance.__class__.__name__)
+            instance._save_cache_records_db()
+            index_dict_update('cache_records_db', 'after', data_frame=instance.cache_records_db)
+        else:
+            raise TypeError("`cache_record_db` is not a DataFrame.")
 
     deleted_rows = {k: sorted(set(v['before']) - set(v['after'])) for k, v in index_dict.items()}
     _pretty_print_image_delete(deleted_rows=deleted_rows, verbose=verbose)
