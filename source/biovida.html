@@ -996,20 +996,18 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ImageProcessing</span><span class="p">(</span><span class="n">opi</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
-<span class="gp">...</span>
-<span class="go"># Simple Save Rule</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;/your/path/here/images&#39;</span><span class="p">)</span>
-<span class="gp">...</span>
-<span class="go"># More Complex Save Rule</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_save_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;lung&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">]:</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="s1">&#39;/your/path/here/lung_images&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;heart&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">]:</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="s1">&#39;/your/path/here/heart_images&#39;</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">my_save_rule</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>A Simple Save Rule
+&gt;&gt;&gt; ip.save(&#8216;/your/path/here/images&#8217;)</p>
+<p>A More Complex Save Rule
+&gt;&gt;&gt; def my_save_rule(row):
+&gt;&gt;&gt;     if isinstance(row[&#8216;abstract&#8217;], str) and &#8216;lung&#8217; in row[&#8216;abstract&#8217;]:
+&gt;&gt;&gt;         return &#8216;/your/path/here/lung_images&#8217;
+&gt;&gt;&gt;     elif isinstance(row[&#8216;abstract&#8217;], str) and &#8216;heart&#8217; in row[&#8216;abstract&#8217;]:
+&gt;&gt;&gt;         return &#8216;/your/path/here/heart_images&#8217;
+...
+&gt;&gt;&gt; ip.save(my_save_rule)</p>
 </dd></dl>
 
 </dd></dl>
