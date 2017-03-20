@@ -16,7 +16,7 @@ from math import floor
 from copy import deepcopy
 from datetime import datetime
 
-from biovida import __version__
+from biovida import __version_numeric__
 
 # General Image Support Tools
 from biovida.images._image_tools import TIME_FORMAT
@@ -620,7 +620,7 @@ class _OpeniRecords(object):
         records_db['pull_time'] = [pull_time] * records_db.shape[0]
 
         # Add the Version of BioVida which generated the DataFrame
-        records_db['biovida_version'] = [__version__] * records_db.shape[0]
+        records_db['biovida_version'] = [__version_numeric__] * records_db.shape[0]
 
         self.records_db = records_db
 

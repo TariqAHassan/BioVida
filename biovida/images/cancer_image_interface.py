@@ -19,7 +19,7 @@ from time import sleep
 from warnings import warn
 from datetime import datetime
 
-from biovida import __version__
+from biovida import __version_numeric__
 
 # General Image Support Tools
 from biovida.images._image_tools import TIME_FORMAT
@@ -1516,7 +1516,7 @@ class CancerImageInterface(object):
         records_db = pd.concat(record_frames, ignore_index=True)
 
         # Add the Version of BioVida which generated the DataFrame
-        records_db['biovida_version'] = [__version__] * records_db.shape[0]
+        records_db['biovida_version'] = [__version_numeric__] * records_db.shape[0]
 
         # Download the images for all of the studies (collections)
         if isinstance(image_format, str):
