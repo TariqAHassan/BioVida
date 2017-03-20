@@ -1188,9 +1188,7 @@ class OpeniInterface(object):
         :rtype: ``Pandas DataFrame``
         :raises ``ValueError``: if ``search()`` has not been called.
         """
-        if self.records_db is None and new_records_pull:
-            raise ValueError("`search()` must be called before `pull()`.")
-        elif not new_records_pull and isinstance(image_size, str) and not isinstance(self.records_db, pd.DataFrame):
+        if not new_records_pull and not isinstance(self.records_db, pd.DataFrame):
             raise TypeError("`records_db` is not a dataframe.")
 
         if new_records_pull is not False:
