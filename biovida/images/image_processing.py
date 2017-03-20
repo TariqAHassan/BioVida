@@ -85,10 +85,12 @@ class ImageProcessing(object):
 
     def __init__(self, instance, db_to_extract='records_db', model_location=None, verbose=True):
         self._verbose = verbose
+        self.db_to_extract = db_to_extract
         self.known_image_problems = ('arrows', 'asterisks', 'grids')
 
         if "OpeniInterface" != type(instance).__name__:
             raise ValueError("`instance` must be a `OpeniInterface` instance.")
+        self.instance = instance
 
         # Extract the records_db/cache_records_db database
         self.image_dataframe = self._extract_db(instance, db_to_extract)
@@ -859,11 +861,11 @@ class ImageProcessing(object):
         ...
         >>> ip = ImageProcessing(opi)
         >>> ip.auto()
-        ...
-        # Simple Save Rule
+
+        A Simple Save Rule
         >>> ip.save('/your/path/here/images')
-        ...
-        # More Complex Save Rule
+
+        A More Complex Save Rule
         >>> def my_save_rule(row):
         >>>     if isinstance(row['abstract'], str) and 'lung' in row['abstract']:
         >>>         return '/your/path/here/lung_images'
