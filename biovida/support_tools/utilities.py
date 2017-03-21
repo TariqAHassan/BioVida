@@ -78,10 +78,10 @@ def _train_val_test_error_checking(data, target_dir, action, delete_source, grou
     min_number_of_files = len(tvt.keys()) * len(group_files_dict.keys())
     for k, v in group_files_dict.items():
         if len(v) < min_number_of_files:
-            raise InsufficientNumberOfFiles("\nThe '{0}' subdirectory in '{1}'\nonly contains {2} files, "
-                                            "which is too few to distribute over {3} target locations.\n"
-                                            "Calculation: len([{4}]) * len([{5}]) = {3}.".format(
-                                            k, data, len(v), min_number_of_files, ", ".join(tvt.keys()),
+            raise InsufficientNumberOfFiles("\nThe '{0}' subdirectory/subgroup only contains {1} files,\n"
+                                            "which is too few to distribute over {2} target locations.\n"
+                                            "Calculation: len([{3}]) * len([{4}]) = {2}.".format(
+                                            k, len(v), min_number_of_files, ", ".join(tvt.keys()),
                                             ", ".join(group_files_dict.keys())))
 
 
@@ -94,7 +94,7 @@ def _existing_files_dict_gen(directory, to_block):
     :type directory: ``str``
     :param to_block: a list of subdirectory names to ignore.
     :type to_block: ``iterable``
-    :return: a dictionary of the form: ``{subdirectory in ``directory``: [file_path, file_path, ...], ...}.
+    :return: a dictionary of the form: ``{subdirectory in ``directory``: [file_path, file_path, ...], ...}``.
     :rtype: ``dict``
     """
     directories = [i for i in os.listdir(directory) if os.path.isdir(os_join(directory, i))]
@@ -195,7 +195,7 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
         return {k: values_to_ndarrays(v) for k, v in status_outer(dictionary.items())}
 
 
-def _train_val_test_engine(action, tvt, group_files_dict, target_path):
+def _train_val_test_engine(action, tvt, group_files_dict, target_path, verbose):
     """
 
     Engine to power ``train_val_test()``.
@@ -204,13 +204,18 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path):
     :type action: ``str``
     :param tvt: as evolved in side ``train_val_test()``.
     :type tvt: ``dict``
-    :param group_files_dict: as evolved in side ``train_val_test()``.
+    :param group_files_dict: as evolved in side ``train_val_test()`` -- ``{'group': [file_path, file_path, ...], ...}``.
     :type group_files_dict: ``dict``
     :param target_path: see ``train_val_test()``.
     :type target_path: ``str``
+    :param verbose: see ``train_val_test()``.
+    :type verbose: ``bool``
     :return: a nested dictionary of the form ``{'train'/'val'/'test': {group_files_dict.key: [file, file, ...], ...}, ...}``.
     :rtype: ``dict``
     """
+    if verbose:
+        print("\nSplitting Data...")
+
     output_dict = dict()
     for k, v in group_files_dict.items():
         for k2, v2 in _list_divide(v, tvt):
@@ -406,8 +411,8 @@ def train_val_test(data,
     _train_val_test_error_checking(data=data, target_dir=target_dir, action=action,
                                    delete_source=delete_source, group_files_dict=group_files_dict, tvt=tvt)
 
-    output_dict = _train_val_test_engine(action=action, tvt=tvt,
-                                         group_files_dict=group_files_dict, target_path=target_path)
+    output_dict = _train_val_test_engine(action=action, tvt=tvt, group_files_dict=group_files_dict,
+                                         target_path=target_path, verbose=verbose)
 
     if verbose:
         print("\nStructure:\n")
@@ -422,28 +427,4 @@ def train_val_test(data,
         return output_dict
     elif action == 'ndarray':
         return _file_paths_dict_to_ndarrays(output_dict, dimensions=2, verbose=verbose)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
