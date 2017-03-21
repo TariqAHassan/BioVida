@@ -9,6 +9,7 @@ import os
 import shutil
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from warnings import warn
 from collections import Counter
 from collections import defaultdict
@@ -614,15 +615,13 @@ def _robust_copy(to_copy, copy_to, allow_creation, allow_overwrite):
                 copy_util(from_path=c)
 
 
-def _divvy_column_selector(instance, db_to_extract, image_column, data_frame):
+def _divvy_column_selector(instance, image_column, data_frame):
     """
 
     Select the column to use when copying images from.
 
     :param instance:  see ``image_divvy()``
     :type instance: ``OpeniInterface`` or ``CancerImageInterface``
-    :param db_to_extract: see ``image_divvy()``
-    :type db_to_extract: ``str``
     :param image_column: see ``image_divvy()``
     :type image_column: ``str``
     :param data_frame: as evolved inside  ``image_divvy()``.
@@ -631,15 +630,16 @@ def _divvy_column_selector(instance, db_to_extract, image_column, data_frame):
     :rtype: ``str``
     """
     if image_column is None:
-        return _image_instance_image_columns[instance.__class__.__name__][0]
+        return _image_instance_image_columns[type(instance).__name__][0]
     elif not isinstance(image_column, str):
         raise TypeError('`image_column` must be a string or `None`.')
     elif image_column in _image_instance_image_columns[instance.__class__.__name__]:
-        if image_column not in data_frame.columns:
-            raise KeyError("The '{0}' column is missing from '{1}'.".format(image_column, db_to_extract))
-        return image_column
+        if image_column in data_frame.columns:
+            return image_column
+        else:
+            raise KeyError("The '{0}' column is missing from the dataframe.".format(image_column))
     else:
-        raise KeyError("'{0}' is not a valid image column for '{1}'.".format(image_column, db_to_extract))
+        raise KeyError("'{0}' is not a valid image column.".format(image_column))
 
 
 def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to_use, create_dirs, allow_overwrite):
@@ -755,8 +755,8 @@ def image_divvy(instance,
     Grouping Cached Images.
 
     :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
-                     ``OpeniInterface`` or ``CancerImageInterface``.
-    :type instance: ``OpeniInterface`` or ``CancerImageInterface`` or ``Pandas DataFrame``
+                     ``OpeniInterface``, ``ImageProcessing`` or ``CancerImageInterface``.
+    :type instance: ``OpeniInterface``, ``ImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
     :type divvy_rule: ``function``
@@ -773,6 +773,10 @@ def image_divvy(instance,
                 - 'records_db': the dataframe resulting from the most recent ``search()`` & ``pull()`` (default).
                 - 'cache_records_db': the cache dataframe for ``instance``.
                 - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
+
+        .. note::
+
+            If an instance of ``ImageProcessing`` is passed, the dataframe will be extracted automatically.
 
     :type db_to_extract: ``str``
     :param train_val_test_dict: a dictionary denoting the proportions for any of: ``'train'``, ``'validation'`` and/or ``'test'``.
@@ -907,13 +911,18 @@ def image_divvy(instance,
     """
     _image_divvy_error_checking(divvy_rule=divvy_rule, action=action, train_val_test_dict=train_val_test_dict)
 
-    data_frame = getattr(instance, db_to_extract) if db_to_extract != 'unify_against_images' else instance
-    if not isinstance(data_frame, pd.DataFrame):
-        raise TypeError("{0} expected to be a DataFrame.\n"
-                        "Got an object of type: '{1}'.".format(db_to_extract, type(data_frame).__name__))
+    if type(instance).__name__ == 'ImageProcessing':
+        data_frame = instance.image_dataframe
+    elif db_to_extract == 'unify_against_images':
+        data_frame = instance
+    else:
+        data_frame = getattr(instance, db_to_extract)
 
-    # Define the column to copy images from.
-    column_to_use = _divvy_column_selector(instance, db_to_extract, image_column, data_frame)
+    if not isinstance(data_frame, pd.DataFrame):
+        raise TypeError("Expected a DataFrame.\n"
+                        "Got an object of type: '{0}'.".format(type(data_frame).__name__))
+
+    column_to_use = _divvy_column_selector(instance, image_column=image_column, data_frame=data_frame)
 
     divvy_rule_wrapper = _image_divvy_wrappers_gen(divvy_rule=divvy_rule, action=action,
                                                    train_val_test_dict=train_val_test_dict,
@@ -921,8 +930,10 @@ def image_divvy(instance,
                                                    allow_overwrite=allow_overwrite)
 
     def divvy_rule_apply():
+        if verbose:
+            print("\nApplying Divvy Rule...")
         divvy_info = list()
-        for _, row in data_frame.iterrows():
+        for _, row in tqdm(data_frame.iterrows(), total=len(data_frame)):
             target = divvy_rule_wrapper(row)
             if isinstance(target, list):
                 for t in target:
