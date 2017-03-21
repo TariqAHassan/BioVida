@@ -25,7 +25,7 @@ from biovida.images.models.image_classification import ImageClassificationCNN
 # ------------------------------------------------------------------------------------------
 
 
-def _image_rcognition_cnn_training(nb_epoch, training_data_path, save_name):
+def _image_recognition_cnn_training(nb_epoch, training_data_path, save_name):
     """
 
     Train the model.
@@ -46,8 +46,8 @@ def _image_rcognition_cnn_training(nb_epoch, training_data_path, save_name):
 
 save_name = input("Please enter the name of the file: ")
 iters = int(input("Please enter the number of iterations: "))
-training_data_path = int(input("Please enter the path to the training data: "))
-_image_rcognition_cnn_training(iters, training_data_path, save_name)
+training_data_path = input("Please enter the path to the training data: ")
+_image_recognition_cnn_training(iters, training_data_path, save_name)
 
 
 
