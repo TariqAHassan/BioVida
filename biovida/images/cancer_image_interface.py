@@ -46,7 +46,8 @@ from biovida.support_tools.printing import pandas_pprint
 # Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
 
-# Cancer Image Support tools
+# Interface Support tools
+from biovida.images._interface_support.shared import save_records_db
 from biovida.images._interface_support.dicom_data_to_dict import dicom_to_dict
 from biovida.images._interface_support.cancer_image.cancer_image_parameters import CancerImageArchiveParams
 from biovida.images._interface_support.cancer_image.cancer_image_support_tools import nonessential_cancer_image_columns
@@ -1166,10 +1167,7 @@ class CancerImageInterface(object):
         :param path: a system path ending with the '.p' file extension.
         :type path: ``str``
         """
-        if not isinstance(self.records_db, pd.DataFrame):
-            raise TypeError("`records_db` is not a DataFrame.")
-        save_path = "{0}.p" if not path.endswith(".p") else path
-        self.records_db.to_pickle(save_path)
+        save_records_db(data_frame=self.records_db, path=path)
 
     def load_records_db(self, path):
         """

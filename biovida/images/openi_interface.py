@@ -30,7 +30,8 @@ from biovida.images.image_cache_mgmt import _openi_image_relation_map
 from biovida.images.image_cache_mgmt import _record_update_dbs_joiner
 from biovida.images.image_cache_mgmt import _prune_rows_with_deleted_images
 
-# Open-i Support tools
+# Interface Support tools
+from biovida.images._interface_support.shared import save_records_db
 from biovida.images._interface_support.openi.openi_support_tools import iter_join
 from biovida.images._interface_support.openi.openi_support_tools import url_combine
 from biovida.images._interface_support.openi.openi_support_tools import null_convert
@@ -987,10 +988,7 @@ class OpeniInterface(object):
         :param path: a system path ending with the '.p' file extension.
         :type path: ``str``
         """
-        if not isinstance(self.records_db, pd.DataFrame):
-            raise TypeError("`records_db` is not a DataFrame.")
-        save_path = "{0}.p" if not path.endswith(".p") else path
-        self.records_db.to_pickle(save_path)
+        save_records_db(data_frame=self.records_db, path=path)
 
     def load_records_db(self, records_db):
         """
