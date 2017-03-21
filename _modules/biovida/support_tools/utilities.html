@@ -250,10 +250,10 @@
     <span class="n">min_number_of_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">group_files_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">group_files_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_number_of_files</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InsufficientNumberOfFiles</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The &#39;</span><span class="si">{0}</span><span class="s2">&#39; subdirectory in &#39;</span><span class="si">{1}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">only contains </span><span class="si">{2}</span><span class="s2"> files, &quot;</span>
-                                            <span class="s2">&quot;which is too few to distribute over </span><span class="si">{3}</span><span class="s2"> target locations.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                                            <span class="s2">&quot;Calculation: len([</span><span class="si">{4}</span><span class="s2">]) * len([</span><span class="si">{5}</span><span class="s2">]) = </span><span class="si">{3}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                            <span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">min_number_of_files</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+            <span class="k">raise</span> <span class="n">InsufficientNumberOfFiles</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The &#39;</span><span class="si">{0}</span><span class="s2">&#39; subdirectory/subgroup only contains </span><span class="si">{1}</span><span class="s2"> files,</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                            <span class="s2">&quot;which is too few to distribute over </span><span class="si">{2}</span><span class="s2"> target locations.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                            <span class="s2">&quot;Calculation: len([</span><span class="si">{3}</span><span class="s2">]) * len([</span><span class="si">{4}</span><span class="s2">]) = </span><span class="si">{2}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                            <span class="n">k</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">min_number_of_files</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
                                             <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group_files_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 
 
@@ -266,7 +266,7 @@
 <span class="sd">    :type directory: ``str``</span>
 <span class="sd">    :param to_block: a list of subdirectory names to ignore.</span>
 <span class="sd">    :type to_block: ``iterable``</span>
-<span class="sd">    :return: a dictionary of the form: ``{subdirectory in ``directory``: [file_path, file_path, ...], ...}.</span>
+<span class="sd">    :return: a dictionary of the form: ``{subdirectory in ``directory``: [file_path, file_path, ...], ...}``.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">directories</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">i</span><span class="p">))]</span>
@@ -367,7 +367,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">values_to_ndarrays</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">status_outer</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
 
 
-<span class="k">def</span> <span class="nf">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">target_path</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">target_path</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Engine to power ``train_val_test()``.</span>
@@ -376,13 +376,18 @@
 <span class="sd">    :type action: ``str``</span>
 <span class="sd">    :param tvt: as evolved in side ``train_val_test()``.</span>
 <span class="sd">    :type tvt: ``dict``</span>
-<span class="sd">    :param group_files_dict: as evolved in side ``train_val_test()``.</span>
+<span class="sd">    :param group_files_dict: as evolved in side ``train_val_test()`` -- ``{&#39;group&#39;: [file_path, file_path, ...], ...}``.</span>
 <span class="sd">    :type group_files_dict: ``dict``</span>
 <span class="sd">    :param target_path: see ``train_val_test()``.</span>
 <span class="sd">    :type target_path: ``str``</span>
+<span class="sd">    :param verbose: see ``train_val_test()``.</span>
+<span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :return: a nested dictionary of the form ``{&#39;train&#39;/&#39;val&#39;/&#39;test&#39;: {group_files_dict.key: [file, file, ...], ...}, ...}``.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Splitting Data...&quot;</span><span class="p">)</span>
+
     <span class="n">output_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">group_files_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">_list_divide</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">tvt</span><span class="p">):</span>
@@ -578,8 +583,8 @@
     <span class="n">_train_val_test_error_checking</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
                                    <span class="n">delete_source</span><span class="o">=</span><span class="n">delete_source</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="o">=</span><span class="n">group_files_dict</span><span class="p">,</span> <span class="n">tvt</span><span class="o">=</span><span class="n">tvt</span><span class="p">)</span>
 
-    <span class="n">output_dict</span> <span class="o">=</span> <span class="n">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="o">=</span><span class="n">tvt</span><span class="p">,</span>
-                                         <span class="n">group_files_dict</span><span class="o">=</span><span class="n">group_files_dict</span><span class="p">,</span> <span class="n">target_path</span><span class="o">=</span><span class="n">target_path</span><span class="p">)</span>
+    <span class="n">output_dict</span> <span class="o">=</span> <span class="n">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="o">=</span><span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="o">=</span><span class="n">group_files_dict</span><span class="p">,</span>
+                                         <span class="n">target_path</span><span class="o">=</span><span class="n">target_path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Structure:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -594,30 +599,6 @@
         <span class="k">return</span> <span class="n">output_dict</span>
     <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 </pre></div>
 

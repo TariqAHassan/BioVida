@@ -218,7 +218,8 @@
 <span class="c1"># Cache Management</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
 
-<span class="c1"># Cancer Image Support tools</span>
+<span class="c1"># Interface Support tools</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.shared</span> <span class="k">import</span> <span class="n">save_records_db</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.dicom_data_to_dict</span> <span class="k">import</span> <span class="n">dicom_to_dict</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.cancer_image.cancer_image_parameters</span> <span class="k">import</span> <span class="n">CancerImageArchiveParams</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.cancer_image.cancer_image_support_tools</span> <span class="k">import</span> <span class="n">nonessential_cancer_image_columns</span>
@@ -1338,10 +1339,7 @@
 <span class="sd">        :param path: a system path ending with the &#39;.p&#39; file extension.</span>
 <span class="sd">        :type path: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`records_db` is not a DataFrame.&quot;</span><span class="p">)</span>
-        <span class="n">save_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.p&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.p&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span></div>
+        <span class="n">save_records_db</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CancerImageInterface.load_records_db"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db">[docs]</a>    <span class="k">def</span> <span class="nf">load_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
