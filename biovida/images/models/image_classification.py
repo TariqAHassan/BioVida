@@ -197,7 +197,7 @@ class ImageClassificationCNN(object):
         except ImportError:
             raise ImportError("This method requires the 'convnets-keras' library.\n"
                               "This library can be installed by running the following command from the command line:\n"
-                              "$ pip install git+git://github.com/heuritech/convnets-keras@master")
+                              "$ pip install git+git://github.com/tariqahassan/convnets-keras@master")
 
         inputs = Input(shape=(3, self.image_shape[0], self.image_shape[1]))
 
@@ -321,9 +321,9 @@ class ImageClassificationCNN(object):
         :type output_layer_activation: ``str``
         """
         self.model = Sequential()
-        self.model.add(Convolution2D(32, 3, 3
-                                     , input_shape=(3, self.image_shape[0], self.image_shape[1])
-                                     , activation='relu'))
+        self.model.add(Convolution2D(32, 3, 3,
+                                     input_shape=(3, self.image_shape[0], self.image_shape[1]),
+                                     activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
 
         self.model.add(Convolution2D(32, 3, 3, activation='relu'))
@@ -532,7 +532,7 @@ class ImageClassificationCNN(object):
         self._support_load_data(path)
 
         # Load the Model
-        self.model = load_model(path)
+        # self.model = load_model(path)
 
     def _prediction_labels(self, single_image_prediction):
         """
