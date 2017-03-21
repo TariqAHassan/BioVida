@@ -18,12 +18,11 @@ from data.synthesized_data._private.my_file_paths import base_image_path
 quality = 95  # set image quality
 
 
-# ------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
 # Define Images to use
-# ------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
 
 
-# Define Images to Use
 base_images = [os.path.join(base_image_path, i) for i in os.listdir(base_image_path) if i.endswith(".png")]
 
 
@@ -187,7 +186,7 @@ def random_stretch(image, stretch_by):
         return image.resize((w, int(h * scale_by)), Image.ANTIALIAS)
 
 
-def open_muliple_and_random_crop(image_list):
+def open_multiple_and_random_crop(image_list):
     """
 
     :param image_list:
@@ -309,38 +308,3 @@ def random_tuple_away(background_shape, prior_locations, border_buffer, min_sep=
         c += 1
 
     return best[0]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

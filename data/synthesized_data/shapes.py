@@ -114,4 +114,3 @@ def ellipse_image_creator(all_image_options, start, end, general_name, save_loca
 
 
 ellipse_image_creator(base_images, start=0, end=30000, general_name='ellipse', save_location=ellipses_save_location)
-

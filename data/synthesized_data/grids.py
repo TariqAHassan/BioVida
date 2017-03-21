@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from data.synthesized_data.support_tools import (quality,
                                                  base_images,
-                                                 open_muliple_and_random_crop)
+                                                 open_multiple_and_random_crop)
 
 
 # Probabilities for
@@ -43,7 +43,7 @@ def image_stacker(image_list, stacker=np.hstack, min_shape_override=None):
         images = image_list
         min_shape = min_shape_override
     else:
-        images = open_muliple_and_random_crop(image_list)
+        images = open_multiple_and_random_crop(image_list)
         # images = [Image.open(i) for i in image_list]
         min_shape = sorted([(np.sum(i.size), i.size) for i in images])[0][1]
 
@@ -58,7 +58,7 @@ def side_by_side_stacker(image_list, stacker_a, stacker_b):
     :return:
     """
     # Open the images
-    images = open_muliple_and_random_crop(image_list)
+    images = open_multiple_and_random_crop(image_list)
 
     # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
     min_shape = sorted([(np.sum(i.size), i.size) for i in images])[0][1]

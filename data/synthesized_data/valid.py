@@ -31,5 +31,3 @@ def valid_image_creator(image_options, start, end, general_name, save_location):
 
 
 # valid_image_creator(base_images, 17000, 30000, "valid_image", valid_image_save_location)
-
-

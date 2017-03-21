@@ -25,6 +25,14 @@ from data.synthesized_data.support_tools import (base_images,
 from data.synthesized_data._private.my_file_paths import occluding_text_save_location
 
 
+# ToDo: Non-Occluding Text
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Data
+# ----------------------------------------------------------------------------------------------------------
+
+
 def get_fonts():
 
     font_locations = ["/Library/Fonts", "/System/Library/Fonts/"]  # This is only valid on macOS!
@@ -76,6 +84,7 @@ J,188,J,0.10
 Z,128,Z,0.07
 """
 
+
 def letters_freqs():
     """
 
@@ -95,15 +104,17 @@ def letters_freqs():
     return letters, freqs
 
 
-# Drop into globals
 letters, freqs = letters_freqs()
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Data Creation
+# ----------------------------------------------------------------------------------------------------------
 
 
 def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
     """
 
-    :param n:
-    :return:
     """
     def random_int(tpl):
         return randint(tpl[0], tpl[1])
@@ -170,16 +181,6 @@ def font_size_picker(image, text, font_name, text_size_proportion):
 
 
 def add_text(image, text, font, position, color):
-    """
-
-    :param image:
-    :param text:
-    :param font:
-    :param position:
-    :param size:
-    :param color:
-    :return:
-    """
     draw = ImageDraw.Draw(image)
     draw.text(position, text, color, font=font)
     return image
@@ -270,7 +271,7 @@ def occluding_text_masher(background_options, border_buffer=0.40):
         summary_background_color = text_background_window(background, text_loc, text_dim)
 
         # Check the background is 1. on average not black and 2. has some variance (sd).
-        if not summary_background_color[1]: # ToDo: THis is not working quite right...
+        if not summary_background_color[1]: # ToDo: This is not working quite right...
             # 8. Choose the text color
             text_color = opposite_color(summary_background_color[0])
 
@@ -303,5 +304,3 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
 
 occluding_text_creator(base_images, 0, 33000, "occluding_text", occluding_text_save_location)
 
-
-# ToDo: Non-Occluding Text

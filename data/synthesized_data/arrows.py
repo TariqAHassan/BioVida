@@ -150,4 +150,3 @@ def arrow_creator(background_options, foreground_options, start, end, general_na
 
 # Create the arrow synthesized_data data
 # arrow_creator(base_images, arrows, 17000, 30000, general_name="arrow", save_location=arrow_save_location)
-
