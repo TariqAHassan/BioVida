@@ -6,11 +6,10 @@
 """
 import os
 import random
-from random import randint
-
 import numpy as np
 import pandas as pd
 from PIL import Image
+from random import randint
 
 from data.synthesized_data._private.my_file_paths import base_image_path
 
