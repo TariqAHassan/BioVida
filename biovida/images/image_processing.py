@@ -863,9 +863,11 @@ class ImageProcessing(object):
         >>> ip.auto()
 
         A Simple Save Rule
+
         >>> ip.save('/your/path/here/images')
 
         A More Complex Save Rule
+
         >>> def my_save_rule(row):
         >>>     if isinstance(row['abstract'], str) and 'lung' in row['abstract']:
         >>>         return '/your/path/here/lung_images'
