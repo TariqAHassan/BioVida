@@ -25,7 +25,7 @@ from data.synthesized_data.support_tools import (base_images,
 from data.synthesized_data._private.my_file_paths import occluding_text_save_location
 
 
-# ToDo: Non-Occluding Text
+# ToDo: Non-Occluding Text -- i.e., text in the corners
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -34,7 +34,9 @@ from data.synthesized_data._private.my_file_paths import occluding_text_save_loc
 
 
 def get_fonts():
+    """
 
+    """
     font_locations = ["/Library/Fonts", "/System/Library/Fonts/"]  # This is only valid on macOS!
 
     def font_extract(font_path, allowed_formats=('.ttf', 'ttc')):
@@ -112,28 +114,36 @@ letters, freqs = letters_freqs()
 # ----------------------------------------------------------------------------------------------------------
 
 
+def random_int(tpl):
+    return randint(tpl[0], tpl[1])
+
+
+def random_letters(n_chars):
+    return np.random.choice(letters, random_int(n_chars), p=freqs)
+
+
+def pseudo_words(n_words, n_chars):
+    return ("".join(random_letters(n_chars)) for _ in range(random_int(n_words)))
+
+
 def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
     """
 
     """
-    def random_int(tpl):
-        return randint(tpl[0], tpl[1])
-
-    def random_letters():
-        return np.random.choice(letters, random_int(n_chars), p=freqs)
-
     def random_numbers():
         numbers = list(np.random.choice(list(map(str, range(1, 11))), random_int(n_chars)))
+
         def random_astrix(n):
             options = [("*", n, ""), ("", n, "*"), ("", n, "")]
             return "".join(options[randint(0, 2)])
         return [random_astrix(n) if randint(0, 3) == 1 else n for n in numbers]
 
-    def pseudo_words():
-        return ("".join(random_letters()) for _ in range(random_int(n_words)))
-
     # Define a container for the phrases
     phrases = list()
+
+    # Decide whether or not to only return asterisks
+    if randint(0, 100) >= 90:
+        return ["*"] * np.random.choice([1, 2, 3, 4], p=[0.20, 0.35, 0.35, 0.10])
 
     # Randomly decide to add 1-2 asterisks, or none.
     phrases += ["*"] * np.random.choice([0, 1, 2], 1, p=[0.90, 0.09, 0.01])[0]
@@ -143,7 +153,7 @@ def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
         return random_numbers() + phrases
 
     # Create a random number of pseudo phrases
-    phrases += [" ".join(pseudo_words()) for _ in range(random_int(n_phrases))]
+    phrases += [" ".join(pseudo_words(n_words, n_chars)) for _ in range(random_int(n_phrases))]
 
     # Randomly decide to add some natural numbers
     if randint(0, 1) == 1:
@@ -253,7 +263,7 @@ def occluding_text_masher(background_options, border_buffer=0.40):
         prior_locations.append(text_loc)
 
         # 2. Randomly pick a size for the font
-        text_size_proportion = np.random.uniform(0.055, 0.07)
+        text_size_proportion = np.random.uniform(0.0675, 0.07)
 
         # 3. Randomly pick a font
         font_name = np.random.choice(all_fonts)
@@ -296,11 +306,148 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
     """
     for i in tqdm(range(start+1, end+1)):
         # Define the save location
-        image_name ="{0}_{1}.png".format(i, general_name)
+        image_name = "{0}_{1}.png".format(i, general_name)
         save_path = os.path.join(save_location, image_name)
         # Generate and Save
         occluding_text_masher(all_image_options).save(save_path)
 
 
-occluding_text_creator(base_images, 0, 33000, "occluding_text", occluding_text_save_location)
+# occluding_text_creator(base_images, 0, 750, "occluding_text", occluding_text_save_location)
+
+
+# ---------------------------------------------
+# Corner Text
+# ---------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
