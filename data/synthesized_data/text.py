@@ -23,7 +23,6 @@ from data.synthesized_data.support_tools import (base_images,
                                                  random_crop,
                                                  _load_background_min)
 
-
 from data.synthesized_data._private.my_file_paths import occluding_text_save_location
 
 
@@ -304,7 +303,7 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
         occluding_text_masher(all_image_options).save(save_path)
 
 
-occluding_text_creator(base_images, 0, 750, "occluding_text", occluding_text_save_location)
+# occluding_text_creator(base_images, 0, 750, "occluding_text", occluding_text_save_location)
 
 
 # ---------------------------------------------
