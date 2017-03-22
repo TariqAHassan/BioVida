@@ -213,19 +213,26 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path, verbose):
     :return: a nested dictionary of the form ``{'train'/'val'/'test': {group_files_dict.key: [file, file, ...], ...}, ...}``.
     :rtype: ``dict``
     """
+    def status_bar(iterable):
+        return tqdm(iterable) if verbose else iterable
+
     if verbose:
         print("\nSplitting Data...")
 
     output_dict = dict()
     for k, v in group_files_dict.items():
+        if verbose:
+            print("\nDivvying '{0}'...".format(os.path.basename(k)))
         for k2, v2 in _list_divide(v, tvt):
             if k2 not in output_dict:
                 output_dict[k2] = {k: v2}
             else:
                 output_dict[k2][k] = v2
             if action == 'copy':
+                if verbose:
+                    print("\n{0}...".format(k2))
                 target = directory_existence_handler(path_=os_join(target_path, os_join(k2, k)), allow_creation=True)
-                for i in v2:
+                for i in status_bar(v2):
                     shutil.copy2(i, os_join(target, os.path.basename(i)))
     return output_dict
 
