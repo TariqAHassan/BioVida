@@ -11,15 +11,14 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from data.synthesized_data.support_tools import (base_images,
-                                                 avg_color,
+from data.synthesized_data.support_tools import (avg_color,
                                                  quality,
                                                  resize_image,
                                                  load_background_min,
                                                  random_stretch,
                                                  random_tuple_away)
 
-from data.synthesized_data._private.my_file_paths import arrow_path, arrow_save_location
+from data.synthesized_data._private.my_file_paths import arrow_path
 
 # In short, here the desired output is N images with arrows ontop of base images
 # These images should not overlap (at least not by very much), be clearly visible
