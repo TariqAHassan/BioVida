@@ -76,7 +76,7 @@ def arrow_back_foreground_mash(background_options,
     N = np.random.choice([1, 2, 3, 4, 5], 1, p=[0.48, 0.38, 0.11, 0.02, 0.01])[0]
     while count < N:
 
-        if attempts > 5000:
+        if attempts > 500:
             background = load_background_min(background_options, min_size=125)
             prior_size = None
             count = 0
