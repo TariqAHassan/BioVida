@@ -15,6 +15,8 @@ from PIL import ImageFont
 from random import randint
 from itertools import chain
 
+from biovida.support_tools.support_tools import cln
+
 from data.synthesized_data.support_tools import (base_images,
                                                  random_tuple_away,
                                                  opposite_color,
@@ -23,9 +25,6 @@ from data.synthesized_data.support_tools import (base_images,
 
 
 from data.synthesized_data._private.my_file_paths import occluding_text_save_location
-
-
-# ToDo: Non-Occluding Text -- i.e., text in the corners
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -122,47 +121,6 @@ def random_letters(n_chars):
     return np.random.choice(letters, random_int(n_chars), p=freqs)
 
 
-def pseudo_words(n_words, n_chars):
-    return ("".join(random_letters(n_chars)) for _ in range(random_int(n_words)))
-
-
-def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
-    """
-
-    """
-    def random_numbers():
-        numbers = list(np.random.choice(list(map(str, range(1, 11))), random_int(n_chars)))
-
-        def random_astrix(n):
-            options = [("*", n, ""), ("", n, "*"), ("", n, "")]
-            return "".join(options[randint(0, 2)])
-        return [random_astrix(n) if randint(0, 3) == 1 else n for n in numbers]
-
-    # Define a container for the phrases
-    phrases = list()
-
-    # Decide whether or not to only return asterisks
-    if randint(0, 100) >= 90:
-        return ["*"] * np.random.choice([1, 2, 3, 4], p=[0.20, 0.35, 0.35, 0.10])
-
-    # Randomly decide to add 1-2 asterisks, or none.
-    phrases += ["*"] * np.random.choice([0, 1, 2], 1, p=[0.90, 0.09, 0.01])[0]
-
-    # Decide whether or not to only return numbers (and possibly asterisks)
-    if randint(0, 1) == 1:
-        return random_numbers() + phrases
-
-    # Create a random number of pseudo phrases
-    phrases += [" ".join(pseudo_words(n_words, n_chars)) for _ in range(random_int(n_phrases))]
-
-    # Randomly decide to add some natural numbers
-    if randint(0, 1) == 1:
-        phrases += random_numbers()
-
-    # Return words composed of single letters as separate elements
-    return list(chain(*[i.split() if max(map(len, i.split())) == 1 else [i] for i in phrases]))
-
-
 def font_size_picker(image, text, font_name, text_size_proportion):
     """
 
@@ -191,6 +149,7 @@ def font_size_picker(image, text, font_name, text_size_proportion):
 
 
 def add_text(image, text, font, position, color):
+    """"""
     draw = ImageDraw.Draw(image)
     draw.text(position, text, color, font=font)
     return image
@@ -202,10 +161,6 @@ def text_background_window(background, text_loc, text_dim, black_color_threshold
     Summary of a the background for a text block.
     Currently computes the median color for this region.
 
-    :param background:
-    :param text_loc:
-    :param text_dim:
-    :return:
     """
     # Crop = (left, upper, right, lower)
     # Get the bounds
@@ -228,6 +183,47 @@ def text_background_window(background, text_loc, text_dim, black_color_threshold
 # ---------------------------------------------
 # Occluding Text
 # ---------------------------------------------
+
+
+def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
+    """
+
+    """
+    def pseudo_words():
+        return ("".join(random_letters(n_chars)) for _ in range(random_int(n_words)))
+
+    def random_numbers():
+        numbers = list(np.random.choice(list(map(str, range(1, 11))), random_int(n_chars)))
+
+        def random_astrix(n):
+            options = [("*", n, ""), ("", n, "*"), ("", n, "")]
+            return "".join(options[randint(0, 2)])
+
+        return [random_astrix(n) if randint(0, 3) == 1 else n for n in numbers]
+
+    # Define a container for the phrases
+    phrases = list()
+
+    # Decide whether or not to only return asterisks
+    if randint(0, 100) >= 90:
+        return ["*"] * np.random.choice([1, 2, 3, 4], p=[0.20, 0.35, 0.35, 0.10])
+
+    # Randomly decide to add 1-2 asterisks, or none.
+    phrases += ["*"] * np.random.choice([0, 1, 2], 1, p=[0.90, 0.09, 0.01])[0]
+
+    # Decide whether or not to only return numbers (and possibly asterisks)
+    if randint(0, 1) == 1:
+        return random_numbers() + phrases
+
+    # Create a random number of pseudo phrases
+    phrases += [" ".join(pseudo_words()) for _ in range(random_int(n_phrases))]
+
+    # Randomly decide to add some natural numbers
+    if randint(0, 1) == 1:
+        phrases += random_numbers()
+
+    # Return words composed of single letters as separate elements
+    return list(chain(*[i.split() if max(map(len, i.split())) == 1 else [i] for i in phrases]))
 
 
 def occluding_text_masher(background_options, border_buffer=0.40):
@@ -281,7 +277,7 @@ def occluding_text_masher(background_options, border_buffer=0.40):
         summary_background_color = text_background_window(background, text_loc, text_dim)
 
         # Check the background is 1. on average not black and 2. has some variance (sd).
-        if not summary_background_color[1]: # ToDo: This is not working quite right...
+        if not summary_background_color[1]:
             # 8. Choose the text color
             text_color = opposite_color(summary_background_color[0])
 
@@ -299,10 +295,6 @@ def occluding_text_masher(background_options, border_buffer=0.40):
 def occluding_text_creator(all_image_options, start, end, general_name, save_location):
     """
 
-    :param all_image_options:
-    :param n:
-    :param save_location:
-    :return:
     """
     for i in tqdm(range(start+1, end+1)):
         # Define the save location
@@ -312,133 +304,12 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
         occluding_text_masher(all_image_options).save(save_path)
 
 
-# occluding_text_creator(base_images, 0, 750, "occluding_text", occluding_text_save_location)
+occluding_text_creator(base_images, 0, 750, "occluding_text", occluding_text_save_location)
 
 
 # ---------------------------------------------
 # Corner Text
 # ---------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
