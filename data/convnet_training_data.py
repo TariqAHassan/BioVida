@@ -69,6 +69,7 @@ occluding_text_creator(base_images, start=0, end=TOTAL_PER_GROUP,
 
 
 arrows_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'arrows'))
+# 16686
 
 if arrows_end > 0:
     arrow_creator(base_images, arrows, start=0, end=arrows_end,
@@ -81,6 +82,7 @@ if arrows_end > 0:
 
 
 grids_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'grids'))
+# 12737
 
 if grids_end > 0:
     grid_creator(base_images, start=0, end=grids_end,
