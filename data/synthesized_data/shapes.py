@@ -111,6 +111,3 @@ def ellipse_image_creator(all_image_options, start, end, general_name, save_loca
         base_image = random_crop(Image.open(random.choice(all_image_options)))
         # Save
         ellipse_mash(base_image).save("{0}/{1}_{2}.png".format(save_location, i, general_name), quality=quality)
-
-
-# ellipse_image_creator(base_images, start=0, end=30000, general_name='ellipse', save_location=ellipses_save_location)

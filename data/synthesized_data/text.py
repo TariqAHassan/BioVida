@@ -19,7 +19,7 @@ from data.synthesized_data.support_tools import (base_images,
                                                  random_tuple_away,
                                                  opposite_color,
                                                  random_crop,
-                                                 _load_background_min)
+                                                 random_crop_min)
 
 from data.synthesized_data._private.my_file_paths import occluding_text_save_location
 
@@ -237,7 +237,7 @@ def occluding_text_masher(background_options, border_buffer=0.40):
     list_of_text = random_text_gen(n_words=(2, 2))
 
     # Randomly load and crop a background
-    background = random_crop(_load_background_min(background_options, min_size=150))
+    background = random_crop_min(background_options, min_size=150)
 
     c, attempts = 0, 0
     prior_locations = list()
@@ -249,7 +249,7 @@ def occluding_text_masher(background_options, border_buffer=0.40):
         if attempts > 500:
             c, attempts = 0, 0
             prior_locations = list()
-            background = random_crop(_load_background_min(background_options, min_size=150))
+            background = random_crop_min(background_options, min_size=150)
 
         # 1. Get a random location on the image
         text_loc = random_tuple_away(background.size, prior_locations, border_buffer=border_buffer)
@@ -301,9 +301,6 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
         occluding_text_masher(all_image_options).save(save_path)
 
 
-# occluding_text_creator(base_images, 0, 750, "text", occluding_text_save_location)
-
-
 # ---------------------------------------------
 # Corner Text
 # ---------------------------------------------
@@ -327,8 +324,6 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
 #                 term = cln(term, extent=2)
 #         terms.append(term)
 #     return terms
-
-
 
 
 

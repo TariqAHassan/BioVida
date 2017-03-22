@@ -5,6 +5,7 @@
 
 """
 # Imports
+import os
 from os.path import join as os_join
 from biovida.images import ImageProcessing
 from biovida.images.image_cache_mgmt import image_divvy
@@ -12,7 +13,10 @@ from biovida.images.image_cache_mgmt import image_divvy
 from data.source_data.training_images_from_openi import opi
 
 from data.synthesized_data.support_tools import base_images
+
 from data.synthesized_data.text import occluding_text_creator
+from data.synthesized_data.arrows import arrows, arrow_creator
+from data.synthesized_data.grids import grid_creator
 
 
 from data._private.paths import output_dir
@@ -27,52 +31,58 @@ ip = ImageProcessing(opi, db_to_extract='cache_records_db')
 ip.grayscale_analysis()
 
 
-def my_divvy_rule(row):
+def divvy_rule(row):
     if row['grayscale'] == True:
         if 'grids' == row['image_problems_from_text'][0]:
             return os_join(output_dir, 'grids')
-        elif 'arrows' == row['image_problems_from_text']:
-            return  os_join(output_dir, 'arrows')
+        elif 'arrows' == row['image_problems_from_text'][0]:
+            return os_join(output_dir, 'arrows')
 
-divvy_info = image_divvy(ip, divvy_rule=my_divvy_rule, action='copy')
+
+divvy_info = image_divvy(ip, divvy_rule=divvy_rule, action='copy')
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Synthesized Data
+# Synthesized Data (Either Entirely or to Compliment Source Data)
 # ----------------------------------------------------------------------------------------------------------
 
 
-occluding_text_creator(base_images, start=0, end=20000, general_name="text", save_location=os_join(output_dir, "text"))
+TOTAL_PER_GROUP = 30000
 
 
+# -----------------------------------------
+# Text
+# -----------------------------------------
 
 
+os.makedirs(os_join(output_dir, "text"))
+occluding_text_creator(base_images, start=0, end=TOTAL_PER_GROUP,
+                       general_name="text", save_location=os_join(output_dir, "text"))
 
 
+# -----------------------------------------
+# Arrows
+# -----------------------------------------
 
 
+arrows_end = TOTAL_PER_GROUP - len(os.listdir(os_join(output_dir, 'arrows')))
+
+if arrows_end > 0:
+    arrow_creator(base_images, arrows, start=arrows_end, end=TOTAL_PER_GROUP,
+                  general_name="arrow", save_location=os_join(output_dir, 'arrows'))
+    
+
+# -----------------------------------------
+# Grids
+# -----------------------------------------
 
 
+grids_end = TOTAL_PER_GROUP - len(os.listdir(os_join(output_dir, 'grids')))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if grids_end > 0:
+    grid_creator(base_images, start=grids_end, end=TOTAL_PER_GROUP,
+                 general_name='grid', save_location=os_join(output_dir, 'grids'))
+    
 
 
 

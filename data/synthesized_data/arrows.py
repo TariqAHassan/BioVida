@@ -11,10 +11,11 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from data.synthesized_data.support_tools import (avg_color,
+from data.synthesized_data.support_tools import (base_images,
+                                                 avg_color,
                                                  quality,
                                                  resize_image,
-                                                 _load_background_min,
+                                                 load_background_min,
                                                  random_stretch,
                                                  random_tuple_away)
 
@@ -65,7 +66,7 @@ def arrow_back_foreground_mash(background_options,
                                foreground_stretch_by=(0.85, 1.25),
                                location_border_buffer=0.38):
     # Load a Background
-    background = _load_background_min(background_options, min_size=125)
+    background = load_background_min(background_options, min_size=125)
 
     # Number of arrows
     prior_positions = list()
@@ -77,7 +78,7 @@ def arrow_back_foreground_mash(background_options,
     while count < N:
 
         if attempts > 5000:
-            background = _load_background_min(background_options, min_size=125)
+            background = load_background_min(background_options, min_size=125)
             prior_size = None
             count = 0
             attempts = 0
@@ -146,7 +147,3 @@ def arrow_creator(background_options, foreground_options, start, end, general_na
     """
     for i in tqdm(range(start+1, end+1)):
         arrow_masher(background_options, foreground_options, name="{0}_{1}".format(i, general_name), save_location=save_location)
-
-
-# Create the arrow synthesized_data data
-# arrow_creator(base_images, arrows, 17000, 30000, general_name="arrow", save_location=arrow_save_location)

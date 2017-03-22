@@ -118,13 +118,12 @@ def grid_creator(all_image_options, start, end, general_name, save_location):
     """
 
     :param all_image_options:
-    :param n:
+    :param start:
+    :param end:
+    :param general_name:
     :param save_location:
     :return:
     """
     for i in tqdm(range(start+1, end+1)):
-        grid_masher(base_images, name="{0}_{1}".format(i, general_name), save_location=save_location)
-
-
-# Create the grid synthesized_data data
-# grid_creator(base_images, 17000, 35000, general_name='grid', save_location=grid_save_location)
+        grid_masher(all_image_options, name="{0}_{1}".format(i, general_name),
+                    save_location=save_location)

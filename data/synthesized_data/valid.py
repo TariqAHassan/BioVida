@@ -28,6 +28,3 @@ def valid_image_creator(image_options, start, end, general_name, save_location):
         image = resize_image(image, random.uniform(0.8, 1.2))
         # Save
         image.save(os.path.join(save_location, "{0}_{1}.png".format(i, general_name)), quality=quality)
-
-
-# valid_image_creator(base_images, 17000, 30000, "valid_image", valid_image_save_location)
