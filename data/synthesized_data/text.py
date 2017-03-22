@@ -312,6 +312,22 @@ occluding_text_creator(base_images, 0, 750, "occluding_text", occluding_text_sav
 # ---------------------------------------------
 
 
+# ToDo: Text in the corners
+
+# def corner_lines(n_terms, n_chars):
+#     terms = list()
+#     for _ in range(random_int(n_terms)):
+#         if randint(0, 100) >= 35:
+#             term = "".join(random_letters(n_chars))
+#             if randint(0, 100) >= 70:
+#                 term += ": {0}".format(randint(1, 1000))
+#         else:
+#             term = "{0} : {1}".format(randint(1, 1000), randint(100, 1000))
+#             if randint(0, 1) == 1:
+#                 term = cln(term, extent=2)
+#         terms.append(term)
+#     return terms
+
 
 
 
