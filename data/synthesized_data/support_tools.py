@@ -221,7 +221,7 @@ def opposite_color(color_val, buffer=7.5):
     return tuple([color] * 3)
 
 
-def _load_background(background_options):
+def load_background(background_options):
     """
 
     :param background_options:
@@ -242,7 +242,7 @@ def _load_background(background_options):
     return background
 
 
-def _load_background_min(background_options, min_size, limit=250):
+def load_background_min(background_options, min_size, limit=250):
     """
 
     :param background_options:
@@ -250,17 +250,45 @@ def _load_background_min(background_options, min_size, limit=250):
     :param limit:
     :return:
     """
-    bg = _load_background(background_options)
+    bg = load_background(background_options)
 
     c = 0
     while c <= limit and min(bg.size) < min_size:
-        bg = _load_background(background_options)
+        bg = load_background(background_options)
         c += 1
 
     return bg
 
 
+def random_crop_min(background_options, min_size, limit=250):
+    """
+
+    Returns a cropped image of of min. size.
+
+    :param background_options:
+    :param min_size:
+    :param limit:
+    :return:
+    """
+    cropped = random_crop(load_background(background_options))
+
+    c = 0
+    while c <= limit and min(cropped.size) < min_size:
+        cropped = random_crop(load_background(background_options))
+        c += 1
+
+    return cropped
+
+
 def distance_between_points(point_a, point_b):
+    """
+
+    Vectorized Euclidean Distance
+
+    :param point_a:
+    :param point_b:
+    :return:
+    """
     return np.sqrt(np.sum((np.array(point_a) - np.array(point_b))**2))
 
 
