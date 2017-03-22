@@ -13,7 +13,6 @@ from biovida.images.image_cache_mgmt import image_divvy
 from data.source_data.training_images_from_openi import opi
 
 from data.synthesized_data.support_tools import base_images
-
 from data.synthesized_data.text import occluding_text_creator
 from data.synthesized_data.arrows import arrows, arrow_creator
 from data.synthesized_data.grids import grid_creator
@@ -50,6 +49,10 @@ divvy_info = image_divvy(ip, divvy_rule=divvy_rule, action='copy')
 TOTAL_PER_GROUP = 30000
 
 
+def number_of_images_in_dir(path):
+    return len([i for i in os.listdir(path) if i.endswith(".png")])
+
+
 # -----------------------------------------
 # Text
 # -----------------------------------------
@@ -65,7 +68,7 @@ occluding_text_creator(base_images, start=0, end=TOTAL_PER_GROUP,
 # -----------------------------------------
 
 
-arrows_end = TOTAL_PER_GROUP - len(os.listdir(os_join(output_dir, 'arrows')))
+arrows_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'arrows'))
 
 if arrows_end > 0:
     arrow_creator(base_images, arrows, start=0, end=arrows_end,
@@ -77,7 +80,7 @@ if arrows_end > 0:
 # -----------------------------------------
 
 
-grids_end = TOTAL_PER_GROUP - len(os.listdir(os_join(output_dir, 'grids')))
+grids_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'grids'))
 
 if grids_end > 0:
     grid_creator(base_images, start=0, end=grids_end,
