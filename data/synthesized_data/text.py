@@ -15,8 +15,6 @@ from PIL import ImageFont
 from random import randint
 from itertools import chain
 
-from biovida.support_tools.support_tools import cln
-
 from data.synthesized_data.support_tools import (base_images,
                                                  random_tuple_away,
                                                  opposite_color,
@@ -303,7 +301,7 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
         occluding_text_masher(all_image_options).save(save_path)
 
 
-# occluding_text_creator(base_images, 0, 750, "occluding_text", occluding_text_save_location)
+# occluding_text_creator(base_images, 0, 750, "text", occluding_text_save_location)
 
 
 # ---------------------------------------------
@@ -312,6 +310,9 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
 
 
 # ToDo: Text in the corners
+
+# from biovida.support_tools.support_tools import cln
+
 
 # def corner_lines(n_terms, n_chars):
 #     terms = list()
