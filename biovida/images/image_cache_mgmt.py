@@ -107,8 +107,14 @@ def _record_update_dbs_joiner(records_db, update_db):
     :return: ``records_db`` with ``update_db`` left-joined.
     :rtype: ``Pandas DataFrame``
     """
-    joined_db = records_db.join(update_db, how='left').fillna(np.NaN).dropna(subset=list(update_db.columns), how='all')
-    return joined_db.reset_index(drop=True)
+    try:
+        joined_db = records_db.join(update_db, how='left')
+    except:
+        joined_db = records_db
+        for c in update_db.columns:
+            joined_db[c] = update_db[c]
+
+    return joined_db.fillna(np.NaN).dropna(subset=list(update_db.columns), how='all').reset_index(drop=True)
 
 
 def _load_temp_dbs(temp_db_path):
