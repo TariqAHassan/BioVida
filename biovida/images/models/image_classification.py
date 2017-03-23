@@ -12,10 +12,11 @@ from warnings import warn
 from biovida.images._image_tools import load_and_scale_images
 
 from keras import callbacks
+from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential, load_model, Model
-from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
-from keras.layers import Activation, Dropout, Flatten, Dense, Input, merge
+from keras.layers import (Convolution2D, MaxPooling2D, ZeroPadding2D, concatenate, GlobalAveragePooling2D,
+                          Activation, Dropout, Flatten, Dense, Input, merge)
 from keras.optimizers import RMSprop, SGD
 
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
@@ -61,7 +62,7 @@ class ImageClassificationCNN(object):
                  zoom_range=0.30,
                  horizontal_flip=True,
                  vertical_flip=False,
-                 batch_size=1):
+                 batch_size=2):
         self._data_path = data_path
         self.image_shape = image_shape
         self.rescale = rescale
@@ -91,11 +92,11 @@ class ImageClassificationCNN(object):
 
         """
         # Train augmentation configuration
-        train_datagen = ImageDataGenerator(rescale=self.rescale
-                                           , shear_range=self._shear_range
-                                           , zoom_range=self._zoom_range
-                                           , vertical_flip=self._vertical_flip
-                                           , horizontal_flip=self._horizontal_flip)
+        train_datagen = ImageDataGenerator(rescale=self.rescale,
+                                           shear_range=self._shear_range,
+                                           zoom_range=self._zoom_range,
+                                           vertical_flip=self._vertical_flip,
+                                           horizontal_flip=self._horizontal_flip)
 
         # Indefinitely generate batches of augmented train image data
         self._train_generator = train_datagen.flow_from_directory(directory=self._train_data_dir,
@@ -162,7 +163,7 @@ class ImageClassificationCNN(object):
             self.image_shape[1] = 224
         self.image_shape = tuple(self.image_shape)
 
-    def _alex_net(self, nb_classes, output_layer_activation):
+    def _alex_net(self, classes, output_layer_activation):
         """
 
         Sources:
@@ -187,8 +188,8 @@ class ImageClassificationCNN(object):
         CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
         DEALINGS IN THE SOFTWARE.
 
-        :param nb_classes: number of neuron in the output layer (which equals the number of classes).
-        :type nb_classes: ``int``
+        :param classes: number of neuron in the output layer (which equals the number of classes).
+        :type classes: ``int``
         :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
         :type output_layer_activation: ``str``
         """
@@ -201,7 +202,7 @@ class ImageClassificationCNN(object):
 
         inputs = Input(shape=(3, self.image_shape[0], self.image_shape[1]))
 
-        conv_1 = Convolution2D(96, 11, 11,
+        conv_1 = Convolution2D(96, (11, 11),
                                subsample=(4, 4),
                                activation='relu',
                                name='conv_1')(inputs)
@@ -209,14 +210,14 @@ class ImageClassificationCNN(object):
         conv_2 = MaxPooling2D((3, 3), strides=(2, 2))(conv_1)
         conv_2 = crosschannelnormalization(name="convpool_1")(conv_2)
         conv_2 = ZeroPadding2D((2, 2))(conv_2)
-        conv_2 = merge([Convolution2D(128, 5, 5, activation="relu", name='conv_2_' + str(i + 1))(
+        conv_2 = merge([Convolution2D(128, (5, 5), activation="relu", name='conv_2_' + str(i + 1))(
                                splittensor(ratio_split=2, id_split=i)(conv_2)
                            ) for i in range(2)], mode='concat', concat_axis=1, name="conv_2")
 
         conv_3 = MaxPooling2D((3, 3), strides=(2, 2))(conv_2)
         conv_3 = crosschannelnormalization()(conv_3)
         conv_3 = ZeroPadding2D((1, 1))(conv_3)
-        conv_3 = Convolution2D(384, 3, 3, activation='relu', name='conv_3')(conv_3)
+        conv_3 = Convolution2D(384, (3, 3), activation='relu', name='conv_3')(conv_3)
 
         conv_4 = ZeroPadding2D((1, 1))(conv_3)
         conv_4 = merge([Convolution2D(192, 3, 3, activation="relu", name='conv_4_' + str(i + 1))(
@@ -224,7 +225,7 @@ class ImageClassificationCNN(object):
                            ) for i in range(2)], mode='concat', concat_axis=1, name="conv_4")
 
         conv_5 = ZeroPadding2D((1, 1))(conv_4)
-        conv_5 = merge([Convolution2D(128, 3, 3, activation="relu", name='conv_5_' + str(i + 1))(
+        conv_5 = merge([Convolution2D(128, (3, 3), activation="relu", name='conv_5_' + str(i + 1))(
                                splittensor(ratio_split=2, id_split=i)(conv_5)
                            ) for i in range(2)], mode='concat', concat_axis=1, name="conv_5")
         dense_1 = MaxPooling2D((3, 3), strides=(2, 2), name="convpool_5")(conv_5)
@@ -234,17 +235,107 @@ class ImageClassificationCNN(object):
         dense_2 = Dropout(0.5)(dense_1)
         dense_2 = Dense(4096, activation='relu', name='dense_2')(dense_2)
         dense_3 = Dropout(0.5)(dense_2)
-        dense_3 = Dense(nb_classes, name='dense_3')(dense_3)
+        dense_3 = Dense(classes, name='dense_3')(dense_3)
         prediction = Activation(output_layer_activation, name=output_layer_activation)(dense_3)
 
         self.model = Model(input=inputs, output=prediction)
 
-    def _vgg_19(self, nb_classes, output_layer_activation):
+    def _squeezenet(self, classes, output_layer_activation):
+        """
+
+        Source:
+        -------
+
+        1. https://github.com/rcmalli/keras-squeezenet
+
+            MIT License
+
+            Copyright (c) 2016 Refikcanmalli
+
+            Permission is hereby granted, free of charge, to any person obtaining a copy
+            of this software and associated documentation files (the "Software"), to deal
+            in the Software without restriction, including without limitation the rights
+            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+            copies of the Software, and to permit persons to whom the Software is
+            furnished to do so, subject to the following conditions:
+
+            The above copyright notice and this permission notice shall be included in all
+            copies or substantial portions of the Software.
+
+            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+            SOFTWARE.
+
+            Note: the model has been slightly modified. Namely, it has been refactored and
+            simplified by removing use of ImageNet weights.
+
+        :param classes: number of neuron in the output layer (which equals the number of classes).
+        :type classes: ``int``
+        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
+        :type output_layer_activation: ``str``
+        """
+        sq1x1 = "squeeze1x1"
+        exp1x1 = "expand1x1"
+        exp3x3 = "expand3x3"
+        relu = "relu_"
+
+        def fire_module(model, fire_id, squeeze=16, expand=64):
+            s_id = 'fire' + str(fire_id) + '/'
+
+            if K.image_data_format() == 'channels_first':
+                channel_axis = 1
+            else:
+                channel_axis = 3
+
+            model = Convolution2D(squeeze, (1, 1), padding='valid', name=s_id + sq1x1)(model)
+            model = Activation('relu', name=s_id + relu + sq1x1)(model)
+
+            left = Convolution2D(expand, (1, 1), padding='valid', name=s_id + exp1x1)(model)
+            left = Activation('relu', name=s_id + relu + exp1x1)(left)
+
+            right = Convolution2D(expand, (3, 3), padding='same', name=s_id + exp3x3)(model)
+            right = Activation('relu', name=s_id + relu + exp3x3)(right)
+
+            model = concatenate([left, right], axis=channel_axis, name=s_id + 'concat')
+            return model
+
+        input_img = Input(shape=(3, self.image_shape[0], self.image_shape[1]))
+
+        model = Convolution2D(64, (3, 3), strides=(2, 2), padding='valid', name='conv1')(input_img)
+        model = Activation('relu', name='relu_conv1')(model)
+        model = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='pool1')(model)
+
+        model = fire_module(model, fire_id=2, squeeze=16, expand=64)
+        model = fire_module(model, fire_id=3, squeeze=16, expand=64)
+        model = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='pool3')(model)
+
+        model = fire_module(model, fire_id=4, squeeze=32, expand=128)
+        model = fire_module(model, fire_id=5, squeeze=32, expand=128)
+        model = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='pool5')(model)
+
+        model = fire_module(model, fire_id=6, squeeze=48, expand=192)
+        model = fire_module(model, fire_id=7, squeeze=48, expand=192)
+        model = fire_module(model, fire_id=8, squeeze=64, expand=256)
+        model = fire_module(model, fire_id=9, squeeze=64, expand=256)
+        model = Dropout(0.5, name='drop9')(model)
+
+        model = Convolution2D(classes, (1, 1), padding='valid', name='conv10')(model)
+        model = Activation('relu', name='relu_conv10')(model)
+        model = GlobalAveragePooling2D()(model)
+        output = Activation(output_layer_activation, name='loss')(model)
+
+        self.model = Model(input_img, output, name='squeezenet')
+
+    def _vgg_19(self, classes, output_layer_activation):
         """
 
         Keras Implementation of the VGG_19 Model
 
-        SOURCES:
+        Sources:
         -------
 
         1. Model Authors:
@@ -254,53 +345,53 @@ class ImageClassificationCNN(object):
 
         2. Keras Implementation: https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py
 
-        :param nb_classes: number of neuron in the output layer (which equals the number of classes).
-        :type nb_classes: ``int``
+        :param classes: number of neuron in the output layer (which equals the number of classes).
+        :type classes: ``int``
         :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
         :type output_layer_activation: ``str``
         """
         self.model = Sequential()
 
         self.model.add(ZeroPadding2D((1, 1), input_shape=(3, self.image_shape[0], self.image_shape[1])))
-        self.model.add(Convolution2D(64, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(64, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(64, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(64, (3, 3), activation='relu'))
         self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(128, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(128, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(128, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(128, (3, 3), activation='relu'))
         self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(256, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(256, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(256, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(256, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(256, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(256, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(256, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(256, (3, 3), activation='relu'))
         self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(512, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(512, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(512, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(512, (3, 3), activation='relu'))
         self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(512, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(512, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(512, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
-        self.model.add(Convolution2D(512, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(512, (3, 3), activation='relu'))
         self.model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         self.model.add(Flatten())
@@ -308,31 +399,36 @@ class ImageClassificationCNN(object):
         self.model.add(Dropout(0.5))
         self.model.add(Dense(4096, activation='relu'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(nb_classes, activation=output_layer_activation))
+        self.model.add(Dense(classes, activation=output_layer_activation))
 
-    def _default_model(self, nb_classes, output_layer_activation):
+    def _default_model(self, classes, output_layer_activation):
         """
 
         The most simple model in this class.
 
-        :param nb_classes: number of neuron in the output layer (which equals the number of classes).
-        :type nb_classes: ``int``
+        Sources:
+        --------
+
+        1. https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+
+        :param classes: number of neuron in the output layer (which equals the number of classes).
+        :type classes: ``int``
         :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
         :type output_layer_activation: ``str``
         """
         self.model = Sequential()
-        self.model.add(Convolution2D(32, 3, 3,
+        self.model.add(Convolution2D(32, (3, 3),
                                      input_shape=(3, self.image_shape[0], self.image_shape[1]),
                                      activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        self.model.add(Convolution2D(32, 3, 3, activation='relu'))
+        self.model.add(Convolution2D(32, (3, 3), activation='relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
 
         self.model.add(Flatten())
         self.model.add(Dense(64, activation='relu'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(nb_classes))
+        self.model.add(Dense(classes))
         self.model.add(Activation(output_layer_activation))
 
     def convnet(self,
@@ -350,6 +446,8 @@ class ImageClassificationCNN(object):
             - 'default': a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling); one hidden layer and 0.5 drop out.
 
             - 'alex_net': the 2012 'AlexNet' model.
+
+            - 'squeezenet': SqueezeNet model.
 
             - 'vgg19': the VGG 19 model.
 
@@ -374,21 +472,25 @@ class ImageClassificationCNN(object):
             self._data_stream()
 
         # Get the number of classes
-        nb_classes = len(self.data_classes.keys())
+        classes = len(self.data_classes.keys())
 
         # Define the Model
         if model_to_use == 'default':
-            self._default_model(nb_classes, output_layer_activation=output_layer_activation)
+            self._default_model(classes, output_layer_activation=output_layer_activation)
         elif model_to_use == 'alex_net':
-            self._alex_net(nb_classes, output_layer_activation=output_layer_activation)
+            self._alex_net(classes, output_layer_activation=output_layer_activation)
+        elif model_to_use == 'squeezenet':
+            self._squeezenet(classes, output_layer_activation=output_layer_activation)
         elif model_to_use == 'vgg19':
-            self._vgg_19(nb_classes, output_layer_activation=output_layer_activation)
+            self._vgg_19(classes, output_layer_activation=output_layer_activation)
         else:
             raise ValueError("'{0}' is an invalid value for `model_to_use`.".format(model_to_use))
 
         # Define optimizer
         if optimizer == 'default':
-            optimizer_to_pass = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=0.0)
+            optimizer_to_pass = RMSprop(lr=0.000025, rho=0.9, epsilon=1e-08, decay=0.0)
+        elif optimizer == 'squeezenet':
+            optimizer_to_pass = SGD(lr=0.001, decay=0.0002, momentum=0.9, nesterov=True)
         elif optimizer == 'vgg19':
             optimizer_to_pass = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
         else:
@@ -412,13 +514,13 @@ class ImageClassificationCNN(object):
             raise AttributeError("The model cannot be {0} until `ImageClassificationCNN().{1}()` "
                                  "has been called.{2}".format(first_format, second_format, additional))
 
-    def fit(self, nb_epoch=10, min_delta=0.1, patience=3):
+    def fit(self, epochs=10, min_delta=0.1, patience=3):
         """
 
         Fit the model to the training data and run a validation.
 
-        :param nb_epoch: number of epochs. See: ``keras.models.Sequential()``. Defaults to 10.
-        :type nb_epoch: ``int``
+        :param epochs: number of epochs. See: ``keras.models.Sequential()``. Defaults to 10.
+        :type epochs: ``int``
         :param min_delta: see ``keras.callbacks.EarlyStopping()``.
         :type min_delta: ``float``
         :param patience: see ``keras.callbacks.EarlyStopping()``.
@@ -427,17 +529,17 @@ class ImageClassificationCNN(object):
         """
         self._model_existence_check("fit and validated", "convnet")
 
-        if not isinstance(nb_epoch, int):
-            raise ValueError("`nb_epoch` must be an integer.")
+        if not isinstance(epochs, int):
+            raise ValueError("`epochs` must be an integer.")
 
         # Define callbacks
         early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=min_delta, patience=patience, verbose=1)
 
         self.model.fit_generator(generator=self._train_generator,
-                                 samples_per_epoch=self._train_generator.nb_sample,
-                                 nb_epoch=nb_epoch,
+                                 steps_per_epoch=self._train_generator.samples,
+                                 epochs=epochs,
                                  validation_data=self._validation_generator,
-                                 nb_val_samples=self._validation_generator.nb_sample,
+                                 validation_steps=self._validation_generator.samples,
                                  callbacks=[early_stop])
 
     def _support_save_data(self, save_name, save_path):
@@ -477,7 +579,7 @@ class ImageClassificationCNN(object):
         :type overwrite: ``bool``
         :raises: ``AttributeError`` if ``ImageClassificationCNN().fit()`` is yet to be called.
         """
-        self._model_existence_check("saved", "fit",  " Alternatively, you can call .load().")
+        self._model_existence_check("saved", "fit", " Alternatively, you can call .load().")
         save_path = self._data_path if (path is None and self._data_path is not None) else path
 
         # Save the supporting data
@@ -532,7 +634,7 @@ class ImageClassificationCNN(object):
         self._support_load_data(path)
 
         # Load the Model
-        # self.model = load_model(path)
+        self.model = load_model(path)
 
     def _prediction_labels(self, single_image_prediction):
         """
