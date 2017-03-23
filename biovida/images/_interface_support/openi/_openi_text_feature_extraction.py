@@ -65,12 +65,9 @@ def _value_clean(value):
     :return: see description.
     :rtype: ``str``
     """
-    cleaned = cln(value)
-    if cleaned.startswith(";"):
-        cleaned = cleaned[1:]
-    if cleaned.endswith(";"):
-        cleaned = cleaned[:-1]
-    return cln(cleaned)
+    nans = ('na', 'n/a', 'nan', 'none', '')
+    value = cln(unescape(value).strip(";"))
+    return value if value.lower() not in nans else None
 
 
 def _abstract_parser(abstract):
@@ -102,14 +99,12 @@ def _abstract_parser(abstract):
         # Look for Key
         key_candidate = p.find_all('b')
         if len(key_candidate) == 1:
-            key = _key_clean(key_candidate[0].text)
+            key = _key_clean(key=key_candidate[0].text)
             if len(key):
                 # Look for Value
                 contents = p.contents
-                if len(contents) == 2 and all(isinstance(c, str) for c in contents):
-                    value = cln(contents[-1]).strip(";")
-                    if isinstance(value, str) and len(value):
-                        parsed_abstract[key] = cln(unescape(value))
+                if len(contents) == 2:
+                    parsed_abstract[key] = _value_clean(value=contents[-1])
 
     return parsed_abstract if parsed_abstract else None
 
