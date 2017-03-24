@@ -17,13 +17,10 @@ from itertools import chain
 from string import ascii_lowercase
 ascii_lowercase = list(ascii_lowercase)[:6]
 
-from data.synthesized_data.support_tools import (base_images,
+from data.synthesized_data.support_tools import (QUALITY,
                                                  random_tuple_away,
                                                  opposite_color,
-                                                 random_crop,
                                                  random_crop_min)
-
-from data.synthesized_data._private.my_file_paths import occluding_text_save_location
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -53,6 +50,11 @@ def get_fonts():
     return all_fonts
 
 all_fonts = get_fonts()
+
+
+# -----------------------------------------
+# Letter frequency Data
+# -----------------------------------------
 
 # Source: https://www.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html
 letter_data = """Letter,Count,Letter,Frequency
@@ -255,6 +257,7 @@ def occluding_text_masher(background_options, border_buffer=0.35):
     The higher this value, the more likely the images will actually occlude the image.
 
     :param background_options:
+    :param border_buffer:
     :return:
     """
     # Generate Some random text
@@ -322,7 +325,8 @@ def occluding_text_creator(all_image_options, start, end, general_name, save_loc
         image_name = "{0}_{1}.png".format(i, general_name)
         save_path = os.path.join(save_location, image_name)
         # Generate and Save
-        occluding_text_masher(all_image_options).save(save_path)
+        occluding_text_masher(all_image_options).save(save_path)#quality=QUALITY)
+        # Note:  `quality` doesn't appear to make a difference here
 
 
 # ---------------------------------------------

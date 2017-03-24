@@ -6,15 +6,15 @@
 """
 import os
 import random
-from PIL import Image
 from tqdm import tqdm
 
 from data.synthesized_data.support_tools import (resize_image,
                                                  random_crop_min,
-                                                 quality)
+                                                 QUALITY,
+                                                 MIN_SIZE)
 
 
-def valid_image_creator(image_options, start, end, general_name, save_location, min_size=150):
+def valid_image_creator(image_options, start, end, general_name, save_location, min_size=MIN_SIZE):
     """
 
     """
@@ -29,4 +29,4 @@ def valid_image_creator(image_options, start, end, general_name, save_location, 
 
         # Save
         save_path = os.path.join(save_location, "{0}_{1}.png".format(i, general_name))
-        image.save(save_path, quality=quality)
+        image.save(save_path, quality=QUALITY)

@@ -12,7 +12,8 @@ from PIL import Image
 from tqdm import tqdm
 
 from data.synthesized_data.support_tools import (avg_color,
-                                                 quality,
+                                                 QUALITY,
+                                                 MIN_SIZE,
                                                  resize_image,
                                                  load_background_min,
                                                  random_stretch,
@@ -59,13 +60,21 @@ def min_contrast_met(background, foreground, random_background_loc, min_delta=65
 
 
 def arrow_back_foreground_mash(background_options,
-                               foreground_options,
                                bg_min_ceiling=295,
                                foreground_scale_range=(0.21, 0.225),
                                foreground_stretch_by=(0.85, 1.25),
                                location_border_buffer=0.38):
+    """
+    
+    :param background_options: 
+    :param bg_min_ceiling: 
+    :param foreground_scale_range: 
+    :param foreground_stretch_by: 
+    :param location_border_buffer: 
+    :return: 
+    """
     # Load a Background
-    background = load_background_min(background_options, min_size=150)
+    background = load_background_min(background_options, min_size=MIN_SIZE)
 
     # Number of arrows
     prior_positions = list()
@@ -77,15 +86,15 @@ def arrow_back_foreground_mash(background_options,
     while count < N:
 
         if attempts > 10:
-            background = load_background_min(background_options, min_size=150)
+            background = load_background_min(background_options, min_size=MIN_SIZE)
             prior_size = None
             count = 0
             attempts = 0
 
-        # randomly Load the foreground and convert to grayscale
-        forground_choice = random.choice(foreground_options)
+        # Randomly Load the foreground (an arrows) and convert to grayscale
+        foreground_choice = random.choice(arrows)
 
-        foreground = Image.open(forground_choice).convert("RGBA")
+        foreground = Image.open(foreground_choice).convert("RGBA")
 
         # Randomly stretch about a given axis
         foreground = random_stretch(foreground, foreground_stretch_by)
@@ -121,28 +130,32 @@ def arrow_back_foreground_mash(background_options,
     return background
 
 
-def arrow_masher(background_options, foreground_options, name, save_location):
+def arrow_masher(background_options, name, save_location):
     """
-
-    :param background_options:
-    :param foreground_options:
-    :return:
+    
+    :param background_options: 
+    :param name: 
+    :param save_location: 
+    :return: 
     """
     # Compute mash and convert to grayscale
-    rslt = arrow_back_foreground_mash(background_options, foreground_options).convert("LA")
+    rslt = arrow_back_foreground_mash(background_options).convert("LA")
 
     # Save to disk
-    rslt.save("{0}/{1}.png".format(save_location, name), quality=quality)
+    save_path = os.path.join(save_location, "{0}.png".format(name))
+    rslt.save(save_path, quality=QUALITY)
 
 
-def arrow_creator(background_options, foreground_options, start, end, general_name, save_location):
+def arrow_creator(background_options, start, end, general_name, save_location):
     """
-
-    :param background_options:
-    :param foreground_options:
-    :param n:
-    :param save_location:
-    :return:
+    
+    :param background_options: 
+    :param start: 
+    :param end: 
+    :param general_name: 
+    :param save_location: 
+    :return: 
     """
     for i in tqdm(range(start+1, end+1)):
-        arrow_masher(background_options, foreground_options, name="{0}_{1}".format(i, general_name), save_location=save_location)
+        arrow_masher(background_options, name="{0}_{1}".format(i, general_name),
+                     save_location=save_location)

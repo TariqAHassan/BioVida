@@ -15,10 +15,11 @@ from data.synthesized_data._private.my_file_paths import valid_x_ray
 from data.synthesized_data._private.my_file_paths import valid_mri_ct
 
 # ToDo: create 'grids' with black spaces added to each image on either side images.
-quality = 95  # set image quality
+QUALITY = 95   # set image quality
+MIN_SIZE = 150  # the smallest an image can be w.r.t. a single axis (e.g., 140 x 300 is not allowed)
 
 
-np.random.seed(100)
+np.random.seed(100)  # make dataset reproducible
 
 
 # ----------------------------------------------------------------------------------------------------------

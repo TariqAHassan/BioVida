@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from data.synthesized_data.support_tools import (quality, open_multiple_and_random_crop)
+from data.synthesized_data.support_tools import (QUALITY, MIN_SIZE, open_multiple_and_random_crop)
 
 
 # Probabilities for
@@ -111,7 +111,7 @@ def grid_masher(all_image_options):
     return Image.fromarray(grid)
 
 
-def grid_masher_min_size(all_image_options, name, save_location, min_size=150, limit=250):
+def grid_masher_min_size(all_image_options, name, save_location, min_size=MIN_SIZE, limit=250):
     """
 
     :param all_image_options:
@@ -128,7 +128,7 @@ def grid_masher_min_size(all_image_options, name, save_location, min_size=150, l
         image = grid_masher(all_image_options)
         c += 1
 
-    image.save(os.path.join(save_location, "{0}.png".format(name)), quality=quality)
+    image.save(os.path.join(save_location, "{0}.png".format(name)), quality=QUALITY)
 
 
 def grid_creator(all_image_options, start, end, general_name, save_location):

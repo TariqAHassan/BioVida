@@ -9,12 +9,14 @@ import os
 from os.path import join as os_join
 from biovida.images import OpeniInterface
 from biovida.images import ImageProcessing
+from biovida.images import image_delete
+
 from biovida.images.image_cache_mgmt import image_divvy
 from biovida.support_tools.utilities import train_val_test
 
 from data.synthesized_data.support_tools import base_images
 from data.synthesized_data.text import occluding_text_creator
-from data.synthesized_data.arrows import arrows, arrow_creator
+from data.synthesized_data.arrows import arrow_creator
 from data.synthesized_data.valid import valid_image_creator
 from data.synthesized_data.grids import grid_creator
 
@@ -23,10 +25,50 @@ from data._private.paths import target_dir
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Source Data
+# Source: Harvesting
 # ----------------------------------------------------------------------------------------------------------
 
+
+# Note: this entails downloading over 250,000 records (will take some time)
+
 opi = OpeniInterface()
+opi.search(image_type=['mri', 'ct', 'x_ray'])
+df = opi.pull(download_limit=None, image_size=None, clinical_cases_only=False)
+
+opi.records_db = opi.records_db[
+    opi.records_db['image_problems_from_text'].map(lambda x: isinstance(x, tuple) and len(x) == 1)].reset_index(drop=True)
+
+# The restriction above resulted in ~81,000 records,
+# i.e., 81k images were downloaded.
+
+opi.pull(new_records_pull=False)
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Source: Delete Images Which are Not Grayscale
+# ----------------------------------------------------------------------------------------------------------
+
+
+ip = ImageProcessing(opi, db_to_extract='records_db')
+ip.grayscale_analysis()
+
+
+def delete_rule(row):
+    if row['grayscale'] != True:
+        return True
+
+
+image_delete(ip, delete_rule=delete_rule)
+# Resulted in ~30,000 images
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Source: Divvy
+# ----------------------------------------------------------------------------------------------------------
+
+
+opi = OpeniInterface()
+
 
 def divvy_rule(row):
     if 'grids' == row['image_problems_from_text'][0]:
@@ -40,7 +82,7 @@ divvy_info = image_divvy(opi, db_to_extract='cache_records_db',
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Synthesized Data (Either Entirely or to Compliment Source Data)
+# Synthesized Data: Generate (Either Entirely or to Compliment Source Data)
 # ----------------------------------------------------------------------------------------------------------
 
 
@@ -81,9 +123,9 @@ arrows_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'arro
 # 62,287
 
 if arrows_end > 0:
-    arrow_creator(base_images, arrows, start=START, end=arrows_end,
+    arrow_creator(base_images, start=START, end=arrows_end,
                   general_name="arrow", save_location=os_join(output_dir, 'arrows'))
-    
+
 
 # -----------------------------------------
 # Grids

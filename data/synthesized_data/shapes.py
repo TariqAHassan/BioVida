@@ -11,13 +11,9 @@ from tqdm import tqdm
 from PIL import Image, ImageDraw
 from random import randint
 
-from data.synthesized_data.support_tools import (base_images,
-                                                 quality,
+from data.synthesized_data.support_tools import (QUALITY,
                                                  random_crop,
                                                  random_tuple_in_range)
-
-
-from data.synthesized_data._private.my_file_paths import ellipses_save_location
 
 
 # Vary:
@@ -110,4 +106,4 @@ def ellipse_image_creator(all_image_options, start, end, general_name, save_loca
         # Open a random photo and crop
         base_image = random_crop(Image.open(random.choice(all_image_options)))
         # Save
-        ellipse_mash(base_image).save("{0}/{1}_{2}.png".format(save_location, i, general_name), quality=quality)
+        ellipse_mash(base_image).save("{0}/{1}_{2}.png".format(save_location, i, general_name), quality=QUALITY)
