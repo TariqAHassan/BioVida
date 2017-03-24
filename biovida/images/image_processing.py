@@ -575,10 +575,10 @@ class ImageProcessing(object):
 
         >>> DataFrame['visual_image_problems']
         ...
-        0 [('valid_img', 0.97158539), ('arrows', 0.066939682), ('grids', 0.0010551035)]
-        1 [('valid_img', 0.98873705), ('arrows', 0.024444019), ('grids', 0.0001462775)]
-        2 [('valid_img', 0.89019465), ('arrows', 0.16754828), ('grids', 0.009004808)]
-        3 [('grids', 0.85855108), ('valid_img', 0.0002961561), ('arrows', 6.8026602e-09)]
+        0 [('valid_image', 0.97158539), ('arrows', 0.066939682), ('grids', 0.0010551035)]
+        1 [('valid_image', 0.98873705), ('arrows', 0.024444019), ('grids', 0.0001462775)]
+        2 [('valid_image', 0.89019465), ('arrows', 0.16754828), ('grids', 0.009004808)]
+        3 [('grids', 0.85855108), ('valid_image', 0.0002961561), ('arrows', 6.8026602e-09)]
 
 
         The first value in the tuple represents the problem identified and second
@@ -677,14 +677,14 @@ class ImageProcessing(object):
 
             problem = False
             if len(vip_) == 1:
-                if vip_[0][0] == 'valid_img' and vip_[0][1] < valid_floor:
+                if vip_[0][0] == 'valid_image' and vip_[0][1] < valid_floor:
                     problem = True
             else:
-                if vip_[0][0] == 'valid_img' and vip_[0][1] < valid_floor:
+                if vip_[0][0] == 'valid_image' and vip_[0][1] < valid_floor:
                     problem = True
-                elif vip_[0][0] == 'valid_img' and vip_[1][1] > image_problem_threshold:
+                elif vip_[0][0] == 'valid_image' and vip_[1][1] > image_problem_threshold:
                     problem = True
-                elif vip_[0][0] != 'valid_img' and vip_[0][1] > image_problem_threshold:
+                elif vip_[0][0] != 'valid_image' and vip_[0][1] > image_problem_threshold:
                     problem = True
             return ['visual_image_problems'] if problem else []
 
@@ -713,7 +713,7 @@ class ImageProcessing(object):
         :param problems_to_ignore: image problems to ignore. See ``INSTANCE.known_image_problems`` for valid values.
                                    Defaults to ``None``.
         :type problems_to_ignore: ``None``, ``list`` or ``tuple``
-        :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
+        :param valid_floor: the smallest value needed for a 'valid_image' to be considered valid. Defaults to `0.01`.
         :type valid_floor: ``float``
         """
         for i in ('grayscale', 'image_problems_from_text', 'visual_image_problems'):
@@ -722,7 +722,7 @@ class ImageProcessing(object):
 
         if isinstance(problems_to_ignore, (list, tuple)):
             for i in problems_to_ignore:
-                if i not in self.known_image_problems or i == 'valid_img':
+                if i not in self.known_image_problems or i == 'valid_image':
                     raise ValueError("`problems_to_ignore` may only contain the following:\n"
                                      "{0}".format(list_to_bulletpoints(self.known_image_problems)))
         elif problems_to_ignore is not None:
@@ -742,7 +742,7 @@ class ImageProcessing(object):
 
         :param image_problem_threshold: see ``auto_decision()``. Defaults to `0.275`.
         :type image_problem_threshold: ``float``
-        :param valid_floor: the smallest value needed for a 'valid_img' to be considered valid. Defaults to `0.01`.
+        :param valid_floor: the smallest value needed for a 'valid_image' to be considered valid. Defaults to `0.01`.
         :type valid_floor: ``float``
         :param limit_to_known_modalities: if ``True``, remove model predicts for image modalities
                                           the model has not explicitly been trained on. Defaults to ``True``.
