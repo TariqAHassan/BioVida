@@ -22,6 +22,5 @@ Outline for ``biovida.images.models.image_processing``:
 |          Look for border         |               if true, try to crop               |      Solved      |             No            |
 |     Look for arrows or boxes     |                   if true, ban                   | Partially Solved |            Yes            |
 |       Look for image grids       |                   if true, ban                   | Partially Solved |            Yes            |
-|          Look for graphs         |                   if true, ban                   |     Unsolved     |            Yes            |
-| Look for other text in the image |           if true, ban (or find crop).           |     Unsolved     |            Yes            |
+| Look for other text in the image |           if true, ban (or find crop).           | Partially Solved |            Yes            |
 
