@@ -456,16 +456,17 @@
 <span class="sd">    :type target_dir: ``str`` or ``None``</span>
 <span class="sd">    :param action: one of: &#39;copy&#39;, &#39;ndarray&#39;.</span>
 
-<span class="sd">                    - if ``&#39;copy&#39;``: copy from files from ``data`` to ``target_dir`` (default).</span>
-<span class="sd">                    - if ``&#39;move&#39;``: move from files from ``data`` to ``target_dir``.</span>
-<span class="sd">                    - if ``&#39;ndarray&#39;``: return a nested dictionary of ``ndarray`` (&#39;numpy&#39;) arrays.</span>
+<span class="sd">        - if ``&#39;copy&#39;``: copy from files from ``data`` to ``target_dir`` (default).</span>
 
+<span class="sd">        - if ``&#39;move&#39;``: move from files from ``data`` to ``target_dir``.</span>
 
-<span class="sd">            .. warning::</span>
+<span class="sd">        - if ``&#39;ndarray&#39;``: return a nested dictionary of ``ndarray`` (&#39;numpy&#39;) arrays.</span>
 
-<span class="sd">                    **Using ``&#39;move&#39;`` directly on files in a cache is not recommended**.</span>
-<span class="sd">                    However, if this action is performed, the corresponding class must be</span>
-<span class="sd">                    reinstated to allow the ``cache_records_db`` database to update.</span>
+<span class="sd">        .. warning::</span>
+
+<span class="sd">                **Using &#39;move&#39; directly on files in a cache is not recommended**.</span>
+<span class="sd">                However, if this action is performed, the corresponding class must be</span>
+<span class="sd">                reinstated to allow the ``cache_records_db`` database to update.</span>
 
 <span class="sd">    :type action: ``str``</span>
 <span class="sd">    :param delete_source: if ``True`` delete the source subdirectories in ``data`` after copying is complete. Defaults to ``False``.</span>

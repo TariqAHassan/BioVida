@@ -1835,16 +1835,14 @@ no images will be allocated.</li>
 <li><strong>target_dir</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the location to output the images to (if <code class="docutils literal"><span class="pre">action=True</span></code>). If <code class="docutils literal"><span class="pre">None</span></code>, the output location will
 be <code class="docutils literal"><span class="pre">data</span></code>. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 <li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: &#8216;copy&#8217;, &#8216;ndarray&#8217;.</p>
-<blockquote>
-<div><ul>
+<ul>
 <li>if <code class="docutils literal"><span class="pre">'copy'</span></code>: copy from files from <code class="docutils literal"><span class="pre">data</span></code> to <code class="docutils literal"><span class="pre">target_dir</span></code> (default).</li>
 <li>if <code class="docutils literal"><span class="pre">'move'</span></code>: move from files from <code class="docutils literal"><span class="pre">data</span></code> to <code class="docutils literal"><span class="pre">target_dir</span></code>.</li>
 <li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays.</li>
 </ul>
-</div></blockquote>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last"><strong>Using ``&#8217;move&#8217;`` directly on files in a cache is not recommended</strong>.
+<p class="last"><strong>Using &#8216;move&#8217; directly on files in a cache is not recommended</strong>.
 However, if this action is performed, the corresponding class must be
 reinstated to allow the <code class="docutils literal"><span class="pre">cache_records_db</span></code> database to update.</p>
 </div>
