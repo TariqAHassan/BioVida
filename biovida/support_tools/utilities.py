@@ -12,6 +12,7 @@ from tqdm import tqdm
 from warnings import warn
 from scipy.ndimage import imread
 from os.path import join as os_join
+from os.path import basename as os_basename
 
 # General Support Tools
 from biovida.support_tools.support_tools import isclose
@@ -68,8 +69,8 @@ def _train_val_test_error_checking(data, target_dir, action, delete_source, grou
         raise ValueError("The following parameters do not sum to 1: {0}.".format(", ".join(sorted(tvt.keys()))))
     if isinstance(data, dict) and not all(isinstance(i, (list, tuple)) for i in data.values()):
         raise TypeError("The values of `data` must be lists or tuples.")
-    if action not in ('copy', 'ndarray'):
-        raise ValueError("`action` must be one of: 'copy', 'ndarray'.")
+    if action not in ('copy', 'move', 'ndarray'):
+        raise ValueError("`action` must be one of: 'copy', 'move', 'ndarray'.")
     if action == 'ndarray' and isinstance(target_dir, str):
         warn("`target_dir` has no effect when `action='ndarray'`")
     if not isinstance(delete_source, bool):
@@ -174,17 +175,17 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
     :return: the values for the inner nest as replaced with ``ndarrays``.
     :rtype: ``dict``
     """
-    def idenity_func(x):
+    def identity_func(x):
         return x
 
     if verbose:
         print("\nConverting Images to ndarrays...")
         if dimensions == 1:
-            status_inner, status_outer = tqdm, idenity_func
+            status_inner, status_outer = tqdm, identity_func
         elif dimensions == 2:
-            status_inner, status_outer = idenity_func, tqdm
+            status_inner, status_outer = identity_func, tqdm
     else:
-        status_inner = status_outer = idenity_func
+        status_inner = status_outer = identity_func
 
     def values_to_ndarrays(d):
         return {k2: np.array([imread(i) for i in v2]) for k2, v2 in status_inner(d.items())}
@@ -219,21 +220,29 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path, verbose):
     if verbose:
         print("\nSplitting Data...")
 
+    if action == 'copy':
+        shutil_func = shutil.copy2
+    elif action == 'move':
+        shutil_func = shutil.move
+    else:
+        # Note: it's logically impossible for this to be called and raise an error.
+        shutil_func = None
+
     output_dict = dict()
     for k, v in group_files_dict.items():
         if verbose:
-            print("\nDivvying '{0}'...".format(os.path.basename(k)))
+            print("\nDivvying '{0}'...".format(os_basename(k)))
         for k2, v2 in _list_divide(v, tvt):
             if k2 not in output_dict:
                 output_dict[k2] = {k: v2}
             else:
                 output_dict[k2][k] = v2
-            if action == 'copy':
+            if action in ('copy', 'move'):
                 if verbose:
                     print("\n{0}...".format(k2))
-                target = directory_existence_handler(path_=os_join(target_path, os_join(k2, k)), allow_creation=True)
+                target = directory_existence_handler(os_join(target_path, os_join(k2, k)), allow_creation=True)
                 for i in status_bar(v2):
-                    shutil.copy2(i, os_join(target, os.path.basename(i)))
+                    shutil_func(i, os_join(target, os_basename(i)))
     return output_dict
 
 
@@ -276,7 +285,15 @@ def train_val_test(data,
     :param action: one of: 'copy', 'ndarray'.
 
                     - if ``'copy'``: copy from files from ``data`` to ``target_dir`` (default).
+                    - if ``'move'``: move from files from ``data`` to ``target_dir``.
                     - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
+
+
+            .. warning::
+
+                    **Using ``'move'`` directly on files in a cache is not recommended**.
+                    However, if this action is performed, the corresponding class must be
+                    reinstated to allow the ``cache_records_db`` database to update.
 
     :type action: ``str``
     :param delete_source: if ``True`` delete the source subdirectories in ``data`` after copying is complete. Defaults to ``False``.
@@ -430,8 +447,7 @@ def train_val_test(data,
         for i in existing_dirs:
             shutil.rmtree(i)
 
-    if action == 'copy':
+    if action in ('copy', 'move'):
         return output_dict
     elif action == 'ndarray':
         return _file_paths_dict_to_ndarrays(output_dict, dimensions=2, verbose=verbose)
-
