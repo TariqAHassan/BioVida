@@ -81,7 +81,7 @@ arrows_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'arro
 # 17287
 
 if arrows_end > 0:
-    arrow_creator(base_images, arrows, start=START, end=TOTAL_PER_GROUP,
+    arrow_creator(base_images, arrows, start=START, end=arrows_end,
                   general_name="arrow", save_location=os_join(output_dir, 'arrows'))
     
 
@@ -94,7 +94,7 @@ grids_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'grids
 # 12905
 
 if grids_end > 0:
-    grid_creator(base_images, start=START, end=TOTAL_PER_GROUP,
+    grid_creator(base_images, start=START, end=grids_end,
                  general_name='grid', save_location=os_join(output_dir, 'grids'))
 
 
@@ -105,23 +105,3 @@ if grids_end > 0:
 
 output = train_val_test(data=output_dir, train=0.75, validation=0.15, test=0.1,
                         action='move', target_dir=target_dir, delete_source=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
