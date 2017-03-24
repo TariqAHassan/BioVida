@@ -451,3 +451,129 @@ def train_val_test(data,
         return output_dict
     elif action == 'ndarray':
         return _file_paths_dict_to_ndarrays(output_dict, dimensions=2, verbose=verbose)
+
+
+def reverse_train_val_test(data, delete_source=True, verbose=True):
+    """
+
+    Reverse the action of ``train_val_test`` on a directory.
+
+    :param data: the path to the directory created by ``train_val_test``.
+    :type data: ``str``
+    :param delete_source: if ``True`` delete the empty train/validation/test directories in ``data`` after the move is
+                          complete. Defaults to ``True``.
+    :type delete_source: ``bool``
+    :param verbose: if ``True``, print the resultant structure. Defaults to ``True``.
+    :type verbose: ``bool``
+
+    :Example:
+
+    Initial Directory Structure:
+
+    .. code-block:: bash
+
+        $ tree /path/to/data/images
+        ├── ct
+        │   ├── ct_1.png
+        │   ├── ct_2.png
+        │   ├── ct_3.png
+        │   ├── ct_4.png
+        │   ├── ct_5.png
+        │   └── ct_6.png
+        └── mri
+            ├── mri_1.png
+            ├── mri_2.png
+            ├── mri_3.png
+            ├── mri_4.png
+            ├── mri_5.png
+            └── mri_6.png
+
+
+    >>> from biovida.support_tools import train_val_test
+    >>> tv = train_val_test(data='/path/to/data/images', train=0.7, validation=0.3, test=None,
+    ...                     action='copy', delete_source=True)
+
+    .. code-block:: bash
+
+        $ tree /path/to/data/images
+        ├── train
+        │   ├── ct
+        │   │   ├── ct_4.png
+        │   │   ├── ct_5.png
+        │   │   ├── ct_3.png
+        │   │   └── ct_1.png
+        │   └── mri
+        │       ├── mri_2.png
+        │       ├── mri_1.png
+        │       ├── mri_5.png
+        │       └── mri_4.png
+        └── validation
+            ├── ct
+            │   ├── ct_2.png
+            │   └── ct_6.png
+            └── mri
+                ├── mri_3.png
+                └── mri_6.png
+
+    >>> reverse_train_val_test('/path/to/data/images')
+
+    .. code-block:: bash
+
+        $ tree /path/to/data/images
+        ├── ct
+        │   ├── ct_1.png
+        │   ├── ct_2.png
+        │   ├── ct_3.png
+        │   ├── ct_4.png
+        │   ├── ct_5.png
+        │   └── ct_6.png
+        └── mri
+            ├── mri_1.png
+            ├── mri_2.png
+            ├── mri_3.png
+            ├── mri_4.png
+            ├── mri_5.png
+            └── mri_6.png
+
+    """
+    def status_bar(iterable):
+        return tqdm(iterable) if verbose else iterable
+
+    def subclasses(tvt):
+        return [os_join(tvt, c) for c in os.listdir(tvt) if os.path.isdir(os_join(tvt, c))]
+
+    def listdir_full(path):
+        return [os_join(path, f) for f in os.listdir(path) if not f.startswith('.')]
+
+    def last_two_path(path):
+        return os.sep.join(path.split(os.sep)[-2:])
+
+    tvt = ('train', 'validation', 'test')
+    tvt_in_data = [os.path.join(data, d) for d in tvt if os.path.isdir(os.path.join(data, d))]
+
+    if not len(tvt_in_data):
+        raise NotADirectoryError("`data` does not contain a 'train', "
+                                 "'validation' or 'test' directory.")
+
+    for i in tvt_in_data:
+        classes = subclasses(i)
+        for c in classes:
+            if verbose:
+                print("\nProcessing '{0}'...".format(last_two_path(c)))
+            for file in status_bar(listdir_full(c)):
+                class_in_data = os_join(data, os.path.basename(c))
+                if not os.path.isdir(class_in_data):
+                    os.makedirs(class_in_data)
+                dst = os_join(class_in_data, os.path.basename(file))
+                if not os.path.isfile(dst):
+                    shutil.move(src=file, dst=dst)
+                else:
+                    os.remove(path=file)
+
+    if delete_source:
+        for i in tvt_in_data:
+            shutil.rmtree(i, ignore_errors=True)
+
+    if verbose:
+        print("\nStructure:\n")
+        print(list_to_bulletpoints([os.path.basename(i) for i in subclasses(data)]))
