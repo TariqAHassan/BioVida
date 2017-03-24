@@ -284,16 +284,17 @@ def train_val_test(data,
     :type target_dir: ``str`` or ``None``
     :param action: one of: 'copy', 'ndarray'.
 
-                    - if ``'copy'``: copy from files from ``data`` to ``target_dir`` (default).
-                    - if ``'move'``: move from files from ``data`` to ``target_dir``.
-                    - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
+        - if ``'copy'``: copy from files from ``data`` to ``target_dir`` (default).
 
+        - if ``'move'``: move from files from ``data`` to ``target_dir``.
 
-            .. warning::
+        - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
 
-                    **Using ``'move'`` directly on files in a cache is not recommended**.
-                    However, if this action is performed, the corresponding class must be
-                    reinstated to allow the ``cache_records_db`` database to update.
+        .. warning::
+
+                **Using 'move' directly on files in a cache is not recommended**.
+                However, if this action is performed, the corresponding class must be
+                reinstated to allow the ``cache_records_db`` database to update.
 
     :type action: ``str``
     :param delete_source: if ``True`` delete the source subdirectories in ``data`` after copying is complete. Defaults to ``False``.
