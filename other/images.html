@@ -768,10 +768,10 @@ the model has not explicitly been trained on. Defaults to <code class="docutils 
 </table>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DataFrame</span><span class="p">[</span><span class="s1">&#39;visual_image_problems&#39;</span><span class="p">]</span>
 <span class="gp">...</span>
-<span class="go">0 [(&#39;valid_img&#39;, 0.97158539), (&#39;arrows&#39;, 0.066939682), (&#39;grids&#39;, 0.0010551035)]</span>
-<span class="go">1 [(&#39;valid_img&#39;, 0.98873705), (&#39;arrows&#39;, 0.024444019), (&#39;grids&#39;, 0.0001462775)]</span>
-<span class="go">2 [(&#39;valid_img&#39;, 0.89019465), (&#39;arrows&#39;, 0.16754828), (&#39;grids&#39;, 0.009004808)]</span>
-<span class="go">3 [(&#39;grids&#39;, 0.85855108), (&#39;valid_img&#39;, 0.0002961561), (&#39;arrows&#39;, 6.8026602e-09)]</span>
+<span class="go">0 [(&#39;valid_image&#39;, 0.97158539), (&#39;arrows&#39;, 0.066939682), (&#39;grids&#39;, 0.0010551035)]</span>
+<span class="go">1 [(&#39;valid_image&#39;, 0.98873705), (&#39;arrows&#39;, 0.024444019), (&#39;grids&#39;, 0.0001462775)]</span>
+<span class="go">2 [(&#39;valid_image&#39;, 0.89019465), (&#39;arrows&#39;, 0.16754828), (&#39;grids&#39;, 0.009004808)]</span>
+<span class="go">3 [(&#39;grids&#39;, 0.85855108), (&#39;valid_image&#39;, 0.0002961561), (&#39;arrows&#39;, 6.8026602e-09)]</span>
 </pre></div>
 </div>
 <p>The first value in the tuple represents the problem identified and second
@@ -820,7 +820,7 @@ which contains a image problem probability above <cite>0.5</cite> will be marked
 as invalid.</li>
 <li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_image&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
 </ul>
 </td>
 </tr>
@@ -838,7 +838,7 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>image_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <cite>0.275</cite>.</li>
-<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_img&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_image&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
 <li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
 the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
@@ -922,7 +922,7 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <h2>Image Classification<a class="headerlink" href="#image-classification" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN">
-<em class="property">class </em><code class="descclassname">biovida.images.models.image_classification.</code><code class="descname">ImageClassificationCNN</code><span class="sig-paren">(</span><em>data_path=None</em>, <em>image_shape=(150</em>, <em>150)</em>, <em>rescale=0.00392156862745098</em>, <em>shear_range=0.05</em>, <em>zoom_range=0.3</em>, <em>horizontal_flip=True</em>, <em>vertical_flip=False</em>, <em>batch_size=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">biovida.images.models.image_classification.</code><code class="descname">ImageClassificationCNN</code><span class="sig-paren">(</span><em>data_path=None</em>, <em>image_shape=(150</em>, <em>150)</em>, <em>rescale=0.00392156862745098</em>, <em>shear_range=0.05</em>, <em>zoom_range=0.3</em>, <em>horizontal_flip=True</em>, <em>vertical_flip=False</em>, <em>batch_size=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keras Convolutional Neural Networks Interface.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -948,7 +948,7 @@ Defaults to 4.</li>
 </table>
 <dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.convnet">
-<code class="descname">convnet</code><span class="sig-paren">(</span><em>model_to_use='default'</em>, <em>loss='binary_crossentropy'</em>, <em>optimizer='default'</em>, <em>metrics=('accuracy'</em>, <em>)</em>, <em>output_layer_activation='sigmoid'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.convnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.convnet" title="Permalink to this definition">¶</a></dt>
+<code class="descname">convnet</code><span class="sig-paren">(</span><em>model_to_use='default'</em>, <em>loss='binary_crossentropy'</em>, <em>optimizer='default'</em>, <em>metrics=('accuracy'</em>, <em>)</em>, <em>output_layer_activation='softmax'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.convnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.convnet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define and Compile the Image Recognition Convolutional Neural Network.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -959,6 +959,7 @@ Defaults to 4.</li>
 <ul>
 <li>&#8216;default&#8217;: a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling); one hidden layer and 0.5 drop out.</li>
 <li>&#8216;alex_net&#8217;: the 2012 &#8216;AlexNet&#8217; model.</li>
+<li>&#8216;squeezenet&#8217;: SqueezeNet model.</li>
 <li>&#8216;vgg19&#8217;: the VGG 19 model.</li>
 </ul>
 </li>
@@ -979,14 +980,14 @@ See: <code class="docutils literal"><span class="pre">keras.models.Sequential()<
 
 <dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>nb_epoch=10</em>, <em>min_delta=0.1</em>, <em>patience=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>epochs=10</em>, <em>min_delta=0.1</em>, <em>patience=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model to the training data and run a validation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>nb_epoch</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; number of epochs. See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>. Defaults to 10.</li>
+<li><strong>epochs</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; number of epochs. See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>. Defaults to 10.</li>
 <li><strong>min_delta</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">keras.callbacks.EarlyStopping()</span></code>.</li>
 <li><strong>patience</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; see <code class="docutils literal"><span class="pre">keras.callbacks.EarlyStopping()</span></code>.</li>
 </ul>

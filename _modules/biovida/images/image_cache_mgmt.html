@@ -279,8 +279,14 @@
 <span class="sd">    :return: ``records_db`` with ``update_db`` left-joined.</span>
 <span class="sd">    :rtype: ``Pandas DataFrame``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">joined_db</span> <span class="o">=</span> <span class="n">records_db</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">update_db</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">update_db</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">joined_db</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">joined_db</span> <span class="o">=</span> <span class="n">records_db</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">update_db</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">joined_db</span> <span class="o">=</span> <span class="n">records_db</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">update_db</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">joined_db</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">update_db</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">joined_db</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">update_db</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_load_temp_dbs</span><span class="p">(</span><span class="n">temp_db_path</span><span class="p">):</span>
@@ -646,6 +652,8 @@
     <span class="c1"># ToDo: refactor. This function is very cumbersome.</span>
     <span class="n">index_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">_double_check_with_user</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleting...&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cln</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
