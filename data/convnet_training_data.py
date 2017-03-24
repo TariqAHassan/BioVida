@@ -44,7 +44,8 @@ divvy_info = image_divvy(opi, db_to_extract='cache_records_db',
 # ----------------------------------------------------------------------------------------------------------
 
 
-TOTAL_PER_GROUP = 30000
+START = 0
+TOTAL_PER_GROUP = 75000
 
 
 def number_of_images_in_dir(path):
@@ -56,8 +57,8 @@ def number_of_images_in_dir(path):
 # -----------------------------------------
 
 
-# os.makedirs(os_join(output_dir, "valid_image"))
-valid_image_creator(base_images, start=0, end=TOTAL_PER_GROUP,
+os.makedirs(os_join(output_dir, "valid_image"))
+valid_image_creator(base_images, start=START, end=TOTAL_PER_GROUP,
                     general_name="valid_image", save_location=os_join(output_dir, "valid_image"))
 
 
@@ -66,8 +67,8 @@ valid_image_creator(base_images, start=0, end=TOTAL_PER_GROUP,
 # -----------------------------------------
 
 
-# os.makedirs(os_join(output_dir, "text"))
-occluding_text_creator(base_images, start=0, end=TOTAL_PER_GROUP,
+os.makedirs(os_join(output_dir, "text"))
+occluding_text_creator(base_images, start=START, end=TOTAL_PER_GROUP,
                        general_name="text", save_location=os_join(output_dir, "text"))
 
 
@@ -80,7 +81,7 @@ arrows_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'arro
 # 17287
 
 if arrows_end > 0:
-    arrow_creator(base_images, arrows, start=0, end=arrows_end,
+    arrow_creator(base_images, arrows, start=START, end=TOTAL_PER_GROUP,
                   general_name="arrow", save_location=os_join(output_dir, 'arrows'))
     
 
@@ -93,7 +94,7 @@ grids_end = TOTAL_PER_GROUP - number_of_images_in_dir(os_join(output_dir, 'grids
 # 12905
 
 if grids_end > 0:
-    grid_creator(base_images, start=0, end=grids_end,
+    grid_creator(base_images, start=START, end=TOTAL_PER_GROUP,
                  general_name='grid', save_location=os_join(output_dir, 'grids'))
 
 
@@ -103,7 +104,7 @@ if grids_end > 0:
 
 
 output = train_val_test(data=output_dir, train=0.75, validation=0.15, test=0.1,
-                        action='copy', target_dir=target_dir)
+                        action='move', target_dir=target_dir, delete_source=True)
 
 
 
