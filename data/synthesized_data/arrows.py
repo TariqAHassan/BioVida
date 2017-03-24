@@ -65,7 +65,7 @@ def arrow_back_foreground_mash(background_options,
                                foreground_stretch_by=(0.85, 1.25),
                                location_border_buffer=0.38):
     # Load a Background
-    background = load_background_min(background_options, min_size=125)
+    background = load_background_min(background_options, min_size=150)
 
     # Number of arrows
     prior_positions = list()
@@ -76,8 +76,8 @@ def arrow_back_foreground_mash(background_options,
     N = np.random.choice([1, 2, 3, 4, 5], 1, p=[0.48, 0.38, 0.11, 0.02, 0.01])[0]
     while count < N:
 
-        if attempts > 500:
-            background = load_background_min(background_options, min_size=125)
+        if attempts > 10:
+            background = load_background_min(background_options, min_size=150)
             prior_size = None
             count = 0
             attempts = 0
@@ -101,10 +101,10 @@ def arrow_back_foreground_mash(background_options,
 
         # Compute the correct scalar to make foreground `foreground_scalar` times
         # the size of the smallest axis in the background.
-        bg_min_axis = min(background.size) if min(background.size) < bg_min_ceiling else bg_min_ceiling
+        # bg_min_axis = min(background.size) if min(background.size) < bg_min_ceiling else bg_min_ceiling
         scale_image_by = (min(background.size) * (foreground_scalar)) / max(foreground.size)
 
-        # Rescale the foreground and rotate; expand=1 expands the canvis to stop the image being cut off
+        # Rescale the foreground and rotate; expand=1 expands the canvas to stop the image being cut off
         foreground = resize_image(foreground, scale_image_by).rotate(random.randint(0, 360), expand=1)
 
         # Random location to place the image

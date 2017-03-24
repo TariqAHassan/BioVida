@@ -14,6 +14,8 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from random import randint
 from itertools import chain
+from string import ascii_lowercase
+ascii_lowercase = list(ascii_lowercase)[:6]
 
 from data.synthesized_data.support_tools import (base_images,
                                                  random_tuple_away,
@@ -182,12 +184,22 @@ def text_background_window(background, text_loc, text_dim, black_color_threshold
 # ---------------------------------------------
 
 
-def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
+def random_text_gen(n_chars=(1, 4), n_words=(1, 2), n_phrases=(1, 2)):
     """
 
     """
+    def case_change(s):
+        n = randint(0, 2)
+        if n == 0:
+            return s.lower()
+        elif n == 1:
+            return s.upper()
+        elif n == 2:
+            return s.title()
+
     def pseudo_words():
-        return ("".join(random_letters(n_chars)) for _ in range(random_int(n_words)))
+        words = ["".join(random_letters(n_chars)) for _ in range(random_int(n_words))]
+        return [case_change(w) for w in words]
 
     def random_numbers():
         numbers = list(np.random.choice(list(map(str, range(1, 11))), random_int(n_chars)))
@@ -200,6 +212,18 @@ def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
 
     # Define a container for the phrases
     phrases = list()
+
+    # Decide whether or not to only numbers from 1 - 5
+    if randint(0, 100) >= 80:
+        return list(map(str, range(1, randint(2, 9))))
+
+    if randint(0, 100) >= 80:
+        random_letter_enumeration = ascii_lowercase[:randint(2, len(ascii_lowercase))]
+        if randint(0, 1) == 1:
+            return [s.upper() for s in random_letter_enumeration]
+        else:
+            return [s.lower() for s in random_letter_enumeration]
+
 
     # Decide whether or not to only return asterisks
     if randint(0, 100) >= 90:
@@ -223,7 +247,7 @@ def random_text_gen(n_chars=(1, 3), n_words=(2, 3), n_phrases=(1, 2)):
     return list(chain(*[i.split() if max(map(len, i.split())) == 1 else [i] for i in phrases]))
 
 
-def occluding_text_masher(background_options, border_buffer=0.40):
+def occluding_text_masher(background_options, border_buffer=0.35):
     """
 
     Generate Images where the text occludes the image.

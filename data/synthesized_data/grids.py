@@ -4,13 +4,12 @@
     ~~~~~
 
 """
+import os
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from data.synthesized_data.support_tools import (quality,
-                                                 base_images,
-                                                 open_multiple_and_random_crop)
+from data.synthesized_data.support_tools import (quality, open_multiple_and_random_crop)
 
 
 # Probabilities for
@@ -73,9 +72,10 @@ def side_by_side_stacker(image_list, stacker_a, stacker_b):
     return stacker_b((grid_1, grid_2))
 
 
-def grid_masher(all_image_options, name, save_location):
+def grid_masher(all_image_options):
     """
 
+    :param all_image_options:
     :return:
     """
     # Determine the general shape of the grid
@@ -107,11 +107,28 @@ def grid_masher(all_image_options, name, save_location):
     elif image_shape == 3:
         grid = side_by_side_stacker(grid_images, stacker_a=np.vstack, stacker_b=np.hstack)
 
-    # Image.fromarray(grid).show()
-    rslt = Image.fromarray(grid)
+    # Convert to a PIL image
+    return Image.fromarray(grid)
 
-    # Convert to an image and Save to disk
-    rslt.save("{0}/{1}.png".format(save_location, name), quality=quality)
+
+def grid_masher_min_size(all_image_options, name, save_location, min_size=150, limit=250):
+    """
+
+    :param all_image_options:
+    :param name:
+    :param save_location:
+    :param min_size:
+    :param limit:
+    :return:
+    """
+    image = grid_masher(all_image_options)
+
+    c = 0
+    while c <= limit and min(image.size) < min_size:
+        image = grid_masher(all_image_options)
+        c += 1
+
+    image.save(os.path.join(save_location, "{0}.png".format(name)), quality=quality)
 
 
 def grid_creator(all_image_options, start, end, general_name, save_location):
@@ -125,5 +142,5 @@ def grid_creator(all_image_options, start, end, general_name, save_location):
     :return:
     """
     for i in tqdm(range(start+1, end+1)):
-        grid_masher(all_image_options, name="{0}_{1}".format(i, general_name),
-                    save_location=save_location)
+        grid_masher_min_size(all_image_options, name="{0}_{1}".format(i, general_name),
+                             save_location=save_location)

@@ -11,18 +11,31 @@ import pandas as pd
 from PIL import Image
 from random import randint
 
-from data.synthesized_data._private.my_file_paths import base_image_path
+from data.synthesized_data._private.my_file_paths import valid_x_ray
+from data.synthesized_data._private.my_file_paths import valid_mri_ct
 
 # ToDo: create 'grids' with black spaces added to each image on either side images.
 quality = 95  # set image quality
 
 
+np.random.seed(100)
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Data
+# ----------------------------------------------------------------------------------------------------------
+
+
+def _full_paths(path):
+    return [os.path.join(path, i) for i in os.listdir(path) if i.endswith(".png")]
+
+
+base_images = _full_paths(valid_mri_ct) + _full_paths(valid_x_ray)
+
+
 # ----------------------------------------------------------------------------------------------------------
 # Define Images to use
 # ----------------------------------------------------------------------------------------------------------
-
-
-base_images = [os.path.join(base_image_path, i) for i in os.listdir(base_image_path) if i.endswith(".png")]
 
 
 def base_image_record(images_used, cache_path, save_path):
@@ -225,6 +238,7 @@ def load_background(background_options):
     """
 
     :param background_options:
+    :type background_options: ``list``
     :return:
     """
     # Select random element
@@ -242,7 +256,7 @@ def load_background(background_options):
     return background
 
 
-def load_background_min(background_options, min_size, limit=250):
+def load_background_min(background_options, min_size, limit=500):
     """
 
     :param background_options:
@@ -263,12 +277,13 @@ def load_background_min(background_options, min_size, limit=250):
 def random_crop_min(background_options, min_size, limit=250):
     """
 
-    Returns a cropped image of of min. size.
+    Returns a cropped image of a min. size.
 
     :param background_options:
     :param min_size:
     :param limit:
     :return:
+    :rtype: ``PIL``
     """
     cropped = random_crop(load_background(background_options))
 
