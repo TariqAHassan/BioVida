@@ -25,13 +25,13 @@ from biovida.images.models.image_classification import ImageClassificationCNN
 # ------------------------------------------------------------------------------------------
 
 
-def _image_recognition_cnn_training(nb_epoch, training_data_path, save_name):
+def _image_recognition_cnn_training(epochs, training_data_path, save_name):
     """
 
     Train the model.
 
-    :param nb_epoch: number of epochs
-    :type nb_epoch: ``int``
+    :param epochs: number of epochs
+    :type epochs: ``int``
     :param training_data_path: path to the training data
     :type training_data_path: ``str``
     :param save_name: the name of the weights to be saved
@@ -40,7 +40,7 @@ def _image_recognition_cnn_training(nb_epoch, training_data_path, save_name):
     ircnn = ImageClassificationCNN(training_data_path)
     ircnn.convnet(model_to_use='alex_net')
 
-    ircnn.fit(nb_epoch=nb_epoch)
+    ircnn.fit(epochs=epochs)
     ircnn.save(save_name)
 
 
