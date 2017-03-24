@@ -34,7 +34,7 @@ setup(
     license='BSD',
     keywords='machine-learning, biomedical-informatics, data-science, bioinformatics, imaging-informatics',
     url='https://github.com/TariqAHassan/BioVida.git',
-    packages=find_packages(),
+    packages=find_packages(exclude=("data", "tests")),
     package_data={'biovida': ['images/resources/*.h5', 'images/resources/*.p'],},
     data_files=[('', ['LICENSE.md'])],
     install_requires=required_dependencies(),
