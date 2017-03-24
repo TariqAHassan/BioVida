@@ -410,7 +410,7 @@ def train_val_test(data,
 
     """
     groups = ('train', 'validation', 'test')
-    if action == 'copy':
+    if action in ('copy', 'move'):
         if isinstance(target_dir, str):
             target_path = target_dir
         elif isinstance(data, str) and not isinstance(target_dir, str):
