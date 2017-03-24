@@ -9,7 +9,7 @@ data for the convolutional neural network in the
 Image Cleaning
 ==============
 
-**Modalities Considered: Ultrasound, X-Ray, CT and MRI**
+**Modalities Considered: X-Ray, CT and MRI**
 
 Outline for ``biovida.images.models.image_processing``:
 
@@ -25,4 +25,3 @@ Outline for ``biovida.images.models.image_processing``:
 |          Look for graphs         |                   if true, ban                   |     Unsolved     |            Yes            |
 | Look for other text in the image |           if true, ban (or find crop).           |     Unsolved     |            Yes            |
 
----
