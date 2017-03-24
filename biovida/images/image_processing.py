@@ -81,7 +81,7 @@ class ImageProcessing(object):
             return image_dataframe
         else:
             raise TypeError("The '{0}' of `instance` must be of "
-                            "type DataFrame, not: '{2}'.".format(db_to_extract, type(extract).__name__))
+                            "type DataFrame, not: '{1}'.".format(db_to_extract, type(extract).__name__))
 
     def __init__(self, instance, db_to_extract='records_db', model_location=None, verbose=True):
         self._verbose = verbose
