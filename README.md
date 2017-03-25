@@ -12,7 +12,7 @@ tasks, they will be able to focus their efforts on modeling itself. In turn,
 enabling them to advance new insights and understandings into disease.
 
 In a nod to recursion, this library tries to accomplish some of this automation
-using machine learning itself, such as convolutional neural networks, to
+using machine learning itself (namely, as convolutional neural networks) to
 automatically clean messy data.
 
 To view this project's website, please [click here].
@@ -59,6 +59,14 @@ opi.search(query='lung cancer', image_type=['x_ray', 'ct'])  # Results Found: 9,
 # 4. Pull the data
 search_df = opi.pull()
 ```
+
+Both ``CancerImageInterface`` and ``OpeniInterface`` cache images for later use.
+The 'record' of the most recent ``'search'`` and ``'pull'`` is provided
+by ``records_db`` dataframes, e.g., ``CancerImageInterface.records_db``.
+These dataframe contain dozens of columns of information about the image,
+such as the age of the subject. Similarly, ``cache_records_db`` is a dataframe of
+*all* images currently cached.
+
 
 #### Splitting Images
 
