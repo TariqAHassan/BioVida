@@ -722,13 +722,15 @@ def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_t
     :rtype: ``dict``
     """
     target = train_val_test_dict.get('target_dir') if action == 'copy' else None
+    random_state = train_val_test_dict.get('random_state', None) if action == 'copy' else None
     delete_source = train_val_test_dict.get('delete_source', False) if action == 'copy' else False
+
     output_dict = train_val_test(data=divvy_info,
                                  train=train_val_test_dict.get('train', None),
                                  validation=train_val_test_dict.get('validation', None),
                                  test=train_val_test_dict.get('test', None),
                                  target_dir=target, action=action, delete_source=delete_source,
-                                 verbose=verbose)
+                                 random_state=random_state, verbose=verbose)
     return output_dict
 
 
@@ -767,7 +769,7 @@ def image_divvy(instance,
     :type instance: ``OpeniInterface``, ``ImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
-    :type divvy_rule: ``function``
+    :type divvy_rule: ``str`` or ``function``
     :param action: one of: ``'copy'``, ``'ndarray'``.
 
                     - if ``'copy'``: copy from files from the cache to (i) the location prescribed by ``divvy_rule``,
@@ -792,6 +794,7 @@ def image_divvy(instance,
                         .. note::
 
                             * If ``action='copy'``, a ``'target_dir'`` key (target directory) *must* also be included.
+                            * A ``'random_state'`` key can be passed, with an integer as the value, to seed shuffling.
                             * To delete the source files, a ``'delete_source'`` key may be included (optional).
                               The corresponding value provided *must* be a boolean. If no such key key is provided,
                               ``'delete_source'`` defaults to ``False``.
@@ -928,7 +931,8 @@ def image_divvy(instance,
 
     if not isinstance(data_frame, pd.DataFrame):
         raise TypeError("Expected a DataFrame.\n"
-                        "Got an object of type: '{0}'.".format(type(data_frame).__name__))
+                        "Got an object of type: '{0}'."
+                        "`db_to_extract` may be invalid".format(type(data_frame).__name__))
 
     column_to_use = _divvy_column_selector(instance, image_column=image_column, data_frame=data_frame)
 
