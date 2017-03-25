@@ -53,17 +53,10 @@ from biovida.images import OpeniInterface
 # 2. Create an Instance of the Tool
 opi = OpeniInterface()
 
-# 3. Check available options
-opi.options('image_type')
-# - 'ct'
-# -  ...
-# - 'ultrasound'
-# - 'x_ray'
-
-# 4. Perform a general search for x-rays and cts of lung cancer
+# 3. Perform a general search for x-rays and cts of lung cancer
 opi.search(query='lung cancer', image_type=['x_ray', 'ct'])  # Results Found: 9,220.
 
-# 5. Pull the data
+# 4. Pull the data
 search_df = opi.pull()
 ```
 
@@ -83,13 +76,12 @@ def my_divvy_rule(row):
             return 'ct'
 
 # 2. Define Proportions 
-train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1}
-tvt = image_divvy(opi, divvy_rule=my_divvy_rule, action='ndarray', train_val_test_dict=train_val_test_dict)
+train_val_test_dict = {'train': 0.7, 'test': 0.1}
+tt = image_divvy(opi, divvy_rule=my_divvy_rule, action='ndarray', train_val_test_dict=train_val_test_dict)
 
 # 3. The resultant ``ndarrays`` can be unpacked as follows:
-train_ct, train_xray = tvt['train']['ct'], tvt['train']['x_ray']
-val_ct, val_xray = tvt['validation']['ct'], tvt['validation']['x_ray']
-test_ct, test_xray = tvt['test']['ct'], tvt['test']['x_ray']
+train_ct, train_xray = tt['train']['ct'], tt['train']['x_ray']
+test_ct, test_xray = tt['test']['ct'], tt['test']['x_ray']
 ```
 
 ## Experimental Image Features
@@ -186,11 +178,11 @@ Left side of DataFrame: Image Data Alone
 Right side of DataFrame: External Information
 
 
-|   |        disease_family        |    disease_synonym    |       disease_definition       |        known_associated_symptoms       | mentioned_symptoms | known_associated_genes |
-|:-:|:----------------------------:|:---------------------:|:------------------------------:|:--------------------------------------:|:------------------:|:----------------------:|
-| 0 | (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
-| 1 | (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
-| 2 |    (biliary tract cancer,)   | (bile duct tumor,...) | A biliary tract cancer that... | (abdominal obesity, abdominal pain,..) |      (colic,)      |           nan          |
+        disease_family        |    disease_synonym    |       disease_definition       |        known_associated_symptoms       | mentioned_symptoms | known_associated_genes |
+:----------------------------:|:---------------------:|:------------------------------:|:--------------------------------------:|:------------------:|:----------------------:|
+ (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
+ (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
+    (biliary tract cancer,)   | (bile duct tumor,...) | A biliary tract cancer that... | (abdominal obesity, abdominal pain,..) |      (colic,)      |           nan          |
 
 ---
 
