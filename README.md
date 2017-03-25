@@ -2,15 +2,21 @@
   <img src="https://github.com/TariqAHassan/BioVida/blob/master/docs/logo/biovida_logo_regular_scaled.png"><br>
 </div>
 
------------------
+----
 
-BioVida is a library designed to automate the harvesting, 
-post-processing and integration of biomedical data. This automation
-is accomplished with a combination of traditional software development approaches
-and the latest machine learning techniques, namely convolutional
-neural networks.
+BioVida is a experimental library designed to automate the harvesting, 
+post-processing and integration of biomedical data.
+
+It is hoped that by freeing machine learning experts from these onerous
+tasks, they will be able to focus their efforts on modeling itself. In turn, 
+enabling them to advance new insights and understandings into disease.
+
+In a nod to recursion, this library tries to accomplish some of this automation
+using machine learning itself, such as convolutional neural networks, to
+automatically clean messy data.
 
 To view this project's website, please [click here].
+
 
 ## Installation
 
@@ -19,11 +25,9 @@ Latest Build:
 $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
-## API Overview
+## Stable API Features
 
-### Image Data
-
-In just a few lines of code, you can download and clean images from various biomedical image databases.
+In just a few lines of code, you can download and clean images from biomedical image databases.
 
 #### Cancer Imaging Archive
 ```python
@@ -34,7 +38,7 @@ from biovida.images import CancerImageInterface
 cii = CancerImageInterface(YOUR_API_KEY_HERE)
 
 # 3. Perform a search
-cii.search(location='extremities')
+cii.search(cancer_type='esophageal')
 
 # 4. Pull the data
 cdf = cii.pull()
@@ -48,13 +52,47 @@ from biovida.images import OpeniInterface
 
 # 2. Create an Instance of the Tool
 opi = OpeniInterface()
- 
-# 3. Perform a general search for MRIs and CTs
-opi.search(query=None, image_type=['mri', 'ct'])  # Results Found: 134,113.
 
-# 4. Pull the data
+# 3. Check available options
+opi.options('image_type')
+# - 'ct'
+# -  ...
+# - 'ultrasound'
+# - 'x_ray'
+
+# 4. Perform a general search for x-rays and cts of lung cancer
+opi.search(query='lung cancer', image_type=['x_ray', 'ct'])  # Results Found: 9,220.
+
+# 5. Pull the data
 search_df = opi.pull()
 ```
+
+#### Splitting Images
+
+BioVida can divide cached images into train/validation/test.
+
+```python
+from biovida.images import image_divvy
+
+# 1. Define a rule to 'divvy' up images in the cache.
+def my_divvy_rule(row):
+    if isinstance(row['image_modality_major'], str):
+        if 'x_ray' == row['image_modality_major']:
+            return 'x_ray'
+        elif 'ct' == row['image_modality_major']:
+            return 'ct'
+
+# 2. Define Proportions 
+train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1}
+tvt = image_divvy(opi, divvy_rule=my_divvy_rule, action='ndarray', train_val_test_dict=train_val_test_dict)
+
+# 3. The resultant ``ndarrays`` can be unpacked as follows:
+train_ct, train_xray = tvt['train']['ct'], tvt['train']['x_ray']
+val_ct, val_xray = tvt['validation']['ct'], tvt['validation']['x_ray']
+test_ct, test_xray = tvt['test']['ct'], tvt['test']['x_ray']
+```
+
+## Experimental Image Features
 
 #### Automated Image Data Cleaning
 ```python
@@ -71,30 +109,7 @@ idf = ip.auto()
 ip.save("/save/directory")
 ```
 
-Notes:
- 
-   1. This library is in *pre-alpha*. That is, formal unit testing has
-      not yet been implemented. **Until it is, this software should be 
-      considered to be experimental**.
-   
-   2. The model has been trained and validated to detect two kinds of problems:
-      arrows in the image and 'grids' of images. This was performed using
-      a total of 99,000 images, synthesized from a collection of ~1,500 CT
-      and *structural* MRI scans.*
-      
-   3. While the model will likely generalize to x-ray and ultrasound images,
-      this has not been formally tested. In the future, the model will be 
-      explicitly trained on these types of images.
-   
-   4. *For images which are not grayscale, such a photographs, fMRI and PET scans,
-      the model is almost certain to provide completely erroneous predictions*.
-   
-*While this may raise concerns about overfitting, it is important to note
-that the model was tasked with differentiating between images which had been permuted 
-(e.g., had arrows added) with those that had not (random cropping notwithstanding). 
-Moreover, in informal testing, this model appears to be be performing very well with new data.
-
-### Genomic Data
+## Genomic Data
 
 BioVida provides a simple interface for obtaining genomic data.
 
@@ -109,7 +124,7 @@ dna = DisgenetInterface()
 gdf = dna.pull('curated')
 ```
 
-### Diagnostic Data
+## Diagnostic Data
 
 BioVida also makes it easy to obtain diagnostics data.
 
@@ -139,10 +154,57 @@ dsi = DiseaseSymptomsInterface()
 dsdf = dsi.pull()
 ```
 
+## Unifying Information
+
+The ``unify_against_images`` function integrates image data information from ``DisgenetInterface``,
+``DiseaseOntInterface`` and ``DiseaseSymptomsInterface`` together.
+
+```python
+from biovida.unification import unify_against_images
+
+# Unify against one or more instance of an image interface
+udf = unify_against_images(interfaces=[ip, opi], db_to_extract='cache_records_db')
+```
+
+To view all the columns of ``udf`` at once, we can use tools from ``biovida.support_tools``:
+
+```python
+from biovida.support_tools import pandas_pprint
+
+pandas_pprint(udf, full_cols=True)
+```
+
+Left side of DataFrame: Image Data Alone
+
+|   | article_type | image_id | image_caption |          modality_best_guess          | age |   sex  |      disease     | ... |
+|:-:|:------------:|:--------:|:-------------:|:-------------------------------------:|:---:|:------:|:----------------:|:---:|
+| 0 |  case_report |     1    |      ...      |    Magnetic Resonance Imaging (MRI)   |  73 |  male  |      fibroma     | ... |
+| 1 |  case_report |     2    |      ...      |   Computed Tomography (CT): abdomen   |  73 |  male  |      fibroma     | ... |
+| 2 |  case_report |     1    |      ...      | Computed Tomography (CT): angiography |  45 | female | bile duct cancer | ... |
+
+
+Right side of DataFrame: External Information
+
+
+|   |        disease_family        |    disease_synonym    |       disease_definition       |        known_associated_symptoms       | mentioned_symptoms | known_associated_genes |
+|:-:|:----------------------------:|:---------------------:|:------------------------------:|:--------------------------------------:|:------------------:|:----------------------:|
+| 0 | (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
+| 1 | (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
+| 2 |    (biliary tract cancer,)   | (bile duct tumor,...) | A biliary tract cancer that... | (abdominal obesity, abdominal pain,..) |      (colic,)      |           nan          |
+
+---
+
 ## Documentation
 
 You can view a more extensive Getting Started guide by [clicking here]
 and API documentation [here].
+
+
+## Contributing
+
+Contributions are always welcome. For more information, see the [contributing] information 
+for a somewhat protracted outline of current problems.
+
 
 ## Resources
 
@@ -153,5 +215,5 @@ scholarly work used by BioVida.
 [click here]: https://tariqahassan.github.io/BioVida/index.html
 [clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
 [here]: https://tariqahassan.github.io/BioVida/API.html
+[Contributing]: https://github.com/TariqAHassan/BioVida/tree/master/docs/contributing
 [resources]: https://github.com/TariqAHassan/BioVida/blob/master/RESOURCES.md
-
