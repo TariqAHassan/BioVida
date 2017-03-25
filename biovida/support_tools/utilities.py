@@ -15,6 +15,7 @@ from os.path import join as os_join
 from os.path import basename as os_basename
 
 # General Support Tools
+from biovida.support_tools.support_tools import is_int
 from biovida.support_tools.support_tools import isclose
 from biovida.support_tools.support_tools import is_numeric
 from biovida.support_tools.support_tools import list_to_bulletpoints
@@ -196,7 +197,7 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
         return {k: values_to_ndarrays(v) for k, v in status_outer(dictionary.items())}
 
 
-def _train_val_test_engine(action, tvt, group_files_dict, target_path, verbose):
+def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_state, verbose):
     """
 
     Engine to power ``train_val_test()``.
@@ -209,11 +210,16 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path, verbose):
     :type group_files_dict: ``dict``
     :param target_path: see ``train_val_test()``.
     :type target_path: ``str``
+    :param random_state: set a seed for random shuffling. Similar to ``sklearn.model_selection.train_test_split``.
+    :type random_state: ``None`` or ``int``
     :param verbose: see ``train_val_test()``.
     :type verbose: ``bool``
     :return: a nested dictionary of the form ``{'train'/'val'/'test': {group_files_dict.key: [file, file, ...], ...}, ...}``.
     :rtype: ``dict``
     """
+    if is_int(random_state):
+        np.random.seed(random_state)
+
     def status_bar(iterable):
         return tqdm(iterable) if verbose else iterable
 
@@ -253,6 +259,7 @@ def train_val_test(data,
                    target_dir=None,
                    action='copy',
                    delete_source=False,
+                   random_state=None,
                    verbose=True):
     """
 
@@ -305,6 +312,9 @@ def train_val_test(data,
                                 e.g., if ``data`` and ``target_dir`` are the same and ``delete_source=True``.
 
     :type delete_source: ``bool``
+    :param random_state: set a seed for random shuffling. Similar to ``sklearn.model_selection.train_test_split``.
+                         Defaults to ``None``.
+    :type random_state: ``None`` or ``int``
     :param verbose: if ``True``, print the resultant structure. Defaults to ``True``.
     :type verbose: ``bool``
     :return:
@@ -437,7 +447,7 @@ def train_val_test(data,
                                    delete_source=delete_source, group_files_dict=group_files_dict, tvt=tvt)
 
     output_dict = _train_val_test_engine(action=action, tvt=tvt, group_files_dict=group_files_dict,
-                                         target_path=target_path, verbose=verbose)
+                                         target_path=target_path, random_state=random_state, verbose=verbose)
 
     if verbose:
         print("\nStructure:\n")
