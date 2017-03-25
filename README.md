@@ -193,7 +193,7 @@ and API documentation [here].
 ## Contributing
 
 Contributions are always welcome. For more information, see the [contributing] information 
-for a somewhat protracted outline of current problems.
+for an outline of current problems.
 
 
 ## Resources
