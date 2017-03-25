@@ -159,12 +159,9 @@ The ``unify_against_images`` function integrates image data information against 
 ``DiseaseOntInterface`` and ``DiseaseSymptomsInterface``.
 
 ```python
-from biovida.support_tools import pandas_pprint
 from biovida.unification import unify_against_images
 
-udf = unify_against_images(interfaces=[ip, opi], db_to_extract='cache_records_db')
-
-pandas_pprint(udf, full_cols=True)
+unify_against_images(interfaces=[ip, opi], db_to_extract='cache_records_db')
 ```
 
 Left side of DataFrame: Image Data Alone
