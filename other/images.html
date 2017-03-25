@@ -768,18 +768,14 @@ the model has not explicitly been trained on. Defaults to <code class="docutils 
 </table>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DataFrame</span><span class="p">[</span><span class="s1">&#39;visual_image_problems&#39;</span><span class="p">]</span>
 <span class="gp">...</span>
-<span class="go">0 [(&#39;valid_image&#39;, 0.97158539), (&#39;arrows&#39;, 0.066939682), (&#39;grids&#39;, 0.0010551035)]</span>
-<span class="go">1 [(&#39;valid_image&#39;, 0.98873705), (&#39;arrows&#39;, 0.024444019), (&#39;grids&#39;, 0.0001462775)]</span>
-<span class="go">2 [(&#39;valid_image&#39;, 0.89019465), (&#39;arrows&#39;, 0.16754828), (&#39;grids&#39;, 0.009004808)]</span>
-<span class="go">3 [(&#39;grids&#39;, 0.85855108), (&#39;valid_image&#39;, 0.0002961561), (&#39;arrows&#39;, 6.8026602e-09)]</span>
+<span class="go">0 [(&#39;valid_image&#39;, 0.82292306), (&#39;text&#39;, 0.13276383), (&#39;arrows&#39;, 0.10139297), (&#39;grids&#39;, 0.021935554)]</span>
+<span class="go">1 [(&#39;valid_image&#39;, 0.76374823), (&#39;arrows&#39;, 0.1085605), (&#39;grids&#39;, 0.0024915827), (&#39;text&#39;, 0.00037114936)]</span>
+<span class="go">2 [(&#39;valid_image&#39;, 0.84319711), (&#39;text&#39;, 0.10483728), (&#39;arrows&#39;, 0.06458132), (&#39;grids&#39;, 0.0125442)]</span>
+<span class="go">3 [(&#39;valid_image&#39;, 0.84013706), (&#39;arrows&#39;, 0.090836897), (&#39;text&#39;, 0.055015128), (&#39;grids&#39;, 0.0088913934)]</span>
 </pre></div>
 </div>
 <p>The first value in the tuple represents the problem identified and second
-value represents its associated probability. For example, in the final row
-we can see that the model strongly &#8216;believes&#8217; both that the image is, in fact,
-an image composed of several smaller images (forming an image &#8216;grid&#8217;). Conversely,
-it believes all of the other images are likely devoid of problems it has been
-trained to detect.</p>
+value represents its associated probability.</p>
 </dd></dl>
 
 <dl class="method">
@@ -805,7 +801,7 @@ the model has not explicitly been trained on. Defaults to <code class="docutils 
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto_decision">
-<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>image_problem_threshold</em>, <em>problems_to_ignore=None</em>, <em>valid_floor=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto_decision</code><span class="sig-paren">(</span><em>valid_floor=0.8</em>, <em>problems_to_ignore=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically generate &#8216;invalid_image&#8217; column in the <cite>image_dataframe</cite>
 column by deciding whether or not images are valid using default parameter values for class methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -813,14 +809,16 @@ column by deciding whether or not images are valid using default parameter value
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>image_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a scalar from 0 to 1 which specifies the threshold value required
-to cause the image to be marked as invalid.
-For instance, a threshold value of <cite>0.5</cite> would mean that any image
-which contains a image problem probability above <cite>0.5</cite> will be marked
-as invalid.</li>
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; <p>the smallest value needed for a &#8216;valid_image&#8217; to be considered valid. Defaults to <cite>0.8</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For an image to be considered &#8216;valid&#8217;, the most likely categorization for the image must be
+&#8216;valid_image&#8217; and the probability that the model assigns when placing it in this category
+must be great than or equal to <code class="docutils literal"><span class="pre">valid_floor</span></code>.</p>
+</div>
+</li>
 <li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_image&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
 </ul>
 </td>
 </tr>
@@ -830,15 +828,14 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.auto">
-<code class="descname">auto</code><span class="sig-paren">(</span><em>image_problem_threshold=0.275</em>, <em>valid_floor=0.01</em>, <em>limit_to_known_modalities=True</em>, <em>problems_to_ignore=None</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto</code><span class="sig-paren">(</span><em>valid_floor=0.8</em>, <em>limit_to_known_modalities=True</em>, <em>problems_to_ignore=None</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.auto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically carry out all aspects of image preprocessing (recommended).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>image_problem_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">auto_decision()</span></code>. Defaults to <cite>0.275</cite>.</li>
-<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_image&#8217; to be considered valid. Defaults to <cite>0.01</cite>.</li>
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_image&#8217; to be considered valid. Defaults to <cite>0.8</cite>.</li>
 <li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
 the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
@@ -850,6 +847,33 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the <cite>image_dataframe</cite>, complete with the results of all possible analyses
 (using default parameter values).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biovida.images.image_processing.ImageProcessing.cleaned_images_data_frame">
+<code class="descname">cleaned_images_data_frame</code><span class="sig-paren">(</span><em>crop_images</em>, <em>convert_to_rgb</em>, <em>status</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#ImageProcessing.cleaned_images_data_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.cleaned_images_data_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a dataframe with rows of images found to be &#8216;valid&#8217;.
+These &#8216;valid&#8217; images are cleaned and stored as PIL images in a <code class="docutils literal"><span class="pre">'cleaned_image'</span></code> column.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>crop_images</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">save()</span></code>.</li>
+<li><strong>convert_to_rgb</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">save()</span></code></li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">save()</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">self.image_dataframe</span></code> where the &#8216;invalid_image&#8217; column is <code class="docutils literal"><span class="pre">True</span></code>, with the addition of
+a &#8216;cleaned_image&#8217; populated by PIL image to be saved to disk.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
