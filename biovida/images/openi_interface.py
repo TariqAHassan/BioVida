@@ -1166,7 +1166,7 @@ class OpeniInterface(object):
         :type images_sleep_time: ``tuple``
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 100.
-        :type download_limit: ``int``
+        :type download_limit: ``None`` or ``int``
         :param clinical_cases_only: if ``True`` require that the data harvested is of a clinical case. Specifically,
                                     this parameter requires that 'article_type' is one of: 'encounter', 'case_report'.
                                     Defaults to ``False``.
