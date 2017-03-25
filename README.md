@@ -75,7 +75,7 @@ def my_divvy_rule(row):
         elif 'ct' == row['image_modality_major']:
             return 'ct'
 
-# 2. Define Proportions 
+# 2. Define Proportions and Divide Data
 tt = image_divvy(opi, my_divvy_rule, action='ndarray', train_val_test_dict={'train': 0.8, 'test': 0.2})
 
 # 3. The resultant ndarrays can be unpacked as follows:
