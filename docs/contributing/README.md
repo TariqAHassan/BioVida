@@ -24,7 +24,7 @@ too complex. It needs to be simplified.
    1. Extracting a patient's disease(s) from available text when it (they) are
       not given explicitly. Currently, the first disease encounter is used
       when this occurs -- employing more sophisticated approaches, such as the NegEx
-      algorithm could be helpful. Expertise in NLP would go along way here.
+      algorithm, could be helpful. Expertise in NLP would go along way here.
      
    2. Detecting visual problems in images, such as arrows or text. 
       These images need to be detected so they can be removed from any
