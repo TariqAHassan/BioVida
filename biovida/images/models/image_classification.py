@@ -56,13 +56,13 @@ class ImageClassificationCNN(object):
 
     def __init__(self,
                  data_path=None,
-                 image_shape=(150, 150),
+                 image_shape=(224, 224),
                  rescale=1/255.0,
                  shear_range=0.05,
                  zoom_range=0.30,
                  horizontal_flip=True,
                  vertical_flip=False,
-                 batch_size=2):
+                 batch_size=1):
         self._data_path = data_path
         self.image_shape = image_shape
         self.rescale = rescale
@@ -163,7 +163,37 @@ class ImageClassificationCNN(object):
             self.image_shape[1] = 224
         self.image_shape = tuple(self.image_shape)
 
-    def _alex_net(self, classes, output_layer_activation):
+    def default(self, classes, output_layer_activation):
+        """
+
+        The most simple model in this class.
+
+        Sources:
+        --------
+
+        1. https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+
+        :param classes: number of neuron in the output layer (which equals the number of classes).
+        :type classes: ``int``
+        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
+        :type output_layer_activation: ``str``
+        """
+        self.model = Sequential()
+        self.model.add(Convolution2D(32, (3, 3),
+                                     input_shape=(3, self.image_shape[0], self.image_shape[1]),
+                                     activation='relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        self.model.add(Convolution2D(32, (3, 3), activation='relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        self.model.add(Flatten())
+        self.model.add(Dense(64, activation='relu'))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(classes))
+        self.model.add(Activation(output_layer_activation))
+
+    def alex_net(self, classes, output_layer_activation):
         """
 
         Sources:
@@ -193,6 +223,7 @@ class ImageClassificationCNN(object):
         :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
         :type output_layer_activation: ``str``
         """
+        # Note: not stable with Keras 2
         try:
             from convnetskeras.customlayers import crosschannelnormalization, splittensor
         except ImportError:
@@ -240,7 +271,7 @@ class ImageClassificationCNN(object):
 
         self.model = Model(input=inputs, output=prediction)
 
-    def _squeezenet(self, classes, output_layer_activation):
+    def squeezenet(self, classes, output_layer_activation):
         """
 
         Source:
@@ -330,7 +361,7 @@ class ImageClassificationCNN(object):
 
         self.model = Model(input_img, output, name='squeezenet')
 
-    def _vgg_19(self, classes, output_layer_activation):
+    def vgg_19(self, classes, output_layer_activation):
         """
 
         Keras Implementation of the VGG_19 Model
@@ -401,36 +432,6 @@ class ImageClassificationCNN(object):
         self.model.add(Dropout(0.5))
         self.model.add(Dense(classes, activation=output_layer_activation))
 
-    def _default_model(self, classes, output_layer_activation):
-        """
-
-        The most simple model in this class.
-
-        Sources:
-        --------
-
-        1. https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
-
-        :param classes: number of neuron in the output layer (which equals the number of classes).
-        :type classes: ``int``
-        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
-        :type output_layer_activation: ``str``
-        """
-        self.model = Sequential()
-        self.model.add(Convolution2D(32, (3, 3),
-                                     input_shape=(3, self.image_shape[0], self.image_shape[1]),
-                                     activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-
-        self.model.add(Convolution2D(32, (3, 3), activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-
-        self.model.add(Flatten())
-        self.model.add(Dense(64, activation='relu'))
-        self.model.add(Dropout(0.5))
-        self.model.add(Dense(classes))
-        self.model.add(Activation(output_layer_activation))
-
     def convnet(self,
                 model_to_use='default',
                 loss='binary_crossentropy',
@@ -475,16 +476,12 @@ class ImageClassificationCNN(object):
         classes = len(self.data_classes.keys())
 
         # Define the Model
-        if model_to_use == 'default':
-            self._default_model(classes, output_layer_activation=output_layer_activation)
-        elif model_to_use == 'alex_net':
-            self._alex_net(classes, output_layer_activation=output_layer_activation)
-        elif model_to_use == 'squeezenet':
-            self._squeezenet(classes, output_layer_activation=output_layer_activation)
-        elif model_to_use == 'vgg19':
-            self._vgg_19(classes, output_layer_activation=output_layer_activation)
-        else:
-            raise ValueError("'{0}' is an invalid value for `model_to_use`.".format(model_to_use))
+        try:
+            model_method = getattr(self, model_to_use)
+        except:
+            raise AttributeError("No such model: '{0}'.".format(model_to_use))
+
+        model_method(classes, output_layer_activation=output_layer_activation)
 
         # Define optimizer
         if optimizer == 'default':
