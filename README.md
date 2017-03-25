@@ -76,7 +76,7 @@ def my_divvy_rule(row):
             return 'ct'
 
 # 2. Define Proportions 
-train_val_test_dict = {'train': 0.7, 'test': 0.1}
+train_val_test_dict = {'train': 0.8, 'test': 0.2}
 tt = image_divvy(opi, divvy_rule=my_divvy_rule, action='ndarray', train_val_test_dict=train_val_test_dict)
 
 # 3. The resultant ``ndarrays`` can be unpacked as follows:
