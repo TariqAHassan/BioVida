@@ -12,7 +12,7 @@ tasks, they will be able to focus their efforts on modeling itself. In turn,
 enabling them to advance new insights and understandings into disease.
 
 In a nod to recursion, this library tries to accomplish some of this automation
-using machine learning itself (namely, as convolutional neural networks) to
+using machine learning itself (namely, convolutional neural networks) to
 automatically clean messy data.
 
 To view this project's website, please [click here].
