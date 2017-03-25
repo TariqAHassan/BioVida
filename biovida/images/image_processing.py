@@ -680,15 +680,9 @@ class ImageProcessing(object):
                     problem = True
             else:
                 if vip_[0][0] != 'valid_image':
-                    return True
+                    problem = True
                 elif vip_[0][0] == 'valid_image' and vip_[0][1] < valid_floor:
-                    return True
-                # if vip_[0][0] == 'valid_image' and vip_[0][1] < valid_floor:
-                #     problem = True
-                # elif vip_[0][0] == 'valid_image' and vip_[1][1] > image_problem_threshold:
-                #     problem = True
-                # elif vip_[0][0] != 'valid_image' and vip_[0][1] > image_problem_threshold:
-                #     problem = True
+                    problem = True
             return ['visual_image_problems'] if problem else []
 
         reasons = list()
@@ -785,10 +779,11 @@ class ImageProcessing(object):
                            "indicate whether or not to include an entry in the cleaned dataset.\n"
                            "To automate this process, consider using the `auto_decision()` method.")
 
-    def _cleaned_images_data_frame(self, crop_images, convert_to_rgb, status):
+    def cleaned_images_data_frame(self, crop_images, convert_to_rgb, status):
         """
 
         Define a dataframe with rows of images found to be 'valid'.
+        These 'valid' images are cleaned and stored as PIL images in a ``'cleaned_image'`` column.
 
         :param crop_images: see ``save()``.
         :type crop_images: ``bool``
@@ -797,7 +792,7 @@ class ImageProcessing(object):
         :param status: see ``save()``
         :type status: ``bool``
         :return: ``self.image_dataframe`` where the 'invalid_image' column is ``True``, with the addition of
-                  a 'image_to_return' populated by PIL image to be saved to disk.
+                  a 'cleaned_image' populated by PIL image to be saved to disk.
         :rtype: ``Pandas DataFrame``
         """
         if 'invalid_image' not in self.image_dataframe:
@@ -810,12 +805,12 @@ class ImageProcessing(object):
         if crop_images:
             if self._verbose:
                 print("\n\nCropping Images...")
-            return_df['image_to_return'] = self._cropper(data_frame=return_df, return_as_array=False,
-                                                         convert_to_rgb=convert_to_rgb, status=status)
+            return_df['cleaned_image'] = self._cropper(data_frame=return_df, return_as_array=False,
+                                                       convert_to_rgb=convert_to_rgb, status=status)
         else:
             if self._verbose:
                 print("\n\nLoading Images...")
-            return_df['image_to_return'] = self._pil_load(return_df['cached_images_path'], convert_to_rgb, status)
+            return_df['cleaned_image'] = self._pil_load(return_df['cached_images_path'], convert_to_rgb, status)
 
         return return_df
 
@@ -880,8 +875,8 @@ class ImageProcessing(object):
         self._save_method_error_checking(save_rule)
 
         # Limit to valid images
-        return_df = self._cleaned_images_data_frame(crop_images=crop_images, convert_to_rgb=convert_to_rgb,
-                                                    status=status)
+        return_df = self.cleaned_images_data_frame(crop_images=crop_images, convert_to_rgb=convert_to_rgb,
+                                                   status=status)
 
         def save_rule_wrapper(row):
             """Wrap `save_rule` to ensure it is, or
@@ -911,6 +906,6 @@ class ImageProcessing(object):
             if isinstance(save_target, str):
                 full_save_path = os.path.join(save_target, row['cached_images_path'].split(os.sep)[-1])
                 if allow_overwrite:
-                    row['image_to_return'].save(full_save_path)
+                    row['cleaned_image'].save(full_save_path)
                 elif not os.path.isfile(full_save_path):
-                    row['image_to_return'].save(full_save_path)
+                    row['cleaned_image'].save(full_save_path)
