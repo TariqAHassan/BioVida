@@ -17,30 +17,28 @@ Contributing
 - The Cancer Image Archive interface is stable, but the code is far
 too complex. It needs to be simplified.
 
-- The Open-i data is *very* hard to clean. Two main outstanding
-problems:
+- The Open-i data is *very* hard to clean.
+
+  Current problems in this pipeline:
 
    1. Extracting a patient's disease(s) from available text when it (they) are
       not given explicitly. Currently, the first disease encounter is used
-      when this occurs -- employing more sophisticated, like the NegEx algorithm
-      could be helpful. Expertise in NLP would go along way here.
+      when this occurs -- employing more sophisticated approaches, such as the NegEx
+      algorithm could be helpful. Expertise in NLP would go along way here.
      
    2. Detecting visual problems in images, such as arrows or text. 
       These images need to be detected so they can be removed from any
       training (/test) set.
       
-  The current solution for processing images uses a combination of text analysis,
-  non-ML image processing algorithms to crop problems (e.g., fast normalized cross-correlation
-  to remove logos) as well as convolutional neural networks (the most challenging).
-  
-  In short, the task for the CNN is to flag visual problems (which were not mentioned in
-  the text associated with the image, like arrows), so these images can be excluded from
-  any dataset. The current approach uses data synthesis, though it may be more effective
-  to use transfer learning with, say, VGG19 where possible. 
+  In short, the task for the CNN is to flag visual problems, so these images can be
+  excluded from any dataset. The current approach uses data synthesis to generate
+  data to train a CNN to detect such pro, though it may be more effective to use
+  transfer learning with, say, VGG19.
   
   This brings me to a more general problem with the CNN: backend API. I am currently
   using ``Keras`` simply because it allows users to use *either* ``tensorflow`` or ``theano``.
-  Switching over to ``tensorflow``, ``theano`` or, my (new) preference, PyTorch, would be nice.
+  Switching over to ``tensorflow``, ``theano`` themselves or, my (new) preference,
+  PyTorch, would be nice.
   
   
 ## Unit Testing
