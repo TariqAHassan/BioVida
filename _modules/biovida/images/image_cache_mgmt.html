@@ -894,13 +894,15 @@
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">target</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_dir&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">random_state</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_state&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">delete_source</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;delete_source&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="kc">False</span>
+
     <span class="n">output_dict</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">divvy_info</span><span class="p">,</span>
                                  <span class="n">train</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                                  <span class="n">validation</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                                  <span class="n">test</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                                  <span class="n">target_dir</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">delete_source</span><span class="o">=</span><span class="n">delete_source</span><span class="p">,</span>
-                                 <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+                                 <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">output_dict</span>
 
 
@@ -939,7 +941,7 @@
 <span class="sd">    :type instance: ``OpeniInterface``, ``ImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``</span>
 <span class="sd">    :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return</span>
 <span class="sd">                       system path(s) [see example below].</span>
-<span class="sd">    :type divvy_rule: ``function``</span>
+<span class="sd">    :type divvy_rule: ``str`` or ``function``</span>
 <span class="sd">    :param action: one of: ``&#39;copy&#39;``, ``&#39;ndarray&#39;``.</span>
 
 <span class="sd">                    - if ``&#39;copy&#39;``: copy from files from the cache to (i) the location prescribed by ``divvy_rule``,</span>
@@ -964,6 +966,7 @@
 <span class="sd">                        .. note::</span>
 
 <span class="sd">                            * If ``action=&#39;copy&#39;``, a ``&#39;target_dir&#39;`` key (target directory) *must* also be included.</span>
+<span class="sd">                            * A ``&#39;random_state&#39;`` key can be passed, with an integer as the value, to seed shuffling.</span>
 <span class="sd">                            * To delete the source files, a ``&#39;delete_source&#39;`` key may be included (optional).</span>
 <span class="sd">                              The corresponding value provided *must* be a boolean. If no such key key is provided,</span>
 <span class="sd">                              ``&#39;delete_source&#39;`` defaults to ``False``.</span>
@@ -1100,7 +1103,8 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Expected a DataFrame.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="s2">&quot;Got an object of type: &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+                        <span class="s2">&quot;Got an object of type: &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span>
+                        <span class="s2">&quot;`db_to_extract` may be invalid&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
 
     <span class="n">column_to_use</span> <span class="o">=</span> <span class="n">_divvy_column_selector</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">image_column</span><span class="o">=</span><span class="n">image_column</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">=</span><span class="n">data_frame</span><span class="p">)</span>
 

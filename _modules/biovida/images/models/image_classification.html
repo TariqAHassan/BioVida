@@ -228,13 +228,13 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">data_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">image_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span>
+                 <span class="n">image_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">),</span>
                  <span class="n">rescale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span>
                  <span class="n">shear_range</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
                  <span class="n">zoom_range</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
                  <span class="n">horizontal_flip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">vertical_flip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+                 <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="o">=</span> <span class="n">data_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span> <span class="o">=</span> <span class="n">image_shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rescale</span> <span class="o">=</span> <span class="n">rescale</span>
@@ -335,7 +335,37 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">224</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_alex_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN.default"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        The most simple model in this class.</span>
+
+<span class="sd">        Sources:</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        1. https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html</span>
+
+<span class="sd">        :param classes: number of neuron in the output layer (which equals the number of classes).</span>
+<span class="sd">        :type classes: ``int``</span>
+<span class="sd">        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to &#39;sigmoid&#39;.</span>
+<span class="sd">        :type output_layer_activation: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                                     <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                                     <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Flatten</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">classes</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="n">output_layer_activation</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ImageClassificationCNN.alex_net"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.alex_net">[docs]</a>    <span class="k">def</span> <span class="nf">alex_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Sources:</span>
@@ -365,6 +395,7 @@
 <span class="sd">        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to &#39;sigmoid&#39;.</span>
 <span class="sd">        :type output_layer_activation: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Note: not stable with Keras 2</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">convnetskeras.customlayers</span> <span class="k">import</span> <span class="n">crosschannelnormalization</span><span class="p">,</span> <span class="n">splittensor</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -410,9 +441,9 @@
         <span class="n">dense_3</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;dense_3&#39;</span><span class="p">)(</span><span class="n">dense_3</span><span class="p">)</span>
         <span class="n">prediction</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="n">output_layer_activation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_layer_activation</span><span class="p">)(</span><span class="n">dense_3</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_squeezenet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN.squeezenet"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.squeezenet">[docs]</a>    <span class="k">def</span> <span class="nf">squeezenet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Source:</span>
@@ -500,9 +531,9 @@
         <span class="n">model</span> <span class="o">=</span> <span class="n">GlobalAveragePooling2D</span><span class="p">()(</span><span class="n">model</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="n">output_layer_activation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">)(</span><span class="n">model</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;squeezenet&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;squeezenet&#39;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_vgg_19</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN.vgg_19"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.vgg_19">[docs]</a>    <span class="k">def</span> <span class="nf">vgg_19</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Keras Implementation of the VGG_19 Model</span>
@@ -571,44 +602,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">output_layer_activation</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">_default_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        The most simple model in this class.</span>
-
-<span class="sd">        Sources:</span>
-<span class="sd">        --------</span>
-
-<span class="sd">        1. https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html</span>
-
-<span class="sd">        :param classes: number of neuron in the output layer (which equals the number of classes).</span>
-<span class="sd">        :type classes: ``int``</span>
-<span class="sd">        :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to &#39;sigmoid&#39;.</span>
-<span class="sd">        :type output_layer_activation: ``str``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
-                                     <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                                     <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Flatten</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">classes</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="n">output_layer_activation</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">output_layer_activation</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ImageClassificationCNN.convnet"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.convnet">[docs]</a>    <span class="k">def</span> <span class="nf">convnet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">model_to_use</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
                 <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;binary_crossentropy&#39;</span><span class="p">,</span>
                 <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
                 <span class="n">metrics</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,),</span>
-                <span class="n">output_layer_activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">):</span>
+                <span class="n">output_layer_activation</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Define and Compile the Image Recognition Convolutional Neural Network.</span>
@@ -647,16 +648,12 @@
         <span class="n">classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_classes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
         <span class="c1"># Define the Model</span>
-        <span class="k">if</span> <span class="n">model_to_use</span> <span class="o">==</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_default_model</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="o">=</span><span class="n">output_layer_activation</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">model_to_use</span> <span class="o">==</span> <span class="s1">&#39;alex_net&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_alex_net</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="o">=</span><span class="n">output_layer_activation</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">model_to_use</span> <span class="o">==</span> <span class="s1">&#39;squeezenet&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_squeezenet</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="o">=</span><span class="n">output_layer_activation</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">model_to_use</span> <span class="o">==</span> <span class="s1">&#39;vgg19&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_vgg_19</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="o">=</span><span class="n">output_layer_activation</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is an invalid value for `model_to_use`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_to_use</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_to_use</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;No such model: &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_to_use</span><span class="p">))</span>
+
+        <span class="n">model_method</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="o">=</span><span class="n">output_layer_activation</span><span class="p">)</span>
 
         <span class="c1"># Define optimizer</span>
         <span class="k">if</span> <span class="n">optimizer</span> <span class="o">==</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span>

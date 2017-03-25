@@ -466,7 +466,7 @@ Note: noise is randomly added to the sleep time by sampling from a normal distri
 <li><strong>images_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
 Note: noise is randomly added to the sleep time by sampling from a normal distribution
 (with mean = 0, sd = 0.75).</li>
-<li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
+<li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
 (not recommended). Defaults to 100.</li>
 <li><strong>clinical_cases_only</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <dl class="docutils">
 <dt>if <code class="docutils literal"><span class="pre">True</span></code> require that the data harvested is of a clinical case. Specifically,</dt>
@@ -1562,7 +1562,7 @@ Any images associated with this row will also be destroyed.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">ImageProcessing</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) &#8211; the yield of the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code> or an instance of
 <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">ImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
-<li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
+<li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
 system path(s) [see example below].</li>
 <li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: <code class="docutils literal"><span class="pre">'copy'</span></code>, <code class="docutils literal"><span class="pre">'ndarray'</span></code>.</p>
 <ul>
@@ -1589,6 +1589,7 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 <p class="first admonition-title">Note</p>
 <ul class="last">
 <li>If <code class="docutils literal"><span class="pre">action='copy'</span></code>, a <code class="docutils literal"><span class="pre">'target_dir'</span></code> key (target directory) <em>must</em> also be included.</li>
+<li>A <code class="docutils literal"><span class="pre">'random_state'</span></code> key can be passed, with an integer as the value, to seed shuffling.</li>
 <li>To delete the source files, a <code class="docutils literal"><span class="pre">'delete_source'</span></code> key may be included (optional).
 The corresponding value provided <em>must</em> be a boolean. If no such key key is provided,
 <code class="docutils literal"><span class="pre">'delete_source'</span></code> defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
@@ -1808,7 +1809,7 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 <h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.support_tools.utilities.train_val_test">
-<code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action='copy'</em>, <em>delete_source=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action='copy'</em>, <em>delete_source=False</em>, <em>random_state=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split <code class="docutils literal"><span class="pre">data</span></code> into any combination of the following: <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code> and/or <code class="docutils literal"><span class="pre">test</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1854,6 +1855,8 @@ reinstated to allow the <code class="docutils literal"><span class="pre">cache_r
 e.g., if <code class="docutils literal"><span class="pre">data</span></code> and <code class="docutils literal"><span class="pre">target_dir</span></code> are the same and <code class="docutils literal"><span class="pre">delete_source=True</span></code>.</p>
 </div>
 </li>
+<li><strong>random_state</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">int</span></code>) &#8211; set a seed for random shuffling. Similar to <code class="docutils literal"><span class="pre">sklearn.model_selection.train_test_split</span></code>.
+Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the resultant structure. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
