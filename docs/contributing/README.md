@@ -14,15 +14,18 @@ Contributing
 ## API
 
 
-**tl;dr**:
+**tl;dr**
 
 - The Cancer Image Archive interface is stable, but the code is far
 too complex
 
-- The Open-i data is *very* hard to clean. The procedures used to 
-extract a patient's disease(s) from available text when it (they) are
-not given explicitly and detect visual problems (neural networks) both
-need to be greatly improved.
+- The Open-i data is *very* hard to clean. The procedures need to 
+be greatly improved: 
+
+   - extracting a patient's disease(s) from available text when it (they) are
+     not given explicitly.
+     
+   - detecting visual problems (neural networks).
 
            
 ### The Cancer Image Archive
