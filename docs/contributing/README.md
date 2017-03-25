@@ -14,96 +14,38 @@ Contributing
 ## API
 
 
-**tl;dr**
-
 - The Cancer Image Archive interface is stable, but the code is far
-too complex
+too complex. It needs to be simplified.
 
-- The Open-i data is *very* hard to clean. The procedures need to 
-be greatly improved: 
+- The Open-i data is *very* hard to clean. Two main outstanding
+problems:
 
-   - extracting a patient's disease(s) from available text when it (they) are
-     not given explicitly.
+   1. Extracting a patient's disease(s) from available text when it (they) are
+      not given explicitly. Currently, the first disease encounter is used
+      when this occurs -- employing more sophisticated, like the NegEx algorithm
+      could be helpful. Expertise in NLP would go along way here.
      
-   - detecting visual problems (neural networks).
-
-           
-### The Cancer Image Archive
-
-- The REST API provided by *The Cancer Image Archive* (TCIA) is difficult to 
-  encapsulate and abstract for a number of reasons:
+   2. Detecting visual problems in images, such as arrows or text. 
+      These images need to be detected so they can be removed from any
+      training (/test) set.
+      
+  The current solution for processing images uses a combination of text analysis,
+  non-ML image processing algorithms to crop problems (e.g., fast normalized cross-correlation
+  to remove logos) as well as convolutional neural networks (the most challenging).
   
-  - The API does not provide a several pieces of key information,
-    such as the diagnosis. A series of elaborate solutions were required
-    to obtain complete the provided data.
-    
-  - The images are provided as DICOM files, a rather exotic 
-    file format used exclusively in the medical imaging community.
-    These images are processed using the ``pydicom`` library,
-    though several studies on TCIA contain images which can not 
-    be converted to standard image types (e.g., 'png') because the
-    ``ndarray`` that ``pydicom`` generates have more than 3 dimensions.
-    Whether ``pydicom`` or the images themselves participate this is not obvious.
-    
-For these, and many other reasons, the code written to handle 
-this source is very verbose and complex.
-
-
-### Open-i Medical Image Database
-
-- As noted in the *README* in the base of this repository, the
-use of Open-i data is highly experimental. The Open-i database
-contains over *1.2 million* images. If this could be 'unleashed'
-for machine learning would be a great boon. However, there are
-several obstacles only some of which have been tackled thus far.
-For instance:
-
-   - Only some of the images are complete with the diagnosis 
-     made by a trained physician (those from MedPix). Currently
-     the diagnosis is guessed using the heuristic that the first
-     disease mentioned is usually the patient's diagnosis, however
-     this is more than fallible and does not account for 
-     comorbidity, for instance. More advanced text processing
-     procedures are sorely needed (e.g., the NegEx algorithm).
-     
-  - Several images contain arrows, text which occludes the image and/or are arrayed as 
-    'grids' of images. These problems need to be identified so these images can be
-    excluded when generating a dataset. I've tried to do this by:
-    
-       - Analyzing the text associated with the image (fairly effective)
-       
-       - Using Convnets. Problems have abounded:
-       
-            - low amount of problematic images to use for training data can be identified using
-              text parsing approaches
-            
-            - to account for the problem above, additional image data is synthesised. However
-              it only roughly similar to the actual data. 
-              
-            - The accuracy obtained (~0.9) is artificially high because the validation and
-              train sets contained far too much synthesised data. In short it's a classic case
-              of 'my train set doesn't really match my test set'. 
-              
-            - The model used, while it has ~5 million params., is too simple to 
-              truly do well at this task. It is especially light in the number of
-              convolution layers, degrading it ability to evolve representation invariants.
-              However, short of spinning up an AWS box, I do not currently have access to 
-              a GPU powerful enough to drive something like VGG19.
-              
-            - While the final solution is somewhat effective, there are a large number of
-              false positives and some glaring false negatives.
-              
-            - Transfer learning is a future direction. There are some arXiv papers where the authors
-              have used TL successfully against x-rays, for instance (despite their being
-              vastly different than ImageNet images which the models were originally train against).
-
-              
-*In short*, the OPEN-i interface is very much a work-in-progress.
-
+  In short, the task for the CNN is to flag visual problems (which were not mentioned in
+  the text associated with the image, like arrows), so these images can be excluded from
+  any dataset. The current approach uses data synthesis, though it may be more effective
+  to use transfer learning with, say, VGG19 where possible. 
+  
+  This brings me to a more general problem with the CNN: backend API. I am currently
+  using ``Keras`` simply because it allows users to use *either* ``tensorflow`` or ``theano``.
+  Switching over to ``tensorflow``, ``theano`` or, my (new) preference, PyTorch, would be nice.
+  
   
 ## Unit Testing
 
-This needs to be built out -- badly.
+This really needs to be built out.
 
 
 ## Documentation
