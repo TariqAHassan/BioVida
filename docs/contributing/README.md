@@ -48,7 +48,7 @@ This really needs to be built out.
 
 ## Documentation
 
-On last count, this project has ~6000 lines of documentation, with ~5300 lines of actual code.
+On last count, this project had ~6000 lines of documentation, with ~5300 lines of actual code.
 However, several support modules and large parts of the ``images.openi_interface``
 module remain undocumented.
 
