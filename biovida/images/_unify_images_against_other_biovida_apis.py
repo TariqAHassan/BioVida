@@ -84,7 +84,7 @@ class _ImagesInterfaceIntegration(object):
                 'modality_full'], axis=1)
 
         # Define columns to keep
-        openi_columns = ['abstract', 'article_type', 'image_id', 'image_caption',
+        openi_columns = ['abstract', 'article_type', 'image_id_short', 'image_caption',
                          'modality_best_guess', 'age', 'sex', 'diagnosis', 'query', 'pull_time']
 
         # Allow for cases where images have not been downloaded.
@@ -96,7 +96,8 @@ class _ImagesInterfaceIntegration(object):
         if isinstance(self._additional_columns, list):
             db_cln, openi_columns = self._add_additional_columns(db_cln, openi_columns)
 
-        db_cln['article_type'] = db_cln['article_type'].replace({'encounter': 'case_report'})
+        db_cln['article_type'] = db_cln['article_type'].replace({'encounter': 'case_report',
+                                                                 'image_id_short': 'image_id'})
 
         # Define subsection based on `openi_columns`
         openi_subsection = db_cln[openi_columns]
@@ -185,7 +186,7 @@ class _ImagesInterfaceIntegration(object):
         This method yields a single dataframe with the following columns:
 
          - 'abstract'*
-         - 'image_id'
+         - 'image_id_short'
          - 'image_caption'
          - 'modality_best_guess'
          - 'age'

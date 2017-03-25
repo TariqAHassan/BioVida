@@ -26,13 +26,13 @@ too complex. It needs to be simplified.
       when this occurs -- employing more sophisticated approaches, such as the NegEx
       algorithm, could be helpful. Expertise in NLP would go along way here.
      
-   2. Detecting visual problems in images, such as arrows or text. 
+   2. Detecting visual problems, such as arrows or text, in images. 
       These images need to be detected so they can be removed from any
       training (/test) set.
       
-  In short, the task for the CNN is to flag visual problems, so these images can be
-  excluded from any dataset. The current approach uses data synthesis to generate
-  data to train a CNN to detect such pro, though it may be more effective to use
+  In short, the task for the CNN is to flag images with visual problems.
+  The current approach uses data synthesis to generate data to train a CNN
+  to detect such problems. However, it may be more effective to use
   transfer learning with, say, VGG19.
   
   This brings me to a more general problem with the CNN: backend API. I am currently
