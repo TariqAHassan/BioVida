@@ -575,18 +575,13 @@ class ImageProcessing(object):
 
         >>> DataFrame['visual_image_problems']
         ...
-        0 [('valid_image', 0.97158539), ('arrows', 0.066939682), ('grids', 0.0010551035)]
-        1 [('valid_image', 0.98873705), ('arrows', 0.024444019), ('grids', 0.0001462775)]
-        2 [('valid_image', 0.89019465), ('arrows', 0.16754828), ('grids', 0.009004808)]
-        3 [('grids', 0.85855108), ('valid_image', 0.0002961561), ('arrows', 6.8026602e-09)]
-
+        0 [('valid_image', 0.82292306), ('text', 0.13276383), ('arrows', 0.10139297), ('grids', 0.021935554)]
+        1 [('valid_image', 0.76374823), ('arrows', 0.1085605), ('grids', 0.0024915827), ('text', 0.00037114936)]
+        2 [('valid_image', 0.84319711), ('text', 0.10483728), ('arrows', 0.06458132), ('grids', 0.0125442)]
+        3 [('valid_image', 0.84013706), ('arrows', 0.090836897), ('text', 0.055015128), ('grids', 0.0088913934)]
 
         The first value in the tuple represents the problem identified and second
-        value represents its associated probability. For example, in the final row
-        we can see that the model strongly 'believes' both that the image is, in fact,
-        an image composed of several smaller images (forming an image 'grid'). Conversely,
-        it believes all of the other images are likely devoid of problems it has been
-        trained to detect.
+        value represents its associated probability.
         """
         if 'visual_image_problems' in self.image_dataframe.columns and not new_analysis:
             return None
@@ -641,7 +636,7 @@ class ImageProcessing(object):
         self._print_update = False
 
     @staticmethod
-    def _invalid_image_tests(row, image_problem_threshold, problems_to_ignore, valid_floor):
+    def _invalid_image_tests(row, problems_to_ignore, valid_floor, image_problem_threshold=None):
         """
 
         Tests to determine if ``row`` references an image with properties and/or features
@@ -649,12 +644,16 @@ class ImageProcessing(object):
 
         :param row: as passed by ``pandas.DataFrame.apply(func, axis=1)``.
         :type row: ``Pandas Series``
-        :param image_problem_threshold: see ``auto_decision()``.
-        :type image_problem_threshold: ``float``
         :param problems_to_ignore: see ``auto_decision()``.
         :type problems_to_ignore: ``None``, ``list`` or ``tuple``
         :param valid_floor: see ``auto_decision()``.
         :type valid_floor: ``float``
+        :param image_problem_threshold: a scalar from 0 to 1 which specifies the threshold value required
+                                        to cause the image to be marked as invalid.
+                                        For instance, a threshold value of `0.5` would mean that any image
+                                        which contains a image problem probability above `0.5` will be marked
+                                        as invalid. NOTE: Currently not in use.
+        :type image_problem_threshold: ``float``
         :return: a list of the form ``[invalid image (boolean), reasons for decision if the former is True]``, wrapped
                  in a pandas series so it can be neatly split into two columns when called via. ``DataFrame.apply()``.
         :rtype: ``Pandas Series``
@@ -680,12 +679,16 @@ class ImageProcessing(object):
                 if vip_[0][0] == 'valid_image' and vip_[0][1] < valid_floor:
                     problem = True
             else:
-                if vip_[0][0] == 'valid_image' and vip_[0][1] < valid_floor:
-                    problem = True
-                elif vip_[0][0] == 'valid_image' and vip_[1][1] > image_problem_threshold:
-                    problem = True
-                elif vip_[0][0] != 'valid_image' and vip_[0][1] > image_problem_threshold:
-                    problem = True
+                if vip_[0][0] != 'valid_image':
+                    return True
+                elif vip_[0][0] == 'valid_image' and vip_[0][1] < valid_floor:
+                    return True
+                # if vip_[0][0] == 'valid_image' and vip_[0][1] < valid_floor:
+                #     problem = True
+                # elif vip_[0][0] == 'valid_image' and vip_[1][1] > image_problem_threshold:
+                #     problem = True
+                # elif vip_[0][0] != 'valid_image' and vip_[0][1] > image_problem_threshold:
+                #     problem = True
             return ['visual_image_problems'] if problem else []
 
         reasons = list()
@@ -698,23 +701,24 @@ class ImageProcessing(object):
 
         return pd.Series([len(reasons) > 0, tuple(sorted(reasons)) if len(reasons) else None])
 
-    def auto_decision(self, image_problem_threshold, problems_to_ignore=None, valid_floor=0.01):
+    def auto_decision(self, valid_floor=0.8, problems_to_ignore=None):
         """
 
         Automatically generate 'invalid_image' column in the `image_dataframe`
         column by deciding whether or not images are valid using default parameter values for class methods.
 
-        :param image_problem_threshold: a scalar from 0 to 1 which specifies the threshold value required
-                                        to cause the image to be marked as invalid.
-                                        For instance, a threshold value of `0.5` would mean that any image
-                                        which contains a image problem probability above `0.5` will be marked
-                                        as invalid.
-        :type image_problem_threshold: ``float``
+        :param valid_floor: the smallest value needed for a 'valid_image' to be considered valid. Defaults to `0.8`.
+        
+                .. note::
+                
+                    For an image to be considered 'valid', the most likely categorization for the image must be
+                    'valid_image' and the probability that the model assigns when placing it in this category
+                    must be great than or equal to ``valid_floor``.
+        
+        :type valid_floor: ``float``
         :param problems_to_ignore: image problems to ignore. See ``INSTANCE.known_image_problems`` for valid values.
                                    Defaults to ``None``.
         :type problems_to_ignore: ``None``, ``list`` or ``tuple``
-        :param valid_floor: the smallest value needed for a 'valid_image' to be considered valid. Defaults to `0.01`.
-        :type valid_floor: ``float``
         """
         for i in ('grayscale', 'image_problems_from_text', 'visual_image_problems'):
             if i not in self.image_dataframe.columns:
@@ -729,20 +733,17 @@ class ImageProcessing(object):
             raise ValueError("`problems_to_ignore` must be a `string`, `list` or `tuple`.")
 
         test_results = self.image_dataframe.apply(
-            lambda r: self._invalid_image_tests(r, image_problem_threshold, problems_to_ignore, valid_floor), axis=1)
+            lambda r: self._invalid_image_tests(r, problems_to_ignore, valid_floor), axis=1)
         self.image_dataframe['invalid_image'] = test_results[0]
         self.image_dataframe['invalid_image_reasons'] = test_results[1].fillna(np.NaN)
 
-    def auto(self, image_problem_threshold=0.275,
-             valid_floor=0.01, limit_to_known_modalities=True,
+    def auto(self, valid_floor=0.8, limit_to_known_modalities=True,
              problems_to_ignore=None, new_analysis=False, status=True):
         """
 
         Automatically carry out all aspects of image preprocessing (recommended).
 
-        :param image_problem_threshold: see ``auto_decision()``. Defaults to `0.275`.
-        :type image_problem_threshold: ``float``
-        :param valid_floor: the smallest value needed for a 'valid_image' to be considered valid. Defaults to `0.01`.
+        :param valid_floor: the smallest value needed for a 'valid_image' to be considered valid. Defaults to `0.8`.
         :type valid_floor: ``float``
         :param limit_to_known_modalities: if ``True``, remove model predicts for image modalities
                                           the model has not explicitly been trained on. Defaults to ``True``.
@@ -763,8 +764,7 @@ class ImageProcessing(object):
                            new_analysis=new_analysis, status=status)
 
         # Run Auto Decision
-        self.auto_decision(image_problem_threshold=image_problem_threshold,
-                           problems_to_ignore=problems_to_ignore,
+        self.auto_decision(problems_to_ignore=problems_to_ignore,
                            valid_floor=valid_floor)
 
         return self.image_dataframe
@@ -785,7 +785,7 @@ class ImageProcessing(object):
                            "indicate whether or not to include an entry in the cleaned dataset.\n"
                            "To automate this process, consider using the `auto_decision()` method.")
 
-    def _to_return_df(self, crop_images, convert_to_rgb, status):
+    def _cleaned_images_data_frame(self, crop_images, convert_to_rgb, status):
         """
 
         Define a dataframe with rows of images found to be 'valid'.
@@ -880,7 +880,8 @@ class ImageProcessing(object):
         self._save_method_error_checking(save_rule)
 
         # Limit to valid images
-        return_df = self._to_return_df(crop_images=crop_images, convert_to_rgb=convert_to_rgb, status=status)
+        return_df = self._cleaned_images_data_frame(crop_images=crop_images, convert_to_rgb=convert_to_rgb,
+                                                    status=status)
 
         def save_rule_wrapper(row):
             """Wrap `save_rule` to ensure it is, or
