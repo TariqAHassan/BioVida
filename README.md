@@ -79,7 +79,7 @@ def my_divvy_rule(row):
 train_val_test_dict = {'train': 0.8, 'test': 0.2}
 tt = image_divvy(opi, divvy_rule=my_divvy_rule, action='ndarray', train_val_test_dict=train_val_test_dict)
 
-# 3. The resultant ``ndarrays`` can be unpacked as follows:
+# 3. The resultant ndarrays can be unpacked as follows:
 train_ct, train_xray = tt['train']['ct'], tt['train']['x_ray']
 test_ct, test_xray = tt['test']['ct'], tt['test']['x_ray']
 ```
@@ -152,16 +152,10 @@ The ``unify_against_images`` function integrates image data information from ``D
 ``DiseaseOntInterface`` and ``DiseaseSymptomsInterface`` together.
 
 ```python
+from biovida.support_tools import pandas_pprint
 from biovida.unification import unify_against_images
 
-# Unify against one or more instance of an image interface
 udf = unify_against_images(interfaces=[ip, opi], db_to_extract='cache_records_db')
-```
-
-To view all the columns of ``udf`` at once, we can use tools from ``biovida.support_tools``:
-
-```python
-from biovida.support_tools import pandas_pprint
 
 pandas_pprint(udf, full_cols=True)
 ```
@@ -178,11 +172,11 @@ Left side of DataFrame: Image Data Alone
 Right side of DataFrame: External Information
 
 
-        disease_family        |    disease_synonym    |       disease_definition       |        known_associated_symptoms       | mentioned_symptoms | known_associated_genes |
-:----------------------------:|:---------------------:|:------------------------------:|:--------------------------------------:|:------------------:|:----------------------:|
- (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
- (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
-    (biliary tract cancer,)   | (bile duct tumor,...) | A biliary tract cancer that... | (abdominal obesity, abdominal pain,..) |      (colic,)      |           nan          |
+|        disease_family        |    disease_synonym    |       disease_definition       |        known_associated_symptoms       | mentioned_symptoms | known_associated_genes |
+|:----------------------------:|:---------------------:|:------------------------------:|:--------------------------------------:|:------------------:|:----------------------:|
+| (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
+| (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
+|    (biliary tract cancer,)   | (bile duct tumor,...) | A biliary tract cancer that... | (abdominal obesity, abdominal pain,..) |      (colic,)      |           nan          |
 
 ---
 
