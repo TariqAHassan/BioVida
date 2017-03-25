@@ -176,11 +176,11 @@ Left side of DataFrame: Image Data Alone
 Right side of DataFrame: External Information
 
 
-|        disease_family        |    disease_synonym    |       disease_definition       |        known_associated_symptoms       | mentioned_symptoms | known_associated_genes |
-|:----------------------------:|:---------------------:|:------------------------------:|:--------------------------------------:|:------------------:|:----------------------:|
-| (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
-| (cell type benign neoplasm,) |          nan          |               nan              |  (abdominal pain, abnormal reflex,...) |       (pain,)      |  (ANTXR2, 0.12), ...)  |
-|    (biliary tract cancer,)   | (bile duct tumor,...) | A biliary tract cancer that... | (abdominal obesity, abdominal pain,..) |      (colic,)      |           nan          |
+|        disease_family        |    disease_synonym    | disease_definition | known_associated_symptoms | mentioned_symptoms | known_associated_genes |
+|:----------------------------:|:---------------------:|:------------------:|:-------------------------:|:------------------:|:----------------------:|
+| (cell type benign neoplasm,) |          nan          |        nan         |  (abdominal pain,...)     |       (pain,)      |  (ANTXR2, 0.12), ...)  |
+| (cell type benign neoplasm,) |          nan          |        nan         |  (abdominal pain,...)     |       (pain,)      |  (ANTXR2, 0.12), ...)  |
+|    (biliary tract cancer,)   | (bile duct tumor,...) | A biliary tract... | (abdominal obesity,..)    |      (colic,)      |           nan          |
 
 ---
 
