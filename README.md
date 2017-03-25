@@ -155,8 +155,8 @@ dsdf = dsi.pull()
 
 ## Unifying Information
 
-The ``unify_against_images`` function integrates image data information from ``DisgenetInterface``,
-``DiseaseOntInterface`` and ``DiseaseSymptomsInterface`` together.
+The ``unify_against_images`` function integrates image data information against ``DisgenetInterface``,
+``DiseaseOntInterface`` and ``DiseaseSymptomsInterface``.
 
 ```python
 from biovida.support_tools import pandas_pprint
