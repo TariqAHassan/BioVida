@@ -1049,65 +1049,16 @@ Defaults to 4.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.images.models.image_classification.ImageClassificationCNN.alex_net">
-<code class="descname">alex_net</code><span class="sig-paren">(</span><em>classes</em>, <em>output_layer_activation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.alex_net"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.alex_net" title="Permalink to this definition">¶</a></dt>
-<dd><ol class="arabic simple">
-<li><a class="reference external" href="https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf">https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf</a></li>
-<li><a class="reference external" href="https://github.com/heuritech/convnets-keras/blob/master/convnetskeras/convnets.py">https://github.com/heuritech/convnets-keras/blob/master/convnetskeras/convnets.py</a></li>
-</ol>
-<p>Copyright (c) 2016 Heuritech</p>
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-documentation files (the &#8220;Software&#8221;), to deal in the Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
-<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions
-of the Software.</p>
-<p>THE SOFTWARE IS PROVIDED &#8220;AS IS&#8221;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>classes</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; number of neuron in the output layer (which equals the number of classes).</li>
-<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to &#8216;sigmoid&#8217;.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.squeezenet">
 <code class="descname">squeezenet</code><span class="sig-paren">(</span><em>classes</em>, <em>output_layer_activation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.squeezenet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.squeezenet" title="Permalink to this definition">¶</a></dt>
-<dd><ol class="arabic">
-<li><p class="first"><a class="reference external" href="https://github.com/rcmalli/keras-squeezenet">https://github.com/rcmalli/keras-squeezenet</a></p>
+<dd><ol class="arabic simple">
+<li>Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer.</li>
+</ol>
 <blockquote>
-<div><p>MIT License</p>
-<p>Copyright (c) 2016 Refikcanmalli</p>
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the &#8220;Software&#8221;), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:</p>
-<p>The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.</p>
-<p>THE SOFTWARE IS PROVIDED &#8220;AS IS&#8221;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.</p>
-<p>Note: the model has been slightly modified. Namely, it has been refactored and
-simplified by removing use of ImageNet weights.</p>
-</div></blockquote>
-</li>
+<div>&#8220;SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and&lt; 0.5 MB model size.&#8221; arXiv preprint 
+<a class="reference external" href="https://arxiv.org/abs/1602.07360">arXiv:1602.07360</a> (2016).</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Implmentation adoped from: <a class="reference external" href="https://github.com/rcmalli/keras-squeezenet">github.com/rcmalli/keras-squeezenet</a></li>
 </ol>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1128,11 +1079,9 @@ simplified by removing use of ImageNet weights.</p>
 <code class="descname">vgg_19</code><span class="sig-paren">(</span><em>classes</em>, <em>output_layer_activation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.vgg_19"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.vgg_19" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keras Implementation of the VGG_19 Model</p>
 <ol class="arabic simple">
-<li>Model Authors:
-Very Deep Convolutional Networks for Large-Scale Image Recognition
-K. Simonyan, A. Zisserman
-arXiv:1409.1556</li>
-<li>Keras Implementation: <a class="reference external" href="https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py">https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py</a></li>
+<li>Very Deep Convolutional Networks for Large-Scale Image Recognition
+K. Simonyan, A. Zisserman. <a class="reference external" href="https://arxiv.org/abs/1409.1556">arXiv:1409.1556</a>.</li>
+<li>The Keras Implementation is available <a class="reference external" href="https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py">here</a>.</li>
 </ol>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1157,10 +1106,9 @@ arXiv:1409.1556</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>model_to_use</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: &#8216;default&#8217;, &#8216;vgg19&#8217;, &#8216;alex_net&#8217;. Defaults to &#8216;default&#8217;.</p>
+<li><strong>model_to_use</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: &#8216;default&#8217;, &#8216;vgg19&#8217;, &#8216;_alex_net&#8217;. Defaults to &#8216;default&#8217;.</p>
 <ul>
-<li>&#8216;default&#8217;: a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling); one hidden layer and 0.5 drop out.</li>
-<li>&#8216;alex_net&#8217;: the 2012 &#8216;AlexNet&#8217; model.</li>
+<li>&#8216;default&#8217;: a relatively simple sequential model with two convolution layers.</li>
 <li>&#8216;squeezenet&#8217;: SqueezeNet model.</li>
 <li>&#8216;vgg19&#8217;: the VGG 19 model.</li>
 </ul>
