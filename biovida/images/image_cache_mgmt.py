@@ -117,52 +117,6 @@ def _record_update_dbs_joiner(records_db, update_db):
     return joined_db.fillna(np.NaN).dropna(subset=list(update_db.columns), how='all').reset_index(drop=True)
 
 
-def _load_temp_dbs(temp_db_path):
-    """
-
-    Load temporary databases in the 'databases/__temp__' directory.
-
-    :param temp_db_path: path to the temporary databases (must be pickled and use the '.p' extension).
-    :type temp_db_path: ``str``
-    :return: all of the '.p' dataframes in ``temp_db_path`` merged into a single dataframe.
-    :rtype: ``Pandas DataFrame`` or ``None``
-    """
-    # Get pickled objects in ``temp_db_path``
-    db_paths = [os.path.join(temp_db_path, p) for p in os.listdir(temp_db_path) if p.endswith(".p")]
-
-    if not len(db_paths):
-        return None
-
-    # Set of to group db_paths by
-    unique_pull_times = {os.path.basename(path).split("__")[0] for path in db_paths}
-
-    groupings = list()
-    for pull_time in unique_pull_times:
-        group = [p for p in db_paths if pull_time in p]
-        if len(group) == 1:
-            os.remove(group[0])
-            warn("FileNotFoundError: Either '{0}__records_db.p' or '{0}__update_db.p'"
-                 " is missing from\n {1}\nDeleting the file which is present...\n"
-                 "As a result, images obtained from the last `pull()` will likely be missing"
-                 " from `cache_records_db`.\nFor this reason, it is recommended that you\n"
-                 "**precisely** repeat your last `search()` and `pull()`.".format(pull_time, temp_db_path))
-        else:
-            groupings.append(group)
-
-    if not len(groupings):
-        return None
-
-    # Read the dataframes in the '__temp__' directory into memory
-    frames = list()
-    for group in groupings:
-        records_db = pd.read_pickle([i for i in group if "__records_db.p" in i][0])
-        update_db = pd.read_pickle([i for i in group if "__update_db.p" in i][0])
-        frames.append(_record_update_dbs_joiner(records_db, update_db))
-
-    # Concatenate all frames
-    return pd.concat(frames, ignore_index=True)
-
-
 def _relationship_mapper(data_frame, interface_name):
     """
 
