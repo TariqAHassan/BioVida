@@ -22,9 +22,10 @@ Latest Build:
 $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
-## Stable API Features
+## Stable Image Features
 
-In just a few lines of code, you can download and clean images from biomedical image databases.
+In just a few lines of code, you can gain access to biomedical databases
+which store tens of millions of images.
 
 #### Cancer Imaging Archive
 ```python
