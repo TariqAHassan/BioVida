@@ -12,8 +12,5 @@ trained_open_i_modality_types = (
     # dictionary.
     'ct',
     'mri',
-    # 'ultrasound',
-    # 'x_ray',
+    'x_ray',
 )
-
-
