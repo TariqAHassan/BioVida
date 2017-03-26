@@ -1873,13 +1873,11 @@ when <code class="docutils literal"><span class="pre">train_val_test_dict=None</
 </ul>
 </li>
 <li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>the database to use. Must be one of:</p>
-<blockquote>
-<div><ul>
+<ul>
 <li>&#8216;records_db&#8217;: the dataframe resulting from the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code> (default).</li>
 <li>&#8216;cache_records_db&#8217;: the cache dataframe for <code class="docutils literal"><span class="pre">instance</span></code>.</li>
 <li>&#8216;unify_against_images&#8217;: the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code>.</li>
 </ul>
-</div></blockquote>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">If an instance of <code class="docutils literal"><span class="pre">ImageProcessing</span></code> is passed, the dataframe will be extracted automatically.</p>
