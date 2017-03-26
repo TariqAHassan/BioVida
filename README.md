@@ -22,7 +22,7 @@ Latest Build:
 $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
-## Stable Image Features
+## Images: Stable
 
 In just a few lines of code, you can gain access to biomedical databases
 which store tens of millions of images.
@@ -88,7 +88,7 @@ train_ct, train_xray = tt['train']['ct'], tt['train']['x_ray']
 test_ct, test_xray = tt['test']['ct'], tt['test']['x_ray']
 ```
 
-## Experimental Image Features
+## Images: Experimental
 
 #### Automated Image Data Cleaning
 ```python
