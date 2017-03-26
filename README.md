@@ -12,7 +12,7 @@ tasks, they will be able to focus their efforts on modeling itself. In turn,
 enabling them to advance new insights and understandings into disease.
 
 In a nod to recursion, this library tries to accomplish some of this automation
-using machine learning itself, using tools like convolutional neural networks.
+with machine learning itself, using tools like convolutional neural networks.
 
 To view this project's website, please [click here].
 
