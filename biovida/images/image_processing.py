@@ -86,6 +86,7 @@ class ImageProcessing(object):
     def __init__(self, instance, db_to_extract='records_db', model_location=None, verbose=True):
         self._verbose = verbose
         self.db_to_extract = db_to_extract
+        self._cache_path = getattr(instance, '_cache_path')
         self.known_image_problems = ('arrows', 'asterisks', 'grids')
 
         if "OpeniInterface" != type(instance).__name__:

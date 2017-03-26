@@ -208,8 +208,6 @@ class _ImagesInterfaceIntegration(object):
         :return: standardize interfaces
         :rtype: ``Pandas DataFrame``
         """
-        # Handle instances being passed 'raw'
-        interfaces = [interfaces] if not isinstance(interfaces, (list, tuple)) else interfaces
         if 'ImageProcessing' in [type(i).__name__ for i in interfaces]:
             self._additional_columns = possible_openi_image_processing_cols
 
@@ -705,18 +703,16 @@ class _DisgenetIntegration(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def images_unify(interfaces, db_to_extract='records_db', cache_path=None, verbose=True, fuzzy_threshold=False):
+def images_unify(interfaces, db_to_extract='records_db', verbose=True, fuzzy_threshold=False):
     """
 
     Unify Interfaces in the ``images`` subpackage against other BioVida APIs.
 
     :param interfaces: See: ``biovida.unify_domains.unify_against_images()``
-    :param interfaces: `list``, ``tuple``, ``OpeniInterface`` or ``CancerImageInterface``
+    :param interfaces: `list``, ``tuple``, ``OpeniInterface``, ``ImageProcessing`` or ``CancerImageInterface``
     :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
                           Defaults to 'records_db'.
     :type db_to_extract: ``str``
-    :param cache_path: See: ``biovida.unify_domains.unify_against_images()``
-    :param cache_path: `str`` or ``None``
     :param verbose: See: ``biovida.unify_domains.unify_against_images()``
     :param verbose: ``bool``
     :param fuzzy_threshold: See: ``biovida.unify_domains.unify_against_images()``
@@ -724,11 +720,21 @@ def images_unify(interfaces, db_to_extract='records_db', cache_path=None, verbos
     :return: See: ``biovida.unify_domains.unify_against_images()``
     :rtype: ``Pandas DataFrame``
     """
-    # ToDo: extract `cache_path` from `interfaces`
+    interfaces = [interfaces] if not isinstance(interfaces, (list, tuple)) else interfaces
 
     # Catch ``fuzzy_threshold=True`` and set to a reasonably high default.
     if fuzzy_threshold is True:
         fuzzy_threshold = 95
+
+    # Note: this doesn't consider cases where multiple biovida
+    # caches exist, each with different data, e.g., one has
+    # genetic data, another has Symptoms data. Thus, in rare
+    # cases, this may cause data to be downloaded unnecessarily.
+    cache_path = None  # default
+    for i in interfaces:
+        if hasattr(i, '_cache_path'):
+            cache_path = getattr(i, '_cache_path')
+            break
 
     # Combine Instances
     combined_df = _ImagesInterfaceIntegration().integration(interfaces=interfaces, db_to_extract=db_to_extract)

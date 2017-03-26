@@ -15,7 +15,6 @@ from biovida.images._unify_images_against_other_biovida_apis import images_unify
 
 def unify_against_images(interfaces,
                          db_to_extract='records_db',
-                         cache_path=None,
                          verbose=True,
                          fuzzy_threshold=False):
     """
@@ -35,9 +34,6 @@ def unify_against_images(interfaces,
                         attribute will be extracted regardless of the value passed to this argument.
 
     :type db_to_extract: ``str``
-    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.
-                       Default to ``None`` (which will generate a cache in the home folder).
-    :type cache_path: ``str`` or ``None``
     :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.
     :type verbose: ``bool``
     :param fuzzy_threshold: an integer on ``(0, 100]``. If ``True`` a threshold of `95` will be used. Defaults to ``False``.
@@ -102,7 +98,7 @@ def unify_against_images(interfaces,
     # --- Search and Pull ---
     >>> udf2 = unify_against_images([opi, cii])
     """
-    return images_unify(interfaces=interfaces, db_to_extract=db_to_extract, cache_path=cache_path,
+    return images_unify(interfaces=interfaces, db_to_extract=db_to_extract,
                         verbose=verbose, fuzzy_threshold=fuzzy_threshold)
 
 
