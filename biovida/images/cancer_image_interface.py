@@ -574,7 +574,7 @@ class _CancerImageArchiveImages(object):
         # Generate the list of paths to the dicoms
         return list(filter(None, map(file_path_full, z.filelist)))
 
-    def _dicom_to_standard_image(self, f, pull_position, series_uid, conversion, new_file_name, image_format):
+    def _dicom_to_standard_image(self, f, pull_position, series_uid, conversion, new_file_name):
         """
 
         This method handles the act of saving dicom images as in a more common file format (e.g., .png).
@@ -596,8 +596,6 @@ class _CancerImageArchiveImages(object):
         :type conversion: ``str``
         :param new_file_name: see ``_save_dicom_as_image``'s ``save_name`` parameter.
         :type new_file_name: ``str``
-        :param image_format: see: ``pull_images()``.
-        :type image_format: ``str``
         :return: tuple of the form: ``(a list of paths to saved images, boolean denoting success)``
         :rtype: ``tuple``
         """
@@ -618,11 +616,11 @@ class _CancerImageArchiveImages(object):
             """Define the path to save the image to."""
             head = "{0}_{1}".format(instance, pull_position)
             file_name = "{0}__{1}__default.{2}".format(
-                head, os.path.basename(new_file_name), image_format.replace(".", ""))
+                head, os.path.basename(new_file_name), "png")
             return os.path.join(save_location, file_name)
 
         if pixel_arr.ndim == 2:
-            # Define save name by combining the images instance in the set, `new_file_name` and `image_format`.
+            # Define save name by combining the images instance in the set.
             instance = cln(str(f.InstanceNumber)) if len(cln(str(f.InstanceNumber))) else '0'
             path = save_path(instance)
             Image.fromarray(pixel_arr).convert(conversion).save(path)
@@ -679,9 +677,8 @@ class _CancerImageArchiveImages(object):
                              index,
                              pull_position,
                              series_uid,
-                             save_name=None,
-                             color=False,
-                             image_format='png'):
+                             save_name,
+                             color=False):
         """
 
         Save a dicom image as a more common file format.
@@ -695,14 +692,13 @@ class _CancerImageArchiveImages(object):
         :param index: the row index currently being processed inside of the main loop in ``_pull_images_engine()``.
         :type index: ``int``
         :param save_name: name of the new file (do *NOT* include a file extension).
-                          To specify a file format, use ``image_format``.
                           If ``None``, name from ``path_to_dicom_file`` will be conserved.
         :type save_name: ``str``
         :param color: If ``True``, convert the image to RGB before saving. If ``False``, save as a grayscale image.
                       Defaults to ``False``
         :type color: ``bool``
-        :param image_format: see: ``pull_images()``.
-        :type image_format: ``str``
+        :param save_png: see: ``pull_images()``.
+        :type save_png: ``str``
         """
         # Load the DICOM file into RAM
         f = dicom.read_file(path_to_dicom_file)
@@ -717,9 +713,9 @@ class _CancerImageArchiveImages(object):
             new_file_name = os.path.basename(os.path.splitext(path_to_dicom_file)[0])
 
         # Convert the image into a PIL object and save to disk.
-        all_save_paths, success = self._dicom_to_standard_image(f, pull_position=pull_position, series_uid=series_uid,
-                                                                conversion=conversion, new_file_name=new_file_name,
-                                                                image_format=image_format)
+        all_save_paths, success = self._dicom_to_standard_image(f=f, pull_position=pull_position,
+                                                                series_uid=series_uid, conversion=conversion,
+                                                                new_file_name=new_file_name)
 
         # Update Record
         cfp_len = self._update_and_set_list(index, 'cached_images_path', all_save_paths, return_replacement_len=True)
@@ -729,14 +725,12 @@ class _CancerImageArchiveImages(object):
         if self.real_time_update_db.get_value(index, 'error_free_conversion') != False:  # Block False being replaced.
             self.real_time_update_db.set_value(index, 'error_free_conversion', success)
 
-    def _move_dicoms(self, save_dicoms, dicom_files, series_abbrev, index):
+    def _move_dicoms(self, dicom_files, series_abbrev, index):
         """
 
         Move the dicom source files to ``self._created_image_dirs['dicoms']``.
         Employ to prevent the raw dicom files from being destroyed.
 
-        :param save_dicoms: see: ``pull_images()``
-        :type save_dicoms: ``bool``
         :param dicom_files: the yield of ``_download_zip()``
         :type dicom_files: ``list``
         :param series_abbrev: as evolved inside ``_pull_images_engine()``.
@@ -744,10 +738,6 @@ class _CancerImageArchiveImages(object):
         :param index: the row index currently being processed inside of the main loop in ``_pull_images_engine()``.
         :type index: ``int``
         """
-        if save_dicoms is not True:
-            self.real_time_update_db.set_value(index, 'cached_dicom_images_path', np.NaN)
-            return None
-
         new_dicom_paths = list()
         for file in dicom_files:
             # Define a name for the new file by extracting the dicom file name and combining with `series_abbrev`.
@@ -763,7 +753,7 @@ class _CancerImageArchiveImages(object):
 
         self.real_time_update_db.set_value(index, 'cached_dicom_images_path', tuple(new_dicom_paths))
 
-    def _cache_check(self, series_abbrev, n_images_min, save_dicoms):
+    def _cache_check(self, series_abbrev, n_images_min, save_png, save_dicom):
         """
 
         Check that caches likely contain that data which would be obtained by downloading it from the database.
@@ -777,6 +767,10 @@ class _CancerImageArchiveImages(object):
                               converted images could be larger (i.e., 3D images which can unpack to be many more),
                               but it is not possible to known this without actually downloading and unpacking these
                               images.
+        :param save_png: ``True`` signals the user's intention to convert DICOMs to PNG.
+        :type save_png: ``bool``
+        :param save_dicom: see: ``pull_images()``.
+        :type save_dicom: ``bool``
         :type n_images_min: ``int``
         :return: tuple of the form:
 
@@ -787,19 +781,30 @@ class _CancerImageArchiveImages(object):
         :rtype: ``tuple``
         """
         # Check that `self._created_image_dirs['raw']` has files which contain the string `series_abbrev`.
-        save_location_summary = sorted([os.path.join(self._created_image_dirs['raw'], f)
-                                        for f in os.listdir(self._created_image_dirs['raw']) if series_abbrev in f])
+        converted_loc_summary = tuple(sorted([os.path.join(self._created_image_dirs['raw'], f)
+                                              for f in os.listdir(self._created_image_dirs['raw'])
+                                              if series_abbrev in f]))
 
         # Check that `self._created_image_dirs['dicoms'])` has files which contain the string `series_abbrev`.
         dicoms_sl_summary = tuple(sorted([os.path.join(self._created_image_dirs['dicoms'], f)
-                                          for f in os.listdir(self._created_image_dirs['dicoms']) if series_abbrev in f]))
+                                          for f in os.listdir(self._created_image_dirs['dicoms'])
+                                          if series_abbrev in f]))
 
-        # Base determination of whether or not the cache is complete w.r.t. dicoms on `save_dicoms`.
-        dicoms_sl_summary_complete = len(dicoms_sl_summary) >= n_images_min if save_dicoms else True
+        if save_png:
+            converted_loc_summary_complete = len(converted_loc_summary) >= n_images_min
+        else:
+            converted_loc_summary_complete = True  # i.e., the actual answer is irrelevant
 
-        cache_complete = len(save_location_summary) >= n_images_min and dicoms_sl_summary_complete
+        if save_dicom:
+            dicoms_sl_summary_complete = len(dicoms_sl_summary) >= n_images_min
+        else:
+            dicoms_sl_summary_complete = True  # i.e., the actual answer is irrelevant
 
-        return cache_complete, save_location_summary, dicoms_sl_summary if len(dicoms_sl_summary) else np.NaN
+        cache_complete = converted_loc_summary_complete and dicoms_sl_summary_complete
+
+        return (cache_complete,
+                converted_loc_summary if len(converted_loc_summary) else None,
+                dicoms_sl_summary if len(dicoms_sl_summary) else None)
 
     def _create_temp_dicom_dir(self):
         """
@@ -851,24 +856,24 @@ class _CancerImageArchiveImages(object):
         else:
             return False
 
-    def _pull_images_engine(self, save_dicoms, allowed_modalities, image_format):
+    def _pull_images_engine(self, save_dicom, allowed_modalities, save_png):
         """
 
         Tool to coordinate the above machinery for pulling and downloading images (or locating them in the cache).
 
-        :param save_dicoms: see: ``pull_images()``.
-        :type save_dicoms: ``bool``
-        :param image_format: see: ``pull_images()``
-        :param image_format: ``str``
+        :param save_dicom: see: ``pull_images()``.
+        :type save_dicom: ``bool``
+        :param save_png: see: ``pull_images()``
+        :param save_png: ``bool``
         :param allowed_modalities: see: ``pull_images()``
         :type allowed_modalities: ``list``, ``tuple`` or ``None``.
         """
         for index, row in tqdm(self.records_db_images.iterrows(), total=len(self.records_db_images)):
             # Check if the image should be harvested (or loaded from the cache).
-            valid_image = self._valid_modality(allowed_modalities, row['modality'], row['modality_full'])
+            valid_image_modality = self._valid_modality(allowed_modalities, row['modality'], row['modality_full'])
 
             # Add whether or not the image was of the modality (or modalities) requested by the user.
-            self.real_time_update_db.set_value(index, 'allowed_modality', valid_image)
+            self.real_time_update_db.set_value(index, 'allowed_modality', valid_image_modality)
 
             # Compose central part of the file name from 'patient_id' and the last ten digits of 'series_instance_uid'
             series_abbrev = "{0}_{1}".format(row['patient_id'], str(row['series_instance_uid'])[-10:])
@@ -876,31 +881,33 @@ class _CancerImageArchiveImages(object):
             # Analyze the cache to determine whether or not downloading the images is needed
             cache_complete, sl_summary, dsl_summary = self._cache_check(series_abbrev=series_abbrev,
                                                                         n_images_min=row['image_count'],
-                                                                        save_dicoms=save_dicoms)
+                                                                        save_png=save_png,
+                                                                        save_dicom=save_dicom)
 
-            if valid_image and not cache_complete:
+            if valid_image_modality and not cache_complete:
                 temporary_folder = self._create_temp_dicom_dir()
 
                 # Download the images into a temporary folder.
                 dicom_files = self._download_zip(row['series_instance_uid'], temporary_folder=temporary_folder)
 
-                # Convert dicom files to `image_format`
-                for e, f in enumerate(dicom_files, start=1):
-                    self._save_dicom_as_image(path_to_dicom_file=f, index=index, pull_position=e,
-                                              series_uid=row['series_instance_uid'], save_name=series_abbrev,
-                                              image_format=image_format)
+                if save_png:
+                    for e, f in enumerate(dicom_files, start=1):
+                        self._save_dicom_as_image(path_to_dicom_file=f, index=index, pull_position=e,
+                                                  series_uid=row['series_instance_uid'],
+                                                  save_name=series_abbrev)
 
-                # Save raw dicom files, if `save_dicoms` is True.
-                self._move_dicoms(save_dicoms, dicom_files, series_abbrev, index)
+                if save_dicom:
+                    self._move_dicoms(dicom_files=dicom_files, series_abbrev=series_abbrev, index=index)
 
                 shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
                 self._update_and_set_list(index, 'cached_dicom_images_path', dsl_summary)
                 self._update_and_set_list(index, 'cached_images_path', sl_summary)
                 self.real_time_update_db.set_value(index, 'error_free_conversion', cache_complete)
-                self.real_time_update_db.set_value(index, 'image_count_converted_cache', len(sl_summary))
+                converted_image_count = len(sl_summary) if isinstance(sl_summary, (list, tuple)) else None
+                self.real_time_update_db.set_value(index, 'image_count_converted_cache', converted_image_count)
 
-    def pull_images(self, records_db, session_limit, image_format, save_dicoms, allowed_modalities):
+    def pull_images(self, records_db, session_limit, save_png, save_dicom, allowed_modalities):
         """
 
         Pull Images from the Cancer Imaging Archive.
@@ -910,10 +917,10 @@ class _CancerImageArchiveImages(object):
         :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed
                               to this parameter. If ``None``, no limit will be imposed.
         :type session_limit: ``int``
-        :param image_format: format for the image, e.g., 'png', 'jpg', etc.
-        :type image_format: ``str``
-        :param save_dicoms: if ``True``, save the raw dicom files.
-        :type save_dicoms: ``bool``
+        :param save_png: see ``CancerImageArchive().pull()``.
+        :type save_png: ``bool``
+        :param save_dicom: if ``True``, save the raw dicom files.
+        :type save_dicom: ``bool``
         :param allowed_modalities: limit images downloaded to certain modalities.
                                    See: CancerImageInterface().dicom_modality_abbrevs (use the keys).
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
@@ -948,7 +955,7 @@ class _CancerImageArchiveImages(object):
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index)
 
         # Harvest images
-        self._pull_images_engine(save_dicoms, allowed_modalities, image_format)
+        self._pull_images_engine(save_dicom=save_dicom, allowed_modalities=allowed_modalities, save_png=save_png)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
         return _record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
@@ -1031,9 +1038,9 @@ class CancerImageInterface(object):
         """
         def rows_to_conserve_func(x):
             """Mark to conserve the row in the cache if the conversion was successful or DICOMs were saved."""
-            iccc = x['image_count_converted_cache']
+            iccc, cdip = x['image_count_converted_cache'], x['cached_dicom_images_path']
             any_conversion_success = isinstance(iccc, (int, float)) and iccc > 0
-            raw_dicoms = isinstance(x['cached_dicom_images_path'], (list, tuple)) and len(x['cached_dicom_images_path'])
+            raw_dicoms = isinstance(cdip, (list, tuple)) and len(cdip) > 0  # > 0 needed b/c `True and 37 == 37`.
             return any_conversion_success or raw_dicoms
 
         # Compose or update the master 'cache_records_db' dataframe
@@ -1346,7 +1353,7 @@ class CancerImageInterface(object):
         """
 
         Extract data from all dicom files referenced in ``records_db`` or ``cache_records_db``.
-        Note: this requires that ``save_dicoms`` is ``True`` when ``pull()`` is called.
+        Note: this requires that ``save_dicom`` is ``True`` when ``pull()`` is called.
 
         :param database: the name of the database to use. Must be one of: 'records_db', 'cache_records_db'.
                          Defaults to 'records_db'.
@@ -1358,7 +1365,7 @@ class CancerImageInterface(object):
                  If ``make_hashable`` is ``True``, all dictionaries will be converted to ``tuples``.
         :rtype: ``Pandas Series``
         """
-        # ToDo: remove need for ``save_dicoms=True`` by calling upstream before the temporary dicom files are destroyed.
+        # ToDo: remove need for ``save_dicom=True`` by calling upstream before the temporary dicom files are destroyed.
         if database == 'records_db':
             database_to_use = self.records_db
         elif database == 'cache_records_db':
@@ -1391,8 +1398,8 @@ class CancerImageInterface(object):
              session_limit=1,
              collections_limit=None,
              allowed_modalities=None,
-             image_format='png',
-             save_dicoms=False,
+             save_png=True,
+             save_dicom=False,
              new_records_pull=True):
         """
 
@@ -1400,11 +1407,11 @@ class CancerImageInterface(object):
 
         Notes:
 
-        - 3D images are saved as individual frames.
+        - When ``save_png`` is ``True``, 3D DICOM images are saved as individual frames.
 
         - Images file names in the cache adhere to the following format:
 
-            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale ('default')].image_format``
+            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale ('default')].png``
 
         where:
 
@@ -1438,11 +1445,10 @@ class CancerImageInterface(object):
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
                                    This parameter is not case sensitive. Defaults to ``None``.
         :type allowed_modalities: ``list`` or ``tuple``
-        :param image_format: format for the image, e.g., 'png', 'jpg', etc. If ``None``, images will not be downloaded.
-                             Defaults to 'png'.
-        :type image_format: ``str``
-        :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.
-        :type save_dicoms: ``bool``
+        :param save_png: if ``True``, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to ``True``.
+        :type save_png: ``bool``
+        :param save_dicom: if ``True``, save the DICOM images provided by The Cancer Imaging Archive 'as is'. Defaults to ``False``.
+        :type save_dicom: ``bool``
         :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.
         :type new_records_pull: ``bool``
         :return: a DataFrame with the record information.
@@ -1458,13 +1464,13 @@ class CancerImageInterface(object):
         elif not isinstance(self.records_db, pd.DataFrame):
             raise TypeError("`records_db` is not a DataFrame.")
 
-        if isinstance(image_format, str):
+        if save_png or save_dicom:
             if self._verbose:
                 print("\nObtaining Images...")
             self.records_db = self._Images.pull_images(records_db=self.records_db,
                                                        session_limit=session_limit,
-                                                       image_format=image_format,
-                                                       save_dicoms=save_dicoms,
+                                                       save_png=save_png,
+                                                       save_dicom=save_dicom,
                                                        allowed_modalities=allowed_modalities)
 
             # Add the new records_db datafame with the existing `cache_records_db`.
