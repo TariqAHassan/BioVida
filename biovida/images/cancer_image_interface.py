@@ -799,7 +799,7 @@ class _CancerImageArchiveImages(object):
         # information on the partial transfer will be lost.
         self._save_real_time_update_db()
 
-    def _cache_check(self, check_cache_first, series_abbrev, n_images_min, save_dicoms):
+    def _cache_check(self, series_abbrev, n_images_min, save_dicoms):
         """
 
         Check that caches likely contain that data which would be obtained by downloading it from the database.
@@ -822,10 +822,6 @@ class _CancerImageArchiveImages(object):
 
         :rtype: ``tuple``
         """
-        # Instruct ``_pull_images_engine()`` to download the images without checking the cache first.
-        if check_cache_first is False:
-            return False, None, None
-
         # Check that `self._created_image_dirs['raw']` has files which contain the string `series_abbrev`.
         save_location_summary = sorted([os.path.join(self._created_image_dirs['raw'], f)
                                         for f in os.listdir(self._created_image_dirs['raw']) if series_abbrev in f])
@@ -889,7 +885,7 @@ class _CancerImageArchiveImages(object):
         else:
             return False
 
-    def _pull_images_engine(self, save_dicoms, allowed_modalities, image_format, check_cache_first):
+    def _pull_images_engine(self, save_dicoms, allowed_modalities, image_format):
         """
 
         Tool to coordinate the above machinery for pulling and downloading images (or locating them in the cache).
@@ -900,9 +896,9 @@ class _CancerImageArchiveImages(object):
         :param image_format: ``str``
         :param allowed_modalities: see: ``pull_images()``
         :type allowed_modalities: ``list``, ``tuple`` or ``None``.
-        :param check_cache_first: see: ``pull_images()``
-        :param check_cache_first: ``bool``
         """
+        # ToDo: change to iterrows()
+
         columns = ('series_instance_uid', 'patient_id', 'image_count', 'modality', 'modality_full')
         zipped_cols = list(zip(*[self.records_db_images[c] for c in columns] + [pd.Series(self.records_db_images.index)]))
 
@@ -917,8 +913,7 @@ class _CancerImageArchiveImages(object):
             series_abbrev = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
 
             # Analyze the cache to determine whether or not downloading the images is needed
-            cache_complete, sl_summary, dsl_summary = self._cache_check(check_cache_first=check_cache_first,
-                                                                        series_abbrev=series_abbrev,
+            cache_complete, sl_summary, dsl_summary = self._cache_check(series_abbrev=series_abbrev,
                                                                         n_images_min=image_count,
                                                                         save_dicoms=save_dicoms)
 
@@ -952,8 +947,7 @@ class _CancerImageArchiveImages(object):
                     session_limit=1,
                     image_format='png',
                     save_dicoms=True,
-                    allowed_modalities=None,
-                    check_cache_first=True):
+                    allowed_modalities=None):
         """
 
         Pull Images from the Cancer Imaging Archive.
@@ -974,9 +968,6 @@ class _CancerImageArchiveImages(object):
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
                                    This parameter is not case sensitive. Defaults to ``None``.
         :type allowed_modalities: ``list``, ``tuple`` or ``None``.
-        :param check_cache_first: check the image cache for the image prior to downloading.
-                                  If the image is already present, no attempt will be made to download it again.
-        :type check_cache_first: ``bool``
         :return: a dataframe with information about the images cached by this method.
         :rtype: ``Pandas DataFrame``
         """
@@ -1004,7 +995,7 @@ class _CancerImageArchiveImages(object):
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index, pull_time=pull_time)
 
         # Harvest images
-        self._pull_images_engine(save_dicoms, allowed_modalities, image_format, check_cache_first)
+        self._pull_images_engine(save_dicoms, allowed_modalities, image_format)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
         return _record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
@@ -1426,8 +1417,7 @@ class CancerImageInterface(object):
              collections_limit=None,
              allowed_modalities=None,
              image_format='png',
-             save_dicoms=False,
-             check_cache_first=True):
+             save_dicoms=False):
         """
 
         Pull (i.e., download) the current search.
@@ -1477,17 +1467,6 @@ class CancerImageInterface(object):
         :type image_format: ``str``
         :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.
         :type save_dicoms: ``bool``
-        :param check_cache_first: check the image cache for the image prior to downloading.
-                                  If ``True`` and the image is already present, no attempt will be made to download it
-                                  again. If ``False`` the image will be downloaded regardless of whether or not it is
-                                  detected in the cache.
-
-                 .. warning::
-
-                        If a single frame of a 3D image is missing from the cache the entire image will be
-                        downloaded again.
-
-        :type check_cache_first: ``bool``
         :return: a DataFrame with the record information.
         :rtype: ``Pandas DataFrame``
         """
@@ -1525,8 +1504,7 @@ class CancerImageInterface(object):
                                                        session_limit=session_limit,
                                                        image_format=image_format,
                                                        save_dicoms=save_dicoms,
-                                                       allowed_modalities=allowed_modalities,
-                                                       check_cache_first=check_cache_first)
+                                                       allowed_modalities=allowed_modalities)
         else:
             self.records_db = records_db
 
