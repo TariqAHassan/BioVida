@@ -422,7 +422,10 @@ class _DiseaseOntologyIntegration(object):
             raise ValueError("`fuzzy_threshold` cannot be `True`. Please provide a specific integer on ``(0, 100]``.")
 
         if self.verbose:
-            print("\nIntegrating Disease Ontology Data...")
+            print("\n\nIntegrating Disease Ontology Data...")
+
+        # Re-Registers tqdm
+        tqdm.pandas(desc='status')
 
         # Extract disease information using the Disease Ontology database
         disease_ontology_data = data_frame['disease'].progress_map(
@@ -526,13 +529,16 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
         raise AttributeError(missing_column_error_message.format('disease_synonym'))
 
     # Map gene-disease information onto the dataframe
-    rslt = data_frame.progress_apply(lambda x: _disease_synonym_match_battery(disease=x['disease'],
-                                                                              disease_synonyms=x['disease_synonym'],
-                                                                              resource_dict=resource_dict,
-                                                                              fuzzy_threshold=fuzzy_threshold), axis=1)
+    matches = list()
+    for _, row in tqdm(data_frame.iterrows(), total=len(data_frame)):
+        match = _disease_synonym_match_battery(disease=row['disease'],
+                                               disease_synonyms=row['disease_synonym'],
+                                               resource_dict=resource_dict,
+                                               fuzzy_threshold=fuzzy_threshold)
+        matches.append(match)
 
     # Add the `rslt` series to `data_frame`
-    data_frame[new_column_name] = rslt
+    data_frame[new_column_name] = matches
 
     return data_frame
 
@@ -590,16 +596,16 @@ class _DiseaseSymptomsIntegration(object):
         :rtype: ``Pandas Series``
         """
         # ToDo: consider using 'mesh' and 'problems' cols - would have to be added in ``_ImagesInterfaceIntegration()``.
-        def match_symptoms(x):
+        def match_symptoms(row):
             """Find items in 'known_associated_symptoms' in 'abstract'."""
-            if isinstance(x['known_associated_symptoms'], (list, tuple)) and isinstance(x['abstract'], str):
-                abstract_lower = x['abstract'].lower()
-                symptoms = [i for i in x['known_associated_symptoms'] if i in abstract_lower]
+            if isinstance(row['known_associated_symptoms'], (list, tuple)) and isinstance(row['abstract'], str):
+                abstract_lower = row['abstract'].lower()
+                symptoms = [i for i in row['known_associated_symptoms'] if i in abstract_lower]
                 return tuple(symptoms) if len(symptoms) else np.NaN
             else:
                 return np.NaN
 
-        return data_frame.progress_apply(match_symptoms, axis=1)
+        return [match_symptoms(row) for _, row in tqdm(data_frame.iterrows(), total=len(data_frame))]
 
     def integration(self, data_frame, fuzzy_threshold=False):
         """
@@ -614,7 +620,7 @@ class _DiseaseSymptomsIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         if self.verbose:
-            print("\nIntegrating Disease Symptoms Data...")
+            print("\n\nIntegrating Disease Symptoms Data...")
 
         # Generate a 'known_associated_symptoms' columns
         updated_data_frame = _resource_integration(data_frame=data_frame,
@@ -632,7 +638,7 @@ class _DiseaseSymptomsIntegration(object):
 
 
 # ----------------------------------------------------------------------------------------------------------
-# Disgenet Integration
+# DisGeNET Integration
 # ----------------------------------------------------------------------------------------------------------
 
 
@@ -686,7 +692,7 @@ class _DisgenetIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         if self.verbose:
-            print("\nIntegrating DisGeNET Data...")
+            print("\n\nIntegrating DisGeNET Data...")
 
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_gene_dict,
@@ -718,6 +724,8 @@ def images_unify(interfaces, db_to_extract='records_db', cache_path=None, verbos
     :return: See: ``biovida.unify_domains.unify_against_images()``
     :rtype: ``Pandas DataFrame``
     """
+    # ToDo: extract `cache_path` from `interfaces`
+
     # Catch ``fuzzy_threshold=True`` and set to a reasonably high default.
     if fuzzy_threshold is True:
         fuzzy_threshold = 95
