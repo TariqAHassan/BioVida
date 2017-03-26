@@ -101,7 +101,7 @@ def _image_id_short(journal_title, image_id):
 
     :Example:
 
-    >>> _image_id_short(journal_title='medpix', image_id='MPX1067_synpic16962')
+    >>> _image_id_short(journal_title='medpix', image_id='MPX..16962')
     ...
     '16962'
     >>> _image_id_short(journal_title='pubmed', image_id='f06')
