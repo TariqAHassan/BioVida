@@ -74,11 +74,10 @@ from biovida.images import image_divvy
 
 # 1. Define a rule to 'divvy' up images in the cache.
 def my_divvy_rule(row):
-    if isinstance(row['image_modality_major'], str):
-        if 'x_ray' == row['image_modality_major']:
-            return 'x_ray'
-        elif 'ct' == row['image_modality_major']:
-            return 'ct'
+    if row['image_modality_major'] == 'x_ray':
+        return 'x_ray'
+    elif row['image_modality_major'] == 'ct':
+        return 'ct'
 
 # 2. Define Proportions and Divide Data
 tt = image_divvy(opi, my_divvy_rule, action='ndarray', train_val_test_dict={'train': 0.8, 'test': 0.2})
