@@ -1196,6 +1196,8 @@ class OpeniInterface(object):
                                                          records_sleep_time=records_sleep_time,
                                                          clinical_cases_only=clinical_cases_only,
                                                          download_limit=download_limit)
+        elif not isinstance(self.records_db, pd.DataFrame):
+            raise TypeError("`records_db` is not a DataFrame.")
 
         if isinstance(image_size, str):
             self.records_db = self._Images.pull_images(records_db=self.records_db,
