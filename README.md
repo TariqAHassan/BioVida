@@ -166,7 +166,7 @@ Left side of DataFrame: Image Data Alone
 |   | article_type | image_id | image_caption |          modality_best_guess          | age |   sex  |      disease     | ... |
 |:-:|:------------:|:--------:|:-------------:|:-------------------------------------:|:---:|:------:|:----------------:|:---:|
 | 0 |  case_report |     1    |      ...      |    Magnetic Resonance Imaging (MRI)   |  73 |  male  |      fibroma     | ... |
-| 1 |  case_report |     2    |      ...      |   Computed Tomography (CT): abdomen   |  73 |  male  |      fibroma     | ... |
+| 1 |  case_report |     2    |      ...      |    Magnetic Resonance Imaging (MRI)   |  73 |  male  |      fibroma     | ... |
 | 2 |  case_report |     1    |      ...      | Computed Tomography (CT): angiography |  45 | female | bile duct cancer | ... |
 
 
