@@ -157,7 +157,7 @@ The ``unify_against_images`` function integrates image data information against 
 ```python
 from biovida.unification import unify_against_images
 
-unify_against_images(interfaces=[ip, opi], db_to_extract='cache_records_db')
+unify_against_images(interfaces=[cii, opi], db_to_extract='cache_records_db')
 ```
 
 Left side of DataFrame: Image Data Alone
