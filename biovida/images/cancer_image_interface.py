@@ -897,48 +897,42 @@ class _CancerImageArchiveImages(object):
         :param allowed_modalities: see: ``pull_images()``
         :type allowed_modalities: ``list``, ``tuple`` or ``None``.
         """
-        # ToDo: change to iterrows()
-
-        columns = ('series_instance_uid', 'patient_id', 'image_count', 'modality', 'modality_full')
-        zipped_cols = list(zip(*[self.records_db_images[c] for c in columns] + [pd.Series(self.records_db_images.index)]))
-
-        for series_uid, patient_id, image_count, modality, modality_full, index in tqdm(zipped_cols):
+        for index, row in tqdm(self.records_db_images.iterrows(), total=len(self.records_db_images)):
             # Check if the image should be harvested (or loaded from the cache).
-            valid_image = self._valid_modality(allowed_modalities, modality, modality_full)
+            valid_image = self._valid_modality(allowed_modalities, row['modality'], row['modality_full'])
 
             # Add whether or not the image was of the modality (or modalities) requested by the user.
             self.real_time_update_db.set_value(index, 'allowed_modality', valid_image)
 
             # Compose central part of the file name from 'patient_id' and the last ten digits of 'series_instance_uid'
-            series_abbrev = "{0}_{1}".format(patient_id, str(series_uid)[-10:])
+            series_abbrev = "{0}_{1}".format(row['patient_id'], str(row['series_instance_uid'])[-10:])
 
             # Analyze the cache to determine whether or not downloading the images is needed
             cache_complete, sl_summary, dsl_summary = self._cache_check(series_abbrev=series_abbrev,
-                                                                        n_images_min=image_count,
+                                                                        n_images_min=row['image_count'],
                                                                         save_dicoms=save_dicoms)
 
             if valid_image and not cache_complete:
                 temporary_folder = self._create_temp_dir()
 
                 # Download the images into a temporary folder.
-                dicom_files = self._download_zip(series_uid, temporary_folder=temporary_folder)
+                dicom_files = self._download_zip(row['series_instance_uid'], temporary_folder=temporary_folder)
 
                 # Convert dicom files to `image_format`
                 for e, f in enumerate(dicom_files, start=1):
                     self._save_dicom_as_image(path_to_dicom_file=f, index=index, pull_position=e,
-                                              series_uid=series_uid,save_name=series_abbrev, image_format=image_format)
+                                              series_uid=row['series_instance_uid'], save_name=series_abbrev,
+                                              image_format=image_format)
 
                 # Save raw dicom files, if `save_dicoms` is True.
                 self._move_dicoms(save_dicoms, dicom_files, series_abbrev, index)
 
-                # Delete the temporary folder.
                 shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
                 self._update_and_set_list(index, 'cached_dicom_images_path', dsl_summary)
                 self._update_and_set_list(index, 'cached_images_path', sl_summary)
                 self.real_time_update_db.set_value(index, 'error_free_conversion', cache_complete)
                 self.real_time_update_db.set_value(index, 'image_count_converted_cache', len(sl_summary))
-                # Save the data frame
                 self._save_real_time_update_db()
 
     def pull_images(self,
