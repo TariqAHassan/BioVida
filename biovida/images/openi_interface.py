@@ -924,7 +924,7 @@ class OpeniInterface(object):
                                                       columns_with_dicts=('query', 'parsed_abstract'),
                                                       duplicates_subset_columns=duplicates_subset_columns,
                                                       rows_to_conserve_func=rows_to_conserve_func,
-                                                      post_concat_func=image_id_short_gen)
+                                                      pre_return_func=image_id_short_gen)
 
         # Save to disk
         self._save_cache_records_db()

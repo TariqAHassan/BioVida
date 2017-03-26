@@ -192,7 +192,7 @@ def _records_db_merge(interface_name,
                       columns_with_dicts,
                       duplicates_subset_columns,
                       rows_to_conserve_func=None,
-                      post_concat_func=None,
+                      pre_return_func=None,
                       columns_with_iterables_to_sort=None):
     """
 
@@ -219,9 +219,9 @@ def _records_db_merge(interface_name,
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
                                   in fact, present in the cache. If not, remove it from the database to be saved.
     :type rows_to_conserve_func: ``function``
-    :param post_concat_func: a function to apply to ``combined_dbs`` after it is generated.
-                             This function should accept and return a dataframe.
-    :type post_concat_func: ``function``
+    :param pre_return_func: a function to apply to the dataframe before it is returned.
+                            This function should accept and return a dataframe.
+    :type pre_return_func: ``None`` or ``function``
     :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
                                   prior to dropping. Defaults to ``None``.
     :type columns_with_iterables_to_sort: ``list`` or ``tuple``
@@ -236,9 +236,6 @@ def _records_db_merge(interface_name,
 
     if callable(rows_to_conserve_func):
         combined_dbs = combined_dbs[combined_dbs.apply(rows_to_conserve_func, axis=1)]
-
-    if callable(post_concat_func):
-        combined_dbs = post_concat_func(combined_dbs)
 
     # Note: Typically these will be 'in sync'. However, if they are not, preference is given
     # to 'biovida_version' s.t. the data harvested with the latest version is given preference.
@@ -262,6 +259,9 @@ def _records_db_merge(interface_name,
 
     # Map relationships in the dataframe.
     combined_dbs = _relationship_mapper(data_frame=combined_dbs, interface_name=interface_name)
+
+    if callable(pre_return_func):
+        combined_dbs = pre_return_func(combined_dbs)
 
     return combined_dbs.drop('__temp_order__', axis=1).reset_index(drop=True)
 
