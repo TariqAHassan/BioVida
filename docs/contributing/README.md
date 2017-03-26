@@ -32,8 +32,13 @@ too complex. It needs to be simplified.
       
   In short, the task for the CNN is to flag images with visual problems.
   The current approach uses data synthesis to generate data to train a CNN
-  to detect such problems. However, it may be more effective to use
-  transfer learning with, say, VGG19.
+  to detect such problems. However, synthesizing images which are
+  similar to those in the actual Open-i database is challenging.
+  Frankly, it is a challenge I've had moderate success with. For this reason,
+  by using synthesized images the validation set when training the model,
+  the classification accuracy obtained (~0.90) is misleadingly high.
+  
+  It may be more effective to simply use transfer learning with, say, VGG19.
   
   This brings me to a more general problem with the CNN: backend API. I am currently
   using ``Keras`` simply because it allows users to use *either* ``tensorflow`` or ``theano``.
