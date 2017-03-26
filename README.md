@@ -60,7 +60,7 @@ search_df = opi.pull()
 
 Both ``CancerImageInterface`` and ``OpeniInterface`` cache images for later use.
 When data is 'pulled', a ``records_db`` is generated, which is a dataframe
-of all text data associated with the image. They are provided as class attributes, e.g.,
+of all text data associated with the images. They are provided as class attributes, e.g.,
  ``CancerImageInterface().records_db``. The ``cache_records_db`` dataframe
 provides an account of all images currently cached.
 
