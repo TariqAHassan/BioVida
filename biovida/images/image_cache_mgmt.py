@@ -780,9 +780,9 @@ def image_divvy(instance,
     :type action: ``str``
     :param db_to_extract: the database to use. Must be one of:
 
-                - 'records_db': the dataframe resulting from the most recent ``search()`` & ``pull()`` (default).
-                - 'cache_records_db': the cache dataframe for ``instance``.
-                - 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
+        * 'records_db': the dataframe resulting from the most recent ``search()`` & ``pull()`` (default).
+        * 'cache_records_db': the cache dataframe for ``instance``.
+        * 'unify_against_images': the yield of ``biovida.unification.unify_against_images()``.
 
         .. note::
 
