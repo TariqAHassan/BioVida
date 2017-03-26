@@ -1313,6 +1313,35 @@ class CancerImageInterface(object):
 
         return record_frames, pull_success
 
+    def _records_db_gen(self, patient_limit, collections_limit):
+        """
+        
+        Generate ``records_db`` by refining the output of ``_pull_records()``.
+        
+        :param patient_limit: see ``pull()``.
+        :type patient_limit: ``int`` or ``None``
+        :param collections_limit: see ``pull()``.
+        :type collections_limit: ``int`` or ``None``
+        :return: 
+        """
+        record_frames, self.pull_success = self._pull_records(patient_limit=patient_limit,
+                                                              collections_limit=collections_limit)
+
+        # Check for failures
+        download_failures = [collection for (success, collection) in self.pull_success if success is False]
+
+        if len(download_failures) == len(self.pull_success):
+            raise IndexError("Data could not be harvested for any of the requested collections.")
+        elif len(download_failures):
+            warn("\n\nThe following collections failed to download:\n{0}".format(
+                list_to_bulletpoints(download_failures)))
+
+        # Combine all record frames
+        records_db = pd.concat(record_frames, ignore_index=True)
+        records_db['biovida_version'] = [__version_numeric__] * records_db.shape[0]
+
+        return records_db
+
     def extract_dicom_data(self, database='records_db', make_hashable=False):
         """
 
@@ -1422,45 +1451,24 @@ class CancerImageInterface(object):
         if self.current_query is None:
             raise TypeError("`current_query` is `None`: `search()` must be called before `pull()`.")
 
-        # Note the time the pull request was made
         self._pull_time = datetime.now()
 
-        # Download Records for all of the studies
         if new_records_pull:
-            record_frames, self.pull_success = self._pull_records(patient_limit=patient_limit,
-                                                                  collections_limit=collections_limit)
+            self.records_db = self._records_db_gen(patient_limit=patient_limit,
+                                                   collections_limit=collections_limit)
+        elif not isinstance(self.records_db, pd.DataFrame):
+            raise TypeError("`records_db` is not a DataFrame.")
 
-            # Check for failures
-            download_failures = [collection for (success, collection) in self.pull_success if success is False]
-
-            if len(download_failures) == len(self.pull_success):
-                raise IndexError("Data could not be harvested for any of the requested collections.")
-            elif len(download_failures):
-                warn("\n\nThe following collections failed to download:\n{0}".format(
-                    list_to_bulletpoints(download_failures)))
-
-            # Combine all record frames
-            records_db = pd.concat(record_frames, ignore_index=True)
-
-            # Add the Version of BioVida which generated the DataFrame
-            records_db['biovida_version'] = [__version_numeric__] * records_db.shape[0]
-        else:
-            records_db = self.records_db
-
-        # Download the images for all of the studies (collections)
         if isinstance(image_format, str):
             if self._verbose:
                 print("\nObtaining Images...")
-            self.records_db = self._Images.pull_images(records_db=records_db,
+            self.records_db = self._Images.pull_images(records_db=self.records_db,
                                                        session_limit=session_limit,
                                                        image_format=image_format,
                                                        save_dicoms=save_dicoms,
                                                        allowed_modalities=allowed_modalities)
-        else:
-            self.records_db = records_db
 
-        # Update the cache record if and only if a request was also made for images.
-        if isinstance(image_format, str):
+            # Add the new records_db datafame with the existing `cache_records_db`.
             self._tcia_cache_records_db_handler()
 
         return self.records_db
