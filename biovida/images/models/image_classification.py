@@ -166,12 +166,11 @@ class ImageClassificationCNN(object):
     def default(self, classes, output_layer_activation):
         """
 
-        The most simple model in this class.
+        A Convolutional Neural Network with two convolution layers and ~5 million parameters.
 
         Sources:
-        --------
 
-        1. https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+        - https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
 
         :param classes: number of neuron in the output layer (which equals the number of classes).
         :type classes: ``int``
@@ -201,7 +200,7 @@ class ImageClassificationCNN(object):
             This is *NOT* stable with Keras 2.
 
         Sources:
-        -------
+        
         1. https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf
 
         2. https://github.com/heuritech/convnets-keras/blob/master/convnetskeras/convnets.py
@@ -279,14 +278,15 @@ class ImageClassificationCNN(object):
     def squeezenet(self, classes, output_layer_activation):
         """
 
-        Source:
-        -------
+        Keras Implementation of the SqueezeNet Model.
+
+        Sources:
         
-        1. Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer. 
-          "SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and< 0.5 MB model size." arXiv preprint 
+        - Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer. 
+          'SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and< 0.5 MB model size.' arXiv preprint 
           `arXiv:1602.07360 <https://arxiv.org/abs/1602.07360>`_ (2016). 
 
-        2. Implmentation adoped from: `github.com/rcmalli/keras-squeezenet <https://github.com/rcmalli/keras-squeezenet>`_
+        - Implementation adapted from: `github.com/rcmalli/keras-squeezenet <https://github.com/rcmalli/keras-squeezenet>`_
 
         :param classes: number of neuron in the output layer (which equals the number of classes).
         :type classes: ``int``
@@ -373,15 +373,15 @@ class ImageClassificationCNN(object):
     def vgg_19(self, classes, output_layer_activation):
         """
 
-        Keras Implementation of the VGG_19 Model
+        Keras Implementation of the VGG19 Model.
 
         Sources:
         -------
 
-        1. Very Deep Convolutional Networks for Large-Scale Image Recognition
-           K. Simonyan, A. Zisserman. `arXiv:1409.1556 <https://arxiv.org/abs/1409.1556>`_.
+        - Very Deep Convolutional Networks for Large-Scale Image Recognition
+          K. Simonyan, A. Zisserman. `arXiv:1409.1556 <https://arxiv.org/abs/1409.1556>`_.
            
-        2. The Keras Implementation is available `here <https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py>`_.
+        - The Keras Implementation is available `here <https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py>`_.
 
         :param classes: number of neuron in the output layer (which equals the number of classes).
         :type classes: ``int``
@@ -449,7 +449,7 @@ class ImageClassificationCNN(object):
 
         Define and Compile the Image Recognition Convolutional Neural Network.
 
-        :param model_to_use: one of: 'default', 'vgg19', '_alex_net'. Defaults to 'default'.
+        :param model_to_use: one of: 'default', 'squeezenet' or 'vgg19'. Defaults to 'default'.
 
             - 'default': a relatively simple sequential model with two convolution layers.
 
