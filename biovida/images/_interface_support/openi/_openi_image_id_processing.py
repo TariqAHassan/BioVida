@@ -83,8 +83,8 @@ def _image_id_cleaner(image_id):
     :return: see description.
     :rtype: ``str``
     """
-    imgage_id_no_ext = re.sub(_image_id_cleaner_regex, "", image_id)
-    return cln(multi_replace(imgage_id_no_ext, ('image', 'img'), replace_with='f')).lower()
+    image_id_no_ext = re.sub(_image_id_cleaner_regex, "", image_id)
+    return cln(multi_replace(image_id_no_ext, ('image', 'img'), replace_with='f')).lower()
 
 
 def _image_id_short(journal_title, image_id):
