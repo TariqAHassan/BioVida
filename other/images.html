@@ -973,10 +973,11 @@ Defaults to 4.</li>
 <dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.default">
 <code class="descname">default</code><span class="sig-paren">(</span><em>classes</em>, <em>output_layer_activation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.default" title="Permalink to this definition">¶</a></dt>
-<dd><p>The most simple model in this class.</p>
-<ol class="arabic simple">
+<dd><p>A Convolutional Neural Network with two convolution layers and ~5 million parameters.</p>
+<p>Sources:</p>
+<ul class="simple">
 <li><a class="reference external" href="https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html">https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html</a></li>
-</ol>
+</ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -994,15 +995,14 @@ Defaults to 4.</li>
 <dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.squeezenet">
 <code class="descname">squeezenet</code><span class="sig-paren">(</span><em>classes</em>, <em>output_layer_activation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.squeezenet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.squeezenet" title="Permalink to this definition">¶</a></dt>
-<dd><ol class="arabic simple">
-<li>Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer.</li>
-</ol>
-<blockquote>
-<div>&#8220;SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and&lt; 0.5 MB model size.&#8221; arXiv preprint 
-<a class="reference external" href="https://arxiv.org/abs/1602.07360">arXiv:1602.07360</a> (2016).</div></blockquote>
-<ol class="arabic simple" start="2">
-<li>Implmentation adoped from: <a class="reference external" href="https://github.com/rcmalli/keras-squeezenet">github.com/rcmalli/keras-squeezenet</a></li>
-</ol>
+<dd><p>Keras Implementation of the SqueezeNet Model.</p>
+<p>Sources:</p>
+<ul class="simple">
+<li>Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer. 
+&#8216;SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and&lt; 0.5 MB model size.&#8217; arXiv preprint 
+<a class="reference external" href="https://arxiv.org/abs/1602.07360">arXiv:1602.07360</a> (2016).</li>
+<li>Implementation adapted from: <a class="reference external" href="https://github.com/rcmalli/keras-squeezenet">github.com/rcmalli/keras-squeezenet</a></li>
+</ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1020,12 +1020,12 @@ Defaults to 4.</li>
 <dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.vgg_19">
 <code class="descname">vgg_19</code><span class="sig-paren">(</span><em>classes</em>, <em>output_layer_activation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.vgg_19"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.vgg_19" title="Permalink to this definition">¶</a></dt>
-<dd><p>Keras Implementation of the VGG_19 Model</p>
-<ol class="arabic simple">
+<dd><p>Keras Implementation of the VGG19 Model.</p>
+<ul class="simple">
 <li>Very Deep Convolutional Networks for Large-Scale Image Recognition
 K. Simonyan, A. Zisserman. <a class="reference external" href="https://arxiv.org/abs/1409.1556">arXiv:1409.1556</a>.</li>
 <li>The Keras Implementation is available <a class="reference external" href="https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py">here</a>.</li>
-</ol>
+</ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1049,7 +1049,7 @@ K. Simonyan, A. Zisserman. <a class="reference external" href="https://arxiv.org
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>model_to_use</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: &#8216;default&#8217;, &#8216;vgg19&#8217;, &#8216;_alex_net&#8217;. Defaults to &#8216;default&#8217;.</p>
+<li><strong>model_to_use</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: &#8216;default&#8217;, &#8216;squeezenet&#8217; or &#8216;vgg19&#8217;. Defaults to &#8216;default&#8217;.</p>
 <ul>
 <li>&#8216;default&#8217;: a relatively simple sequential model with two convolution layers.</li>
 <li>&#8216;squeezenet&#8217;: SqueezeNet model.</li>

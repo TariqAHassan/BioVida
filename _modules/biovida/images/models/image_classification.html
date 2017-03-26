@@ -338,12 +338,11 @@
 <div class="viewcode-block" id="ImageClassificationCNN.default"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        The most simple model in this class.</span>
+<span class="sd">        A Convolutional Neural Network with two convolution layers and ~5 million parameters.</span>
 
 <span class="sd">        Sources:</span>
-<span class="sd">        --------</span>
 
-<span class="sd">        1. https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html</span>
+<span class="sd">        - https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html</span>
 
 <span class="sd">        :param classes: number of neuron in the output layer (which equals the number of classes).</span>
 <span class="sd">        :type classes: ``int``</span>
@@ -373,7 +372,7 @@
 <span class="sd">            This is *NOT* stable with Keras 2.</span>
 
 <span class="sd">        Sources:</span>
-<span class="sd">        -------</span>
+<span class="sd">        </span>
 <span class="sd">        1. https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf</span>
 
 <span class="sd">        2. https://github.com/heuritech/convnets-keras/blob/master/convnetskeras/convnets.py</span>
@@ -451,14 +450,15 @@
 <div class="viewcode-block" id="ImageClassificationCNN.squeezenet"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.squeezenet">[docs]</a>    <span class="k">def</span> <span class="nf">squeezenet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Source:</span>
-<span class="sd">        -------</span>
+<span class="sd">        Keras Implementation of the SqueezeNet Model.</span>
+
+<span class="sd">        Sources:</span>
 <span class="sd">        </span>
-<span class="sd">        1. Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer. </span>
-<span class="sd">          &quot;SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and&lt; 0.5 MB model size.&quot; arXiv preprint </span>
+<span class="sd">        - Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer. </span>
+<span class="sd">          &#39;SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and&lt; 0.5 MB model size.&#39; arXiv preprint </span>
 <span class="sd">          `arXiv:1602.07360 &lt;https://arxiv.org/abs/1602.07360&gt;`_ (2016). </span>
 
-<span class="sd">        2. Implmentation adoped from: `github.com/rcmalli/keras-squeezenet &lt;https://github.com/rcmalli/keras-squeezenet&gt;`_</span>
+<span class="sd">        - Implementation adapted from: `github.com/rcmalli/keras-squeezenet &lt;https://github.com/rcmalli/keras-squeezenet&gt;`_</span>
 
 <span class="sd">        :param classes: number of neuron in the output layer (which equals the number of classes).</span>
 <span class="sd">        :type classes: ``int``</span>
@@ -545,15 +545,15 @@
 <div class="viewcode-block" id="ImageClassificationCNN.vgg_19"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.vgg_19">[docs]</a>    <span class="k">def</span> <span class="nf">vgg_19</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">output_layer_activation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Keras Implementation of the VGG_19 Model</span>
+<span class="sd">        Keras Implementation of the VGG19 Model.</span>
 
 <span class="sd">        Sources:</span>
 <span class="sd">        -------</span>
 
-<span class="sd">        1. Very Deep Convolutional Networks for Large-Scale Image Recognition</span>
-<span class="sd">           K. Simonyan, A. Zisserman. `arXiv:1409.1556 &lt;https://arxiv.org/abs/1409.1556&gt;`_.</span>
+<span class="sd">        - Very Deep Convolutional Networks for Large-Scale Image Recognition</span>
+<span class="sd">          K. Simonyan, A. Zisserman. `arXiv:1409.1556 &lt;https://arxiv.org/abs/1409.1556&gt;`_.</span>
 <span class="sd">           </span>
-<span class="sd">        2. The Keras Implementation is available `here &lt;https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py&gt;`_.</span>
+<span class="sd">        - The Keras Implementation is available `here &lt;https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py&gt;`_.</span>
 
 <span class="sd">        :param classes: number of neuron in the output layer (which equals the number of classes).</span>
 <span class="sd">        :type classes: ``int``</span>
@@ -621,7 +621,7 @@
 
 <span class="sd">        Define and Compile the Image Recognition Convolutional Neural Network.</span>
 
-<span class="sd">        :param model_to_use: one of: &#39;default&#39;, &#39;vgg19&#39;, &#39;_alex_net&#39;. Defaults to &#39;default&#39;.</span>
+<span class="sd">        :param model_to_use: one of: &#39;default&#39;, &#39;squeezenet&#39; or &#39;vgg19&#39;. Defaults to &#39;default&#39;.</span>
 
 <span class="sd">            - &#39;default&#39;: a relatively simple sequential model with two convolution layers.</span>
 
