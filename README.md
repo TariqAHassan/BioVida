@@ -51,7 +51,7 @@ from biovida.images import OpeniInterface
 # 2. Create an Instance of the Tool
 opi = OpeniInterface()
 
-# 3. Perform a general search for x-rays and cts of lung cancer
+# 3. Perform a search for x-rays and cts of lung cancer
 opi.search(query='lung cancer', image_type=['x_ray', 'ct'])  # Results Found: 9,220.
 
 # 4. Pull the data
