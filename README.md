@@ -59,10 +59,10 @@ search_df = opi.pull()
 ```
 
 Both ``CancerImageInterface`` and ``OpeniInterface`` cache images for later use.
-The 'record' of the most recent ``'search'`` and ``'pull'`` is provided
-by ``records_db`` dataframes, e.g., ``CancerImageInterface.records_db``.
-These dataframe contain dozens of columns of information about the image.
-Similarly, ``cache_records_db`` is a dataframe of *all* images currently cached.
+When data is 'pulled', a ``records_db`` is generated, which is a dataframe
+of all text data associated with the image. They are provided as class attributes, e.g.,
+ ``CancerImageInterface().records_db``. The ``cache_records_db`` dataframe
+provides an account of all images currently cached.
 
 
 #### Splitting Images
