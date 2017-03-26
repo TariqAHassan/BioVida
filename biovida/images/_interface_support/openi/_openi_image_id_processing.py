@@ -93,7 +93,7 @@ def _image_id_short(journal_title, image_id):
     Simplify ``image_id`` to determine the figure number.
 
     :param journal_title: an element from the 'journal_title' column.
-    :type journal_title: ``str``
+    :type journal_title: ``None`` or ``str``
     :param image_id: an element from the 'image_id' column.
     :type image_id: ``str``
     :return: a cleaned ``image_id``
