@@ -193,8 +193,12 @@ class ImageClassificationCNN(object):
         self.model.add(Dense(classes))
         self.model.add(Activation(output_layer_activation))
 
-    def alex_net(self, classes, output_layer_activation):
+    def _alex_net(self, classes, output_layer_activation):
         """
+
+        .. warning:
+        
+            This is *NOT* stable with Keras 2.
 
         Sources:
         -------
@@ -202,28 +206,29 @@ class ImageClassificationCNN(object):
 
         2. https://github.com/heuritech/convnets-keras/blob/master/convnetskeras/convnets.py
 
-        Copyright (c) 2016 Heuritech
-
-        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-        documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-        the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-        and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-        The above copyright notice and this permission notice shall be included in all copies or substantial portions
-        of the Software.
-
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-        TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-        THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-        CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-        DEALINGS IN THE SOFTWARE.
-
         :param classes: number of neuron in the output layer (which equals the number of classes).
         :type classes: ``int``
         :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
         :type output_layer_activation: ``str``
         """
+        # Copyright (c) 2016 Heuritech
+        #
+        # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+        # documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+        # the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+        # and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+        #
+        # The above copyright notice and this permission notice shall be included in all copies or substantial portions
+        # of the Software.
+        #
+        # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+        # TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+        # THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+        # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+        # DEALINGS IN THE SOFTWARE.
+        #
         # Note: not stable with Keras 2
+
         try:
             from convnetskeras.customlayers import crosschannelnormalization, splittensor
         except ImportError:
@@ -276,39 +281,43 @@ class ImageClassificationCNN(object):
 
         Source:
         -------
+        
+        1. Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer. 
+          "SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and< 0.5 MB model size." arXiv preprint 
+          `arXiv:1602.07360 <https://arxiv.org/abs/1602.07360>`_ (2016). 
 
-        1. https://github.com/rcmalli/keras-squeezenet
-
-            MIT License
-
-            Copyright (c) 2016 Refikcanmalli
-
-            Permission is hereby granted, free of charge, to any person obtaining a copy
-            of this software and associated documentation files (the "Software"), to deal
-            in the Software without restriction, including without limitation the rights
-            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-            copies of the Software, and to permit persons to whom the Software is
-            furnished to do so, subject to the following conditions:
-
-            The above copyright notice and this permission notice shall be included in all
-            copies or substantial portions of the Software.
-
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            SOFTWARE.
-
-            Note: the model has been slightly modified. Namely, it has been refactored and
-            simplified by removing use of ImageNet weights.
+        2. Implmentation adoped from: `github.com/rcmalli/keras-squeezenet <https://github.com/rcmalli/keras-squeezenet>`_
 
         :param classes: number of neuron in the output layer (which equals the number of classes).
         :type classes: ``int``
         :param output_layer_activation: the activation function to use on the output layer. See: https://keras.io/activations/#available-activations. Defaults to 'sigmoid'.
         :type output_layer_activation: ``str``
         """
+        # MIT License
+        #
+        # Copyright (c) 2016 Refikcanmalli
+        #
+        # Permission is hereby granted, free of charge, to any person obtaining a copy
+        # of this software and associated documentation files (the "Software"), to deal
+        # in the Software without restriction, including without limitation the rights
+        # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        # copies of the Software, and to permit persons to whom the Software is
+        # furnished to do so, subject to the following conditions:
+        #
+        # The above copyright notice and this permission notice shall be included in all
+        # copies or substantial portions of the Software.
+        #
+        # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        # SOFTWARE.
+        #
+        # Note: the model has been slightly modified. Namely, it has been refactored and
+        # simplified by removing use of ImageNet weights.
+
         sq1x1 = "squeeze1x1"
         exp1x1 = "expand1x1"
         exp3x3 = "expand3x3"
@@ -369,12 +378,10 @@ class ImageClassificationCNN(object):
         Sources:
         -------
 
-        1. Model Authors:
-           Very Deep Convolutional Networks for Large-Scale Image Recognition
-           K. Simonyan, A. Zisserman
-           arXiv:1409.1556
-
-        2. Keras Implementation: https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py
+        1. Very Deep Convolutional Networks for Large-Scale Image Recognition
+           K. Simonyan, A. Zisserman. `arXiv:1409.1556 <https://arxiv.org/abs/1409.1556>`_.
+           
+        2. The Keras Implementation is available `here <https://gist.github.com/baraldilorenzo/8d096f48a1be4a2d660d#file-vgg-19_keras-py>`_.
 
         :param classes: number of neuron in the output layer (which equals the number of classes).
         :type classes: ``int``
@@ -442,11 +449,9 @@ class ImageClassificationCNN(object):
 
         Define and Compile the Image Recognition Convolutional Neural Network.
 
-        :param model_to_use: one of: 'default', 'vgg19', 'alex_net'. Defaults to 'default'.
+        :param model_to_use: one of: 'default', 'vgg19', '_alex_net'. Defaults to 'default'.
 
-            - 'default': a relatively simple sequential model with two convolution layers (each followed by 2x2 max pooling); one hidden layer and 0.5 drop out.
-
-            - 'alex_net': the 2012 'AlexNet' model.
+            - 'default': a relatively simple sequential model with two convolution layers.
 
             - 'squeezenet': SqueezeNet model.
 
