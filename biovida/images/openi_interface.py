@@ -1188,6 +1188,8 @@ class OpeniInterface(object):
             self._pull_time = datetime.now()
 
         if new_records_pull:
+            if not isinstance(self.current_search_url, str):
+                raise ValueError("`search()` must be called before `pull()`.")
             self.records_db = self._Records.records_pull(search_url=self.current_search_url,
                                                          to_harvest=self._current_search_to_harvest,
                                                          total=self.current_search_total,
