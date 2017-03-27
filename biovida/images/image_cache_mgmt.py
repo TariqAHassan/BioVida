@@ -14,9 +14,6 @@ from warnings import warn
 from collections import Counter
 from collections import defaultdict
 
-# General Image Support Tools
-from biovida.images._image_tools import ActionVoid
-
 # General Support Tools
 from biovida.support_tools.support_tools import cln
 from biovida.support_tools.support_tools import multimap
@@ -350,7 +347,7 @@ def _double_check_with_user():
     response = input("This action cannot be undone.\n"
                      "Do you wish to continue (y/n)?")
     if cln(response).lower() not in ('yes', 'ye', 'es', 'y'):
-        raise ActionVoid("\n\nAction Canceled.")
+        raise ValueError("Action Canceled. 'y' must be entered to proceed.")
 
 
 def _pretty_print_image_delete(deleted_rows, verbose):

@@ -25,10 +25,6 @@ class NoResultsFound(Exception):
     pass
 
 
-class ActionVoid(Exception):
-    pass
-
-
 def sleep_with_noise(amount_of_time, mean=0.0, noise=0.75):
     """
 
