@@ -106,21 +106,3 @@ def unify_against_images(interfaces,
     """
     return images_unify(interfaces=interfaces, db_to_extract=db_to_extract,
                         verbose=verbose, fuzzy_threshold=fuzzy_threshold)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
