@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import os
 import shutil
 import pickle
@@ -19,41 +18,36 @@ from datetime import datetime
 from biovida import __version_numeric__
 
 # General Image Support Tools
-from biovida.images._image_tools import NoResultsFound
-from biovida.images._image_tools import sleep_with_noise
+from biovida.images._image_tools import NoResultsFound, sleep_with_noise
 
 # Database Management
-from biovida.images.image_cache_mgmt import _records_db_merge
-from biovida.images.image_cache_mgmt import _openi_image_relation_map
-from biovida.images.image_cache_mgmt import _record_update_dbs_joiner
-from biovida.images.image_cache_mgmt import _prune_rows_with_deleted_images
+from biovida.images.image_cache_mgmt import (_records_db_merge,
+                                             _openi_image_relation_map,
+                                             _record_update_dbs_joiner,
+                                             _prune_rows_with_deleted_images)
 
 # Interface Support tools
 from biovida.images._interface_support.shared import save_records_db
-from biovida.images._interface_support.openi.openi_support_tools import iter_join
-from biovida.images._interface_support.openi.openi_support_tools import url_combine
-from biovida.images._interface_support.openi.openi_support_tools import null_convert
-from biovida.images._interface_support.openi.openi_support_tools import ImageProblemBasedOnText
-from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
+
+from biovida.images._interface_support.openi.openi_support_tools import (iter_join,
+                                                                         url_combine,
+                                                                         null_convert,
+                                                                         ImageProblemBasedOnText,
+                                                                         nonessential_openi_columns)
 
 # Open-i API Parameters Information
 from biovida.images._interface_support.openi.openi_parameters import openi_search_information
-
 from biovida.images._interface_support.openi._openi_image_id_processing import image_id_short_gen
 from biovida.images._interface_support.openi.openi_text_processing import openi_raw_extract_and_clean
-
 
 # Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
 
 # General Support Tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import camel_to_snake_case
-from biovida.support_tools.support_tools import data_frame_col_drop
-from biovida.support_tools.support_tools import list_to_bulletpoints
-
-# Start tqdm
-tqdm.pandas(desc='status')
+from biovida.support_tools.support_tools import (cln,
+                                                 camel_to_snake_case,
+                                                 data_frame_col_drop,
+                                                 list_to_bulletpoints)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -64,31 +58,37 @@ tqdm.pandas(desc='status')
 class _OpeniSearch(object):
     """
 
+    Searching the Open-i Database.
+
     """
 
     def __init__(self):
         self._root_url = 'https://openi.nlm.nih.gov'
         self.current_search = None
+        self.search_dict, self.ordered_params = openi_search_information()
 
     @staticmethod
     def _openi_search_special_case(search_param, blocked, passed):
         """
 
-        :param search_param: one of 'video', 'image_type'...
+        Check for invalid search requests when contradictions are possible,
+        e.g., `passed` cannot contain `True` and `False`. 
+
+        :param search_param: currently, only `rankby` is valid.
         :param blocked: mutually exclusive (i.e., all these items cannot be passed together).
         :param passed: values actually passed to `search_param`.
-        :return:
         """
         if all(b in passed for b in blocked):
-            raise ValueError("`%s` can only contain one of:\n%s" % (search_param, list_to_bulletpoints(blocked)))
+            raise ValueError("`{0}` can only contain one of:\n{1}".format(
+                search_param, list_to_bulletpoints(blocked)))
 
-    def _openi_search_check(self, search_arguments, search_dict):
+    def _openi_search_check(self, search_arguments):
         """
 
         Method to check for invalid search requests.
 
-        :param args:
-        :return: ``None``
+        :param search_arguments: arguments to pass to Open-i's REST API.
+        :type search_arguments: ``dict``
         """
         general_error_msg = "'{0}' is not valid for `{1}`.\nValid values for `{1}`:\n{2}"
 
@@ -102,14 +102,17 @@ class _OpeniSearch(object):
             if k != 'query' and v is not None:
                 # Check type
                 if not isinstance(v, (list, tuple)) and v is not None:
-                    raise ValueError("Only `lists`, `tuples` or `None` may be passed to `%s`." % (k))
+                    raise ValueError("Only `lists`, `tuples` or `None` "
+                                     "may be passed to `{0}`.".format(k))
                 # Loop though items in `v`
                 for i in v:
                     if not isinstance(i, str):
-                        raise ValueError("`tuples` or `lists` passed to `%s` must only contain strings." % (k))
+                        raise ValueError("`tuples` or `lists` passed to `{0}` "
+                                         "must only contain strings.".format(k))
                     # Check if `i` can be converted to a param understood by the Open-i API
-                    if i not in search_dict[k][1].keys():
-                        raise ValueError(general_error_msg.format(i, k, list_to_bulletpoints(search_dict[k][1].keys())))
+                    if i not in self.search_dict[k][1].keys():
+                        raise ValueError(general_error_msg.format(
+                            i, k, list_to_bulletpoints(self.search_dict[k][1].keys())))
 
                 # Block contradictory requests
                 if k == 'rankby':
@@ -118,12 +121,16 @@ class _OpeniSearch(object):
     @staticmethod
     def _exclusions_image_type_merge(args, exclusions):
         """
-
+        
         Merge Image type with Exclusions.
-
-        :param args:
-        :param exclusions:
-        :return:
+        This must be performed because while this module
+        separates 'exclusions' it is actually under the 
+        'image_type' ('&it') param. in the open-i REST API.
+        
+        :param args: all arguments passed to ``search()`` to pass to Open-i's REST API.
+        :type args: ``dict``
+        :param exclusions: a list of exclusions to pass to '&it'.
+        :type exclusions: ``list`` or ``None``
         """
         # Check `exclusions` is an acceptable type
         if not isinstance(exclusions, (list, tuple)) and exclusions is not None:
@@ -145,21 +152,23 @@ class _OpeniSearch(object):
 
         return args
 
-    def _search_url_formatter(self, api_search_transform, ordered_params):
+    def _search_url_formatter(self, api_search_transform):
         """
 
-        :param ordered_params:
-        :param api_search_transform:
-        :return:
+        Format ``api_search_transform`` as a complete URL to pass to Open-i.
+
+        :param api_search_transform: a dictionary of parameters and keys in the precise form Open-i expects.
+        :type api_search_transform: ``dict``
+        :return: a formatted `GET` request.
+        :rtype: ``str``
         """
-        # Format query
         if 'query' in api_search_transform:
             api_search_transform['query'] = cln(api_search_transform['query']).replace(' ', '+')
         else:
             raise ValueError("No `query` detected.")
 
         search_term = ""
-        for p in ordered_params:
+        for p in self.ordered_params:
             if p in api_search_transform:
                 search_term += "{0}{1}={2}".format(("?" if p == 'query' else ""), p, api_search_transform[p])
 
@@ -169,11 +178,14 @@ class _OpeniSearch(object):
     def _search_probe(search_query, print_results):
         """
 
-        :param search_query:
+        Request results from Open-i.
+
+        :param search_query: a fully format Open-i REST GET command.
         :type search_query: ``str``
         :param print_results: print the number of results found
         :type print_results: ``bool``
-        :return:
+        :return: a tuple of the form ``(total number of results, the first result returned)``
+        :rtype: ``tuple``
         """
         # Get a sample request
         sample = requests.get(search_query + "&m=1&n=1").json()
@@ -194,8 +206,7 @@ class _OpeniSearch(object):
 
         return total, sample['list'][0]
 
-    @staticmethod
-    def options(search_parameter, print_options=True):
+    def options(self, search_parameter, print_options=True):
         """
 
         Options for parameters of `openi_search()`.
@@ -213,18 +224,17 @@ class _OpeniSearch(object):
             opts = [i.split("_")[1] for i in exclusions]
         else:
             # Get the relevant dict of params
-            search_dict = openi_search_information()[0].get(cln(search_parameter).strip().lower(), None)
+            search_dict_against_param = self.search_dict.get(cln(search_parameter).strip().lower(), None)
 
             # Report invalid `search_parameter`
-            if search_dict is None:
+            if search_dict_against_param is None:
                 raise ValueError("'{0}' is not a valid parameter to pass to the Open-i API.".format(search_parameter))
 
             # Remove exclusions term
-            opts = [i for i in search_dict[1].keys() if i not in exclusions]
+            opts = [i for i in search_dict_against_param[1].keys() if i not in exclusions]
             if not len(opts):
                 raise ValueError("Relevant options for '{0}'.".format(search_parameter))
 
-        # Print or Return
         if print_options:
             print(list_to_bulletpoints(opts))
         else:
@@ -234,38 +244,43 @@ class _OpeniSearch(object):
     def _search_clean(k, v):
         """
 
-        Define a tool to clean the search terms in `OpeniInterface().search()`.
+        Clean the search terms (strings) passed to `OpeniInterface().search()`.
 
-        :param k:
-        :param v:
-        :return:
+        :param k: Open-i param.
+        :type k: ``str``
+        :param v: value passed to ``k`` .
+        :type v: ``list``
+        :return: ``v`` with the strings it contained cleaned. 
+        :rtype: ``list``
         """
         return [cln(i).replace(' ', '_').lower() for i in v] if k != 'query' and v is not None else v
 
-    @staticmethod
-    def _api_url_terms(k, v, search_dict):
+    def _api_url_terms(self, k, v):
         """
 
-        Convert values passed into a form the API will understand.
+        Convert values passed into a valid REST GET string
+        from a dictionary.
 
-        :param k:
-        :param v:
-        :param search_dict:
-        :return:
+        :param k: Open-i param.
+        :type k: ``str``
+        :param v: value passed to ``k`` .
+        :type v: ``list``
+        :return: see description.
+        :rtype: ``str``
         """
-        return ','.join([search_dict[k][1][i] for i in v]) if k != 'query' else v
+        return ','.join([self.search_dict[k][1][i] for i in v]) if k != 'query' else v
 
-    @staticmethod
-    def _api_url_param(x, search_dict):
+    def _api_url_param(self, k):
         """
-
+        
         Convert param names into a form the API will understand.
-
-        :param x:
-        :param search_dict:
-        :return:
+        E.g., 'video' --> '&vid'.
+        
+        :param k: a human readable term into an actual Open-i param.
+        :return: see description.
+        :rtype: ``str``
         """
-        return search_dict[x][0] if x != 'query' else 'query'
+        return self.search_dict[k][0] if k != 'query' else 'query'
 
     def search(self,
                query=None,
@@ -308,37 +323,36 @@ class _OpeniSearch(object):
         :type print_results: ``bool``
         """
         # Remove 'self' and 'print_results' from locals
-        args_cleaned = {k: v for k, v in deepcopy(locals()).items() if k not in ['self', 'print_results']}
+        args_cleaned = {k: v for k, v in deepcopy(locals()).items()
+                        if k not in ['self', 'print_results']}
 
         # Extract the function arguments and format values.
-        args = {k: [v] if isinstance(v, str) and k != 'query' else v for k, v in args_cleaned.items() if k != 'exclusions'}
+        args = {k: [v] if isinstance(v, str) and k != 'query' else v
+                for k, v in args_cleaned.items() if k != 'exclusions'}
 
         # Merge `image_type` with `exclusions`
         args = self._exclusions_image_type_merge(args, exclusions)
 
         # Get the arguments
-        search_arguments = {k: '' if k == 'query' and v is None else self._search_clean(k, v) for k, v in args.items()}
+        search_arguments = {k: '' if k == 'query' and v is None else self._search_clean(k, v)
+                            for k, v in args.items()}
 
         # Save search query
         self.current_search = {k: v for k, v in deepcopy(search_arguments).items() if v is not None}
 
-        # Get Open-i search params
-        search_dict, ordered_params = openi_search_information()
-
-        # Add check for all search terms
-        self._openi_search_check(search_arguments, search_dict)
+        # Check if search terms are valid
+        self._openi_search_check(search_arguments=search_arguments)
 
         # Perform transformation
-        api_search_transform = {self._api_url_param(k, search_dict): self._api_url_terms(k, v, search_dict)
+        api_search_transform = {self._api_url_param(k): self._api_url_terms(k, v)
                                 for k, v in search_arguments.items() if v is not None}
 
         # Format `api_search_transform`
-        search_url = self._search_url_formatter(api_search_transform, ordered_params)
+        search_url = self._search_url_formatter(api_search_transform=api_search_transform)
 
         # Unpack the probe containing information on the total number of results and list of results to harvest
         current_search_total, current_search_to_harvest = self._search_probe(search_url, print_results)
 
-        # Return
         return {"query": args_cleaned,
                 "search_url": search_url,
                 "current_search_total": current_search_total,
@@ -353,25 +367,22 @@ class _OpeniSearch(object):
 class _OpeniRecords(object):
     """
 
-    Tools to Pull Records from the Open-i API.
+    Obtaining Records from the Open-i Database.
 
+    :param root_url: suggested: 'https://openi.nlm.nih.gov'
+    :type root_url: ``str``
+    :param date_format: suggested: "%d/%m/%Y" (consider leaving as datetime)
+    :type date_format: ``str``
+    :param verbose: if ``True`` print additional details.
+    :type verbose: ``bool``
+    :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
+                   one will created. Default to ``None``, which will generate a cache in the home folder.
+    :type cache_path: ``str``
+    :param req_limit: Defaults to 30 (max allowed by Open-i; see: https://openi.nlm.nih.gov/services.php?it=xg).
+    :type req_limit: ``int``
     """
 
     def __init__(self, root_url, date_format, verbose, cache_path, req_limit=30):
-        """
-
-        :param root_url: suggested: 'https://openi.nlm.nih.gov'
-        :type root_url: ``str``
-        :param date_format: suggested: "%d/%m/%Y" (consider leaving as datetime)
-        :type date_format: ``str``
-        :param verbose: if ``True`` print additional details.
-        :type verbose: ``bool``
-        :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,
-                       one will created. Default to ``None``, which will generate a cache in the home folder.
-        :type cache_path: ``str``
-        :param req_limit: Defaults to 30 (max allowed by Open-i; see: https://openi.nlm.nih.gov/services.php?it=xg).
-        :type req_limit: ``int``
-        """
         self.root_url = root_url
         self.date_format = date_format
         self._verbose = verbose
@@ -386,10 +397,15 @@ class _OpeniRecords(object):
 
     def openi_bounds(self, total):
         """
+        
+        Generate a list of tuples which define
+        the upper and lower bounds of each request to Open-i
+        for records, e.g., ``[(1, 30), ..., (90, total)]``.
 
         :param total: the total number of results for a given search.
-        :type total: int
-        :return:
+        :type total: ``int``
+        :return: see description.
+        :rtype: ``list``
         """
         # Initialize
         end = 1
@@ -417,7 +433,7 @@ class _OpeniRecords(object):
         n_steps = int(floor(download_no / self.req_limit))
 
         # Loop through the steps
-        for i in range(n_steps):
+        for _ in range(n_steps):
             bounds.append((end, end + (self.req_limit - 1)))
             end += self.req_limit
 
@@ -436,8 +452,9 @@ class _OpeniRecords(object):
 
         Format the computed bounds for the Open-i API.
 
-        :param bounds: as returned by `_OpeniPull().openi_bounds()`
-        :return:
+        :param bounds: as returned by ``_OpeniPull().openi_bounds()``
+        :type bounds: ``list``
+        :return: the inner tuples in ``bounds`` converted to strings for Open-i.
         :rtype: ``list``
         """
         return ["&m={0}&n={1}".format(i[0], i[1]) for i in bounds]
@@ -445,10 +462,14 @@ class _OpeniRecords(object):
     def date_formatter(self, date_dict):
         """
 
-        :param date_dict:
+        Format dates in the 'journal_date' column.
+
+        :param date_dict: a dictionary of the date information
         :type date_dict: ``dict``
-        :return:
+        :return: ``date_dict`` as a datetime object.
+        :rtype: ``datetime``
         """
+        # ToDo: return a datetime object instead of a string.
         if not date_dict:
             return None
 
@@ -463,28 +484,35 @@ class _OpeniRecords(object):
 
         cleaned_info = [1 if i is None or i < 1 else i for i in info]
 
-        # ToDo: add date format guessing.
+        # ToDo: add date format guessing -- e.g., ``pd.to_datetime(..., infer_datetime_format=True)``.
         try:
             return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(self.date_format)
         except:
             return None
 
     @staticmethod
-    def harvest_vect(request_rslt):
+    def harvest_vector(request_rslt):
         """
 
         Defines the terms to harvest from the results returned by the Open-i API.
-        Assumes a maximum of one nest (i.e., request_rslt[key]: {key: value...}).
+        
+        Note:
+        
+            This method assumes a maximum of one nest in ``request_rslt`` (i.e., ``key: {key: value...}``).
 
-        :param request_rslt: Request Data from the server
-        :return:
+        :param request_rslt: request 'records' from Open-i.
+        :type request_rslt: ``dict``
+        :return: Convert ``request_rslt`` into a list. Nested dictionaries in ``request_rslt`` are added 
+                 the list this method returns as tuples.
+        :rtype: ``list``
         """
+        time_units = ['day', 'month', 'year']
+
         to_harvest = list()
         for k, v in request_rslt.items():
             if isinstance(v, str):
                 to_harvest.append(k)
-            elif isinstance(v, dict) and any(
-                            dmy in map(lambda x: x.lower(), v.keys()) for dmy in ['day', 'month', 'year']):
+            elif isinstance(v, dict) and any(dmy in map(lambda x: x.lower(), v.keys()) for dmy in time_units):
                 to_harvest.append(k)
             elif isinstance(v, dict):
                 for i in v.keys():
@@ -495,21 +523,28 @@ class _OpeniRecords(object):
     def openi_block_harvest(self, url, bound, to_harvest):
         """
 
-        :param url:
-        :param bound:
-        :param to_harvest:
-        :return:
+        Download a single block (or 'chunk') of records, e.g, 'records' 1-30.
+
+        :param url: the GET URL for the current search.
+        :type url: ``str``
+        :param bound: the bound to append to the GET URL, e.g., "&m=1&n=30".
+        :type bound: ``str``
+        :param to_harvest: yield of ``harvest_vector()``.
+        :type to_harvest: ``list``
+        :return: a list of dictionaries, where the keys of the dictionaries will become
+                 the columns of the ``records_db`` dataframe.
+        :rtype: ``list``
         """
         # Request data from the Open-i servers
         req = requests.get(url + bound).json()['list']
 
-        root_url_columns = ('detailed_query_url', 'get_article_figures', 'similar_in_collection', 'similar_in_results')
+        root_url_columns = ('detailed_query_url', 'get_article_figures',
+                            'similar_in_collection', 'similar_in_results')
 
         def append_root_url(item):
             """Check whether or not to add `self.root_url` to a column."""
             return 'img_' in item or any(c == item for c in root_url_columns)
 
-        # Loop
         list_of_dicts = list()
         for item in req:
             # Create an item_dict the dict
@@ -529,30 +564,33 @@ class _OpeniRecords(object):
 
         return list_of_dicts
 
-    def openi_harvest(self, bounds_list, joined_url, to_harvest, records_sleep_time, download_no):
+    def _records_pull_engine(self, bounds_list, search_url, to_harvest, records_sleep_time, download_no):
         """
+        
+        Download all records requested by the user.
 
-
-        :param bounds_list:
-        :param joined_url:
-        :param to_harvest:
-        :param records_sleep_time:
-        :param download_no:
-        :return:
+        :param bounds_list: a list of bounds (chunks), e.g., ``["&m=1&n=30", "&m=31&n=59"...]``. 
+        :type bounds_list: ``list``
+        :param search_url: search URL as generated by ``_OpeniSearch().search()``.
+        :type search_url: ``str``
+        :param to_harvest: yield of ``harvest_vector()``.
+        :type to_harvest: ``list``
+        :param records_sleep_time: (every x downloads, period of time [seconds])
+        :type records_sleep_time: ``tuple``
+        :param download_no: the number of records to download.
+        :type download_no: ``int``
+        :return: a list of dictionaries where the keys are future columns of the ``records_db`` dataframe.
+        :rtype: ``list``
         """
-        # Initialize
-        harvested_data = list()
-
         if self._verbose:
             print("\nNumber of Records to Download: {0} (chunk size: {1} records).".format(
                 '{:,.0f}'.format(download_no), str(self.req_limit)))
 
+        harvested_data = list()
         for c, bound in enumerate(tqdm(bounds_list), start=1):
             if c % records_sleep_time[0] == 0:
                 sleep_with_noise(amount_of_time=records_sleep_time[1])
-
-            # Harvest
-            harvested_data += self.openi_block_harvest(joined_url, bound, to_harvest)
+            harvested_data += self.openi_block_harvest(search_url, bound=bound, to_harvest=to_harvest)
 
         return harvested_data
 
@@ -567,18 +605,28 @@ class _OpeniRecords(object):
                      download_limit=None):
         """
 
-        'Walk' along the search query and harvest the data.
+        'Walk' along the search query and harvest the data
+        in the 'chunk size' given by ``req_limit``.
 
-        :param search_url:
-        :param to_harvest:
-        :param total:
-        :param query:
-        :param pull_time:
+        :param search_url: search URL as generated by ``_OpeniSearch().search()``.
+        :type search_url: ``str``
+        :param to_harvest: a list of results to harvest as generated by ``_OpeniSearch().search()``
+                          (AKA 'current_search_to_harvest').
+        :type to_harvest: ``list``
+        :param total: the total number of results (current_search_total) as generated by ``_OpeniSearch().search()``.
+        :type total: ``int``
+        :param query: a dictionary of parameters and values passed to ``_OpeniSearch().search()``.
+        :type query: ``dict``
+        :param pull_time: yield of ``datetime.now()`` as as evolved inside ``OpeniInterface.pull()``.
+        :type pull_time: ``datetime.datetime``
         :param records_sleep_time: (every x downloads, period of time [seconds])
-        :param clinical_cases_only: see ``OpeniInterface().pull()``.
+        :type records_sleep_time: ``tuple``
+        :param clinical_cases_only: see ``OpeniInterface().pull()``
         :type clinical_cases_only: ``bool``
-        :param download_limit:
-        :return:
+        :param download_limit: see ``OpeniInterface().pull()``
+        :type download_limit: ``None`` or ``int``
+        :return: a complete ``records_db``
+        :rtype: ``Pandas DataFrame``
         """
         if isinstance(download_limit, int):
             self.download_limit = download_limit
@@ -593,34 +641,25 @@ class _OpeniRecords(object):
         # Compute a list of search ranges to pass to the Open-i API
         bounds_list = self.openi_bounds_formatter(bounds)
 
-        # Learn the results returned by the API
-        to_harvest = self.harvest_vect(to_harvest)
-
         # Harvest the data
-        harvest = self.openi_harvest(bounds_list=bounds_list,
-                                     joined_url=search_url,
-                                     to_harvest=to_harvest,
-                                     records_sleep_time=records_sleep_time,
-                                     download_no=download_no)
+        harvest = self._records_pull_engine(bounds_list=bounds_list,
+                                            search_url=search_url,
+                                            to_harvest=self.harvest_vector(to_harvest),
+                                            records_sleep_time=records_sleep_time,
+                                            download_no=download_no)
 
         # Convert to a DataFrame
         records_db = pd.DataFrame(harvest).fillna(np.NaN)
-
-        # Process Text
         records_db = openi_raw_extract_and_clean(data_frame=records_db,
                                                  clinical_cases_only=clinical_cases_only,
                                                  verbose=self._verbose,
                                                  cache_path=self._cache_path)
 
-        # Add the query
         records_db['query'] = [query] * records_db.shape[0]
         records_db['pull_time'] = [pull_time] * records_db.shape[0]
-
-        # Add the Version of BioVida which generated the DataFrame
         records_db['biovida_version'] = [__version_numeric__] * records_db.shape[0]
 
         self.records_db = records_db
-
         return self.records_db
 
 
@@ -631,10 +670,15 @@ class _OpeniRecords(object):
 
 class _OpeniImages(object):
     """
+    
+    Obtaining Images from the Open-i Database.
 
-    :param image_save_location: suggested: created_image_dirs['openi'])
-    :param database_save_location:
-    :param verbose:
+    :param image_save_location: directory to save the images to.
+    :type image_save_location: ``str``
+    :param database_save_location: system path to 'openi/databases'.
+    :type database_save_location: ``str``
+    :param verbose: if ``True`` print additional details.
+    :type verbose: ``bool``
     """
 
     def __init__(self, image_save_location, database_save_location, verbose):
@@ -671,24 +715,27 @@ class _OpeniImages(object):
         db = pd.DataFrame(columns=real_time_update_columns, index=db_index).replace({np.NaN: None})
         self.real_time_update_db = db
 
-    def _image_titler(self, url, image_size):
+    def _title_image(self, url, image_size):
         """
 
         Generate a title for the images.
 
-        :param url:
-        :param image_size:
-        :return:
+        :param url: the URL to the image.
+        :type url: ``str``
+        :param image_size: the size of the image, e.g., 'large'.
+        :type image_size: ``str``
+        :return: see description. 
+        :type: ``str``
         """
         # Get the actual file name
         base = os.path.basename(url)
 
         # Separate the name from the image type
-        bname, image_format = os.path.splitext(base)
+        b_name, image_format = os.path.splitext(base)
 
         # Generate and clean strings to populate the name format below. Note: 1 = file number
         # (in case medpix has images with multiple segments -- though, it doesn't appear to currently.)
-        replacement_terms = map(lambda x: cln(x), (str(1), bname, image_size, image_format.replace(".", "")))
+        replacement_terms = map(lambda x: cln(x), (str(1), b_name, image_size, image_format.replace(".", "")))
 
         # Generate the name for the image
         image_name = "{0}__{1}__{2}.{3}".format(*replacement_terms)
@@ -764,7 +811,7 @@ class _OpeniImages(object):
         download_count = 0
         for index, image_url, image_problems_text in tqdm(harvesting_information):
             # Generate the save path for the image
-            image_save_path = self._image_titler(url=image_url, image_size=image_size)
+            image_save_path = self._title_image(url=image_url, image_size=image_size)
 
             # Save the image
             download_count += self._individual_image_harvest(index=index,
@@ -911,10 +958,12 @@ class OpeniInterface(object):
             raise ValueError("`current_records_db` and `records_db` cannot both be None.")
         elif self.cache_records_db is not None and self.records_db is None:
             data_frame = self.cache_records_db
-            self.cache_records_db = data_frame[data_frame.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
+            self.cache_records_db = data_frame[
+                data_frame.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         elif self.cache_records_db is None and self.records_db is not None:
             data_frame = _openi_image_relation_map(self.records_db)
-            self.cache_records_db = data_frame[data_frame.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
+            self.cache_records_db = data_frame[
+                data_frame.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         else:
             self.cache_records_db = _records_db_merge(interface_name='OpeniInterface',
                                                       current_records_db=self.cache_records_db,
@@ -1217,22 +1266,3 @@ class OpeniInterface(object):
             self._openi_cache_records_db_handler()
 
         return self.records_db
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
