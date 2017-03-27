@@ -1036,6 +1036,8 @@ class CancerImageInterface(object):
         If if already exists, merge it with `records_db_update`.
 
         """
+        columns_to_drop = ['allowed_modality']
+
         def rows_to_conserve_func(x):
             """Mark to conserve the row in the cache if the conversion was successful or DICOMs were saved."""
             iccc, cdip = x['image_count_converted_cache'], x['cached_dicom_images_path']
@@ -1064,13 +1066,14 @@ class CancerImageInterface(object):
         if self.cache_records_db is None:
             cache_records_db = self.records_db.copy(deep=True)
             self.cache_records_db = cache_records_db[
-                cache_records_db.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
+                cache_records_db.apply(rows_to_conserve_func, axis=1)
+            ].drop(columns_to_drop, axis=1).reset_index(drop=True)
             self._save_cache_records_db()
         else:
             columns_with_iterables_to_sort = ('cached_images_path', 'cached_dicom_images_path')
             self.cache_records_db = _records_db_merge(interface_name='CancerImageInterface',
                                                       current_records_db=self.cache_records_db,
-                                                      records_db_update=self.records_db,
+                                                      records_db_update=self.records_db.drop(columns_to_drop, axis=1),
                                                       columns_with_dicts=('query',),
                                                       duplicates=tcia_duplicates_handler,
                                                       rows_to_conserve_func=rows_to_conserve_func,
