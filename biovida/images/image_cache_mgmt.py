@@ -144,17 +144,18 @@ def _records_db_merge(interface_name,
                       current_records_db,
                       records_db_update,
                       columns_with_dicts,
-                      duplicates_subset_columns,
+                      duplicates,
                       rows_to_conserve_func=None,
                       pre_return_func=None,
                       columns_with_iterables_to_sort=None):
     """
 
-    Merge the existing record database with new additions.
+    Merge the existing cache record database with new additions.
 
     .. warning::
 
-        Both ``current_records_db`` and ``records_db_update`` are expected to have 'pull_time' columns.
+        Both ``current_records_db`` and ``records_db_update`` are
+        expected to have 'biovida_version' and 'pull_time' columns.
 
     :param current_records_db: the existing record database.
     :type current_records_db: ``Pandas DataFrame``
@@ -163,13 +164,9 @@ def _records_db_merge(interface_name,
     :param columns_with_dicts: a list of columns which contain dictionaries. Note: this column *should* contain only
                                dictionaries or NaNs.
     :type columns_with_dicts: ``list``, ``tuple`` or ``None``.
-    :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.
-
-                    .. warning::
-
-                            Do *not* include the 'shared_image_ref' column as this function will recompute it.
-
-    :type duplicates_subset_columns: ``list`` or ``tuple``
+    :param duplicates: A function to handle dropping duplicates. This function should accept a dataframe
+                      (and *only* a dataframe) and return a dataframe.
+    :type duplicates: ``function``
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
                                   in fact, present in the cache. If not, remove it from the database to be saved.
     :type rows_to_conserve_func: ``function``
@@ -182,7 +179,8 @@ def _records_db_merge(interface_name,
     :return: a dataframe which merges ``current_records_db`` and ``records_db_update``
     :rtype: ``Pandas DataFrame``
     """
-    # Note: this function does not explicitly handle cases where combined_dbs has length 0, no obvious need to though.
+    # Note: this function does not explicitly handle cases where
+    #       combined_dbs has length 0, no obvious need to though.
     combined_dbs = pd.concat([current_records_db, records_db_update], ignore_index=True)
 
     # Mark each row to conserve order following ``pandas.drop_duplicates()``.
@@ -191,27 +189,16 @@ def _records_db_merge(interface_name,
     if callable(rows_to_conserve_func):
         combined_dbs = combined_dbs[combined_dbs.apply(rows_to_conserve_func, axis=1)]
 
-    # Note: Typically these will be 'in sync'. However, if they are not, preference is given
-    # to 'biovida_version' s.t. the data harvested with the latest version is given preference.
-    combined_dbs = combined_dbs.sort_values(['biovida_version', 'pull_time'])
-
     # Convert items in ``columns_with_dicts`` from dictionaries to tuple of tuples.
     # (making them hashable, as required by ``pandas.drop_duplicates()``).
     combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=_dict_to_tot)
 
-    # Sort iterables in columns with iterables
-    combined_dbs = multimap(combined_dbs, columns=columns_with_iterables_to_sort, func=lambda x: tuple(sorted(x)))
+    combined_dbs = multimap(combined_dbs, columns=columns_with_iterables_to_sort,
+                            func=lambda x: tuple(sorted(x)))
 
-    # Drop Duplicates (keeping the most recent).
-    combined_dbs = combined_dbs.drop_duplicates(subset=duplicates_subset_columns, keep='last')
-
-    # Convert the tuples back to dictionaries
+    combined_dbs = duplicates(combined_dbs)
     combined_dbs = multimap(combined_dbs, columns=columns_with_dicts, func=dict)
-
-    # Sort against the original order.
     combined_dbs = combined_dbs.sort_values('__temp_order__')
-
-    # Map relationships in the dataframe.
     combined_dbs = _relationship_mapper(data_frame=combined_dbs, interface_name=interface_name)
 
     if callable(pre_return_func):
