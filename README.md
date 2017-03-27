@@ -5,9 +5,13 @@
 ----
 
 BioVida is a experimental library designed to automate the harvesting, 
-post-processing and integration of biomedical data. It is hoped that by freeing machine
-learning experts from these onerous tasks, they will be able to focus their efforts on
-modeling itself. In turn, enabling them to advance new insights and understandings into disease.
+post-processing and integration of biomedical data. That is, this software
+aims to make it easy to gain access to existing biomedical data sets and
+build brand new ones.
+
+It is hoped that by vastly reducing, if not eliminating, the need for tedious 
+data munging, machine learning experts can focus on modeling itself.
+In turn, enabling them to advance new insights and understandings.
 
 In a nod to recursion, this library tries to accomplish some of this automation
 with machine learning itself, using tools like convolutional neural networks.
