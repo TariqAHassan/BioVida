@@ -45,9 +45,9 @@ class _ImagesInterfaceIntegration(object):
     """
 
     def __init__(self):
-        self._additional_columns = None
+        self._additional_columns = list()
 
-    def _add_additional_columns(self, db, list_of_columns):
+    def _add_additional_columns(self, db, list_of_columns, skip=None):
         """
 
         Add ``self._additional_columns`` to ``db`` and ``list_of_columns``
@@ -56,13 +56,16 @@ class _ImagesInterfaceIntegration(object):
         :type list_of_columns: ``list``
         :param db: as passed to ``_open_i_prep()`` or ``_cancer_image_prep()``.
         :type db: ``Pandas DataFrame``
+        :param skip: items in ``self._additional_columns`` to refrain from adding to ``db``.
+        :type skip: ``list`` or ``None``
         :return: see description.
         :rtype: ``tuple``
         """
         for c in self._additional_columns:
-            list_of_columns.append(c)
-            if c not in db.columns:
-                db[c] = [None] * db.shape[0]
+            if skip is None or c not in skip:
+                list_of_columns.append(c)
+                if c not in db.columns:
+                    db[c] = [None] * db.shape[0]
         return db, list_of_columns
 
     def _open_i_prep(self, db):
@@ -87,13 +90,15 @@ class _ImagesInterfaceIntegration(object):
         openi_columns = ['abstract', 'article_type', 'image_id_short', 'image_caption',
                          'modality_best_guess', 'age', 'sex', 'diagnosis', 'query', 'pull_time']
 
+        openi_col_rename = {'diagnosis': 'disease'}
+
         # Allow for cases where images have not been downloaded.
         if 'cached_images_path' in db_cln.columns:
             openi_columns.append('cached_images_path')
             db_cln['cached_images_path'] = db_cln['cached_images_path'].map(
                 lambda x: tuple([x]) if not isinstance(x, tuple) else x, na_action='ignore')
 
-        if isinstance(self._additional_columns, list):
+        if len(self._additional_columns):
             db_cln, openi_columns = self._add_additional_columns(db_cln, openi_columns)
 
         db_cln['article_type'] = db_cln['article_type'].replace({'encounter': 'case_report',
@@ -102,10 +107,7 @@ class _ImagesInterfaceIntegration(object):
         # Define subsection based on `openi_columns`
         openi_subsection = db_cln[openi_columns]
 
-        # Add a column to allow the user to identify the API which provided the data
         openi_subsection['source_api'] = ['openi'] * openi_subsection.shape[0]
-
-        openi_col_rename = {'diagnosis': 'disease'}
         return openi_subsection.rename(columns=openi_col_rename)
 
     def _image_processing_prep(self, db):
@@ -119,7 +121,7 @@ class _ImagesInterfaceIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         # Note: if the ``ImageProcessing`` class is updated to handle
-        # instances other than ``OpeniInterface``, this approach will need to be updated.
+        # instances other than ``OpeniInterface``, this approach will need to be changed.
         return self._open_i_prep(db)
 
     def _cancer_image_prep(self, db):
@@ -136,32 +138,37 @@ class _ImagesInterfaceIntegration(object):
         cancer_image_columns = ['series_instance_uid', 'series_description', 'modality_full', 'age',
                                 'sex', 'article_type', 'cancer_type', 'query', 'pull_time']
 
-        # Allow for cases where images have not been downloaded.
-        if 'cached_images_path' in db.columns:
-            cancer_image_columns.append('cached_images_path')
-
         # Column name changes (based on ``_open_i_prep()``).
         cancer_image_col_rename = {'series_instance_uid': 'image_id',
                                    'series_description': 'image_caption',
+                                   'cached_dicom_images_path': 'raw',
                                    'modality_full': 'modality_best_guess',
                                    'cancer_type': 'disease'}
+
+        # Allow for cases where images have not been downloaded,
+        # i.e., absent 'cached_images_path' and 'cached_dicom_images_path' columns.
+        if 'cached_images_path' in db.columns:
+            cancer_image_columns.append('cached_images_path')
+        if 'cached_dicom_images_path' in db.columns:
+            cancer_image_columns.append('cached_dicom_images_path')
+            cancer_image_col_rename['cached_dicom_images_path'] = 'source_images_path'
+            additional_columns_skip = 'source_images_path'
+        else:
+            additional_columns_skip = None
 
         # Deep copy the input to prevent mutating the original in memory.
         db_cln = db.copy(deep=True)
 
-        if isinstance(self._additional_columns, list):
-            db_cln, cancer_image_columns = self._add_additional_columns(db_cln, cancer_image_columns)
+        if len(self._additional_columns):
+            db_cln, cancer_image_columns = self._add_additional_columns(db=db_cln,
+                                                                        list_of_columns=cancer_image_columns,
+                                                                        skip=additional_columns_skip)
 
         # Define subsection based on `cancer_image_columns`
         cancer_image_subsection = db_cln[cancer_image_columns]
 
-        # Add an 'abstract' column
         cancer_image_subsection['abstract'] = np.NaN
-
-        # Add a column to allow the user to identify the API which provided the data
         cancer_image_subsection['source_api'] = ['tcia'] * cancer_image_subsection.shape[0]
-
-        # Apply rename and return
         return cancer_image_subsection.rename(columns=cancer_image_col_rename)
 
     @property
@@ -208,8 +215,11 @@ class _ImagesInterfaceIntegration(object):
         :return: standardize interfaces
         :rtype: ``Pandas DataFrame``
         """
-        if 'ImageProcessing' in [type(i).__name__ for i in interfaces]:
-            self._additional_columns = possible_openi_image_processing_cols
+        interfaces_types = [type(i).__name__ for i in interfaces]
+        if 'ImageProcessing' in interfaces_types:
+            self._additional_columns += possible_openi_image_processing_cols
+        if 'CancerImageInterface' in interfaces_types:
+            self._additional_columns += ['source_images_path']
 
         frames = list()
         for class_instance in interfaces:
@@ -224,7 +234,7 @@ class _ImagesInterfaceIntegration(object):
                                  "'{2}'.".format(interface_name, db_to_extract, type(database).__name__))
             frames.append(func(database))
 
-        self._additional_columns = None  # reset
+        self._additional_columns = list()  # reset
 
         combined_df = pd.concat(frames, ignore_index=True)
         combined_df['disease'] = combined_df['disease'].map(lambda x: x.lower() if isinstance(x, str) else x)
@@ -749,15 +759,3 @@ def images_unify(interfaces, db_to_extract='records_db', verbose=True, fuzzy_thr
     combined_df = _DisgenetIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
 
     return combined_df
-
-
-
-
-
-
-
-
-
-
-
-
