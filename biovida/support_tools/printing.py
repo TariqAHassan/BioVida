@@ -325,6 +325,9 @@ def pandas_pprint(data,
     """
     # Source: https://github.com/TariqAHassan/EasyMoney
 
+    # ToDO: if col_align != 'right' and `full_rows=False`,
+    # only the first 30 and last 30 rows need to be adjusted.
+
     if type(data).__name__ not in ('DataFrame', 'Series'):
         raise TypeError("`data` cannot be of type '{0}'; "
                         "must be of type 'DataFrame' or 'Series'.".format(type(data).__name__))
