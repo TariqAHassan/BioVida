@@ -76,7 +76,7 @@ class _OpeniSearch(object):
         """
 
         :param search_param: one of 'video', 'image_type'...
-        :param blocked: muturally exclusive (i.e., all these items cannot be passed together).
+        :param blocked: mutually exclusive (i.e., all these items cannot be passed together).
         :param passed: values actually passed to `search_param`.
         :return:
         """
@@ -899,6 +899,16 @@ class OpeniInterface(object):
         def rows_to_conserve_func(x):
             return x['download_success'] == True
 
+        def openi_duplicates_handler(data_frame):
+            duplicates_subset_columns = ['img_grid150', 'img_large', 'img_thumb',
+                                         'img_thumb_large', 'query', 'download_success']
+
+            # Note: Typically biovida_version' and 'pull_time' will be 'in sync'.
+            # However, if they are not, this function gives preference to 'biovida_version'
+            # s.t. the data harvested with the latest version is given priority.
+            data_frame = data_frame.sort_values(by=['biovida_version', 'pull_time'])
+            return data_frame.drop_duplicates(subset=duplicates_subset_columns, keep='last')
+
         if self.cache_records_db is None and self.records_db is None:
             raise ValueError("`current_records_db` and `records_db` cannot both be None.")
         elif self.cache_records_db is not None and self.records_db is None:
@@ -908,13 +918,11 @@ class OpeniInterface(object):
             data_frame = _openi_image_relation_map(self.records_db)
             self.cache_records_db = data_frame[data_frame.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
         else:
-            duplicates_subset_columns = ['img_grid150', 'img_large', 'img_thumb', 'img_thumb_large',
-                                         'query', 'cached_images_path', 'download_success']
             self.cache_records_db = _records_db_merge(interface_name='OpeniInterface',
                                                       current_records_db=self.cache_records_db,
                                                       records_db_update=self.records_db,
                                                       columns_with_dicts=('query', 'parsed_abstract'),
-                                                      duplicates_subset_columns=duplicates_subset_columns,
+                                                      duplicates=openi_duplicates_handler,
                                                       rows_to_conserve_func=rows_to_conserve_func,
                                                       pre_return_func=image_id_short_gen)
 
