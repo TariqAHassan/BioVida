@@ -14,18 +14,20 @@ def _parser(s):
     
     Tool to convert the lists on https://openi.nlm.nih.gov/services.php?it=xg to dicts.
     
-    :param s: string copied from the URL above
-    :return:
+    :param s: a string copied from the URL above
+    :type s: ``str``
+    :return: a dictionary of params.
     :rtype: ``dict``
     """
     # Split the string into keys and values
     split_string = [i.split('(') for i in cln(s).split(')')]
 
     # Define a lambda to clean the values
-    lower_join = lambda x: '_'.join(cln(x).split()).strip().lower()
+    def lower_join(x):
+        return '_'.join(cln(x).split()).strip().lower()
 
     # Generate the dict
-    return {cln(k[1]): lower_join(k[0]) for k in split_string if set(k) != set([''])}
+    return {cln(k[1]): lower_join(k[0]) for k in split_string if set(k) != {''}}
 
 
 openi_video_params = {
@@ -184,7 +186,7 @@ def openi_search_information():
     """
 
     Returns a dictionary of the form:
-        search_category: (URL_Parameter, {search term: URL_Parameter})
+        ``{search_category: (URL_Parameter, {search term: URL_Parameter}), ...}``
 
     :return: search information for the Open-i API.
     :rtype: ``dict``
@@ -194,16 +196,3 @@ def openi_search_information():
 
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
     return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
-
-
-
-
-
-
-
-
-
-
-
-
-
