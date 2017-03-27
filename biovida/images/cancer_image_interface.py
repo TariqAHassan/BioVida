@@ -815,7 +815,7 @@ class _CancerImageArchiveImages(object):
         :return: the full path to the newly created temporary directory.
         :rtype: ``str``
         """
-        temp_folder = os.path.join(self._created_image_dirs['dicoms'], '__dicom_temp__')
+        temp_folder = os.path.join(self._created_image_dirs['dicoms'], '__temp_dicom__')
 
         if os.path.isdir(temp_folder):
             # To prevent duplicate images being created,
