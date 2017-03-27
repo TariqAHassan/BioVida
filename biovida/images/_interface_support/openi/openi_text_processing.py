@@ -232,7 +232,7 @@ def _data_frame_clean(data_frame, verbose):
     :rtype:  ``Pandas DataFrame``
     """
     if verbose:
-        print("\n\nCleaning Text Information...\n")
+        print("\n\nCleaning Text Information...\n\n")
 
     # Clean the abstract
     data_frame['abstract'] = data_frame['abstract'].map(abstract_cleaner)

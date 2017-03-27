@@ -48,7 +48,6 @@ from biovida.support_tools._cache_management import package_cache_creator
 
 # General Support Tools
 from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import header
 from biovida.support_tools.support_tools import camel_to_snake_case
 from biovida.support_tools.support_tools import data_frame_col_drop
 from biovida.support_tools.support_tools import list_to_bulletpoints
@@ -543,7 +542,6 @@ class _OpeniRecords(object):
         """
         # Initialize
         harvested_data = list()
-        header("Downloading Records... ")
 
         if self._verbose:
             print("\nNumber of Records to Download: {0} (chunk size: {1} records).".format(
@@ -757,7 +755,7 @@ class _OpeniImages(object):
         :type use_image_caption: ``bool``
         """
         if self._verbose:
-            header("Obtaining Images... ")
+            print("Obtaining Images... ")
 
         def block_decision(ipt):
             """Decide whether or not to block the downloading."""
