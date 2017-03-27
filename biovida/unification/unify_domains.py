@@ -75,6 +75,12 @@ def unify_against_images(interfaces,
 
         The ``'known_associated_genes'`` column is of the form ``((Gene Name, DisGeNET Evidence Score), ...)``.
 
+    .. note:: 
+    
+        If an instance of the ``CancerImageInterface`` class is passed, a ``'source_images_path'``
+        column will also be generated if the database extracted from the instance contains 
+        a ``'cached_dicom_images_path'`` column.
+
     .. warning::
 
         The ``'known_associated_symptoms'`` and ``'known_associated_genes'`` columns denote symptoms and genes
