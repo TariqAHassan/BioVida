@@ -160,18 +160,18 @@ def _records_db_merge(interface_name,
     :type records_db_update: ``Pandas DataFrame``
     :param columns_with_dicts: a list of columns which contain dictionaries. Note: this column *should* contain only
                                dictionaries or NaNs.
-    :type columns_with_dicts: ``list``, ``tuple`` or ``None``.
+    :type columns_with_dicts: ``list``, ``tuple`` or ``None``
     :param duplicates: A function to handle dropping duplicates. This function should accept a dataframe
                       (and *only* a dataframe) and return a dataframe.
     :type duplicates: ``function``
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
                                   in fact, present in the cache. If not, remove it from the database to be saved.
     :type rows_to_conserve_func: ``function``
-    :param pre_return_func: a function to apply to the dataframe before it is returned.
-                            This function should accept and return a dataframe.
+    :param pre_return_func: a function to apply to the dataframe before it is returned. This function should accept a
+                            dataframe (and *only* a dataframe) and return a dataframe.
     :type pre_return_func: ``None`` or ``function``
     :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
-                                  prior to dropping. Defaults to ``None``.
+                                           prior to dropping. Defaults to ``None``.
     :type columns_with_iterables_to_sort: ``list`` or ``tuple``
     :return: a dataframe which merges ``current_records_db`` and ``records_db_update``
     :rtype: ``Pandas DataFrame``
