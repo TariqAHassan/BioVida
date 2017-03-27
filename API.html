@@ -378,7 +378,7 @@ is not currently recommended.</p>
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>new_records_pull=True</em>, <em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=100</em>, <em>clinical_cases_only=False</em>, <em>use_image_caption=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=100</em>, <em>clinical_cases_only=False</em>, <em>use_image_caption=False</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <p>In addition to the columns provided by Open-i, this method will automatically generate the
 following columns by analyzing the pulled data:</p>
@@ -409,13 +409,6 @@ column is obtained by analyzing the text associated with the image. This analysi
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <p>if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Setting <code class="docutils literal"><span class="pre">new_records_pull=False</span></code> can be useful if one wishes to initially set <code class="docutils literal"><span class="pre">image_size=None</span></code>,
-truncate or otherwise modify <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code> and then download images.</p>
-</div>
-</li>
 <li><strong>image_size</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <dl class="docutils">
 <dt>one of: &#8216;large&#8217;, &#8216;grid150&#8217;, &#8216;thumb&#8217;, &#8216;thumb_large&#8217; or <code class="docutils literal"><span class="pre">None</span></code>. Defaults to &#8216;large&#8217;.</dt>
 <dd>If <code class="docutils literal"><span class="pre">None</span></code>, no attempt will be made to download images.</dd>
@@ -448,6 +441,13 @@ the <code class="docutils literal"><span class="pre">download_limit</span></code
 <li><strong>use_image_caption</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> block downloading of an image if its caption suggests the presence
 of problematic image properties (e.g., &#8216;arrows&#8217;) likely to corrupt a dataset.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <p>if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Setting <code class="docutils literal"><span class="pre">new_records_pull=False</span></code> can be useful if one wishes to initially set <code class="docutils literal"><span class="pre">image_size=None</span></code>,
+truncate or otherwise modify <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code> and then download images.</p>
+</div>
+</li>
 </ul>
 </td>
 </tr>
@@ -509,13 +509,13 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 
 <dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.load_records_db">
-<code class="descname">load_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.load_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a <code class="docutils literal"><span class="pre">records_db</span></code>.</p>
+<code class="descname">load_records_db</code><span class="sig-paren">(</span><em>records_db</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.load_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a <code class="docutils literal"><span class="pre">records_db</span></code></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
 </tr>
 </tbody>
 </table>
@@ -578,7 +578,7 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data">
 <code class="descname">extract_dicom_data</code><span class="sig-paren">(</span><em>database='records_db'</em>, <em>make_hashable=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.extract_dicom_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract data from all dicom files referenced in <code class="docutils literal"><span class="pre">records_db</span></code> or <code class="docutils literal"><span class="pre">cache_records_db</span></code>.
-Note: this requires that <code class="docutils literal"><span class="pre">save_dicoms</span></code> is <code class="docutils literal"><span class="pre">True</span></code> when <code class="docutils literal"><span class="pre">pull()</span></code> is called.</p>
+Note: this requires that <code class="docutils literal"><span class="pre">save_dicom</span></code> is <code class="docutils literal"><span class="pre">True</span></code> when <code class="docutils literal"><span class="pre">pull()</span></code> is called.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -604,15 +604,15 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 
 <dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>image_format='png'</em>, <em>save_dicoms=False</em>, <em>check_cache_first=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>save_png=True</em>, <em>save_dicom=False</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <p>Notes:</p>
 <ul>
-<li><p class="first">3D images are saved as individual frames.</p>
+<li><p class="first">When <code class="docutils literal"><span class="pre">save_png</span></code> is <code class="docutils literal"><span class="pre">True</span></code>, 3D DICOM images are saved as individual frames.</p>
 </li>
 <li><p class="first">Images file names in the cache adhere to the following format:</p>
 <blockquote>
-<div><p><code class="docutils literal"><span class="pre">[instance,</span> <span class="pre">pull_position]__[patient_id_[Last</span> <span class="pre">10</span> <span class="pre">Digits</span> <span class="pre">of</span> <span class="pre">SeriesInstanceUID]]__[Image</span> <span class="pre">Scale</span> <span class="pre">('default')].image_format</span></code></p>
+<div><p><code class="docutils literal"><span class="pre">[instance,</span> <span class="pre">pull_position]__[patient_id_[Last</span> <span class="pre">10</span> <span class="pre">Digits</span> <span class="pre">of</span> <span class="pre">SeriesInstanceUID]]__[Image</span> <span class="pre">Scale</span> <span class="pre">('default')].png</span></code></p>
 </div></blockquote>
 </li>
 </ul>
@@ -649,21 +649,9 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 See: <code class="docutils literal"><span class="pre">CancerImageInterface(YOUR_API_KEY_HERE).dicom_modality_abbrevs</span></code> (use the keys).
 Note: &#8216;MRI&#8217;, &#8216;PET&#8217;, &#8216;CT&#8217; and &#8216;X-Ray&#8217; can also be used.
 This parameter is not case sensitive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>image_format</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; format for the image, e.g., &#8216;png&#8217;, &#8216;jpg&#8217;, etc. If <code class="docutils literal"><span class="pre">None</span></code>, images will not be downloaded.
-Defaults to &#8216;png&#8217;.</li>
-<li><strong>save_dicoms</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the raw dicom files. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>check_cache_first</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <dl class="docutils">
-<dt>check the image cache for the image prior to downloading.</dt>
-<dd>If <code class="docutils literal"><span class="pre">True</span></code> and the image is already present, no attempt will be made to download it
-again. If <code class="docutils literal"><span class="pre">False</span></code> the image will be downloaded regardless of whether or not it is
-detected in the cache.</dd>
-</dl>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">If a single frame of a 3D image is missing from the cache the entire image will be
-downloaded again.</p>
-</div>
-</li>
+<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>save_dicom</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the DICOM images provided by The Cancer Imaging Archive &#8216;as is&#8217;. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1686,7 +1674,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <h3>Unifying Across Domains<a class="headerlink" href="#unifying-across-domains" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
-<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>db_to_extract='records_db'</em>, <em>cache_path=None</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>db_to_extract='records_db'</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tool to unify image interfaces (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
 with Diagnostic and Genomic Data.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1706,8 +1694,6 @@ combination inside an iterable.</li>
 attribute will be extracted regardless of the value passed to this argument.</p>
 </div>
 </li>
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
-Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>fuzzy_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">bool</span></code>, <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>an integer on <code class="docutils literal"><span class="pre">(0,</span> <span class="pre">100]</span></code>. If <code class="docutils literal"><span class="pre">True</span></code> a threshold of <cite>95</cite> will be used. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
 <div class="admonition warning">
@@ -1756,6 +1742,12 @@ large databases, such as those this function integrates, is very computationally
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The <code class="docutils literal"><span class="pre">'known_associated_genes'</span></code> column is of the form <code class="docutils literal"><span class="pre">((Gene</span> <span class="pre">Name,</span> <span class="pre">DisGeNET</span> <span class="pre">Evidence</span> <span class="pre">Score),</span> <span class="pre">...)</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If an instance of the <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> class is passed, a <code class="docutils literal"><span class="pre">'source_images_path'</span></code>
+column will also be generated if the database extracted from the instance contains 
+a <code class="docutils literal"><span class="pre">'cached_dicom_images_path'</span></code> column.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>

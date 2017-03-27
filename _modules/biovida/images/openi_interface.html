@@ -176,7 +176,6 @@
 <span class="sd">    ~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
@@ -191,44 +190,36 @@
 <span class="kn">from</span> <span class="nn">biovida</span> <span class="k">import</span> <span class="n">__version_numeric__</span>
 
 <span class="c1"># General Image Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">TIME_FORMAT</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">NoResultsFound</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">sleep_with_noise</span>
+<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">NoResultsFound</span><span class="p">,</span> <span class="n">sleep_with_noise</span>
 
 <span class="c1"># Database Management</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_load_temp_dbs</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_records_db_merge</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_openi_image_relation_map</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_record_update_dbs_joiner</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_prune_rows_with_deleted_images</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="p">(</span><span class="n">_records_db_merge</span><span class="p">,</span>
+                                             <span class="n">_openi_image_relation_map</span><span class="p">,</span>
+                                             <span class="n">_record_update_dbs_joiner</span><span class="p">,</span>
+                                             <span class="n">_prune_rows_with_deleted_images</span><span class="p">)</span>
 
 <span class="c1"># Interface Support tools</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.shared</span> <span class="k">import</span> <span class="n">save_records_db</span>
-<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">iter_join</span>
-<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">url_combine</span>
-<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">null_convert</span>
-<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">ImageProblemBasedOnText</span>
-<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">nonessential_openi_columns</span>
+
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">iter_join</span><span class="p">,</span>
+                                                                         <span class="n">url_combine</span><span class="p">,</span>
+                                                                         <span class="n">null_convert</span><span class="p">,</span>
+                                                                         <span class="n">ImageProblemBasedOnText</span><span class="p">,</span>
+                                                                         <span class="n">nonessential_openi_columns</span><span class="p">)</span>
 
 <span class="c1"># Open-i API Parameters Information</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_parameters</span> <span class="k">import</span> <span class="n">openi_search_information</span>
-
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi._openi_image_id_processing</span> <span class="k">import</span> <span class="n">image_id_short_gen</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_text_processing</span> <span class="k">import</span> <span class="n">openi_raw_extract_and_clean</span>
-
 
 <span class="c1"># Cache Management</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
 
 <span class="c1"># General Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">header</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">camel_to_snake_case</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">data_frame_col_drop</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
-
-<span class="c1"># Start tqdm</span>
-<span class="n">tqdm</span><span class="o">.</span><span class="n">pandas</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s1">&#39;status&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">cln</span><span class="p">,</span>
+                                                 <span class="n">camel_to_snake_case</span><span class="p">,</span>
+                                                 <span class="n">data_frame_col_drop</span><span class="p">,</span>
+                                                 <span class="n">list_to_bulletpoints</span><span class="p">)</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -239,31 +230,37 @@
 <span class="k">class</span> <span class="nc">_OpeniSearch</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="sd">    Searching the Open-i Database.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_root_url</span> <span class="o">=</span> <span class="s1">&#39;https://openi.nlm.nih.gov&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_search</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_params</span> <span class="o">=</span> <span class="n">openi_search_information</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_openi_search_special_case</span><span class="p">(</span><span class="n">search_param</span><span class="p">,</span> <span class="n">blocked</span><span class="p">,</span> <span class="n">passed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param search_param: one of &#39;video&#39;, &#39;image_type&#39;...</span>
-<span class="sd">        :param blocked: muturally exclusive (i.e., all these items cannot be passed together).</span>
+<span class="sd">        Check for invalid search requests when contradictions are possible,</span>
+<span class="sd">        e.g., `passed` cannot contain `True` and `False`. </span>
+
+<span class="sd">        :param search_param: currently, only `rankby` is valid.</span>
+<span class="sd">        :param blocked: mutually exclusive (i.e., all these items cannot be passed together).</span>
 <span class="sd">        :param passed: values actually passed to `search_param`.</span>
-<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">b</span> <span class="ow">in</span> <span class="n">passed</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blocked</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`</span><span class="si">%s</span><span class="s2">` can only contain one of:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">search_param</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">blocked</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`</span><span class="si">{0}</span><span class="s2">` can only contain one of:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">search_param</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">blocked</span><span class="p">)))</span>
 
-    <span class="k">def</span> <span class="nf">_openi_search_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_arguments</span><span class="p">,</span> <span class="n">search_dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_openi_search_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_arguments</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Method to check for invalid search requests.</span>
 
-<span class="sd">        :param args:</span>
-<span class="sd">        :return: ``None``</span>
+<span class="sd">        :param search_arguments: arguments to pass to Open-i&#39;s REST API.</span>
+<span class="sd">        :type search_arguments: ``dict``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">general_error_msg</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not valid for `</span><span class="si">{1}</span><span class="s2">`.</span><span class="se">\n</span><span class="s2">Valid values for `</span><span class="si">{1}</span><span class="s2">`:</span><span class="se">\n</span><span class="si">{2}</span><span class="s2">&quot;</span>
 
@@ -277,14 +274,17 @@
             <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># Check type</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only `lists`, `tuples` or `None` may be passed to `</span><span class="si">%s</span><span class="s2">`.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only `lists`, `tuples` or `None` &quot;</span>
+                                     <span class="s2">&quot;may be passed to `</span><span class="si">{0}</span><span class="s2">`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
                 <span class="c1"># Loop though items in `v`</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`tuples` or `lists` passed to `</span><span class="si">%s</span><span class="s2">` must only contain strings.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">))</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`tuples` or `lists` passed to `</span><span class="si">{0}</span><span class="s2">` &quot;</span>
+                                         <span class="s2">&quot;must only contain strings.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
                     <span class="c1"># Check if `i` can be converted to a param understood by the Open-i API</span>
-                    <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">search_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">general_error_msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">search_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">general_error_msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 
                 <span class="c1"># Block contradictory requests</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;rankby&#39;</span><span class="p">:</span>
@@ -293,12 +293,16 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_exclusions_image_type_merge</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclusions</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-
+<span class="sd">        </span>
 <span class="sd">        Merge Image type with Exclusions.</span>
-
-<span class="sd">        :param args:</span>
-<span class="sd">        :param exclusions:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        This must be performed because while this module</span>
+<span class="sd">        separates &#39;exclusions&#39; it is actually under the </span>
+<span class="sd">        &#39;image_type&#39; (&#39;&amp;it&#39;) param. in the open-i REST API.</span>
+<span class="sd">        </span>
+<span class="sd">        :param args: all arguments passed to ``search()`` to pass to Open-i&#39;s REST API.</span>
+<span class="sd">        :type args: ``dict``</span>
+<span class="sd">        :param exclusions: a list of exclusions to pass to &#39;&amp;it&#39;.</span>
+<span class="sd">        :type exclusions: ``list`` or ``None``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check `exclusions` is an acceptable type</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclusions</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="n">exclusions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -320,21 +324,23 @@
 
         <span class="k">return</span> <span class="n">args</span>
 
-    <span class="k">def</span> <span class="nf">_search_url_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_search_transform</span><span class="p">,</span> <span class="n">ordered_params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_search_url_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_search_transform</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param ordered_params:</span>
-<span class="sd">        :param api_search_transform:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Format ``api_search_transform`` as a complete URL to pass to Open-i.</span>
+
+<span class="sd">        :param api_search_transform: a dictionary of parameters and keys in the precise form Open-i expects.</span>
+<span class="sd">        :type api_search_transform: ``dict``</span>
+<span class="sd">        :return: a formatted `GET` request.</span>
+<span class="sd">        :rtype: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Format query</span>
         <span class="k">if</span> <span class="s1">&#39;query&#39;</span> <span class="ow">in</span> <span class="n">api_search_transform</span><span class="p">:</span>
             <span class="n">api_search_transform</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">api_search_transform</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No `query` detected.&quot;</span><span class="p">)</span>
 
         <span class="n">search_term</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ordered_params</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_params</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">api_search_transform</span><span class="p">:</span>
                 <span class="n">search_term</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{0}{1}</span><span class="s2">=</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="s2">&quot;?&quot;</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">,</span> <span class="n">api_search_transform</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
 
@@ -344,11 +350,14 @@
     <span class="k">def</span> <span class="nf">_search_probe</span><span class="p">(</span><span class="n">search_query</span><span class="p">,</span> <span class="n">print_results</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param search_query:</span>
+<span class="sd">        Request results from Open-i.</span>
+
+<span class="sd">        :param search_query: a fully format Open-i REST GET command.</span>
 <span class="sd">        :type search_query: ``str``</span>
 <span class="sd">        :param print_results: print the number of results found</span>
 <span class="sd">        :type print_results: ``bool``</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :return: a tuple of the form ``(total number of results, the first result returned)``</span>
+<span class="sd">        :rtype: ``tuple``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get a sample request</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">search_query</span> <span class="o">+</span> <span class="s2">&quot;&amp;m=1&amp;n=1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -369,8 +378,7 @@
 
         <span class="k">return</span> <span class="n">total</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">,</span> <span class="n">print_options</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_parameter</span><span class="p">,</span> <span class="n">print_options</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Options for parameters of `openi_search()`.</span>
@@ -388,18 +396,17 @@
             <span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Get the relevant dict of params</span>
-            <span class="n">search_dict</span> <span class="o">=</span> <span class="n">openi_search_information</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">search_dict_against_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
 
             <span class="c1"># Report invalid `search_parameter`</span>
-            <span class="k">if</span> <span class="n">search_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">search_dict_against_param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not a valid parameter to pass to the Open-i API.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">))</span>
 
             <span class="c1"># Remove exclusions term</span>
-            <span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">search_dict</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">]</span>
+            <span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">search_dict_against_param</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">opts</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Relevant options for &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">))</span>
 
-        <span class="c1"># Print or Return</span>
         <span class="k">if</span> <span class="n">print_options</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">opts</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -409,38 +416,43 @@
     <span class="k">def</span> <span class="nf">_search_clean</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Define a tool to clean the search terms in `OpeniInterface().search()`.</span>
+<span class="sd">        Clean the search terms (strings) passed to `OpeniInterface().search()`.</span>
 
-<span class="sd">        :param k:</span>
-<span class="sd">        :param v:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :param k: Open-i param.</span>
+<span class="sd">        :type k: ``str``</span>
+<span class="sd">        :param v: value passed to ``k`` .</span>
+<span class="sd">        :type v: ``list``</span>
+<span class="sd">        :return: ``v`` with the strings it contained cleaned. </span>
+<span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">cln</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">v</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_api_url_terms</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">search_dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_api_url_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Convert values passed into a form the API will understand.</span>
+<span class="sd">        Convert values passed into a valid REST GET string</span>
+<span class="sd">        from a dictionary.</span>
 
-<span class="sd">        :param k:</span>
-<span class="sd">        :param v:</span>
-<span class="sd">        :param search_dict:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :param k: Open-i param.</span>
+<span class="sd">        :type k: ``str``</span>
+<span class="sd">        :param v: value passed to ``k`` .</span>
+<span class="sd">        :type v: ``list``</span>
+<span class="sd">        :return: see description.</span>
+<span class="sd">        :rtype: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">search_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="n">v</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_api_url_param</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">search_dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_api_url_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-
+<span class="sd">        </span>
 <span class="sd">        Convert param names into a form the API will understand.</span>
-
-<span class="sd">        :param x:</span>
-<span class="sd">        :param search_dict:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        E.g., &#39;video&#39; --&gt; &#39;&amp;vid&#39;.</span>
+<span class="sd">        </span>
+<span class="sd">        :param k: a human readable term into an actual Open-i param.</span>
+<span class="sd">        :return: see description.</span>
+<span class="sd">        :rtype: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">search_dict</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="s1">&#39;query&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="s1">&#39;query&#39;</span>
 
     <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -483,37 +495,36 @@
 <span class="sd">        :type print_results: ``bool``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Remove &#39;self&#39; and &#39;print_results&#39; from locals</span>
-        <span class="n">args_cleaned</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">deepcopy</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;print_results&#39;</span><span class="p">]}</span>
+        <span class="n">args_cleaned</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">deepcopy</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;print_results&#39;</span><span class="p">]}</span>
 
         <span class="c1"># Extract the function arguments and format values.</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">}</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;query&#39;</span> <span class="k">else</span> <span class="n">v</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_cleaned</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">}</span>
 
         <span class="c1"># Merge `image_type` with `exclusions`</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclusions_image_type_merge</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclusions</span><span class="p">)</span>
 
         <span class="c1"># Get the arguments</span>
-        <span class="n">search_arguments</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;query&#39;</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_clean</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">search_arguments</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;query&#39;</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_clean</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
         <span class="c1"># Save search query</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_search</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">search_arguments</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
 
-        <span class="c1"># Get Open-i search params</span>
-        <span class="n">search_dict</span><span class="p">,</span> <span class="n">ordered_params</span> <span class="o">=</span> <span class="n">openi_search_information</span><span class="p">()</span>
-
-        <span class="c1"># Add check for all search terms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_openi_search_check</span><span class="p">(</span><span class="n">search_arguments</span><span class="p">,</span> <span class="n">search_dict</span><span class="p">)</span>
+        <span class="c1"># Check if search terms are valid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_openi_search_check</span><span class="p">(</span><span class="n">search_arguments</span><span class="o">=</span><span class="n">search_arguments</span><span class="p">)</span>
 
         <span class="c1"># Perform transformation</span>
-        <span class="n">api_search_transform</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_url_param</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">search_dict</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_url_terms</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">search_dict</span><span class="p">)</span>
+        <span class="n">api_search_transform</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_url_param</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_url_terms</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">search_arguments</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
 
         <span class="c1"># Format `api_search_transform`</span>
-        <span class="n">search_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_url_formatter</span><span class="p">(</span><span class="n">api_search_transform</span><span class="p">,</span> <span class="n">ordered_params</span><span class="p">)</span>
+        <span class="n">search_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_url_formatter</span><span class="p">(</span><span class="n">api_search_transform</span><span class="o">=</span><span class="n">api_search_transform</span><span class="p">)</span>
 
         <span class="c1"># Unpack the probe containing information on the total number of results and list of results to harvest</span>
         <span class="n">current_search_total</span><span class="p">,</span> <span class="n">current_search_to_harvest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_probe</span><span class="p">(</span><span class="n">search_url</span><span class="p">,</span> <span class="n">print_results</span><span class="p">)</span>
 
-        <span class="c1"># Return</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">args_cleaned</span><span class="p">,</span>
                 <span class="s2">&quot;search_url&quot;</span><span class="p">:</span> <span class="n">search_url</span><span class="p">,</span>
                 <span class="s2">&quot;current_search_total&quot;</span><span class="p">:</span> <span class="n">current_search_total</span><span class="p">,</span>
@@ -528,25 +539,22 @@
 <span class="k">class</span> <span class="nc">_OpeniRecords</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Tools to Pull Records from the Open-i API.</span>
+<span class="sd">    Obtaining Records from the Open-i Database.</span>
 
+<span class="sd">    :param root_url: suggested: &#39;https://openi.nlm.nih.gov&#39;</span>
+<span class="sd">    :type root_url: ``str``</span>
+<span class="sd">    :param date_format: suggested: &quot;%d/%m/%Y&quot; (consider leaving as datetime)</span>
+<span class="sd">    :type date_format: ``str``</span>
+<span class="sd">    :param verbose: if ``True`` print additional details.</span>
+<span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,</span>
+<span class="sd">                   one will created. Default to ``None``, which will generate a cache in the home folder.</span>
+<span class="sd">    :type cache_path: ``str``</span>
+<span class="sd">    :param req_limit: Defaults to 30 (max allowed by Open-i; see: https://openi.nlm.nih.gov/services.php?it=xg).</span>
+<span class="sd">    :type req_limit: ``int``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_url</span><span class="p">,</span> <span class="n">date_format</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">cache_path</span><span class="p">,</span> <span class="n">req_limit</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param root_url: suggested: &#39;https://openi.nlm.nih.gov&#39;</span>
-<span class="sd">        :type root_url: ``str``</span>
-<span class="sd">        :param date_format: suggested: &quot;%d/%m/%Y&quot; (consider leaving as datetime)</span>
-<span class="sd">        :type date_format: ``str``</span>
-<span class="sd">        :param verbose: if ``True`` print additional details.</span>
-<span class="sd">        :type verbose: ``bool``</span>
-<span class="sd">        :param cache_path: path to the location of the BioVida cache. If a cache does not exist in this location,</span>
-<span class="sd">                       one will created. Default to ``None``, which will generate a cache in the home folder.</span>
-<span class="sd">        :type cache_path: ``str``</span>
-<span class="sd">        :param req_limit: Defaults to 30 (max allowed by Open-i; see: https://openi.nlm.nih.gov/services.php?it=xg).</span>
-<span class="sd">        :type req_limit: ``int``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_url</span> <span class="o">=</span> <span class="n">root_url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">date_format</span> <span class="o">=</span> <span class="n">date_format</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
@@ -561,10 +569,15 @@
 
     <span class="k">def</span> <span class="nf">openi_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Generate a list of tuples which define</span>
+<span class="sd">        the upper and lower bounds of each request to Open-i</span>
+<span class="sd">        for records, e.g., ``[(1, 30), ..., (90, total)]``.</span>
 
 <span class="sd">        :param total: the total number of results for a given search.</span>
-<span class="sd">        :type total: int</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :type total: ``int``</span>
+<span class="sd">        :return: see description.</span>
+<span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Initialize</span>
         <span class="n">end</span> <span class="o">=</span> <span class="mi">1</span>
@@ -592,7 +605,7 @@
         <span class="n">n_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">download_no</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span><span class="p">))</span>
 
         <span class="c1"># Loop through the steps</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
             <span class="n">bounds</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
             <span class="n">end</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span>
 
@@ -611,8 +624,9 @@
 
 <span class="sd">        Format the computed bounds for the Open-i API.</span>
 
-<span class="sd">        :param bounds: as returned by `_OpeniPull().openi_bounds()`</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :param bounds: as returned by ``_OpeniPull().openi_bounds()``</span>
+<span class="sd">        :type bounds: ``list``</span>
+<span class="sd">        :return: the inner tuples in ``bounds`` converted to strings for Open-i.</span>
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;&amp;m=</span><span class="si">{0}</span><span class="s2">&amp;n=</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bounds</span><span class="p">]</span>
@@ -620,10 +634,14 @@
     <span class="k">def</span> <span class="nf">date_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param date_dict:</span>
+<span class="sd">        Format dates in the &#39;journal_date&#39; column.</span>
+
+<span class="sd">        :param date_dict: a dictionary of the date information</span>
 <span class="sd">        :type date_dict: ``dict``</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :return: ``date_dict`` as a datetime object.</span>
+<span class="sd">        :rtype: ``datetime``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># ToDo: return a datetime object instead of a string.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">date_dict</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -638,28 +656,35 @@
 
         <span class="n">cleaned_info</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">info</span><span class="p">]</span>
 
-        <span class="c1"># ToDo: add date format guessing.</span>
+        <span class="c1"># ToDo: add date format guessing -- e.g., ``pd.to_datetime(..., infer_datetime_format=True)``.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">cleaned_info</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cleaned_info</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cleaned_info</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">date_format</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">harvest_vect</span><span class="p">(</span><span class="n">request_rslt</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">harvest_vector</span><span class="p">(</span><span class="n">request_rslt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Defines the terms to harvest from the results returned by the Open-i API.</span>
-<span class="sd">        Assumes a maximum of one nest (i.e., request_rslt[key]: {key: value...}).</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">        </span>
+<span class="sd">            This method assumes a maximum of one nest in ``request_rslt`` (i.e., ``key: {key: value...}``).</span>
 
-<span class="sd">        :param request_rslt: Request Data from the server</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :param request_rslt: request &#39;records&#39; from Open-i.</span>
+<span class="sd">        :type request_rslt: ``dict``</span>
+<span class="sd">        :return: Convert ``request_rslt`` into a list. Nested dictionaries in ``request_rslt`` are added </span>
+<span class="sd">                 the list this method returns as tuples.</span>
+<span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">time_units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">]</span>
+
         <span class="n">to_harvest</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">request_rslt</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">to_harvest</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
-                            <span class="n">dmy</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">for</span> <span class="n">dmy</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">]):</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">dmy</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">for</span> <span class="n">dmy</span> <span class="ow">in</span> <span class="n">time_units</span><span class="p">):</span>
                 <span class="n">to_harvest</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -670,21 +695,28 @@
     <span class="k">def</span> <span class="nf">openi_block_harvest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">bound</span><span class="p">,</span> <span class="n">to_harvest</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param url:</span>
-<span class="sd">        :param bound:</span>
-<span class="sd">        :param to_harvest:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Download a single block (or &#39;chunk&#39;) of records, e.g, &#39;records&#39; 1-30.</span>
+
+<span class="sd">        :param url: the GET URL for the current search.</span>
+<span class="sd">        :type url: ``str``</span>
+<span class="sd">        :param bound: the bound to append to the GET URL, e.g., &quot;&amp;m=1&amp;n=30&quot;.</span>
+<span class="sd">        :type bound: ``str``</span>
+<span class="sd">        :param to_harvest: yield of ``harvest_vector()``.</span>
+<span class="sd">        :type to_harvest: ``list``</span>
+<span class="sd">        :return: a list of dictionaries, where the keys of the dictionaries will become</span>
+<span class="sd">                 the columns of the ``records_db`` dataframe.</span>
+<span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Request data from the Open-i servers</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="n">bound</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
 
-        <span class="n">root_url_columns</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;detailed_query_url&#39;</span><span class="p">,</span> <span class="s1">&#39;get_article_figures&#39;</span><span class="p">,</span> <span class="s1">&#39;similar_in_collection&#39;</span><span class="p">,</span> <span class="s1">&#39;similar_in_results&#39;</span><span class="p">)</span>
+        <span class="n">root_url_columns</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;detailed_query_url&#39;</span><span class="p">,</span> <span class="s1">&#39;get_article_figures&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;similar_in_collection&#39;</span><span class="p">,</span> <span class="s1">&#39;similar_in_results&#39;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">append_root_url</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Check whether or not to add `self.root_url` to a column.&quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="s1">&#39;img_&#39;</span> <span class="ow">in</span> <span class="n">item</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">root_url_columns</span><span class="p">)</span>
 
-        <span class="c1"># Loop</span>
         <span class="n">list_of_dicts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">req</span><span class="p">:</span>
             <span class="c1"># Create an item_dict the dict</span>
@@ -704,31 +736,33 @@
 
         <span class="k">return</span> <span class="n">list_of_dicts</span>
 
-    <span class="k">def</span> <span class="nf">openi_harvest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds_list</span><span class="p">,</span> <span class="n">joined_url</span><span class="p">,</span> <span class="n">to_harvest</span><span class="p">,</span> <span class="n">records_sleep_time</span><span class="p">,</span> <span class="n">download_no</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_records_pull_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds_list</span><span class="p">,</span> <span class="n">search_url</span><span class="p">,</span> <span class="n">to_harvest</span><span class="p">,</span> <span class="n">records_sleep_time</span><span class="p">,</span> <span class="n">download_no</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Download all records requested by the user.</span>
 
-
-<span class="sd">        :param bounds_list:</span>
-<span class="sd">        :param joined_url:</span>
-<span class="sd">        :param to_harvest:</span>
-<span class="sd">        :param records_sleep_time:</span>
-<span class="sd">        :param download_no:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :param bounds_list: a list of bounds (chunks), e.g., ``[&quot;&amp;m=1&amp;n=30&quot;, &quot;&amp;m=31&amp;n=59&quot;...]``. </span>
+<span class="sd">        :type bounds_list: ``list``</span>
+<span class="sd">        :param search_url: search URL as generated by ``_OpeniSearch().search()``.</span>
+<span class="sd">        :type search_url: ``str``</span>
+<span class="sd">        :param to_harvest: yield of ``harvest_vector()``.</span>
+<span class="sd">        :type to_harvest: ``list``</span>
+<span class="sd">        :param records_sleep_time: (every x downloads, period of time [seconds])</span>
+<span class="sd">        :type records_sleep_time: ``tuple``</span>
+<span class="sd">        :param download_no: the number of records to download.</span>
+<span class="sd">        :type download_no: ``int``</span>
+<span class="sd">        :return: a list of dictionaries where the keys are future columns of the ``records_db`` dataframe.</span>
+<span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Initialize</span>
-        <span class="n">harvested_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="n">header</span><span class="p">(</span><span class="s2">&quot;Downloading Records... &quot;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Number of Records to Download: </span><span class="si">{0}</span><span class="s2"> (chunk size: </span><span class="si">{1}</span><span class="s2"> records).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="s1">&#39;</span><span class="si">{:,.0f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">download_no</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span><span class="p">)))</span>
 
+        <span class="n">harvested_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">bound</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">bounds_list</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">c</span> <span class="o">%</span> <span class="n">records_sleep_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sleep_with_noise</span><span class="p">(</span><span class="n">amount_of_time</span><span class="o">=</span><span class="n">records_sleep_time</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-            <span class="c1"># Harvest</span>
-            <span class="n">harvested_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openi_block_harvest</span><span class="p">(</span><span class="n">joined_url</span><span class="p">,</span> <span class="n">bound</span><span class="p">,</span> <span class="n">to_harvest</span><span class="p">)</span>
+            <span class="n">harvested_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openi_block_harvest</span><span class="p">(</span><span class="n">search_url</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">bound</span><span class="p">,</span> <span class="n">to_harvest</span><span class="o">=</span><span class="n">to_harvest</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">harvested_data</span>
 
@@ -743,18 +777,28 @@
                      <span class="n">download_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        &#39;Walk&#39; along the search query and harvest the data.</span>
+<span class="sd">        &#39;Walk&#39; along the search query and harvest the data</span>
+<span class="sd">        in the &#39;chunk size&#39; given by ``req_limit``.</span>
 
-<span class="sd">        :param search_url:</span>
-<span class="sd">        :param to_harvest:</span>
-<span class="sd">        :param total:</span>
-<span class="sd">        :param query:</span>
-<span class="sd">        :param pull_time:</span>
+<span class="sd">        :param search_url: search URL as generated by ``_OpeniSearch().search()``.</span>
+<span class="sd">        :type search_url: ``str``</span>
+<span class="sd">        :param to_harvest: a list of results to harvest as generated by ``_OpeniSearch().search()``</span>
+<span class="sd">                          (AKA &#39;current_search_to_harvest&#39;).</span>
+<span class="sd">        :type to_harvest: ``list``</span>
+<span class="sd">        :param total: the total number of results (current_search_total) as generated by ``_OpeniSearch().search()``.</span>
+<span class="sd">        :type total: ``int``</span>
+<span class="sd">        :param query: a dictionary of parameters and values passed to ``_OpeniSearch().search()``.</span>
+<span class="sd">        :type query: ``dict``</span>
+<span class="sd">        :param pull_time: yield of ``datetime.now()`` as as evolved inside ``OpeniInterface.pull()``.</span>
+<span class="sd">        :type pull_time: ``datetime.datetime``</span>
 <span class="sd">        :param records_sleep_time: (every x downloads, period of time [seconds])</span>
-<span class="sd">        :param clinical_cases_only: see ``OpeniInterface().pull()``.</span>
+<span class="sd">        :type records_sleep_time: ``tuple``</span>
+<span class="sd">        :param clinical_cases_only: see ``OpeniInterface().pull()``</span>
 <span class="sd">        :type clinical_cases_only: ``bool``</span>
-<span class="sd">        :param download_limit:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :param download_limit: see ``OpeniInterface().pull()``</span>
+<span class="sd">        :type download_limit: ``None`` or ``int``</span>
+<span class="sd">        :return: a complete ``records_db``</span>
+<span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">download_limit</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span> <span class="o">=</span> <span class="n">download_limit</span>
@@ -769,34 +813,25 @@
         <span class="c1"># Compute a list of search ranges to pass to the Open-i API</span>
         <span class="n">bounds_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openi_bounds_formatter</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
 
-        <span class="c1"># Learn the results returned by the API</span>
-        <span class="n">to_harvest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">harvest_vect</span><span class="p">(</span><span class="n">to_harvest</span><span class="p">)</span>
-
         <span class="c1"># Harvest the data</span>
-        <span class="n">harvest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openi_harvest</span><span class="p">(</span><span class="n">bounds_list</span><span class="o">=</span><span class="n">bounds_list</span><span class="p">,</span>
-                                     <span class="n">joined_url</span><span class="o">=</span><span class="n">search_url</span><span class="p">,</span>
-                                     <span class="n">to_harvest</span><span class="o">=</span><span class="n">to_harvest</span><span class="p">,</span>
-                                     <span class="n">records_sleep_time</span><span class="o">=</span><span class="n">records_sleep_time</span><span class="p">,</span>
-                                     <span class="n">download_no</span><span class="o">=</span><span class="n">download_no</span><span class="p">)</span>
+        <span class="n">harvest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_records_pull_engine</span><span class="p">(</span><span class="n">bounds_list</span><span class="o">=</span><span class="n">bounds_list</span><span class="p">,</span>
+                                            <span class="n">search_url</span><span class="o">=</span><span class="n">search_url</span><span class="p">,</span>
+                                            <span class="n">to_harvest</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">harvest_vector</span><span class="p">(</span><span class="n">to_harvest</span><span class="p">),</span>
+                                            <span class="n">records_sleep_time</span><span class="o">=</span><span class="n">records_sleep_time</span><span class="p">,</span>
+                                            <span class="n">download_no</span><span class="o">=</span><span class="n">download_no</span><span class="p">)</span>
 
         <span class="c1"># Convert to a DataFrame</span>
         <span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">harvest</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
-
-        <span class="c1"># Process Text</span>
         <span class="n">records_db</span> <span class="o">=</span> <span class="n">openi_raw_extract_and_clean</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">records_db</span><span class="p">,</span>
                                                  <span class="n">clinical_cases_only</span><span class="o">=</span><span class="n">clinical_cases_only</span><span class="p">,</span>
                                                  <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">,</span>
                                                  <span class="n">cache_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span><span class="p">)</span>
 
-        <span class="c1"># Add the query</span>
         <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">query</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">pull_time</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="c1"># Add the Version of BioVida which generated the DataFrame</span>
         <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">__version_numeric__</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span>
 
 
@@ -807,10 +842,15 @@
 
 <span class="k">class</span> <span class="nc">_OpeniImages</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Obtaining Images from the Open-i Database.</span>
 
-<span class="sd">    :param image_save_location: suggested: created_image_dirs[&#39;openi&#39;])</span>
-<span class="sd">    :param database_save_location:</span>
-<span class="sd">    :param verbose:</span>
+<span class="sd">    :param image_save_location: directory to save the images to.</span>
+<span class="sd">    :type image_save_location: ``str``</span>
+<span class="sd">    :param database_save_location: system path to &#39;openi/databases&#39;.</span>
+<span class="sd">    :type database_save_location: ``str``</span>
+<span class="sd">    :param verbose: if ``True`` print additional details.</span>
+<span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_save_location</span><span class="p">,</span> <span class="n">database_save_location</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
@@ -832,15 +872,13 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_instantiate_real_time_update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_index</span><span class="p">,</span> <span class="n">pull_time</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_instantiate_real_time_update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Create the ``real_time_update_db`` and define the path to the location where it will be saved.</span>
 
 <span class="sd">        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``records_db``).</span>
 <span class="sd">        :type db_index: ``Pandas Series``</span>
-<span class="sd">        :param pull_time: see ``pull_images()``</span>
-<span class="sd">        :type pull_time: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Define columns</span>
         <span class="n">real_time_update_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;download_success&#39;</span><span class="p">]</span>
@@ -849,24 +887,27 @@
         <span class="n">db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">real_time_update_columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">db_index</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="n">db</span>
 
-    <span class="k">def</span> <span class="nf">_image_titler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">image_size</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_title_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">image_size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Generate a title for the images.</span>
 
-<span class="sd">        :param url:</span>
-<span class="sd">        :param image_size:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :param url: the URL to the image.</span>
+<span class="sd">        :type url: ``str``</span>
+<span class="sd">        :param image_size: the size of the image, e.g., &#39;large&#39;.</span>
+<span class="sd">        :type image_size: ``str``</span>
+<span class="sd">        :return: see description. </span>
+<span class="sd">        :type: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get the actual file name</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
         <span class="c1"># Separate the name from the image type</span>
-        <span class="n">bname</span><span class="p">,</span> <span class="n">image_format</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+        <span class="n">b_name</span><span class="p">,</span> <span class="n">image_format</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
 
         <span class="c1"># Generate and clean strings to populate the name format below. Note: 1 = file number</span>
         <span class="c1"># (in case medpix has images with multiple segments -- though, it doesn&#39;t appear to currently.)</span>
-        <span class="n">replacement_terms</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">bname</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">image_format</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)))</span>
+        <span class="n">replacement_terms</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">b_name</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">image_format</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)))</span>
 
         <span class="c1"># Generate the name for the image</span>
         <span class="n">image_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">__</span><span class="si">{1}</span><span class="s2">__</span><span class="si">{2}</span><span class="s2">.</span><span class="si">{3}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">replacement_terms</span><span class="p">)</span>
@@ -933,7 +974,7 @@
 <span class="sd">        :type use_image_caption: ``bool``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
-            <span class="n">header</span><span class="p">(</span><span class="s2">&quot;Obtaining Images... &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Obtaining Images... &quot;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">block_decision</span><span class="p">(</span><span class="n">ipt</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Decide whether or not to block the downloading.&quot;&quot;&quot;</span>
@@ -942,7 +983,7 @@
         <span class="n">download_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">image_url</span><span class="p">,</span> <span class="n">image_problems_text</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">harvesting_information</span><span class="p">):</span>
             <span class="c1"># Generate the save path for the image</span>
-            <span class="n">image_save_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_titler</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">image_url</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">)</span>
+            <span class="n">image_save_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title_image</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">image_url</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">)</span>
 
             <span class="c1"># Save the image</span>
             <span class="n">download_count</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_individual_image_harvest</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
@@ -958,19 +999,16 @@
     <span class="k">def</span> <span class="nf">pull_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">records_db</span><span class="p">,</span>
                     <span class="n">image_size</span><span class="p">,</span>
-                    <span class="n">pull_time</span><span class="p">,</span>
                     <span class="n">images_sleep_time</span><span class="p">,</span>
                     <span class="n">use_image_caption</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Pull images based in ``records_db``.</span>
 
-<span class="sd">        :param records_db: yeild of ``_OpeniRecords().records_pull()``</span>
+<span class="sd">        :param records_db: yield of ``_OpeniRecords().records_pull()``</span>
 <span class="sd">        :type records_db: ``Pandas DataFrame``</span>
 <span class="sd">        :param image_size: one of &#39;grid150&#39;, &#39;large&#39;, &#39;thumb&#39; or &#39;thumb_large&#39;.</span>
 <span class="sd">        :type image_size: ``str``</span>
-<span class="sd">        :param pull_time: the time the query was made by ``OpeniInterface.search()``.</span>
-<span class="sd">        :type pull_time: ``datetime``</span>
 <span class="sd">        :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.</span>
 <span class="sd">                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
 <span class="sd">                                   (with mean = 0, sd = 0.75).</span>
@@ -985,11 +1023,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_temp_directory_path</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span> <span class="o">=</span> <span class="n">records_db</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">settings_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="s2">&quot;image_pull_settings.p&quot;</span><span class="p">)</span>
-        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;self&#39;</span><span class="p">},</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
+        <span class="n">settings_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="s2">&quot;image_pull_settings.p&quot;</span><span class="p">)</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;settings_path&#39;</span><span class="p">)},</span>
+                    <span class="nb">open</span><span class="p">(</span><span class="n">settings_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
 
         <span class="c1"># Instantiate `self.real_time_update_db`</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_real_time_update_db</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_time</span><span class="o">=</span><span class="n">pull_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_real_time_update_db</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">image_size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;grid150&#39;</span><span class="p">,</span> <span class="s1">&#39;large&#39;</span><span class="p">,</span> <span class="s1">&#39;thumb&#39;</span><span class="p">,</span> <span class="s1">&#39;thumb_large&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`image_size` must be one of: &#39;grid150&#39;, &#39;large&#39;, &#39;thumb&#39; or &#39;thumb_large&#39;.&quot;</span><span class="p">)</span>
@@ -1059,47 +1098,58 @@
             <span class="n">latent_pickles</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.p&quot;</span><span class="p">)]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">):</span>
                 <span class="n">settings_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
-                <span class="n">settings_dict_for_pull</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">settings_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span> <span class="s1">&#39;pull_time&#39;</span><span class="p">]}</span>
+                <span class="n">settings_dict_for_pull</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">settings_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">]}</span>
 
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Resuming Download...&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">load_records_db</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="o">**</span><span class="n">settings_dict_for_pull</span><span class="p">,</span> <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_openi_cache_records_db_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_records_db</span><span class="p">,</span> <span class="n">records_db_update</span><span class="p">):</span>
+            <span class="c1"># `temp_directory_path` will be destroyed when `pull()` exits successfully</span>
+
+    <span class="k">def</span> <span class="nf">_openi_cache_records_db_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        1. if cache_records_db.p doesn&#39;t exist, simply save ``records_db_update`` to disk.</span>
 <span class="sd">        2. if cache_records_db.p does exist, merge with ``records_db_update`` and then save to disk.</span>
 
-<span class="sd">        :param current_records_db:</span>
-<span class="sd">        :type current_records_db:</span>
-<span class="sd">        :param records_db_update:</span>
-<span class="sd">        :type records_db_update:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">rows_to_conserve_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;download_success&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`current_records_db` and `records_db_update` cannot both be None.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">current_records_db</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">current_records_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">records_db_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">_openi_image_relation_map</span><span class="p">(</span><span class="n">records_db_update</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">openi_duplicates_handler</span><span class="p">(</span><span class="n">data_frame</span><span class="p">):</span>
+            <span class="n">duplicates_subset_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;img_grid150&#39;</span><span class="p">,</span> <span class="s1">&#39;img_large&#39;</span><span class="p">,</span> <span class="s1">&#39;img_thumb&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;img_thumb_large&#39;</span><span class="p">,</span> <span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;download_success&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Note: Typically biovida_version&#39; and &#39;pull_time&#39; will be &#39;in sync&#39;.</span>
+            <span class="c1"># However, if they are not, this function gives preference to &#39;biovida_version&#39;</span>
+            <span class="c1"># s.t. the data harvested with the latest version is given priority.</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">,</span> <span class="s1">&#39;pull_time&#39;</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`current_records_db` and `records_db` cannot both be None.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span>
+                <span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">_openi_image_relation_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span>
+                <span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">duplicates_subset_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;img_grid150&#39;</span><span class="p">,</span> <span class="s1">&#39;img_large&#39;</span><span class="p">,</span> <span class="s1">&#39;img_thumb&#39;</span><span class="p">,</span> <span class="s1">&#39;img_thumb_large&#39;</span><span class="p">,</span>
-                                         <span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;download_success&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_records_db_merge</span><span class="p">(</span><span class="n">interface_name</span><span class="o">=</span><span class="s1">&#39;OpeniInterface&#39;</span><span class="p">,</span>
-                                                      <span class="n">current_records_db</span><span class="o">=</span><span class="n">current_records_db</span><span class="p">,</span>
-                                                      <span class="n">records_db_update</span><span class="o">=</span><span class="n">records_db_update</span><span class="p">,</span>
+                                                      <span class="n">current_records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
+                                                      <span class="n">records_db_update</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span>
                                                       <span class="n">columns_with_dicts</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;parsed_abstract&#39;</span><span class="p">),</span>
-                                                      <span class="n">duplicates_subset_columns</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span>
+                                                      <span class="n">duplicates</span><span class="o">=</span><span class="n">openi_duplicates_handler</span><span class="p">,</span>
                                                       <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="n">rows_to_conserve_func</span><span class="p">,</span>
-                                                      <span class="n">post_concat_func</span><span class="o">=</span><span class="n">image_id_short_gen</span><span class="p">)</span>
+                                                      <span class="n">pre_return_func</span><span class="o">=</span><span class="n">image_id_short_gen</span><span class="p">)</span>
 
         <span class="c1"># Save to disk</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
+
+        <span class="c1"># Destroy the &#39;__temp__&#39; folder</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="o">=</span> <span class="n">cache_path</span>
@@ -1276,13 +1326,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_search_to_harvest</span> <span class="o">=</span> <span class="n">search</span><span class="p">[</span><span class="s1">&#39;current_search_to_harvest&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="OpeniInterface.pull"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.pull">[docs]</a>    <span class="k">def</span> <span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-             <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
              <span class="n">image_size</span><span class="o">=</span><span class="s1">&#39;large&#39;</span><span class="p">,</span>
              <span class="n">records_sleep_time</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
              <span class="n">images_sleep_time</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
              <span class="n">download_limit</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
              <span class="n">clinical_cases_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-             <span class="n">use_image_caption</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+             <span class="n">use_image_caption</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Pull (i.e., download) the current search.</span>
@@ -1311,14 +1361,6 @@
 <span class="sd">            *MedPix* images include a distinct &#39;diagnosis&#39; section. For images from other sources, the ``&#39;diagnosis&#39;``</span>
 <span class="sd">            column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.</span>
 
-<span class="sd">        :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.</span>
-
-<span class="sd">            .. note::</span>
-
-<span class="sd">               Setting ``new_records_pull=False`` can be useful if one wishes to initially set ``image_size=None``,</span>
-<span class="sd">               truncate or otherwise modify ``INSTANCE.records_db`` and then download images.</span>
-
-<span class="sd">        :type new_records_pull: ``bool``</span>
 <span class="sd">        :param image_size: one of: &#39;large&#39;, &#39;grid150&#39;, &#39;thumb&#39;, &#39;thumb_large&#39; or ``None``. Defaults to &#39;large&#39;.</span>
 <span class="sd">                          If ``None``, no attempt will be made to download images.</span>
 
@@ -1353,6 +1395,14 @@
 <span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt a dataset.</span>
 <span class="sd">                                  Defaults to ``False``.</span>
 <span class="sd">        :type use_image_caption: ``bool``</span>
+<span class="sd">        :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.</span>
+
+<span class="sd">            .. note::</span>
+
+<span class="sd">               Setting ``new_records_pull=False`` can be useful if one wishes to initially set ``image_size=None``,</span>
+<span class="sd">               truncate or otherwise modify ``INSTANCE.records_db`` and then download images.</span>
+
+<span class="sd">        :type new_records_pull: ``bool``</span>
 <span class="sd">        :return: a DataFrame with the record information.</span>
 <span class="sd">                 If ``image_size`` is not None, images will also be harvested and cached.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
@@ -1365,6 +1415,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">new_records_pull</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_search_url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`search()` must be called before `pull()`.&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Records</span><span class="o">.</span><span class="n">records_pull</span><span class="p">(</span><span class="n">search_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_search_url</span><span class="p">,</span>
                                                          <span class="n">to_harvest</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_search_to_harvest</span><span class="p">,</span>
                                                          <span class="n">total</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_search_total</span><span class="p">,</span>
@@ -1373,39 +1425,19 @@
                                                          <span class="n">records_sleep_time</span><span class="o">=</span><span class="n">records_sleep_time</span><span class="p">,</span>
                                                          <span class="n">clinical_cases_only</span><span class="o">=</span><span class="n">clinical_cases_only</span><span class="p">,</span>
                                                          <span class="n">download_limit</span><span class="o">=</span><span class="n">download_limit</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`records_db` is not a DataFrame.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">pull_images</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span>
                                                        <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">,</span>
-                                                       <span class="n">pull_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">TIME_FORMAT</span><span class="p">),</span>
                                                        <span class="n">images_sleep_time</span><span class="o">=</span><span class="n">images_sleep_time</span><span class="p">,</span>
                                                        <span class="n">use_image_caption</span><span class="o">=</span><span class="n">use_image_caption</span><span class="p">)</span>
 
             <span class="c1"># Add the new records_db datafame with the existing `cache_records_db`.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_handler</span><span class="p">(</span><span class="n">current_records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
-                                                 <span class="n">records_db_update</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_openi_cache_records_db_handler</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span></div></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </pre></div>
 
     </div>

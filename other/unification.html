@@ -187,7 +187,7 @@
 <h2>Unifying Across Domains<a class="headerlink" href="#unifying-across-domains" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
-<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>db_to_extract='records_db'</em>, <em>cache_path=None</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>db_to_extract='records_db'</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tool to unify image interfaces (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
 with Diagnostic and Genomic Data.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -207,8 +207,6 @@ combination inside an iterable.</li>
 attribute will be extracted regardless of the value passed to this argument.</p>
 </div>
 </li>
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
-Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>fuzzy_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">bool</span></code>, <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>an integer on <code class="docutils literal"><span class="pre">(0,</span> <span class="pre">100]</span></code>. If <code class="docutils literal"><span class="pre">True</span></code> a threshold of <cite>95</cite> will be used. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
 <div class="admonition warning">
@@ -257,6 +255,12 @@ large databases, such as those this function integrates, is very computationally
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The <code class="docutils literal"><span class="pre">'known_associated_genes'</span></code> column is of the form <code class="docutils literal"><span class="pre">((Gene</span> <span class="pre">Name,</span> <span class="pre">DisGeNET</span> <span class="pre">Evidence</span> <span class="pre">Score),</span> <span class="pre">...)</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If an instance of the <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> class is passed, a <code class="docutils literal"><span class="pre">'source_images_path'</span></code>
+column will also be generated if the database extracted from the instance contains 
+a <code class="docutils literal"><span class="pre">'cached_dicom_images_path'</span></code> column.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>

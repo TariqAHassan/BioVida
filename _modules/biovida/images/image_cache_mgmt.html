@@ -186,9 +186,6 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 
-<span class="c1"># General Image Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">ActionVoid</span>
-
 <span class="c1"># General Support Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">multimap</span>
@@ -289,52 +286,6 @@
     <span class="k">return</span> <span class="n">joined_db</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">update_db</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_load_temp_dbs</span><span class="p">(</span><span class="n">temp_db_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">    Load temporary databases in the &#39;databases/__temp__&#39; directory.</span>
-
-<span class="sd">    :param temp_db_path: path to the temporary databases (must be pickled and use the &#39;.p&#39; extension).</span>
-<span class="sd">    :type temp_db_path: ``str``</span>
-<span class="sd">    :return: all of the &#39;.p&#39; dataframes in ``temp_db_path`` merged into a single dataframe.</span>
-<span class="sd">    :rtype: ``Pandas DataFrame`` or ``None``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Get pickled objects in ``temp_db_path``</span>
-    <span class="n">db_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_db_path</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">temp_db_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.p&quot;</span><span class="p">)]</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">db_paths</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="c1"># Set of to group db_paths by</span>
-    <span class="n">unique_pull_times</span> <span class="o">=</span> <span class="p">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">db_paths</span><span class="p">}</span>
-
-    <span class="n">groupings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">pull_time</span> <span class="ow">in</span> <span class="n">unique_pull_times</span><span class="p">:</span>
-        <span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">db_paths</span> <span class="k">if</span> <span class="n">pull_time</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;FileNotFoundError: Either &#39;</span><span class="si">{0}</span><span class="s2">__records_db.p&#39; or &#39;</span><span class="si">{0}</span><span class="s2">__update_db.p&#39;&quot;</span>
-                 <span class="s2">&quot; is missing from</span><span class="se">\n</span><span class="s2"> </span><span class="si">{1}</span><span class="se">\n</span><span class="s2">Deleting the file which is present...</span><span class="se">\n</span><span class="s2">&quot;</span>
-                 <span class="s2">&quot;As a result, images obtained from the last `pull()` will likely be missing&quot;</span>
-                 <span class="s2">&quot; from `cache_records_db`.</span><span class="se">\n</span><span class="s2">For this reason, it is recommended that you</span><span class="se">\n</span><span class="s2">&quot;</span>
-                 <span class="s2">&quot;**precisely** repeat your last `search()` and `pull()`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pull_time</span><span class="p">,</span> <span class="n">temp_db_path</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">groupings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">groupings</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="c1"># Read the dataframes in the &#39;__temp__&#39; directory into memory</span>
-    <span class="n">frames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groupings</span><span class="p">:</span>
-        <span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">group</span> <span class="k">if</span> <span class="s2">&quot;__records_db.p&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">update_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">group</span> <span class="k">if</span> <span class="s2">&quot;__update_db.p&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_record_update_dbs_joiner</span><span class="p">(</span><span class="n">records_db</span><span class="p">,</span> <span class="n">update_db</span><span class="p">))</span>
-
-    <span class="c1"># Concatenate all frames</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-
 <span class="k">def</span> <span class="nf">_relationship_mapper</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">interface_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -362,17 +313,18 @@
                       <span class="n">current_records_db</span><span class="p">,</span>
                       <span class="n">records_db_update</span><span class="p">,</span>
                       <span class="n">columns_with_dicts</span><span class="p">,</span>
-                      <span class="n">duplicates_subset_columns</span><span class="p">,</span>
+                      <span class="n">duplicates</span><span class="p">,</span>
                       <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">post_concat_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">pre_return_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">columns_with_iterables_to_sort</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Merge the existing record database with new additions.</span>
+<span class="sd">    Merge the existing cache record database with new additions.</span>
 
 <span class="sd">    .. warning::</span>
 
-<span class="sd">        Both ``current_records_db`` and ``records_db_update`` are expected to have &#39;pull_time&#39; columns.</span>
+<span class="sd">        Both ``current_records_db`` and ``records_db_update`` are</span>
+<span class="sd">        expected to have &#39;biovida_version&#39; and &#39;pull_time&#39; columns.</span>
 
 <span class="sd">    :param current_records_db: the existing record database.</span>
 <span class="sd">    :type current_records_db: ``Pandas DataFrame``</span>
@@ -380,27 +332,24 @@
 <span class="sd">    :type records_db_update: ``Pandas DataFrame``</span>
 <span class="sd">    :param columns_with_dicts: a list of columns which contain dictionaries. Note: this column *should* contain only</span>
 <span class="sd">                               dictionaries or NaNs.</span>
-<span class="sd">    :type columns_with_dicts: ``list``, ``tuple`` or ``None``.</span>
-<span class="sd">    :param duplicates_subset_columns: a list (or tuple) of columns to consider when dropping duplicates.</span>
-
-<span class="sd">                    .. warning::</span>
-
-<span class="sd">                            Do *not* include the &#39;shared_image_ref&#39; column as this function will recompute it.</span>
-
-<span class="sd">    :type duplicates_subset_columns: ``list`` or ``tuple``</span>
+<span class="sd">    :type columns_with_dicts: ``list``, ``tuple`` or ``None``</span>
+<span class="sd">    :param duplicates: A function to handle dropping duplicates. This function should accept a dataframe</span>
+<span class="sd">                      (and *only* a dataframe) and return a dataframe.</span>
+<span class="sd">    :type duplicates: ``function``</span>
 <span class="sd">    :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,</span>
 <span class="sd">                                  in fact, present in the cache. If not, remove it from the database to be saved.</span>
 <span class="sd">    :type rows_to_conserve_func: ``function``</span>
-<span class="sd">    :param post_concat_func: a function to apply to ``combined_dbs`` after it is generated.</span>
-<span class="sd">                             This function should accept and return a dataframe.</span>
-<span class="sd">    :type post_concat_func: ``function``</span>
+<span class="sd">    :param pre_return_func: a function to apply to the dataframe before it is returned. This function should accept a</span>
+<span class="sd">                            dataframe (and *only* a dataframe) and return a dataframe.</span>
+<span class="sd">    :type pre_return_func: ``None`` or ``function``</span>
 <span class="sd">    :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted</span>
-<span class="sd">                                  prior to dropping. Defaults to ``None``.</span>
+<span class="sd">                                           prior to dropping. Defaults to ``None``.</span>
 <span class="sd">    :type columns_with_iterables_to_sort: ``list`` or ``tuple``</span>
 <span class="sd">    :return: a dataframe which merges ``current_records_db`` and ``records_db_update``</span>
 <span class="sd">    :rtype: ``Pandas DataFrame``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Note: this function does not explicitly handle cases where combined_dbs has length 0, no obvious need to though.</span>
+    <span class="c1"># Note: this function does not explicitly handle cases where</span>
+    <span class="c1">#       combined_dbs has length 0, no obvious need to though.</span>
     <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">current_records_db</span><span class="p">,</span> <span class="n">records_db_update</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Mark each row to conserve order following ``pandas.drop_duplicates()``.</span>
@@ -409,31 +358,20 @@
     <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">):</span>
         <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="p">[</span><span class="n">combined_dbs</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
 
-    <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">post_concat_func</span><span class="p">):</span>
-        <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">post_concat_func</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">)</span>
-
-    <span class="c1"># Note: Typically these will be &#39;in sync&#39;. However, if they are not, preference is given</span>
-    <span class="c1"># to &#39;biovida_version&#39; s.t. the data harvested with the latest version is given preference.</span>
-    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">,</span> <span class="s1">&#39;pull_time&#39;</span><span class="p">])</span>
-
     <span class="c1"># Convert items in ``columns_with_dicts`` from dictionaries to tuple of tuples.</span>
     <span class="c1"># (making them hashable, as required by ``pandas.drop_duplicates()``).</span>
     <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">multimap</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns_with_dicts</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">_dict_to_tot</span><span class="p">)</span>
 
-    <span class="c1"># Sort iterables in columns with iterables</span>
-    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">multimap</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns_with_iterables_to_sort</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">multimap</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns_with_iterables_to_sort</span><span class="p">,</span>
+                            <span class="n">func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
 
-    <span class="c1"># Drop Duplicates (keeping the most recent).</span>
-    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Convert the tuples back to dictionaries</span>
+    <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">duplicates</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">)</span>
     <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">multimap</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns_with_dicts</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-
-    <span class="c1"># Sort against the original order.</span>
     <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">combined_dbs</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;__temp_order__&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Map relationships in the dataframe.</span>
     <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">_relationship_mapper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">combined_dbs</span><span class="p">,</span> <span class="n">interface_name</span><span class="o">=</span><span class="n">interface_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">pre_return_func</span><span class="p">):</span>
+        <span class="n">combined_dbs</span> <span class="o">=</span> <span class="n">pre_return_func</span><span class="p">(</span><span class="n">combined_dbs</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">combined_dbs</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;__temp_order__&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -581,7 +519,7 @@
     <span class="n">response</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;This action cannot be undone.</span><span class="se">\n</span><span class="s2">&quot;</span>
                      <span class="s2">&quot;Do you wish to continue (y/n)?&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cln</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;ye&#39;</span><span class="p">,</span> <span class="s1">&#39;es&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">ActionVoid</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Action Canceled.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Action Canceled. &#39;y&#39; must be entered to proceed.&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_pretty_print_image_delete</span><span class="p">(</span><span class="n">deleted_rows</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>

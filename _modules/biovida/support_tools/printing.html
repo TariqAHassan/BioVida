@@ -497,6 +497,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Source: https://github.com/TariqAHassan/EasyMoney</span>
 
+    <span class="c1"># ToDO: if col_align != &#39;right&#39; and `full_rows=False`,</span>
+    <span class="c1"># only the first 30 and last 30 rows need to be adjusted.</span>
+
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;DataFrame&#39;</span><span class="p">,</span> <span class="s1">&#39;Series&#39;</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`data` cannot be of type &#39;</span><span class="si">{0}</span><span class="s2">&#39;; &quot;</span>
                         <span class="s2">&quot;must be of type &#39;DataFrame&#39; or &#39;Series&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>

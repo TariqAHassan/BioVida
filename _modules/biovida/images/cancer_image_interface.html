@@ -180,6 +180,7 @@
 <span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">dicom</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
 <span class="kn">import</span> <span class="nn">requests</span>
@@ -194,11 +195,9 @@
 <span class="kn">from</span> <span class="nn">biovida</span> <span class="k">import</span> <span class="n">__version_numeric__</span>
 
 <span class="c1"># General Image Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">TIME_FORMAT</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">NoResultsFound</span>
 
 <span class="c1"># Database Management</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_load_temp_dbs</span>
 <span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_records_db_merge</span>
 <span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_record_update_dbs_joiner</span>
 <span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_prune_rows_with_deleted_images</span>
@@ -702,49 +701,23 @@
         <span class="c1"># Add Record DataFrame; this database updates in real-time as the images are downloaded.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db_path</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Define the path to the temporary directory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span> <span class="s2">&quot;__temp__&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_create_temp_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Create the temporary folder for ``real_time_update_db``.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_instantiate_real_time_update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_index</span><span class="p">,</span> <span class="n">pull_time</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_instantiate_real_time_update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Create the ``real_time_update_db`` and define the path to the location where it will be saved.</span>
 
 <span class="sd">        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``records_db``).</span>
 <span class="sd">        :type db_index: ``Pandas Series``</span>
-<span class="sd">        :param pull_time: see ``pull_images()``</span>
-<span class="sd">        :type pull_time: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Define the path to save `self.real_time_update_db` to.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">__update_db.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pull_time</span><span class="p">))</span>
-
-        <span class="c1"># Define columns</span>
         <span class="n">real_time_update_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;error_free_conversion&#39;</span><span class="p">,</span>
                                     <span class="s1">&#39;allowed_modality&#39;</span><span class="p">,</span> <span class="s1">&#39;image_count_converted_cache&#39;</span><span class="p">]</span>
 
-        <span class="c1"># Instantiate</span>
-        <span class="n">db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">real_time_update_columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">db_index</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="n">db</span>
-
-    <span class="k">def</span> <span class="nf">_save_real_time_update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Save the ``real_time_update_db`` to disk.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Save the `real_time_update_db` to disk.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">real_time_update_columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">db_index</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
 
     <span class="k">def</span> <span class="nf">_download_zip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_uid</span><span class="p">,</span> <span class="n">temporary_folder</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -773,7 +746,7 @@
         <span class="c1"># Generate the list of paths to the dicoms</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">file_path_full</span><span class="p">,</span> <span class="n">z</span><span class="o">.</span><span class="n">filelist</span><span class="p">)))</span>
 
-    <span class="k">def</span> <span class="nf">_dicom_to_standard_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pull_position</span><span class="p">,</span> <span class="n">series_uid</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">new_file_name</span><span class="p">,</span> <span class="n">image_format</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_dicom_to_standard_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pull_position</span><span class="p">,</span> <span class="n">series_uid</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">new_file_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        This method handles the act of saving dicom images as in a more common file format (e.g., .png).</span>
@@ -795,8 +768,6 @@
 <span class="sd">        :type conversion: ``str``</span>
 <span class="sd">        :param new_file_name: see ``_save_dicom_as_image``&#39;s ``save_name`` parameter.</span>
 <span class="sd">        :type new_file_name: ``str``</span>
-<span class="sd">        :param image_format: see: ``pull_images()``.</span>
-<span class="sd">        :type image_format: ``str``</span>
 <span class="sd">        :return: tuple of the form: ``(a list of paths to saved images, boolean denoting success)``</span>
 <span class="sd">        :rtype: ``tuple``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -817,11 +788,11 @@
             <span class="sd">&quot;&quot;&quot;Define the path to save the image to.&quot;&quot;&quot;</span>
             <span class="n">head</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">pull_position</span><span class="p">)</span>
             <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">__</span><span class="si">{1}</span><span class="s2">__default.</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">head</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">new_file_name</span><span class="p">),</span> <span class="n">image_format</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                <span class="n">head</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">new_file_name</span><span class="p">),</span> <span class="s2">&quot;png&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_location</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">pixel_arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="c1"># Define save name by combining the images instance in the set, `new_file_name` and `image_format`.</span>
+            <span class="c1"># Define save name by combining the images instance in the set.</span>
             <span class="n">instance</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">InstanceNumber</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">InstanceNumber</span><span class="p">)))</span> <span class="k">else</span> <span class="s1">&#39;0&#39;</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">save_path</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
             <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">pixel_arr</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">conversion</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -878,9 +849,8 @@
                              <span class="n">index</span><span class="p">,</span>
                              <span class="n">pull_position</span><span class="p">,</span>
                              <span class="n">series_uid</span><span class="p">,</span>
-                             <span class="n">save_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                             <span class="n">color</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                             <span class="n">image_format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">):</span>
+                             <span class="n">save_name</span><span class="p">,</span>
+                             <span class="n">color</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Save a dicom image as a more common file format.</span>
@@ -894,14 +864,13 @@
 <span class="sd">        :param index: the row index currently being processed inside of the main loop in ``_pull_images_engine()``.</span>
 <span class="sd">        :type index: ``int``</span>
 <span class="sd">        :param save_name: name of the new file (do *NOT* include a file extension).</span>
-<span class="sd">                          To specify a file format, use ``image_format``.</span>
 <span class="sd">                          If ``None``, name from ``path_to_dicom_file`` will be conserved.</span>
 <span class="sd">        :type save_name: ``str``</span>
 <span class="sd">        :param color: If ``True``, convert the image to RGB before saving. If ``False``, save as a grayscale image.</span>
 <span class="sd">                      Defaults to ``False``</span>
 <span class="sd">        :type color: ``bool``</span>
-<span class="sd">        :param image_format: see: ``pull_images()``.</span>
-<span class="sd">        :type image_format: ``str``</span>
+<span class="sd">        :param save_png: see: ``pull_images()``.</span>
+<span class="sd">        :type save_png: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Load the DICOM file into RAM</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">dicom</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">path_to_dicom_file</span><span class="p">)</span>
@@ -916,9 +885,9 @@
             <span class="n">new_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path_to_dicom_file</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="c1"># Convert the image into a PIL object and save to disk.</span>
-        <span class="n">all_save_paths</span><span class="p">,</span> <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dicom_to_standard_image</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">pull_position</span><span class="o">=</span><span class="n">pull_position</span><span class="p">,</span> <span class="n">series_uid</span><span class="o">=</span><span class="n">series_uid</span><span class="p">,</span>
-                                                                <span class="n">conversion</span><span class="o">=</span><span class="n">conversion</span><span class="p">,</span> <span class="n">new_file_name</span><span class="o">=</span><span class="n">new_file_name</span><span class="p">,</span>
-                                                                <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">)</span>
+        <span class="n">all_save_paths</span><span class="p">,</span> <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dicom_to_standard_image</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">pull_position</span><span class="o">=</span><span class="n">pull_position</span><span class="p">,</span>
+                                                                <span class="n">series_uid</span><span class="o">=</span><span class="n">series_uid</span><span class="p">,</span> <span class="n">conversion</span><span class="o">=</span><span class="n">conversion</span><span class="p">,</span>
+                                                                <span class="n">new_file_name</span><span class="o">=</span><span class="n">new_file_name</span><span class="p">)</span>
 
         <span class="c1"># Update Record</span>
         <span class="n">cfp_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_and_set_list</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="n">all_save_paths</span><span class="p">,</span> <span class="n">return_replacement_len</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -928,17 +897,12 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;error_free_conversion&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># Block False being replaced.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;error_free_conversion&#39;</span><span class="p">,</span> <span class="n">success</span><span class="p">)</span>
 
-        <span class="c1"># Save the data frame</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_real_time_update_db</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_move_dicoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dicoms</span><span class="p">,</span> <span class="n">dicom_files</span><span class="p">,</span> <span class="n">series_abbrev</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_move_dicoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dicom_files</span><span class="p">,</span> <span class="n">series_abbrev</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Move the dicom source files to ``self._created_image_dirs[&#39;dicoms&#39;]``.</span>
 <span class="sd">        Employ to prevent the raw dicom files from being destroyed.</span>
 
-<span class="sd">        :param save_dicoms: see: ``pull_images()``</span>
-<span class="sd">        :type save_dicoms: ``bool``</span>
 <span class="sd">        :param dicom_files: the yield of ``_download_zip()``</span>
 <span class="sd">        :type dicom_files: ``list``</span>
 <span class="sd">        :param series_abbrev: as evolved inside ``_pull_images_engine()``.</span>
@@ -946,32 +910,22 @@
 <span class="sd">        :param index: the row index currently being processed inside of the main loop in ``_pull_images_engine()``.</span>
 <span class="sd">        :type index: ``int``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">save_dicoms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_save_real_time_update_db</span><span class="p">()</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-        <span class="n">new_dircom_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dicom_files</span><span class="p">:</span>
+        <span class="n">new_dicom_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">dicom_files</span><span class="p">:</span>
             <span class="c1"># Define a name for the new file by extracting the dicom file name and combining with `series_abbrev`.</span>
-            <span class="n">f_parsed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)))</span>
-            <span class="n">new_dicom_file_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">__</span><span class="si">{1}{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f_parsed</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">series_abbrev</span><span class="p">,</span> <span class="n">f_parsed</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">file_parsed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">)))</span>
+            <span class="n">new_dicom_file_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">__</span><span class="si">{1}{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_parsed</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">series_abbrev</span><span class="p">,</span> <span class="n">file_parsed</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-            <span class="c1"># Define the location of the new files</span>
             <span class="n">new_location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;dicoms&#39;</span><span class="p">],</span> <span class="n">new_dicom_file_name</span><span class="p">)</span>
-            <span class="n">new_dircom_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_location</span><span class="p">)</span>
+            <span class="n">new_dicom_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_location</span><span class="p">)</span>
 
-            <span class="c1"># Move the dicom file from &#39;__temp__&#39; --&gt; to --&gt; new location</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">new_location</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">new_location</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">new_location</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">new_location</span><span class="p">)</span>
 
-        <span class="c1"># Update the save dataframe</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_dircom_paths</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_dicom_paths</span><span class="p">))</span>
 
-        <span class="c1"># Save the data frame.  Note: if python crashes or the session ends before the above loop completes,</span>
-        <span class="c1"># information on the partial transfer will be lost.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_real_time_update_db</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_cache_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_cache_first</span><span class="p">,</span> <span class="n">series_abbrev</span><span class="p">,</span> <span class="n">n_images_min</span><span class="p">,</span> <span class="n">save_dicoms</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_cache_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_abbrev</span><span class="p">,</span> <span class="n">n_images_min</span><span class="p">,</span> <span class="n">save_png</span><span class="p">,</span> <span class="n">save_dicom</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Check that caches likely contain that data which would be obtained by downloading it from the database.</span>
@@ -985,6 +939,10 @@
 <span class="sd">                              converted images could be larger (i.e., 3D images which can unpack to be many more),</span>
 <span class="sd">                              but it is not possible to known this without actually downloading and unpacking these</span>
 <span class="sd">                              images.</span>
+<span class="sd">        :param save_png: ``True`` signals the user&#39;s intention to convert DICOMs to PNG.</span>
+<span class="sd">        :type save_png: ``bool``</span>
+<span class="sd">        :param save_dicom: see: ``pull_images()``.</span>
+<span class="sd">        :type save_dicom: ``bool``</span>
 <span class="sd">        :type n_images_min: ``int``</span>
 <span class="sd">        :return: tuple of the form:</span>
 
@@ -994,37 +952,46 @@
 
 <span class="sd">        :rtype: ``tuple``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Instruct ``_pull_images_engine()`` to download the images without checking the cache first.</span>
-        <span class="k">if</span> <span class="n">check_cache_first</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
         <span class="c1"># Check that `self._created_image_dirs[&#39;raw&#39;]` has files which contain the string `series_abbrev`.</span>
-        <span class="n">save_location_summary</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">],</span> <span class="n">f</span><span class="p">)</span>
-                                        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="n">series_abbrev</span> <span class="ow">in</span> <span class="n">f</span><span class="p">])</span>
+        <span class="n">converted_loc_summary</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">],</span> <span class="n">f</span><span class="p">)</span>
+                                              <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">])</span>
+                                              <span class="k">if</span> <span class="n">series_abbrev</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]))</span>
 
         <span class="c1"># Check that `self._created_image_dirs[&#39;dicoms&#39;])` has files which contain the string `series_abbrev`.</span>
         <span class="n">dicoms_sl_summary</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;dicoms&#39;</span><span class="p">],</span> <span class="n">f</span><span class="p">)</span>
-                                          <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;dicoms&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="n">series_abbrev</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]))</span>
+                                          <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;dicoms&#39;</span><span class="p">])</span>
+                                          <span class="k">if</span> <span class="n">series_abbrev</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]))</span>
 
-        <span class="c1"># Base determination of whether or not the cache is complete w.r.t. dicoms on `save_dicoms`.</span>
-        <span class="n">dicoms_sl_summary_complete</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicoms_sl_summary</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_images_min</span> <span class="k">if</span> <span class="n">save_dicoms</span> <span class="k">else</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">save_png</span><span class="p">:</span>
+            <span class="n">converted_loc_summary_complete</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">converted_loc_summary</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_images_min</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">converted_loc_summary_complete</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># i.e., the actual answer is irrelevant</span>
 
-        <span class="n">cache_complete</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_location_summary</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_images_min</span> <span class="ow">and</span> <span class="n">dicoms_sl_summary_complete</span>
+        <span class="k">if</span> <span class="n">save_dicom</span><span class="p">:</span>
+            <span class="n">dicoms_sl_summary_complete</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicoms_sl_summary</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_images_min</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dicoms_sl_summary_complete</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># i.e., the actual answer is irrelevant</span>
 
-        <span class="k">return</span> <span class="n">cache_complete</span><span class="p">,</span> <span class="n">save_location_summary</span><span class="p">,</span> <span class="n">dicoms_sl_summary</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicoms_sl_summary</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="n">cache_complete</span> <span class="o">=</span> <span class="n">converted_loc_summary_complete</span> <span class="ow">and</span> <span class="n">dicoms_sl_summary_complete</span>
 
-    <span class="k">def</span> <span class="nf">_create_temp_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_folder_name</span><span class="o">=</span><span class="s1">&#39;__temp__&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">cache_complete</span><span class="p">,</span>
+                <span class="n">converted_loc_summary</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">converted_loc_summary</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">dicoms_sl_summary</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicoms_sl_summary</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_temp_dicom_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Create a temporary directory.</span>
+<span class="sd">        Create a temporary directory for DICOM files immediately following download from</span>
+<span class="sd">        The Cancer Imaging Archive.</span>
 
-<span class="sd">        :param temp_folder_name: name for the temporary directory to be created.</span>
-<span class="sd">        :type temp_folder_name: ``str``</span>
 <span class="sd">        :return: the full path to the newly created temporary directory.</span>
 <span class="sd">        :rtype: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">temp_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;dicoms&#39;</span><span class="p">],</span> <span class="n">temp_folder_name</span><span class="p">)</span>
+        <span class="n">temp_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;dicoms&#39;</span><span class="p">],</span> <span class="s1">&#39;__temp_dicom__&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">temp_folder</span><span class="p">):</span>
+            <span class="c1"># To prevent duplicate images being created,</span>
+            <span class="c1"># destroy this directory if it already exists.</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_folder</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">temp_folder</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">temp_folder</span>
@@ -1061,94 +1028,76 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_pull_images_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dicoms</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">image_format</span><span class="p">,</span> <span class="n">check_cache_first</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_pull_images_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">save_png</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Tool to coordinate the above machinery for pulling and downloading images (or locating them in the cache).</span>
 
-<span class="sd">        :param save_dicoms: see: ``pull_images()``.</span>
-<span class="sd">        :type save_dicoms: ``bool``</span>
-<span class="sd">        :param image_format: see: ``pull_images()``</span>
-<span class="sd">        :param image_format: ``str``</span>
+<span class="sd">        :param save_dicom: see: ``pull_images()``.</span>
+<span class="sd">        :type save_dicom: ``bool``</span>
+<span class="sd">        :param save_png: see: ``pull_images()``</span>
+<span class="sd">        :param save_png: ``bool``</span>
 <span class="sd">        :param allowed_modalities: see: ``pull_images()``</span>
 <span class="sd">        :type allowed_modalities: ``list``, ``tuple`` or ``None``.</span>
-<span class="sd">        :param check_cache_first: see: ``pull_images()``</span>
-<span class="sd">        :param check_cache_first: ``bool``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;series_instance_uid&#39;</span><span class="p">,</span> <span class="s1">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s1">&#39;image_count&#39;</span><span class="p">,</span> <span class="s1">&#39;modality&#39;</span><span class="p">,</span> <span class="s1">&#39;modality_full&#39;</span><span class="p">)</span>
-        <span class="n">zipped_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">)]))</span>
-
-        <span class="k">for</span> <span class="n">series_uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">image_count</span><span class="p">,</span> <span class="n">modality</span><span class="p">,</span> <span class="n">modality_full</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">zipped_cols</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">)):</span>
             <span class="c1"># Check if the image should be harvested (or loaded from the cache).</span>
-            <span class="n">valid_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_modality</span><span class="p">(</span><span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">modality</span><span class="p">,</span> <span class="n">modality_full</span><span class="p">)</span>
+            <span class="n">valid_image_modality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_modality</span><span class="p">(</span><span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;modality&#39;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;modality_full&#39;</span><span class="p">])</span>
 
             <span class="c1"># Add whether or not the image was of the modality (or modalities) requested by the user.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;allowed_modality&#39;</span><span class="p">,</span> <span class="n">valid_image</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;allowed_modality&#39;</span><span class="p">,</span> <span class="n">valid_image_modality</span><span class="p">)</span>
 
             <span class="c1"># Compose central part of the file name from &#39;patient_id&#39; and the last ten digits of &#39;series_instance_uid&#39;</span>
-            <span class="n">series_abbrev</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">patient_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">series_uid</span><span class="p">)[</span><span class="o">-</span><span class="mi">10</span><span class="p">:])</span>
+            <span class="n">series_abbrev</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;patient_id&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;series_instance_uid&#39;</span><span class="p">])[</span><span class="o">-</span><span class="mi">10</span><span class="p">:])</span>
 
             <span class="c1"># Analyze the cache to determine whether or not downloading the images is needed</span>
-            <span class="n">cache_complete</span><span class="p">,</span> <span class="n">sl_summary</span><span class="p">,</span> <span class="n">dsl_summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_check</span><span class="p">(</span><span class="n">check_cache_first</span><span class="o">=</span><span class="n">check_cache_first</span><span class="p">,</span>
-                                                                        <span class="n">series_abbrev</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">,</span>
-                                                                        <span class="n">n_images_min</span><span class="o">=</span><span class="n">image_count</span><span class="p">,</span>
-                                                                        <span class="n">save_dicoms</span><span class="o">=</span><span class="n">save_dicoms</span><span class="p">)</span>
+            <span class="n">cache_complete</span><span class="p">,</span> <span class="n">sl_summary</span><span class="p">,</span> <span class="n">dsl_summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_check</span><span class="p">(</span><span class="n">series_abbrev</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">,</span>
+                                                                        <span class="n">n_images_min</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_count&#39;</span><span class="p">],</span>
+                                                                        <span class="n">save_png</span><span class="o">=</span><span class="n">save_png</span><span class="p">,</span>
+                                                                        <span class="n">save_dicom</span><span class="o">=</span><span class="n">save_dicom</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">valid_image</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cache_complete</span><span class="p">:</span>
-                <span class="n">temporary_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_temp_dir</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">valid_image_modality</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cache_complete</span><span class="p">:</span>
+                <span class="n">temporary_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_temp_dicom_dir</span><span class="p">()</span>
 
                 <span class="c1"># Download the images into a temporary folder.</span>
-                <span class="n">dicom_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_zip</span><span class="p">(</span><span class="n">series_uid</span><span class="p">,</span> <span class="n">temporary_folder</span><span class="o">=</span><span class="n">temporary_folder</span><span class="p">)</span>
+                <span class="n">dicom_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_zip</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;series_instance_uid&#39;</span><span class="p">],</span> <span class="n">temporary_folder</span><span class="o">=</span><span class="n">temporary_folder</span><span class="p">)</span>
 
-                <span class="c1"># Convert dicom files to `image_format`</span>
-                <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_save_dicom_as_image</span><span class="p">(</span><span class="n">path_to_dicom_file</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_position</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
-                                              <span class="n">series_uid</span><span class="o">=</span><span class="n">series_uid</span><span class="p">,</span><span class="n">save_name</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">,</span> <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">save_png</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_save_dicom_as_image</span><span class="p">(</span><span class="n">path_to_dicom_file</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_position</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
+                                                  <span class="n">series_uid</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;series_instance_uid&#39;</span><span class="p">],</span>
+                                                  <span class="n">save_name</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">)</span>
 
-                <span class="c1"># Save raw dicom files, if `save_dicoms` is True.</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_move_dicoms</span><span class="p">(</span><span class="n">save_dicoms</span><span class="p">,</span> <span class="n">dicom_files</span><span class="p">,</span> <span class="n">series_abbrev</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">save_dicom</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_move_dicoms</span><span class="p">(</span><span class="n">dicom_files</span><span class="o">=</span><span class="n">dicom_files</span><span class="p">,</span> <span class="n">series_abbrev</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
 
-                <span class="c1"># Delete the temporary folder.</span>
                 <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temporary_folder</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_and_set_list</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">,</span> <span class="n">dsl_summary</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_and_set_list</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="n">sl_summary</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;error_free_conversion&#39;</span><span class="p">,</span> <span class="n">cache_complete</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;image_count_converted_cache&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sl_summary</span><span class="p">))</span>
-                <span class="c1"># Save the data frame</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_save_real_time_update_db</span><span class="p">()</span>
+                <span class="n">converted_image_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sl_summary</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sl_summary</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;image_count_converted_cache&#39;</span><span class="p">,</span> <span class="n">converted_image_count</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">pull_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                    <span class="n">records_db</span><span class="p">,</span>
-                    <span class="n">pull_time</span><span class="p">,</span>
-                    <span class="n">session_limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                    <span class="n">image_format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span>
-                    <span class="n">save_dicoms</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">allowed_modalities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">check_cache_first</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">pull_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_db</span><span class="p">,</span> <span class="n">session_limit</span><span class="p">,</span> <span class="n">save_png</span><span class="p">,</span> <span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Pull Images from the Cancer Imaging Archive.</span>
 
 <span class="sd">        :param records_db: the yield from ``_CancerImageArchiveRecords().records_pull()``.</span>
 <span class="sd">        :type records_db: ``Pandas DataFrame``</span>
-<span class="sd">        :param pull_time: the time the pull for images was initiated (standard format: &quot;%Y_%h_%d__%H_%M_%S_%f&quot;).</span>
-<span class="sd">        :type pull_time: ``str``</span>
 <span class="sd">        :param session_limit: restrict image harvesting to the first ``n`` sessions, where ``n`` is the value passed</span>
-<span class="sd">                              to this parameter. If ``None``, no limit will be imposed. Defaults to `1`.</span>
+<span class="sd">                              to this parameter. If ``None``, no limit will be imposed.</span>
 <span class="sd">        :type session_limit: ``int``</span>
-<span class="sd">        :param image_format: format for the image, e.g., &#39;png&#39;, &#39;jpg&#39;, etc. Defaults to &#39;png&#39;.</span>
-<span class="sd">        :type image_format: ``str``</span>
-<span class="sd">        :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.</span>
-<span class="sd">        :type save_dicoms: ``bool``</span>
+<span class="sd">        :param save_png: see ``CancerImageArchive().pull()``.</span>
+<span class="sd">        :type save_png: ``bool``</span>
+<span class="sd">        :param save_dicom: if ``True``, save the raw dicom files.</span>
+<span class="sd">        :type save_dicom: ``bool``</span>
 <span class="sd">        :param allowed_modalities: limit images downloaded to certain modalities.</span>
 <span class="sd">                                   See: CancerImageInterface().dicom_modality_abbrevs (use the keys).</span>
 <span class="sd">                                   Note: &#39;MRI&#39;, &#39;PET&#39;, &#39;CT&#39; and &#39;X-Ray&#39; can also be used.</span>
-<span class="sd">                                   This parameter is not case sensitive. Defaults to ``None``.</span>
-<span class="sd">        :type allowed_modalities: ``list``, ``tuple`` or ``None``.</span>
-<span class="sd">        :param check_cache_first: check the image cache for the image prior to downloading.</span>
-<span class="sd">                                  If the image is already present, no attempt will be made to download it again.</span>
-<span class="sd">        :type check_cache_first: ``bool``</span>
+<span class="sd">                                   This parameter is not case sensitive.</span>
+<span class="sd">        :type allowed_modalities: ``list``, ``tuple`` or ``None``</span>
 <span class="sd">        :return: a dataframe with information about the images cached by this method.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1157,8 +1106,13 @@
         <span class="c1"># 2. values may be discrepant with the &#39;image_count&#39; column because 3D images are expanded</span>
         <span class="c1">#    into their individual frames when saved to the converted images cache.</span>
 
-        <span class="c1"># Create the __temp__ folder if it does not already exist.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_create_temp_directory</span><span class="p">()</span>
+        <span class="c1"># Create the __temp__ folder for `image_pull_settings.p` if it does not already exist.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">)</span>
+
+        <span class="n">settings_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="s2">&quot;image_pull_settings.p&quot;</span><span class="p">)</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;settings_path&#39;</span><span class="p">)},</span>
+                    <span class="nb">open</span><span class="p">(</span><span class="n">settings_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
 
         <span class="c1"># Apply limit on number of sessions, if any</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session_limit</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
@@ -1169,14 +1123,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span> <span class="o">=</span> <span class="n">records_db</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># Save `records_db_images` to the __temp__ folder</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">__records_db.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pull_time</span><span class="p">)))</span>
-
         <span class="c1"># Instantiate `self.real_time_update_db`</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_real_time_update_db</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_time</span><span class="o">=</span><span class="n">pull_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_real_time_update_db</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
         <span class="c1"># Harvest images</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_images_engine</span><span class="p">(</span><span class="n">save_dicoms</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">image_format</span><span class="p">,</span> <span class="n">check_cache_first</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_images_engine</span><span class="p">(</span><span class="n">save_dicom</span><span class="o">=</span><span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="o">=</span><span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">save_png</span><span class="o">=</span><span class="n">save_png</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="kc">None</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">})</span>
 
         <span class="k">return</span> <span class="n">_record_update_dbs_joiner</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">,</span> <span class="n">update_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="p">)</span>
@@ -1239,49 +1190,72 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">):</span>
-                <span class="n">latent_temps</span> <span class="o">=</span> <span class="n">_load_temp_dbs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">latent_temps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_gen</span><span class="p">(</span><span class="n">tcia_cache_records_db_update</span><span class="o">=</span><span class="n">latent_temps</span><span class="p">)</span>
-                <span class="c1"># Delete the latent &#39;__temp__&#39; folder</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">temp_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span>
+            <span class="n">latent_pickles</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.p&quot;</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">):</span>
+                <span class="n">settings_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+                <span class="n">settings_dict_for_pull</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">settings_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">]}</span>
 
-    <span class="k">def</span> <span class="nf">_tcia_cache_records_db_gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tcia_cache_records_db_update</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Resuming Download...&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_records_db</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="o">**</span><span class="n">settings_dict_for_pull</span><span class="p">,</span> <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_tcia_cache_records_db_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Generate the `cache_records_db` database.</span>
-<span class="sd">        If it does not exist, use `cache_records_db`.</span>
-<span class="sd">        If if already exists, merge it with `tcia_cache_records_db_update`.</span>
+<span class="sd">        If it does not exist, use `records_db`.</span>
+<span class="sd">        If if already exists, merge it with `records_db_update`.</span>
 
-<span class="sd">        :param tcia_cache_records_db_update: the new search dataframe to added to the existing one.</span>
-<span class="sd">        :type tcia_cache_records_db_update: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;allowed_modality&#39;</span><span class="p">]</span>
+
         <span class="k">def</span> <span class="nf">rows_to_conserve_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Mark to conserve the row in the cache if the conversion was sucessful or dicoms were saved.&quot;&quot;&quot;</span>
-            <span class="n">iccc</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_count_converted_cache&#39;</span><span class="p">]</span>
+            <span class="sd">&quot;&quot;&quot;Mark to conserve the row in the cache if the conversion was successful or DICOMs were saved.&quot;&quot;&quot;</span>
+            <span class="n">iccc</span><span class="p">,</span> <span class="n">cdip</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;image_count_converted_cache&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">]</span>
             <span class="n">any_conversion_success</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iccc</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="n">iccc</span> <span class="o">&gt;</span> <span class="mi">0</span>
-            <span class="n">raw_dicoms</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">])</span>
+            <span class="n">raw_dicoms</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cdip</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cdip</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>  <span class="c1"># &gt; 0 needed b/c `True and 37 == 37`.</span>
             <span class="k">return</span> <span class="n">any_conversion_success</span> <span class="ow">or</span> <span class="n">raw_dicoms</span>
+
+        <span class="k">def</span> <span class="nf">tcia_duplicates_handler</span><span class="p">(</span><span class="n">data_frame</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot; Drop duplicate rows s.t. rows which reference </span>
+<span class="sd">            the most number of images are prefered.&quot;&quot;&quot;</span>
+            <span class="c1"># Cache_score is more important than keeping the most recent pull.</span>
+            <span class="n">sortby</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">,</span> <span class="s1">&#39;__image_cache_score__&#39;</span><span class="p">,</span> <span class="s1">&#39;pull_time&#39;</span><span class="p">]</span>
+            <span class="n">duplicates</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;series_instance_uid&#39;</span><span class="p">,</span> <span class="s1">&#39;study_instance_uid&#39;</span><span class="p">,</span> <span class="s1">&#39;query&#39;</span><span class="p">]</span>
+
+            <span class="k">def</span> <span class="nf">image_cache_score</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+                <span class="k">def</span> <span class="nf">images_len</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="k">return</span> <span class="n">images_len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">images_len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">])</span>
+
+            <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;__image_cache_score__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">image_cache_score</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">sortby</span><span class="p">)</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">duplicates</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;__image_cache_score__&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Compose or update the master &#39;cache_records_db&#39; dataframe</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">tcia_cache_records_db_update</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">cache_records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">cache_records_db</span><span class="p">[</span>
-                <span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">cache_records_db</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rows_to_conserve_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">duplicates_subset_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39;pull_time&#39;</span><span class="p">]</span>
             <span class="n">columns_with_iterables_to_sort</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span> <span class="o">=</span> <span class="n">_records_db_merge</span><span class="p">(</span><span class="n">interface_name</span><span class="o">=</span><span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">,</span>
                                                       <span class="n">current_records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span>
-                                                      <span class="n">records_db_update</span><span class="o">=</span><span class="n">tcia_cache_records_db_update</span><span class="p">,</span>
+                                                      <span class="n">records_db_update</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                                                       <span class="n">columns_with_dicts</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,),</span>
-                                                      <span class="n">duplicates_subset_columns</span><span class="o">=</span><span class="n">duplicates_subset_columns</span><span class="p">,</span>
+                                                      <span class="n">duplicates</span><span class="o">=</span><span class="n">tcia_duplicates_handler</span><span class="p">,</span>
                                                       <span class="n">rows_to_conserve_func</span><span class="o">=</span><span class="n">rows_to_conserve_func</span><span class="p">,</span>
                                                       <span class="n">columns_with_iterables_to_sort</span><span class="o">=</span><span class="n">columns_with_iterables_to_sort</span><span class="p">)</span>
 
             <span class="c1"># Save to disk</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_cache_records_db</span><span class="p">()</span>
+
+        <span class="c1"># Delete the &#39;__temp__&#39; folder</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_API_KEY</span> <span class="o">=</span> <span class="n">api_key</span>
@@ -1317,6 +1291,7 @@
 
         <span class="c1"># Databases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pull_success</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Path to the `cache_records_db`</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_records_db_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
@@ -1341,20 +1316,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">save_records_db</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CancerImageInterface.load_records_db"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db">[docs]</a>    <span class="k">def</span> <span class="nf">load_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="CancerImageInterface.load_records_db"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.cancer_image_interface.CancerImageInterface.load_records_db">[docs]</a>    <span class="k">def</span> <span class="nf">load_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_db</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Load a ``records_db``.</span>
+<span class="sd">        Load a ``records_db``</span>
 
-<span class="sd">        :param path: a system path.</span>
-<span class="sd">        :type path: ``str``</span>
+<span class="sd">        :param records_db: a system path or ``records_db`` itself.</span>
+<span class="sd">        :type records_db: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">records_db</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">last_query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">last_query</span><span class="p">[</span><span class="s1">&#39;print_results&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">last_query</span><span class="p">[</span><span class="s1">&#39;download_override&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">**</span><span class="n">last_query</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">**</span><span class="n">last_query</span><span class="p">,</span> <span class="n">download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1535,24 +1511,40 @@
 
         <span class="k">return</span> <span class="n">record_frames</span><span class="p">,</span> <span class="n">pull_success</span>
 
-    <span class="k">def</span> <span class="nf">_tcia_cache_records_db_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_records_db_gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patient_limit</span><span class="p">,</span> <span class="n">collections_limit</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        If ``cache_records_db`` does not exists on disk, create it using ``tcia_cache_records_db_update``</span>
-<span class="sd">        (evolved inside this function). If it already exists, merge it with ``tcia_cache_records_db_update``.</span>
-
+<span class="sd">        </span>
+<span class="sd">        Generate ``records_db`` by refining the output of ``_pull_records()``.</span>
+<span class="sd">        </span>
+<span class="sd">        :param patient_limit: see ``pull()``.</span>
+<span class="sd">        :type patient_limit: ``int`` or ``None``</span>
+<span class="sd">        :param collections_limit: see ``pull()``.</span>
+<span class="sd">        :type collections_limit: ``int`` or ``None``</span>
+<span class="sd">        :return: </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Generate the `cache_records_db`.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_gen</span><span class="p">(</span><span class="n">tcia_cache_records_db_update</span><span class="o">=</span><span class="n">_load_temp_dbs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">))</span>
+        <span class="n">record_frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pull_success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pull_records</span><span class="p">(</span><span class="n">patient_limit</span><span class="o">=</span><span class="n">patient_limit</span><span class="p">,</span>
+                                                              <span class="n">collections_limit</span><span class="o">=</span><span class="n">collections_limit</span><span class="p">)</span>
 
-        <span class="c1"># Delete the &#39;__temp__&#39; folder</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Check for failures</span>
+        <span class="n">download_failures</span> <span class="o">=</span> <span class="p">[</span><span class="n">collection</span> <span class="k">for</span> <span class="p">(</span><span class="n">success</span><span class="p">,</span> <span class="n">collection</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pull_success</span> <span class="k">if</span> <span class="n">success</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pull_success</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Data could not be harvested for any of the requested collections.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">download_failures</span><span class="p">):</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">The following collections failed to download:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)))</span>
+
+        <span class="c1"># Combine all record frames</span>
+        <span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">record_frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">__version_numeric__</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">records_db</span>
 
 <div class="viewcode-block" id="CancerImageInterface.extract_dicom_data"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data">[docs]</a>    <span class="k">def</span> <span class="nf">extract_dicom_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span> <span class="n">make_hashable</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Extract data from all dicom files referenced in ``records_db`` or ``cache_records_db``.</span>
-<span class="sd">        Note: this requires that ``save_dicoms`` is ``True`` when ``pull()`` is called.</span>
+<span class="sd">        Note: this requires that ``save_dicom`` is ``True`` when ``pull()`` is called.</span>
 
 <span class="sd">        :param database: the name of the database to use. Must be one of: &#39;records_db&#39;, &#39;cache_records_db&#39;.</span>
 <span class="sd">                         Defaults to &#39;records_db&#39;.</span>
@@ -1564,7 +1556,7 @@
 <span class="sd">                 If ``make_hashable`` is ``True``, all dictionaries will be converted to ``tuples``.</span>
 <span class="sd">        :rtype: ``Pandas Series``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># ToDo: remove need for ``save_dicoms=True`` by calling upstream before the temporary dicom files are destroyed.</span>
+        <span class="c1"># ToDo: remove need for ``save_dicom=True`` by calling upstream before the temporary dicom files are destroyed.</span>
         <span class="k">if</span> <span class="n">database</span> <span class="o">==</span> <span class="s1">&#39;records_db&#39;</span><span class="p">:</span>
             <span class="n">database_to_use</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span>
         <span class="k">elif</span> <span class="n">database</span> <span class="o">==</span> <span class="s1">&#39;cache_records_db&#39;</span><span class="p">:</span>
@@ -1597,20 +1589,20 @@
              <span class="n">session_limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
              <span class="n">collections_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">allowed_modalities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">image_format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span>
-             <span class="n">save_dicoms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-             <span class="n">check_cache_first</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+             <span class="n">save_png</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">save_dicom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Pull (i.e., download) the current search.</span>
 
 <span class="sd">        Notes:</span>
 
-<span class="sd">        - 3D images are saved as individual frames.</span>
+<span class="sd">        - When ``save_png`` is ``True``, 3D DICOM images are saved as individual frames.</span>
 
 <span class="sd">        - Images file names in the cache adhere to the following format:</span>
 
-<span class="sd">            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale (&#39;default&#39;)].image_format``</span>
+<span class="sd">            ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale (&#39;default&#39;)].png``</span>
 
 <span class="sd">        where:</span>
 
@@ -1644,66 +1636,36 @@
 <span class="sd">                                   Note: &#39;MRI&#39;, &#39;PET&#39;, &#39;CT&#39; and &#39;X-Ray&#39; can also be used.</span>
 <span class="sd">                                   This parameter is not case sensitive. Defaults to ``None``.</span>
 <span class="sd">        :type allowed_modalities: ``list`` or ``tuple``</span>
-<span class="sd">        :param image_format: format for the image, e.g., &#39;png&#39;, &#39;jpg&#39;, etc. If ``None``, images will not be downloaded.</span>
-<span class="sd">                             Defaults to &#39;png&#39;.</span>
-<span class="sd">        :type image_format: ``str``</span>
-<span class="sd">        :param save_dicoms: if ``True``, save the raw dicom files. Defaults to ``False``.</span>
-<span class="sd">        :type save_dicoms: ``bool``</span>
-<span class="sd">        :param check_cache_first: check the image cache for the image prior to downloading.</span>
-<span class="sd">                                  If ``True`` and the image is already present, no attempt will be made to download it</span>
-<span class="sd">                                  again. If ``False`` the image will be downloaded regardless of whether or not it is</span>
-<span class="sd">                                  detected in the cache.</span>
-
-<span class="sd">                 .. warning::</span>
-
-<span class="sd">                        If a single frame of a 3D image is missing from the cache the entire image will be</span>
-<span class="sd">                        downloaded again.</span>
-
-<span class="sd">        :type check_cache_first: ``bool``</span>
+<span class="sd">        :param save_png: if ``True``, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to ``True``.</span>
+<span class="sd">        :type save_png: ``bool``</span>
+<span class="sd">        :param save_dicom: if ``True``, save the DICOM images provided by The Cancer Imaging Archive &#39;as is&#39;. Defaults to ``False``.</span>
+<span class="sd">        :type save_dicom: ``bool``</span>
+<span class="sd">        :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.</span>
+<span class="sd">        :type new_records_pull: ``bool``</span>
 <span class="sd">        :return: a DataFrame with the record information.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_query</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`current_query` is `None`: `search()` must be called before `pull()`.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_records_pull</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
-        <span class="c1"># Note the time the pull request was made</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">new_records_pull</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_query</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`search()` must be called before `pull()`.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_records_db_gen</span><span class="p">(</span><span class="n">patient_limit</span><span class="o">=</span><span class="n">patient_limit</span><span class="p">,</span>
+                                                   <span class="n">collections_limit</span><span class="o">=</span><span class="n">collections_limit</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`records_db` is not a DataFrame.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Download Records for all of the studies</span>
-        <span class="n">record_frames</span><span class="p">,</span> <span class="n">pull_success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pull_records</span><span class="p">(</span><span class="n">patient_limit</span><span class="o">=</span><span class="n">patient_limit</span><span class="p">,</span>
-                                                         <span class="n">collections_limit</span><span class="o">=</span><span class="n">collections_limit</span><span class="p">)</span>
-
-        <span class="c1"># Check for failures</span>
-        <span class="n">download_failures</span> <span class="o">=</span> <span class="p">[</span><span class="n">collection</span> <span class="k">for</span> <span class="p">(</span><span class="n">success</span><span class="p">,</span> <span class="n">collection</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pull_success</span> <span class="k">if</span> <span class="n">success</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pull_success</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Data could not be harvested for any of the requested collections.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">download_failures</span><span class="p">):</span>
-            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">The following collections failed to download:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)))</span>
-
-        <span class="c1"># Combine all record frames</span>
-        <span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">record_frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="c1"># Add the Version of BioVida which generated the DataFrame</span>
-        <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;biovida_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">__version_numeric__</span><span class="p">]</span> <span class="o">*</span> <span class="n">records_db</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="c1"># Download the images for all of the studies (collections)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_format</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">save_png</span> <span class="ow">or</span> <span class="n">save_dicom</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Obtaining Images...&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">pull_images</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="n">records_db</span><span class="p">,</span>
-                                                       <span class="n">pull_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">TIME_FORMAT</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">pull_images</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span>
                                                        <span class="n">session_limit</span><span class="o">=</span><span class="n">session_limit</span><span class="p">,</span>
-                                                       <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">,</span>
-                                                       <span class="n">save_dicoms</span><span class="o">=</span><span class="n">save_dicoms</span><span class="p">,</span>
-                                                       <span class="n">allowed_modalities</span><span class="o">=</span><span class="n">allowed_modalities</span><span class="p">,</span>
-                                                       <span class="n">check_cache_first</span><span class="o">=</span><span class="n">check_cache_first</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span>
+                                                       <span class="n">save_png</span><span class="o">=</span><span class="n">save_png</span><span class="p">,</span>
+                                                       <span class="n">save_dicom</span><span class="o">=</span><span class="n">save_dicom</span><span class="p">,</span>
+                                                       <span class="n">allowed_modalities</span><span class="o">=</span><span class="n">allowed_modalities</span><span class="p">)</span>
 
-        <span class="c1"># Update the cache record if and only if a request was also made for images.</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_format</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># Add the new records_db datafame with the existing `cache_records_db`.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_handler</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span></div></div>

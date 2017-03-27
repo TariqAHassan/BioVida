@@ -185,9 +185,8 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
-<div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../API.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="p">,</span>
+<div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../other/unification.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="p">,</span>
                          <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span>
-                         <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                          <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -207,9 +206,6 @@
 <span class="sd">                        attribute will be extracted regardless of the value passed to this argument.</span>
 
 <span class="sd">    :type db_to_extract: ``str``</span>
-<span class="sd">    :param cache_path: location of the BioVida cache. If one does not exist in this location, one will created.</span>
-<span class="sd">                       Default to ``None`` (which will generate a cache in the home folder).</span>
-<span class="sd">    :type cache_path: ``str`` or ``None``</span>
 <span class="sd">    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :param fuzzy_threshold: an integer on ``(0, 100]``. If ``True`` a threshold of `95` will be used. Defaults to ``False``.</span>
@@ -251,6 +247,12 @@
 
 <span class="sd">        The ``&#39;known_associated_genes&#39;`` column is of the form ``((Gene Name, DisGeNET Evidence Score), ...)``.</span>
 
+<span class="sd">    .. note:: </span>
+<span class="sd">    </span>
+<span class="sd">        If an instance of the ``CancerImageInterface`` class is passed, a ``&#39;source_images_path&#39;``</span>
+<span class="sd">        column will also be generated if the database extracted from the instance contains </span>
+<span class="sd">        a ``&#39;cached_dicom_images_path&#39;`` column.</span>
+
 <span class="sd">    .. warning::</span>
 
 <span class="sd">        The ``&#39;known_associated_symptoms&#39;`` and ``&#39;known_associated_genes&#39;`` columns denote symptoms and genes</span>
@@ -274,26 +276,8 @@
 <span class="sd">    # --- Search and Pull ---</span>
 <span class="sd">    &gt;&gt;&gt; udf2 = unify_against_images([opi, cii])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">images_unify</span><span class="p">(</span><span class="n">interfaces</span><span class="o">=</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="n">db_to_extract</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">images_unify</span><span class="p">(</span><span class="n">interfaces</span><span class="o">=</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="n">db_to_extract</span><span class="p">,</span>
                         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="n">fuzzy_threshold</span><span class="p">)</span></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </pre></div>
 
     </div>
