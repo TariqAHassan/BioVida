@@ -1043,6 +1043,23 @@ class CancerImageInterface(object):
             raw_dicoms = isinstance(cdip, (list, tuple)) and len(cdip) > 0  # > 0 needed b/c `True and 37 == 37`.
             return any_conversion_success or raw_dicoms
 
+        def tcia_duplicates_handler(data_frame):
+            """ Drop duplicate rows s.t. rows which reference 
+            the most number of images are prefered."""
+            # Cache_score is more important than keeping the most recent pull.
+            sortby = ['biovida_version', '__image_cache_score__', 'pull_time']
+            duplicates = ['series_instance_uid', 'study_instance_uid', 'query']
+
+            def image_cache_score(row):
+                def images_len(i):
+                    return len(i) if isinstance(i, (list, tuple)) else 0
+                return images_len(row['cached_images_path']) + images_len(row['cached_dicom_images_path'])
+
+            data_frame['__image_cache_score__'] = data_frame.apply(image_cache_score, axis=1)
+            data_frame = data_frame.sort_values(by=sortby)
+            data_frame = data_frame.drop_duplicates(subset=duplicates, keep='last')
+            return data_frame.drop('__image_cache_score__', axis=1)
+
         # Compose or update the master 'cache_records_db' dataframe
         if self.cache_records_db is None:
             cache_records_db = self.records_db.copy(deep=True)
@@ -1050,13 +1067,12 @@ class CancerImageInterface(object):
                 cache_records_db.apply(rows_to_conserve_func, axis=1)].reset_index(drop=True)
             self._save_cache_records_db()
         else:
-            duplicates_subset_columns = [c for c in self.cache_records_db.columns if c != 'pull_time']
             columns_with_iterables_to_sort = ('cached_images_path', 'cached_dicom_images_path')
             self.cache_records_db = _records_db_merge(interface_name='CancerImageInterface',
                                                       current_records_db=self.cache_records_db,
                                                       records_db_update=self.records_db,
                                                       columns_with_dicts=('query',),
-                                                      duplicates_subset_columns=duplicates_subset_columns,
+                                                      duplicates=tcia_duplicates_handler,
                                                       rows_to_conserve_func=rows_to_conserve_func,
                                                       columns_with_iterables_to_sort=columns_with_iterables_to_sort)
 
@@ -1454,7 +1470,8 @@ class CancerImageInterface(object):
         :return: a DataFrame with the record information.
         :rtype: ``Pandas DataFrame``
         """
-        self._pull_time = datetime.now()
+        if new_records_pull is not False:
+            self._pull_time = datetime.now()
 
         if new_records_pull:
             if not isinstance(self.current_query, pd.DataFrame):
