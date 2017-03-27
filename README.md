@@ -11,7 +11,7 @@ build brand new ones.
 
 It is hoped that by vastly reducing, if not eliminating, the need for tedious 
 data munging, machine learning experts can focus on modeling itself.
-In turn, enabling them to advance new insights and understandings.
+In turn, enabling them to advance new insights into human disease.
 
 In a nod to recursion, this library tries to accomplish some of this automation
 with machine learning itself, using tools like convolutional neural networks.
