@@ -92,6 +92,14 @@ test_ct, test_xray = tt['test']['ct'], tt['test']['x_ray']
 ## Images: Experimental
 
 #### Automated Image Data Cleaning
+
+Unfortunately, the data pulled from Open-i above
+is likely to contain a large number of images 
+unrelated to search query and/or unsuitable for machine learning.
+
+The *experimental* ``ImageProcessing`` class can be used to completely
+automate this data cleaning process.
+
 ```python
 # 1. Import Image Processing Tools
 from biovida.images import ImageProcessing
@@ -101,9 +109,30 @@ ip = ImageProcessing(opi)
  
 # 3. Clean the Image Data
 idf = ip.auto()
+```
 
-# 4. Save the Cleaned Images
+These cleaned images can easily be save as follows:
+
+```python
 ip.save("/save/directory")
+```
+
+Alternatively, they can be directly divided into
+training and test sets.
+
+```python
+from biovida.images import image_divvy
+
+def my_divvy_rule(row):
+    if row['invalid_image'] is False:
+        if row['image_modality_major'] == 'x_ray':
+            return 'x_ray'
+        elif row['image_modality_major'] == 'ct':
+            return 'ct'
+
+tt = image_divvy(ip, my_divvy_rule, action='ndarray', train_val_test_dict={'train': 0.8, 'test': 0.2})
+
+# These ndarrays can be unpack as shown above.
 ```
 
 ## Genomic Data
