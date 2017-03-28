@@ -29,21 +29,6 @@ $ pip install git+git://github.com/TariqAHassan/BioVida@master
 In just a few lines of code, you can gain access to biomedical databases
 which store tens of millions of images.
 
-#### Cancer Imaging Archive
-```python
-# 1. Import the interface for the Cancer Imaging Archive
-from biovida.images import CancerImageInterface
-
-# 2. Create an Instance of the Tool
-cii = CancerImageInterface(YOUR_API_KEY_HERE)
-
-# 3. Perform a search
-cii.search(cancer_type='esophageal')
-
-# 4. Pull the data
-cdf = cii.pull()
-```
-
 #### Open-i BioMedical Image Search Engine
 ```python
 
@@ -58,6 +43,21 @@ opi.search(query='lung cancer', image_type=['x_ray', 'ct'])  # Results Found: 9,
 
 # 4. Pull the data
 search_df = opi.pull()
+```
+
+#### Cancer Imaging Archive
+```python
+# 1. Import the interface for the Cancer Imaging Archive
+from biovida.images import CancerImageInterface
+
+# 2. Create an Instance of the Tool
+cii = CancerImageInterface(YOUR_API_KEY_HERE)
+
+# 3. Perform a search
+cii.search(cancer_type='esophageal')
+
+# 4. Pull the data
+cdf = cii.pull()
 ```
 
 Both ``CancerImageInterface`` and ``OpeniInterface`` cache images for later use.
