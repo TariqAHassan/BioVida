@@ -1239,12 +1239,11 @@ class OpeniInterface(object):
         if not new_records_pull and not isinstance(self.records_db, pd.DataFrame):
             raise TypeError("`records_db` is not a dataframe.")
 
-        if new_records_pull is not False:
-            self._pull_time = datetime.now()
-
         if new_records_pull:
             if not isinstance(self.current_search_url, str):
                 raise ValueError("`search()` must be called before `pull()`.")
+
+            self._pull_time = datetime.now()
             self.records_db = self._Records.records_pull(search_url=self.current_search_url,
                                                          to_harvest=self._current_search_to_harvest,
                                                          total=self.current_search_total,
