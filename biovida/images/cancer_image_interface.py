@@ -1473,12 +1473,10 @@ class CancerImageInterface(object):
         :return: a DataFrame with the record information.
         :rtype: ``Pandas DataFrame``
         """
-        if new_records_pull is not False:
-            self._pull_time = datetime.now()
-
         if new_records_pull:
             if not isinstance(self.current_query, pd.DataFrame):
                 raise ValueError("`search()` must be called before `pull()`.")
+            self._pull_time = datetime.now()
             self.records_db = self._records_db_gen(patient_limit=patient_limit,
                                                    collections_limit=collections_limit)
         elif not isinstance(self.records_db, pd.DataFrame):
@@ -1497,23 +1495,3 @@ class CancerImageInterface(object):
             self._tcia_cache_records_db_handler()
 
         return self.records_db
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
