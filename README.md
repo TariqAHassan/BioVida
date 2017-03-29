@@ -4,7 +4,7 @@
 
 ----
 
-BioVida is a experimental library designed to make it easy to gain access to 
+BioVida is a library designed to make it easy to gain access to 
 existing biomedical data sets as well as build brand new, custom-made ones.
 
 It is hoped that by vastly reducing, if not eliminating, the need for tedious 
