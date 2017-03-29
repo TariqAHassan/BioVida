@@ -621,22 +621,23 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
                              allow_creation=create_dirs, allow_overwrite=allow_overwrite)
         elif copy_to is not None:
             raise TypeError("String, list or tuple expected. "
-                            "`divvy_rule` returned an object of type '{0}'.".format(type(copy_to).__name__))
+                            "`divvy_rule` returned an object of type "
+                            "'{0}'.".format(type(copy_to).__name__))
 
     def divvy_rule_wrapper(row):
-        copy_to = divvy_rule(row) if callable(divvy_rule) else divvy_rule
-        if not isinstance(copy_to, (str, list, tuple)):
+        group = divvy_rule(row) if callable(divvy_rule) else divvy_rule
+        if not isinstance(group, (str, list, tuple)):
             return None
-        if isinstance(copy_to, (list, tuple)) and not len(copy_to):
+        if isinstance(group, (list, tuple)) and not len(group):
             return None
         if action == 'copy' and not isinstance(train_val_test_dict, dict):
-            copy_rule_wrapper(row, copy_to)
+            copy_rule_wrapper(row, group)
         if isinstance(row[column_to_use], (str, tuple, list)):
             cache_info = [row[column_to_use]] if isinstance(row[column_to_use], str) else list(row[column_to_use])
-            if isinstance(copy_to, str):
-                return [[os.path.basename(copy_to), cache_info]]
-            elif isinstance(copy_to, (list, tuple)):
-                return [[os.path.basename(c), cache_info] for c in copy_to]
+            if isinstance(group, str):
+                return [[os.path.basename(group), cache_info]]
+            elif isinstance(group, (list, tuple)):
+                return [[os.path.basename(c), cache_info] for c in group]
         else:
             return None
 
@@ -676,7 +677,7 @@ def _divvy_info_to_dict(divvy_info):
     """
 
     Convert the list evolved inside ``divvy_rule_apply()`` in
-    ``image_divvy()`` into a dictionary
+    ``image_divvy()`` into a dictionary.
 
     :param divvy_info: a list of the form ``[[string_1, ['a', 'b']], [string_1, ['c', 'd']], [string_2, ['e']], ...]``.
     :type divvy_info: ``list``
