@@ -681,7 +681,7 @@ def _divvy_info_to_dict(divvy_info):
     :param divvy_info: a list of the form ``[[string_1, ['a', 'b']], [string_1, ['c', 'd']], [string_2, ['e']], ...]``.
     :type divvy_info: ``list``
     :return: a dictionary form: ``{string_1: ['a', 'b', 'c', 'd'], string_2: ['e'], ...}``.
-    :rtype: ``Pandas DataFrame``
+    :rtype: ``dict``
     """
     d = defaultdict(list)
     for (k, v) in divvy_info:
