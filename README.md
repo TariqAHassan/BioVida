@@ -6,7 +6,6 @@
 
 BioVida is a library designed to make it easy to gain access to 
 existing biomedical data sets as well as build brand new, custom-made ones.
-
 It is hoped that by vastly reducing, if not eliminating, the need for tedious 
 data munging, machine learning experts can focus on modeling itself.
 In turn, enabling them to advance new insights into human disease.
