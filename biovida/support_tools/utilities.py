@@ -123,7 +123,7 @@ def _train_val_test_dict_sort(tvt):
     return sorted(tvt.items(), key=lambda x: order_dict.get(x[0]))
 
 
-def _list_divide(l, tvt):
+def _list_divide(l, tvt, random_state):
     """
 
     Splits a list, ``l``, into proportions described in ``tvt``.
@@ -132,6 +132,8 @@ def _list_divide(l, tvt):
     :type l: ``list``
     :param tvt: as evolved in side ``train_val_test()``.
     :type tvt: ``dict``
+    :param random_state: set a seed for random shuffling. Similar to ``sklearn.model_selection.train_test_split``.
+    :type random_state: ``int``
     :return: a dictionary of the form: ``{tvt_key_1: [file_path, file_path, ...], ...}``. Sorted to ensure
              generation order is train --> validation --> test.
     :rtype: ``list``
@@ -144,12 +146,15 @@ def _list_divide(l, tvt):
 
     >>> l = ['file/path/image_1.png', 'file/path/image_2.png', 'file/path/image_3.png', 'file/path/image_4.png']
     >>> tvt = {'validation': 0.5, 'train': 0.5}
-    >>> _list_divide(l, tvt)
+    >>> _list_divide(l, tvt, random_state=None)
     ...
     [('train', ['file/path/image_4.png', 'file/path/image_2.png']),
     ('validation', ['file/path/image_1.png', 'file/path/image_3.png'])]
 
     """
+    if is_int(random_state):
+        np.random.seed(random_state)
+
     l_shuffled = np.random.permutation(l).tolist()
     tvt_sorted = _train_val_test_dict_sort(tvt)
 
@@ -217,9 +222,6 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_st
     :return: a nested dictionary of the form ``{'train'/'val'/'test': {group_files_dict.key: [file, file, ...], ...}, ...}``.
     :rtype: ``dict``
     """
-    if is_int(random_state):
-        np.random.seed(random_state)
-
     def status_bar(iterable):
         return tqdm(iterable) if verbose else iterable
 
@@ -238,7 +240,7 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_st
     for k, v in group_files_dict.items():
         if verbose:
             print("\nDivvying '{0}'...".format(os_basename(k)))
-        for k2, v2 in _list_divide(v, tvt):
+        for k2, v2 in _list_divide(v, tvt, random_state=random_state):
             if k2 not in output_dict:
                 output_dict[k2] = {k: v2}
             else:
