@@ -13,6 +13,8 @@ from PIL import Image
 from tqdm import tqdm
 from PIL import ImageStat
 from scipy.misc import imread
+from collections import defaultdict
+from os.path import basename as os_basename
 
 # General tools
 from biovida.support_tools.support_tools import items_null
@@ -95,6 +97,7 @@ class ImageProcessing(object):
 
         # Extract the records_db/cache_records_db database
         self.image_dataframe = self._extract_db(instance, db_to_extract)
+        self.cleaned_image_data_frame = None
 
         if 'cached_images_path' not in self.image_dataframe.columns:
             raise KeyError("No 'cached_images_path' column in '{0}'.".format(db_to_extract))
@@ -764,33 +767,36 @@ class ImageProcessing(object):
 
         return self.image_dataframe
 
-    def _save_method_error_checking(self, save_rule):
+    def _save_method_error_checking(self, output_rule, action):
         """
 
         Check for error that would cause ``save()`` to fail.
 
-        :param save_rule: see ``save()``
-        :type save_rule: ``str`` or ``function``
+        :param output_rule: see ``output()``
+        :type output_rule: ``str`` or ``function``
+        :param action: see ``output``
+        :type action: ``str``
         """
-        if not isinstance(save_rule, str) and not callable(save_rule):
-            raise TypeError("`save_rule` must be a string or function.")
-
+        if action not in ('copy', 'ndarray'):
+            raise ValueError("`action` must be either 'copy' or 'ndarray'.")
+        if not isinstance(output_rule, str) and not callable(output_rule):
+            raise TypeError("`output_rule` must be a string or function.")
         if 'invalid_image' not in self.image_dataframe.columns:
             raise KeyError("`image_dataframe` must contain a 'invalid_image' column which uses booleans to\n"
                            "indicate whether or not to include an entry in the cleaned dataset.\n"
                            "To automate this process, consider using the `auto_decision()` method.")
 
-    def cleaned_images_data_frame(self, crop_images, convert_to_rgb, status):
+    def cleaned_image_data_frame_gen(self, crop_images, convert_to_rgb, status):
         """
 
         Define a dataframe with rows of images found to be 'valid'.
         These 'valid' images are cleaned and stored as PIL images in a ``'cleaned_image'`` column.
 
-        :param crop_images: see ``save()``.
+        :param crop_images: see ``output()``.
         :type crop_images: ``bool``
-        :param convert_to_rgb: see ``save()``
+        :param convert_to_rgb: see ``output()``
         :type convert_to_rgb: ``bool``
-        :param status: see ``save()``
+        :param status: see ``output()``
         :type status: ``bool``
         :return: ``self.image_dataframe`` where the 'invalid_image' column is ``True``, with the addition of
                   a 'cleaned_image' populated by PIL image to be saved to disk.
@@ -815,24 +821,27 @@ class ImageProcessing(object):
 
         return return_df
 
-    def save(self,
-             save_rule,
-             create_dirs=False,
-             allow_overwrite=True,
-             crop_images=True,
-             convert_to_rgb=False,
-             status=True):
+    def output(self,
+               output_rule,
+               create_dirs=False,
+               allow_overwrite=True,
+               crop_images=True,
+               convert_to_rgb=False,
+               action='copy',
+               generate_cleaned_image_data_frame=True,
+               status=True,
+               **kwargs):
         """
 
         Save processed images to disk.
 
-        :param save_rule:
+        :param output_rule:
 
             - if a ``str``: the directory to save the images.
             - if a ``function``: it must (1) accept a single parameter (argument) and (2) return system path(s)
               [see example below].
 
-        :type save_rule: ``str`` or ``function``
+        :type output_rule: ``str`` or ``function``
         :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist.
                             Defaults to ``False``.
         :type create_dirs: ``bool``
@@ -843,6 +852,10 @@ class ImageProcessing(object):
         :type crop_images: ``bool``
         :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.
         :type convert_to_rgb: ``bool``
+        :param action: one of 'copy', 'ndarray'.
+        :type action: ``str``
+        :param generate_cleaned_image_data_frame: if ``True``, call ``cleaned_image_data_frame_gen()``. Defaults to ``True``.
+        :type generate_cleaned_image_data_frame: ``bool``
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
 
@@ -858,11 +871,11 @@ class ImageProcessing(object):
         >>> ip = ImageProcessing(opi)
         >>> ip.auto()
 
-        A Simple Save Rule
+        A Simple Output Rule
 
-        >>> ip.save('/your/path/here/images')
+        >>> ip.output('/your/path/here/images')
 
-        A More Complex Save Rule
+        A More Complex Output Rule
 
         >>> def my_save_rule(row):
         >>>     if isinstance(row['abstract'], str) and 'lung' in row['abstract']:
@@ -873,40 +886,59 @@ class ImageProcessing(object):
         >>> ip.save(my_save_rule)
 
         """
-        self._save_method_error_checking(save_rule)
+        self._save_method_error_checking(output_rule=output_rule, action=action)
+        allow_write = kwargs.get('allow_write', True)
 
-        # Limit to valid images
-        return_df = self.cleaned_images_data_frame(crop_images=crop_images, convert_to_rgb=convert_to_rgb,
-                                                   status=status)
+        # Limit to 'valid' images
+        if generate_cleaned_image_data_frame:
+            self.cleaned_image_data_frame = self.cleaned_image_data_frame_gen(crop_images=crop_images,
+                                                                              convert_to_rgb=convert_to_rgb,
+                                                                              status=status)
+        elif not isinstance(self.cleaned_image_data_frame, pd.DataFrame):
+            raise TypeError("`cleaned_image_data_frame` is not a DataFrame.")
 
         def save_rule_wrapper(row):
-            """Wrap `save_rule` to ensure it is, or
-            will yield, a valid path."""
-            if isinstance(save_rule, str):
-                save_path = save_rule
-            elif callable(save_rule):
-                save_path = save_rule(row)
-                if save_path is None:
+            if isinstance(output_rule, str):
+                group = output_rule
+            elif callable(output_rule):
+                group = output_rule(row)
+                if group is None:
                     return None
-                if not isinstance(save_path, str):
-                    raise TypeError("String Expected.\nThe function passed to `save_rule` (`{0}`)\nreturned "
-                                    "an object of type '{1}'.".format(save_rule.__name__, type(save_path).__name__))
-            if os.path.isdir(save_path):
-                return save_path
-            elif create_dirs:
-                os.makedirs(save_path)
-                return save_path
-            else:
-                raise NotADirectoryError("\nNo such directory:\n'{0}'\n"
-                                         "Consider setting `create_dirs=True`.".format(save_path))
+                if not isinstance(group, str):
+                    raise TypeError("String Expected.\nThe function passed to `output_rule` "
+                                    "(`{0}`)\nreturned an object of type "
+                                    "'{1}'.".format(output_rule.__name__, type(group).__name__))
+            if action == 'copy':
+                if os.path.isdir(group):
+                    return group
+                elif create_dirs and allow_write:
+                    os.makedirs(group)
+                    return group
+                elif allow_write:
+                    raise NotADirectoryError("\nNo such directory:\n'{0}'\n"
+                                             "Consider setting `create_dirs=True`.".format(group))
+            elif action == 'ndarray':
+                return group
 
         if self._verbose:
-            print("\n\nSaving Images...")
-        for index, row in self._apply_status(return_df.iterrows(), status=status, length=len(return_df)):
+            print("\n\nGenerating Images...")
+
+        return_dict = defaultdict(list)
+        for _, row in self._apply_status(self.cleaned_image_data_frame.iterrows(),
+                                         status=status, length=len(self.cleaned_image_data_frame)):
             save_target = save_rule_wrapper(row)
             if isinstance(save_target, str):
-                full_save_path = os.path.join(save_target, row['cached_images_path'].split(os.sep)[-1])
-                if allow_overwrite:
-                    row['cleaned_image'].save(full_save_path)
-                elif not os.path.isfile(full_save_path):
-                    row['cleaned_image'].save(full_save_path)
+                if action == 'copy':
+                    full_save_path = os.path.join(save_target, os_basename(row['cached_images_path']))
+                    if allow_overwrite and allow_write:
+                        row['cleaned_image'].save(full_save_path)
+                    elif not os.path.isfile(full_save_path) and allow_write:
+                        row['cleaned_image'].save(full_save_path)
+                    return_dict[os_basename(save_target)] += [(row['cached_images_path'], full_save_path)]
+                elif action == 'ndarray':
+                    return_dict[os_basename(save_target)] += [np.array(row['cleaned_image'])]
+
+        if action == 'ndarray':
+            return {k: np.array(v) for k, v in return_dict.items()}
+        elif action == 'copy':
+            return dict(return_dict)
