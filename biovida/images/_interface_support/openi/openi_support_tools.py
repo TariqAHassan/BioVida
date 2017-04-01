@@ -6,7 +6,7 @@
 """
 import re
 from itertools import chain
-from urllib.parse import urlsplit  # handle python 2
+from six.moves.urllib.parse import urlsplit  # handle Python 2
 
 # General Support tools
 from biovida.support_tools.support_tools import cln, items_null
