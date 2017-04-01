@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Support Tools used Across the BioVida API

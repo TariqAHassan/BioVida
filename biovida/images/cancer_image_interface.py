@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Cancer Imaging Archive Interface

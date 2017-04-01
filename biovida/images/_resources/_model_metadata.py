@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Metadata on what the Model has Been Trained to Classify

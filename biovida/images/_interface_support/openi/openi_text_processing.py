@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Tools to Clean Raw Open-i Text

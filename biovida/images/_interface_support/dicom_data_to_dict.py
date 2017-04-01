@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Convert DICOM Data into a Python Dictionary

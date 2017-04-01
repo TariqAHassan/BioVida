@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Processing the 'image_id' Column Returned by Open-i

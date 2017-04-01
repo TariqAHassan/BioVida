@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Information for ``openi_text_processing._imaging_modality_guess()``

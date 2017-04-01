@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     General Support Tools for Cancer Image Archive Data Processing

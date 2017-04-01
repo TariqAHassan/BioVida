@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Dictionaries of Open-i Params

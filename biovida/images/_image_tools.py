@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     General Tools for the Image Subpackage

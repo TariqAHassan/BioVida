@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 
     Tools to Unify Image Data Against Other BioVida APIs
