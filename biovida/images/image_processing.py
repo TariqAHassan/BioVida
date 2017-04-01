@@ -14,6 +14,7 @@ from tqdm import tqdm
 from PIL import ImageStat
 from scipy.misc import imread
 from collections import defaultdict
+from os.path import join as os_join
 from os.path import basename as os_basename
 
 # General tools
@@ -97,7 +98,7 @@ class ImageProcessing(object):
 
         # Extract the records_db/cache_records_db database
         self.image_dataframe = self._extract_db(instance, db_to_extract)
-        self.cleaned_image_data_frame = None
+        self.image_data_frame_cleaned = None
 
         if 'cached_images_path' not in self.image_dataframe.columns:
             raise KeyError("No 'cached_images_path' column in '{0}'.".format(db_to_extract))
@@ -786,49 +787,56 @@ class ImageProcessing(object):
                            "indicate whether or not to include an entry in the cleaned dataset.\n"
                            "To automate this process, consider using the `auto_decision()` method.")
 
-    def cleaned_image_data_frame_gen(self, crop_images, convert_to_rgb, status):
+    def clean_image_dataframe(self, crop_images=True, convert_to_rgb=False, status=True):
         """
 
         Define a dataframe with rows of images found to be 'valid'.
         These 'valid' images are cleaned and stored as PIL images in a ``'cleaned_image'`` column.
+        
+        .. note::
+            
+            The DataFrame this method creates can be viewed with ``INSTANCE.image_data_frame_cleaned``.
 
-        :param crop_images: see ``output()``.
+        :param crop_images: Crop the images using analyses results from `border_analysis()` and
+                            ``logo_analysis()``. Defaults to ``True``.
         :type crop_images: ``bool``
-        :param convert_to_rgb: see ``output()``
+        :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.
         :type convert_to_rgb: ``bool``
-        :param status: see ``output()``
+        :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
         :return: ``self.image_dataframe`` where the 'invalid_image' column is ``True``, with the addition of
                   a 'cleaned_image' populated by PIL image to be saved to disk.
         :rtype: ``Pandas DataFrame``
         """
         if 'invalid_image' not in self.image_dataframe:
-            raise KeyError("No `invalid_image` column in `image_dataframe`;\n"
-                           "required to determine output.")
+            raise KeyError("No `invalid_image` column in `image_dataframe`,\n"
+                           "which is required to determine output.\n"
+                           "Consider calling the ``auto()`` method.")
 
-        return_df = self.image_dataframe[
+        image_data_frame_cleaned = self.image_dataframe[
             self.image_dataframe['invalid_image'] != True].reset_index(drop=True).copy(deep=True)
 
         if crop_images:
             if self._verbose:
                 print("\n\nCropping Images...")
-            return_df['cleaned_image'] = self._cropper(data_frame=return_df, return_as_array=False,
-                                                       convert_to_rgb=convert_to_rgb, status=status)
+            image_data_frame_cleaned['cleaned_image'] = self._cropper(data_frame=image_data_frame_cleaned,
+                                                                      return_as_array=False,
+                                                                      convert_to_rgb=convert_to_rgb,
+                                                                      status=status)
         else:
             if self._verbose:
                 print("\n\nLoading Images...")
-            return_df['cleaned_image'] = self._pil_load(return_df['cached_images_path'], convert_to_rgb, status)
+            image_data_frame_cleaned['cleaned_image'] = self._pil_load(image_data_frame_cleaned['cached_images_path'],
+                                                                       convert_to_rgb=convert_to_rgb,
+                                                                       status=status)
 
-        return return_df
+        self.image_data_frame_cleaned = image_data_frame_cleaned
 
     def output(self,
                output_rule,
                create_dirs=False,
                allow_overwrite=True,
-               crop_images=True,
-               convert_to_rgb=False,
                action='copy',
-               generate_cleaned_image_data_frame=True,
                status=True,
                **kwargs):
         """
@@ -847,15 +855,8 @@ class ImageProcessing(object):
         :type create_dirs: ``bool``
         :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.
         :type allow_overwrite: ``bool``
-        :param crop_images: Crop the images using analyses results from `border_analysis()` and
-                            ``logo_analysis()``. Defaults to ``True``.
-        :type crop_images: ``bool``
-        :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.
-        :type convert_to_rgb: ``bool``
         :param action: one of 'copy', 'ndarray'.
         :type action: ``str``
-        :param generate_cleaned_image_data_frame: if ``True``, call ``cleaned_image_data_frame_gen()``. Defaults to ``True``.
-        :type generate_cleaned_image_data_frame: ``bool``
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
 
@@ -870,6 +871,10 @@ class ImageProcessing(object):
         ...
         >>> ip = ImageProcessing(opi)
         >>> ip.auto()
+        
+        Next, prune invalid images 
+        
+        >>> ip.clean_image_dataframe()
 
         A Simple Output Rule
 
@@ -886,16 +891,14 @@ class ImageProcessing(object):
         >>> ip.save(my_save_rule)
 
         """
+        # Limit to 'valid' images
+        if not isinstance(self.image_data_frame_cleaned, pd.DataFrame):
+            raise TypeError("`image_data_frame_cleaned` is not a DataFrame.\n"
+                            "The `clean_image_dataframe()` method must be called before ``output()``.")
+
         self._save_method_error_checking(output_rule=output_rule, action=action)
         allow_write = kwargs.get('allow_write', True)
-
-        # Limit to 'valid' images
-        if generate_cleaned_image_data_frame:
-            self.cleaned_image_data_frame = self.cleaned_image_data_frame_gen(crop_images=crop_images,
-                                                                              convert_to_rgb=convert_to_rgb,
-                                                                              status=status)
-        elif not isinstance(self.cleaned_image_data_frame, pd.DataFrame):
-            raise TypeError("`cleaned_image_data_frame` is not a DataFrame.")
+        ndarray_with_path = kwargs.get('ndarray_with_path', False)
 
         def save_rule_wrapper(row):
             if isinstance(output_rule, str):
@@ -924,21 +927,25 @@ class ImageProcessing(object):
             print("\n\nGenerating Images...")
 
         return_dict = defaultdict(list)
-        for _, row in self._apply_status(self.cleaned_image_data_frame.iterrows(),
-                                         status=status, length=len(self.cleaned_image_data_frame)):
+        for _, row in self._apply_status(self.image_data_frame_cleaned.iterrows(),
+                                         status=status, length=len(self.image_data_frame_cleaned)):
             save_target = save_rule_wrapper(row)
             if isinstance(save_target, str):
+                full_save_path = os_join(save_target, os_basename(row['cached_images_path']))
                 if action == 'copy':
-                    full_save_path = os.path.join(save_target, os_basename(row['cached_images_path']))
                     if allow_overwrite and allow_write:
                         row['cleaned_image'].save(full_save_path)
                     elif not os.path.isfile(full_save_path) and allow_write:
                         row['cleaned_image'].save(full_save_path)
-                    return_dict[os_basename(save_target)] += [(row['cached_images_path'], full_save_path)]
+                    return_dict[os_basename(save_target)] += [full_save_path]
                 elif action == 'ndarray':
-                    return_dict[os_basename(save_target)] += [np.array(row['cleaned_image'])]
+                    if ndarray_with_path:
+                        return_dict[os_basename(save_target)] += [(np.array(row['cleaned_image']), full_save_path)]
+                    else:
+                        return_dict[os_basename(save_target)] += [np.array(row['cleaned_image'])]
 
         if action == 'ndarray':
-            return {k: np.array(v) for k, v in return_dict.items()}
+            return {k: np.array(v) if not ndarray_with_path else v
+                    for k, v in return_dict.items()}
         elif action == 'copy':
             return dict(return_dict)

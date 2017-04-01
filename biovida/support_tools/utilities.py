@@ -9,6 +9,7 @@ import os
 import shutil
 import numpy as np
 from tqdm import tqdm
+from PIL import Image
 from warnings import warn
 from scipy.ndimage import imread
 from os.path import join as os_join
@@ -21,6 +22,9 @@ from biovida.support_tools.support_tools import is_numeric
 from biovida.support_tools.support_tools import list_to_bulletpoints
 from biovida.support_tools.support_tools import InsufficientNumberOfFiles
 from biovida.support_tools.support_tools import directory_existence_handler
+
+
+_TVT_GROUPS = ('train', 'validation', 'test')
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -43,19 +47,15 @@ def _subdirectories_in_path(path, to_block):
     return [os_join(path, i) for i in os.listdir(path) if os.path.isdir(os_join(path, i)) and i not in to_block]
 
 
-def _train_val_test_error_checking(data, target_dir, action, delete_source, group_files_dict, tvt):
+def _train_val_test_error_checking(target_dir, action, group_files_dict, tvt, allowed_actions):
     """
 
-    Check for possible errors for ``train_val_test()``.
+    Check for possible errors for before spinning up engine.
 
-    :param data: see ``train_val_test()``.
-    :type data: ``str`` or ``dict``
     :param target_dir: see ``train_val_test()``.
     :type target_dir: ``str``
     :param action: see ``train_val_test()``.
     :type action: ``str``
-    :param delete_source: see ``train_val_test()``.
-    :type delete_source: ``bool``
     :param group_files_dict: as evolved in side ``train_val_test()``.
     :type group_files_dict: ``dict``
     :param tvt: as evolved in side ``train_val_test()``.
@@ -67,16 +67,14 @@ def _train_val_test_error_checking(data, target_dir, action, delete_source, grou
         if v is True:
             raise ValueError("`{0}` cannot be `True`".format(k))
     if not isclose(sum(tvt.values()), 1):
-        raise ValueError("The following parameters do not sum to 1: {0}.".format(", ".join(sorted(tvt.keys()))))
-    if isinstance(data, dict) and not all(isinstance(i, (list, tuple)) for i in data.values()):
-        raise TypeError("The values of `data` must be lists or tuples.")
-    if action not in ('copy', 'move', 'ndarray'):
-        raise ValueError("`action` must be one of: 'copy', 'move', 'ndarray'.")
-    if action == 'ndarray' and isinstance(target_dir, str):
-        warn("`target_dir` has no effect when `action='ndarray'`")
-    if not isinstance(delete_source, bool):
-        raise TypeError("`delete_source` must be a boolean.")
-    
+        raise ValueError("The following parameters do not sum to 1:\n"
+                         "{0}.".format(", ".join(sorted(tvt.keys()))))
+    # if isinstance(data, dict) and not all(isinstance(i, (list, tuple)) for i in data.values()):
+    #     raise TypeError("The values of `data` must be lists or tuples.")
+    if action not in allowed_actions:
+        raise ValueError("`action` must be one of:\n"
+                         "{0}.".format(list_to_bulletpoints(allowed_actions)))
+
     min_number_of_files = len(tvt.keys()) * len(group_files_dict.keys())
     for k, v in group_files_dict.items():
         if len(v) < min_number_of_files:
@@ -150,6 +148,11 @@ def _list_divide(l, tvt, random_state):
     ...
     [('train', ['file/path/image_4.png', 'file/path/image_2.png']),
     ('validation', ['file/path/image_1.png', 'file/path/image_3.png'])]
+    
+    .. note::
+    
+        This function also works with lists of ndarrays, e.g.,
+        ``l = [ndarray, ndarray, ndarray, ...]``.
 
     """
     if is_int(random_state):
@@ -202,28 +205,44 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
         return {k: values_to_ndarrays(v) for k, v in status_outer(dictionary.items())}
 
 
-def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_state, verbose):
+def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_state, allowed_actions, verbose):
     """
 
     Engine to power ``train_val_test()``.
 
-    :param action: see``train_val_test()``.
-    :type action: ``str``
+    :param action: 'copy', 'move' or 'write_ndarray'
+    :type action: ``str`` or ``None``
     :param tvt: as evolved in side ``train_val_test()``.
     :type tvt: ``dict``
     :param group_files_dict: as evolved in side ``train_val_test()`` -- ``{'group': [file_path, file_path, ...], ...}``.
+                             
+                             
+                    .. note::
+                    
+                        If ``action='write_ndarray'``, this this data is expected to be of the form:
+                        `{'group': [(ndarray, PATH), (ndarray, PATH), ...], ...}``.
+    
     :type group_files_dict: ``dict``
     :param target_path: see ``train_val_test()``.
-    :type target_path: ``str``
+    :type target_path: ``str`` or ``None``
     :param random_state: set a seed for random shuffling. Similar to ``sklearn.model_selection.train_test_split``.
     :type random_state: ``None`` or ``int``
+    :param allowed_actions: a list of allowed values for ``action``.
+    :type allowed_actions: ``list`` or ``tuple``
     :param verbose: see ``train_val_test()``.
     :type verbose: ``bool``
     :return: a nested dictionary of the form ``{'train'/'val'/'test': {group_files_dict.key: [file, file, ...], ...}, ...}``.
     :rtype: ``dict``
     """
+    _train_val_test_error_checking(target_dir=target_path, action=action,
+                                   group_files_dict=group_files_dict, tvt=tvt,
+                                   allowed_actions=allowed_actions)
+
     def status_bar(iterable):
         return tqdm(iterable) if verbose else iterable
+
+    def output_dic_value(value2):
+        return [path for (nd, path) in value2] if action == 'write_ndarray' else value2
 
     if verbose:
         print("\nSplitting Data...")
@@ -232,26 +251,40 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_st
         shutil_func = shutil.copy2
     elif action == 'move':
         shutil_func = shutil.move
-    else:
-        # Note: it's logically impossible for this to be called and raise an error.
-        shutil_func = None
 
     output_dict = dict()
     for k, v in group_files_dict.items():
         if verbose:
             print("\nDivvying '{0}'...".format(os_basename(k)))
         for k2, v2 in _list_divide(v, tvt, random_state=random_state):
+            out_value = output_dic_value(value2=v2)
             if k2 not in output_dict:
-                output_dict[k2] = {k: v2}
+                output_dict[k2] = {k: out_value}
             else:
-                output_dict[k2][k] = v2
-            if action in ('copy', 'move'):
+                output_dict[k2][k] = out_value
+            if action in ('copy', 'move', 'write_ndarray'):
                 if verbose:
                     print("\n{0}...".format(k2))
                 target = directory_existence_handler(os_join(target_path, os_join(k2, k)), allow_creation=True)
-                for i in status_bar(v2):
-                    shutil_func(i, os_join(target, os_basename(i)))
+                if action in ('copy', 'move'):
+                    for i in status_bar(v2):
+                        shutil_func(i, os_join(target, os_basename(i)))
+                elif action == 'write_ndarray':
+                    for (nd, path) in status_bar(v2):
+                        Image.fromarray(nd).save(os_join(target, os_basename(path)))
+
+    if verbose:
+        print("\nStructure:\n")
+        for k, v in _train_val_test_dict_sort(output_dict):
+            print("- '{0}':\n{1}".format(k, list_to_bulletpoints(v)))
+
     return output_dict
+
+
+def _tvt_dict_gen(d):
+    """Extract those of the train, validation, test (tvt)
+     params which are numeric."""
+    return {k: v for k, v in d.items() if k in _TVT_GROUPS and is_numeric(v)}
 
 
 def train_val_test(data,
@@ -421,7 +454,6 @@ def train_val_test(data,
         - providing a path to ``target_dir``, e.g., ``target_dir='/path/to/output/output_data'``
 
     """
-    groups = ('train', 'validation', 'test')
     if action in ('copy', 'move'):
         if isinstance(target_dir, str):
             target_path = target_dir
@@ -433,28 +465,23 @@ def train_val_test(data,
     else:
         target_path = None
 
-    existing_dirs = _subdirectories_in_path(data, to_block=groups) if isinstance(data, str) else None
+    existing_dirs = _subdirectories_in_path(data, to_block=_TVT_GROUPS) if isinstance(data, str) else None
+    tvt = _tvt_dict_gen(locals())
 
-    # Extract those of the train, validation, test (tvt) params which are numeric.
-    tvt = {k: v for k, v in locals().items() if k in groups and is_numeric(v)}
+    if not isinstance(delete_source, bool):
+        raise TypeError("`delete_source` must be a boolean.")
 
     if isinstance(data, str):
-        group_files_dict = _existing_files_dict_gen(directory=data, to_block=groups)
+        group_files_dict = _existing_files_dict_gen(directory=data, to_block=_TVT_GROUPS)
     elif isinstance(data, dict):
         group_files_dict = data
     else:
         raise TypeError("`data` must be a string or dictionary.")
 
-    _train_val_test_error_checking(data=data, target_dir=target_dir, action=action,
-                                   delete_source=delete_source, group_files_dict=group_files_dict, tvt=tvt)
-
     output_dict = _train_val_test_engine(action=action, tvt=tvt, group_files_dict=group_files_dict,
-                                         target_path=target_path, random_state=random_state, verbose=verbose)
-
-    if verbose:
-        print("\nStructure:\n")
-        for k, v in _train_val_test_dict_sort(output_dict):
-            print("- '{0}':\n{1}".format(k, list_to_bulletpoints(v)))
+                                         target_path=target_path, random_state=random_state,
+                                         allowed_actions=('copy', 'move', 'ndarray'),
+                                         verbose=verbose)
 
     if existing_dirs is not None and delete_source:
         for i in existing_dirs:

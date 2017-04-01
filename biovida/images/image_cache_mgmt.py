@@ -20,7 +20,9 @@ from biovida.support_tools.support_tools import multimap
 from biovida.support_tools.support_tools import directory_existence_handler
 
 # Utilities
+from biovida.support_tools.utilities import _tvt_dict_gen
 from biovida.support_tools.utilities import train_val_test
+from biovida.support_tools.utilities import _train_val_test_engine
 from biovida.support_tools.utilities import _file_paths_dict_to_ndarrays
 
 # Import Printing Tools
@@ -660,8 +662,8 @@ def _image_divvy_train_val_test_wrapper(action, verbose, divvy_info, train_val_t
     :return: see ``train_val_test``.
     :rtype: ``dict``
     """
+    random_state = train_val_test_dict.get('random_state', None)
     target = train_val_test_dict.get('target_dir') if action == 'copy' else None
-    random_state = train_val_test_dict.get('random_state', None) if action == 'copy' else None
     delete_source = train_val_test_dict.get('delete_source', False) if action == 'copy' else False
 
     output_dict = train_val_test(data=divvy_info,
@@ -688,6 +690,62 @@ def _divvy_info_to_dict(divvy_info):
     for (k, v) in divvy_info:
         d[k] += v
     return dict(d)
+
+
+def _divvy_image_processing(instance, divvy_rule, action, train_val_test_dict,
+                            create_dirs, allow_overwrite, verbose):
+    """
+    
+    Handle the special case of 'divvying' when an instance of the ``ImageProcessing``
+    class is passed to ``image_divvy()``.
+    
+    This has to be to be handled seperately so that knowlege obtained
+    through ``ImageProcessing``'s about how to crop the images, for example,
+    can actually applied if the user wishes.
+    
+    :param instance: see ``image_divvy()``.
+    :type instance: ``ImageProcessing``
+    :param divvy_rule:  see ``image_divvy()``.
+    :type divvy_rule: ``str`` or ``function``
+    :param action:  see ``image_divvy()``.
+    :type action: ``str``
+    :param train_val_test_dict: see ``image_divvy()``.
+    :type train_val_test_dict: ``dict`` or ``None``
+    :param create_dirs:  see ``image_divvy()``.
+    :type create_dirs: ``bool``
+    :param allow_overwrite: see ``image_divvy()``.
+    :type allow_overwrite: ``bool``
+    :param verbose: see ``image_divvy()``.
+    :type verbose: ``bool``
+    :return: yeild of ``ImageProcessing.output`` or ``_train_val_test_engine()``.
+    :rtype: ``dict``
+    """
+    if action in ('copy', 'ndarray') and not isinstance(train_val_test_dict, dict):
+        output_dict = instance.output(output_rule=divvy_rule, create_dirs=create_dirs,
+                                      allow_overwrite=allow_overwrite, action=action)
+    elif action in ('copy', 'ndarray') and isinstance(train_val_test_dict, dict):
+        if action == 'copy':
+            ndarray_with_path = True
+            engine_action = 'write_ndarray'
+            target_path = train_val_test_dict['target_dir']
+        elif action == 'ndarray':
+            ndarray_with_path = False
+            engine_action = None
+            target_path = None
+
+        divvy_info = instance.output(output_rule=divvy_rule,
+                                     action='ndarray',  # used so that cropping is applied.
+                                     ndarray_with_path=ndarray_with_path)
+
+        output_dict = _train_val_test_engine(action=engine_action,
+                                             tvt=_tvt_dict_gen(train_val_test_dict),
+                                             group_files_dict=divvy_info,
+                                             target_path=target_path,
+                                             random_state=train_val_test_dict.get('random_state', None),
+                                             allowed_actions=('write_ndarray', None),
+                                             verbose=verbose)
+
+    return output_dict
 
 
 def image_divvy(instance,
@@ -782,7 +840,7 @@ def image_divvy(instance,
     |
     | **Usage 1a**: Copy Images from the Cache to a New Location
 
-    >>> image_divvy(opi, divvy_rule="/your/output/path/here/output", action='copy')
+    >>> summary_dict = image_divvy(opi, divvy_rule="/your/output/path/here/output", action='copy')
 
     |
     | **Usage 1b**: Converting to ``ndarrays``
@@ -811,7 +869,7 @@ def image_divvy(instance,
     >>>         elif 'ct' == row['image_modality_major']:
     >>>             return '/your/path/here/CT_images'
     ...
-    >>> image_divvy(opi, divvy_rule=my_divvy_rule2, action='copy')
+    >>> summary_dict = image_divvy(opi, divvy_rule=my_divvy_rule2, action='copy')
 
     |
     | **Usage 2b**: A Rule which can Return Multiple Save Locations for a Single Row
@@ -825,7 +883,7 @@ def image_divvy(instance,
     >>>             locations.append('/your/path/here/pelvis_images')
     >>>     return locations
     ...
-    >>> image_divvy(opi, divvy_rule=my_divvy_rule2, action='copy')
+    >>> summary_dict= image_divvy(opi, divvy_rule=my_divvy_rule2, action='copy')
 
     |
     | **Usage 3**: Divvying into *train/validation/test*
@@ -833,18 +891,32 @@ def image_divvy(instance,
     **i**. Copying to a New Location (reusing ``my_divvy_rule1``)
 
     >>> train_val_test_dict = {'train': 0.7, 'test': 0.3, 'target_dir': '/your/path/here/output'}
-    >>> image_divvy(opi, divvy_rule=my_divvy_rule1, action='copy', train_val_test_dict=train_val_test_dict)
+    >>> summary_dict = image_divvy(opi, divvy_rule=my_divvy_rule1, action='copy', train_val_test_dict=train_val_test_dict)
 
     **ii**. Obtaining ``ndarrays`` (numpy arrays)
 
     >>> train_val_test_dict = {'train': 0.7, 'validation': 0.2, 'test': 0.1}
-    >>> tvt = image_divvy(opi, divvy_rule=my_divvy_rule1, action='ndarray', train_val_test_dict=train_val_test_dict)
+    >>> image_dict = image_divvy(opi, divvy_rule=my_divvy_rule1, action='ndarray', train_val_test_dict=train_val_test_dict)
 
     The resultant ``ndarrays`` can be unpacked as follows:
 
-    >>> train_ct, train_mri = tvt['train']['ct'], tvt['train']['mri']
-    >>> val_ct, val_mri = tvt['validation']['ct'], tvt['validation']['mri']
-    >>> test_ct, test_mri = tvt['test']['ct'], tvt['test']['mri']
+    >>> train_ct, train_mri = image_dict['train']['ct'], image_dict['train']['mri']
+    >>> val_ct, val_mri = image_dict['validation']['ct'], image_dict['validation']['mri']
+    >>> test_ct, test_mri = image_dict['test']['ct'], image_dict['test']['mri']
+    
+    This function behaves the same if passed an instance of ``ImageProcessing``
+    
+    >>> ip = ImageProcessing(opi)
+    >>> ip.auto()
+    >>> ip.clean_image_dataframe()
+    
+    >>> image_dict = image_divvy(ip, divvy_rule=my_divvy_rule1, action='ndarray', train_val_test_dict=train_val_test_dict)
+    ...
+    
+    .. note::
+    
+        If an instance of ``ImageProcessing`` is passed to ``image_divvy``, the ``image_data_frame_cleaned``
+        dataframe will be extracted.
 
     .. note::
 
@@ -859,10 +931,14 @@ def image_divvy(instance,
         performance metrics (e.g., accuracy) when assessing fitted models.
 
     """
-    _image_divvy_error_checking(divvy_rule=divvy_rule, action=action, train_val_test_dict=train_val_test_dict)
+    _image_divvy_error_checking(divvy_rule=divvy_rule, action=action,
+                                train_val_test_dict=train_val_test_dict)
 
     if type(instance).__name__ == 'ImageProcessing':
-        data_frame = instance.image_dataframe
+        return _divvy_image_processing(instance=instance, divvy_rule=divvy_rule,
+                                       action=action, train_val_test_dict=train_val_test_dict,
+                                       create_dirs=create_dirs, allow_overwrite=allow_overwrite,
+                                       verbose=verbose)
     elif db_to_extract == 'unify_against_images':
         data_frame = instance
     else:
@@ -900,25 +976,3 @@ def image_divvy(instance,
         return _file_paths_dict_to_ndarrays(divvy_info, dimensions=1, verbose=verbose)
     elif isinstance(divvy_info, dict) and action == 'copy':
         return divvy_info
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
