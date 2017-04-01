@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import os
 import shutil
 import numpy as np
@@ -15,15 +14,15 @@ from collections import Counter
 from collections import defaultdict
 
 # General Support Tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import multimap
-from biovida.support_tools.support_tools import directory_existence_handler
+from biovida.support_tools.support_tools import (cln,
+                                                 multimap,
+                                                 directory_existence_handler)
 
 # Utilities
-from biovida.support_tools.utilities import _tvt_dict_gen
-from biovida.support_tools.utilities import train_val_test
-from biovida.support_tools.utilities import _train_val_test_engine
-from biovida.support_tools.utilities import _file_paths_dict_to_ndarrays
+from biovida.support_tools.utilities import (_tvt_dict_gen,
+                                             train_val_test,
+                                             _train_val_test_engine,
+                                             _file_paths_dict_to_ndarrays)
 
 # Import Printing Tools
 from biovida.support_tools import pandas_pprint

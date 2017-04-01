@@ -4,7 +4,6 @@
     ~~~~~~~~~
 
 """
-# Imports
 import os
 import shutil
 import numpy as np
@@ -16,12 +15,12 @@ from os.path import join as os_join
 from os.path import basename as os_basename
 
 # General Support Tools
-from biovida.support_tools.support_tools import is_int
-from biovida.support_tools.support_tools import isclose
-from biovida.support_tools.support_tools import is_numeric
-from biovida.support_tools.support_tools import list_to_bulletpoints
-from biovida.support_tools.support_tools import InsufficientNumberOfFiles
-from biovida.support_tools.support_tools import directory_existence_handler
+from biovida.support_tools.support_tools import (is_int,
+                                                 isclose,
+                                                 is_numeric,
+                                                 list_to_bulletpoints,
+                                                 InsufficientNumberOfFiles,
+                                                 directory_existence_handler)
 
 
 _TVT_GROUPS = ('train', 'validation', 'test')

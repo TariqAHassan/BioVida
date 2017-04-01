@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import os
 import pickle
 from tqdm import tqdm

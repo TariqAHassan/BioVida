@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -12,9 +11,7 @@ from bs4 import BeautifulSoup
 from collections import Counter
 
 # General Support tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import unescape
-from biovida.support_tools.support_tools import remove_html_bullet_points
+from biovida.support_tools.support_tools import cln, unescape, remove_html_bullet_points
 
 # Image Support Tools
 from biovida.images._image_tools import NoResultsFound
@@ -23,9 +20,9 @@ from biovida.images._image_tools import NoResultsFound
 from biovida.support_tools.support_tools import camel_to_snake_case
 
 # Open-i API Parameters Information
-from biovida.images._interface_support.openi.openi_parameters import openi_image_type_params
-from biovida.images._interface_support.openi.openi_parameters import openi_article_type_params
-from biovida.images._interface_support.openi.openi_parameters import openi_image_type_modality_full
+from biovida.images._interface_support.openi.openi_parameters import (openi_image_type_params,
+                                                                      openi_article_type_params,
+                                                                      openi_image_type_modality_full)
 
 from biovida.images._interface_support.openi._openi_image_id_processing import image_id_short_gen
 from biovida.images._interface_support.openi._openi_text_feature_extraction import feature_extract
@@ -345,23 +342,3 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
             data_frame[c] = extract_df[c]
 
     return _data_frame_clean(data_frame, verbose=verbose)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

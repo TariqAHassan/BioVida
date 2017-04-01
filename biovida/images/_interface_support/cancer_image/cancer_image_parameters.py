@@ -11,11 +11,11 @@ import pandas as pd
 from itertools import chain
 
 # General Support Tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import header
-from biovida.support_tools.support_tools import n_split
-from biovida.support_tools.support_tools import combine_dicts
-from biovida.support_tools.support_tools import camel_to_snake_case
+from biovida.support_tools.support_tools import (cln,
+                                                 header,
+                                                 n_split,
+                                                 combine_dicts,
+                                                 camel_to_snake_case)
 
 # Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
@@ -294,23 +294,3 @@ class CancerImageArchiveParams(object):
     
         # Return based on `rtype`.
         return api_reference if rtype == 'dataframe' else self._reference_table_as_dict(api_reference)
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -4,15 +4,11 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-
-# Imports
 import re
 from collections import defaultdict
 
 # General Support Tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import only_numeric
-from biovida.support_tools.support_tools import multi_replace
+from biovida.support_tools.support_tools import cln, only_numeric, multi_replace
 
 
 _image_id_cleaner_regex = re.compile('\.[A-Za-z]+$')
@@ -252,18 +248,3 @@ def image_id_short_gen(data_frame):
         lambda x: _image_id_short(x['journal_title'], x['image_id']), axis=1)
 
     return _image_id_short_enforce_unique(data_frame)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

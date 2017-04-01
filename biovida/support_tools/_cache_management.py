@@ -5,15 +5,12 @@
 
 """
 # Note: this module contains the tools required to construct the caches needed by BioVida.
-
-# Imports
 import os
 import requests
 from PIL import Image
 
 # General Support Tools
-from biovida.support_tools.support_tools import combine_dicts
-from biovida.support_tools.support_tools import list_to_bulletpoints
+from biovida.support_tools.support_tools import combine_dicts, list_to_bulletpoints
 
 
 def _medpix_logo_download(save_path,
@@ -233,15 +230,3 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
 
     # Return full path & the above mapping
     return sub_dir_full_path, record_dict_nest
-
-
-
-
-
-
-
-
-
-
-
-

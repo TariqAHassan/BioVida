@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import numpy as np
 from scipy.misc import imread
 from scipy.misc import imresize
@@ -358,50 +357,3 @@ def _box_show(base_image_path, pattern_image_path):
     # Add the bounding box
     ax1.add_patch(patches.Rectangle(top_left, width, height, fill=False, edgecolor="red"))
     fig.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

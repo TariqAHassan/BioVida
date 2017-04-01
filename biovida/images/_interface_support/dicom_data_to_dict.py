@@ -5,8 +5,6 @@
 
 """
 # Also see: https://github.com/darcymason/pydicom/issues/319.
-
-# Imports
 import os
 import dicom
 from biovida.support_tools.support_tools import cln
@@ -134,18 +132,3 @@ def dicom_to_dict(dicom_file):
         raise TypeError("`dicom_file` must be of type `dicom.FileDataset` or a string.")
 
     return dicom_object_dict_gen(dicom_object)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

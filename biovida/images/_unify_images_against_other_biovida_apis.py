@@ -5,8 +5,6 @@
 
 """
 # Note: To use these tools, see ``biovia.unify_domains.unify_against_images()``
-
-# Imports
 import numpy as np
 import pandas as pd
 from tqdm import tqdm

@@ -4,14 +4,12 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import re
 from itertools import chain
-from urllib.parse import urlsplit # handle python 2
+from urllib.parse import urlsplit  # handle python 2
 
 # General Support tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import items_null
+from biovida.support_tools.support_tools import cln, items_null
 from biovida.support_tools._support_data import ages_as_tuples_rev
 
 # Regex for ``extract_float()``
@@ -259,14 +257,3 @@ def url_path_extract(url):
     :rtype: ``str``
     """
     return urlsplit(url).path[1:].replace("/", "__")
-
-
-
-
-
-
-
-
-
-
-

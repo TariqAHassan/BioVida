@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
@@ -146,21 +145,3 @@ def show_plt(image):
     fig, ax = plt.subplots()
     ax.imshow(image, interpolation='nearest', cmap=plt.cm.gray)
     plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import numpy as np
 import pandas as pd
 from operator import sub
@@ -606,31 +605,3 @@ def _lines_plotter(path_to_image):
         # print("No Results to Display.")
         print(analysis)
         return False
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

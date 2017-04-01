@@ -4,23 +4,22 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import re
 import string
 from bs4 import BeautifulSoup
 from collections import defaultdict
 
 # Image Support Tools
-from biovida.images._interface_support.openi.openi_support_tools import filter_unnest
-from biovida.images._interface_support.openi.openi_support_tools import num_word_to_int
-from biovida.images._interface_support.openi.openi_support_tools import multiple_decimal_remove
+from biovida.images._interface_support.openi.openi_support_tools import (filter_unnest,
+                                                                         num_word_to_int,
+                                                                         multiple_decimal_remove)
 
 # General Support Tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import unescape
-from biovida.support_tools.support_tools import order_set
-from biovida.support_tools.support_tools import multi_replace
-from biovida.support_tools.support_tools import remove_html_bullet_points
+from biovida.support_tools.support_tools import (cln,
+                                                 unescape,
+                                                 order_set,
+                                                 multi_replace,
+                                                 remove_html_bullet_points)
 
 # Data
 from biovida.images._interface_support.openi._openi_imaging_modality_information import (terms_dict,
@@ -967,24 +966,3 @@ def feature_extract(x, list_of_diseases, image_caption_unique):
         d['sex'] = eth_sex
 
     return d
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

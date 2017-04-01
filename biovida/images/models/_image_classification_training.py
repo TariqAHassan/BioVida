@@ -63,4 +63,3 @@ epochs = int(input("Please enter the number of epochs: "))
 model_to_use = select_model()
 
 _image_recognition_cnn_training(epochs, model_to_use, save_name)
-

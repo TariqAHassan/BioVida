@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import os
 import numpy as np
 import pandas as pd
@@ -18,16 +17,14 @@ from os.path import join as os_join
 from os.path import basename as os_basename
 
 # General tools
-from biovida.support_tools.support_tools import items_null
-from biovida.support_tools.support_tools import data_frame_col_drop
-from biovida.support_tools.support_tools import list_to_bulletpoints
+from biovida.support_tools.support_tools import items_null, data_frame_col_drop, list_to_bulletpoints
 
 # Tools form the image subpackage
 from biovida.images._image_tools import load_and_scale_images
 
 from biovida.images._resources._model_metadata import trained_open_i_modality_types
-from biovida.images._interface_support.openi.openi_support_tools import nonessential_openi_columns
-from biovida.images._interface_support.openi.openi_support_tools import grayscale_openi_modalities
+from biovida.images._interface_support.openi.openi_support_tools import (nonessential_openi_columns,
+                                                                         grayscale_openi_modalities)
 
 # Models
 from biovida.images.models.border_detection import border_detection
