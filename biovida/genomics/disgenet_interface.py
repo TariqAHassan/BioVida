@@ -4,19 +4,15 @@
     ~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import os
 import requests
 import pandas as pd
-from pprint import pprint
 
 # Tool to create required caches
 from biovida.support_tools._cache_management import package_cache_creator
 
 # BioVida Support Tools
-from biovida.support_tools.support_tools import header
-from biovida.support_tools.support_tools import camel_to_snake_case
-from biovida.support_tools.support_tools import list_to_bulletpoints
+from biovida.support_tools.support_tools import header, camel_to_snake_case, list_to_bulletpoints
 
 # BioVida Printing Tools
 from biovida.support_tools.printing import dict_pprint
@@ -212,7 +208,8 @@ class DisgenetInterface(object):
             if self._verbose:
                 header("Downloading DisGeNET Database... ", flank=False)
             # Harvest
-            df = pd.read_csv(db_url, sep='\t', header=_disgenet_delimited_databases[database]['header'], compression='gzip')
+            df = pd.read_csv(db_url, sep='\t', header=_disgenet_delimited_databases[database]['header'],
+                             compression='gzip')
             # Clean and Save
             self._df_clean(df).to_pickle(save_address)
         else:
@@ -225,38 +222,3 @@ class DisgenetInterface(object):
         self.current_database_description = _disgenet_delimited_databases[database]['description']
 
         return df
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

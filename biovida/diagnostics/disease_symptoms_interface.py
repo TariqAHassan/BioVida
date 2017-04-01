@@ -4,13 +4,11 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Imports
 import os
 import pandas as pd
 
 # General Support Tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import header
+from biovida.support_tools.support_tools import cln, header
 from biovida.support_tools._cache_management import package_cache_creator
 
 
@@ -238,25 +236,3 @@ class DiseaseSymptomsInterface(object):
             self.combined_db = pd.read_pickle(save_path)
 
         return self.combined_db
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

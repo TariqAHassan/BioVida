@@ -15,9 +15,7 @@ from itertools import chain
 from datetime import datetime
 
 # Biovida support tools
-from biovida.support_tools.support_tools import cln
-from biovida.support_tools.support_tools import header
-from biovida.support_tools.support_tools import items_null
+from biovida.support_tools.support_tools import cln, header, items_null
 from biovida.support_tools._cache_management import package_cache_creator
 
 
@@ -332,23 +330,3 @@ class DiseaseOntInterface(object):
             self.disease_db = pd.read_pickle(db_path)
 
         return self.disease_db
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
