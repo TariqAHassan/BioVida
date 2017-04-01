@@ -12,12 +12,26 @@ from tqdm import tqdm
 from warnings import warn
 from biovida.images._image_tools import load_and_scale_images
 
+# The model in `/_resources` was trained using Theano.
+# TensorFlow cannot be used to load these weights until
+# this issue (https://github.com/fchollet/keras/pull/5898) is resolved.
+os.environ['KERAS_BACKEND'] = 'theano'
+
 from keras import callbacks
 from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential, load_model, Model
-from keras.layers import (Convolution2D, MaxPooling2D, ZeroPadding2D, concatenate, GlobalAveragePooling2D,
-                          Activation, Dropout, Flatten, Dense, Input, merge)
+from keras.layers import (Convolution2D,
+                          MaxPooling2D,
+                          ZeroPadding2D,
+                          concatenate,
+                          GlobalAveragePooling2D,
+                          Activation,
+                          Dropout,
+                          Flatten,
+                          Dense,
+                          Input,
+                          merge)
 from keras.optimizers import RMSprop, SGD
 
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
