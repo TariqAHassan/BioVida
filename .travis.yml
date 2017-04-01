@@ -13,7 +13,8 @@ script:
   - python -W"ignore" tests/biovida_images_tests.py
   - python -W"ignore" tests/biovida_support_tools.py
   - python -W"ignore" tests/biovida_unification_tests.py
-os: "osx"
+os: "linux"
+dist: "trusty"
 notifications:
     on_success: never
     on_failure: never
