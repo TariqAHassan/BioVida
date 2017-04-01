@@ -27,7 +27,7 @@ setup(
     package_data={'biovida': ['images/_resources/*.h5', 'images/_resources/*.p'],},
     data_files=[('', ['LICENSE.md'])],
     install_requires=['bs4', 'h5py', 'keras', 'lxml', 'numpy', 'pandas', 'Pillow',
-                      'pydicom', 'requests', 'scikit-image', 'scipy', 'theano', 'tqdm'],
+                      'pydicom', 'requests', 'scikit-image', 'scipy', 'tensorflow', 'theano', 'tqdm'],
     classifiers=['Development Status :: 2 - Pre-Alpha',
                  'Natural Language :: English',
                  'Intended Audience :: Science/Research',
