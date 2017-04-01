@@ -865,16 +865,20 @@
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_divvy_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="p">,</span>
-                            <span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_divvy_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span>
+                            <span class="n">divvy_rule</span><span class="p">,</span>
+                            <span class="n">action</span><span class="p">,</span>
+                            <span class="n">train_val_test_dict</span><span class="p">,</span>
+                            <span class="n">create_dirs</span><span class="p">,</span>
+                            <span class="n">allow_overwrite</span><span class="p">,</span>
+                            <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    </span>
 <span class="sd">    Handle the special case of &#39;divvying&#39; when an instance of the ``ImageProcessing``</span>
 <span class="sd">    class is passed to ``image_divvy()``.</span>
 <span class="sd">    </span>
-<span class="sd">    This has to be to be handled seperately so that knowlege obtained</span>
-<span class="sd">    through ``ImageProcessing``&#39;s about how to crop the images, for example,</span>
-<span class="sd">    can actually applied if the user wishes.</span>
+<span class="sd">    This has to be to be handled separately so that cropping information,</span>
+<span class="sd">    determined by ``ImageProcessing``&#39;s analysis methods, can be applied.</span>
 <span class="sd">    </span>
 <span class="sd">    :param instance: see ``image_divvy()``.</span>
 <span class="sd">    :type instance: ``ImageProcessing``</span>
