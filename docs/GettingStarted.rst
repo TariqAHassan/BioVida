@@ -143,8 +143,7 @@ to control the image processing more precisely if you
 wish (see the documentation `here <https://tariqahassan.github.io/BioVida/API.html#image-processing>`__), this
 fully automated approach should suffice in most cases.
 
-**Notice**: This library is still in *pre-alpha*. That is, formal unit testing has not yet been implemented.
-**Until it is, this software should be considered to be experimental**.
+**Notice**: **This functionality is considered to be experimental**.
 
 --------------
 

@@ -28,7 +28,7 @@ setup(
     data_files=[('', ['LICENSE.md'])],
     install_requires=['bs4', 'h5py', 'keras', 'lxml', 'numpy', 'pandas', 'Pillow',
                       'pydicom', 'requests', 'scikit-image', 'scipy', 'tensorflow', 'theano', 'tqdm'],
-    classifiers=['Development Status :: 2 - Pre-Alpha',
+    classifiers=['Development Status :: 3 - Alpha',
                  'Natural Language :: English',
                  'Intended Audience :: Science/Research',
                  'Programming Language :: Python :: 2.7',
