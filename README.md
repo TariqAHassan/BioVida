@@ -3,6 +3,7 @@
 </div>
 
 ----
+[![Build Status](https://travis-ci.org/TariqAHassan/BioVida.svg?branch=master)](https://travis-ci.org/TariqAHassan/BioVida)
 
 BioVida is a library designed to make it easy to gain access to 
 existing biomedical data sets as well as build brand new, custom-made ones.
