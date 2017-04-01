@@ -269,7 +269,7 @@ def train_val_test(data,
 
     :param data: 
     
-        - a dictionary of the form: ``{group_name: [file_path, file_path], ...}``
+        - a dictionary of the form: ``{group_name: [file_path, file_path, ...], ...}``.
         - the directory containing the data. This directory should contain subdirectories (the categories)
           populated with the files.
 
