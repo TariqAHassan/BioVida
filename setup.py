@@ -9,21 +9,6 @@ def read(fname):
         return 'Please see: https://github.com/TariqAHassan/BioVida.'
 
 
-def required_dependencies():
-    """
-    Adds TensorFlow to dependencies if Theano cannot be imported.
-    """
-    dependencies = ['bs4', 'h5py', 'keras', 'lxml', 'numpy', 'pandas', 'Pillow',
-                    'pydicom', 'requests', 'scikit-image', 'scipy', 'tqdm']
-
-    try:
-        import theano
-    except ImportError:
-        dependencies += ['tensorflow']
-
-    return dependencies
-
-
 setup(
     name='biovida',
     version='0.1',
@@ -34,14 +19,19 @@ setup(
     license='BSD',
     keywords='machine-learning, biomedical-informatics, data-science, bioinformatics, imaging-informatics',
     url='https://github.com/TariqAHassan/BioVida.git',
-    packages=find_packages(exclude=("data", "tests")),
-    package_data={'biovida': ['images/resources/*.h5', 'images/resources/*.p'],},
+    packages=find_packages(exclude=("data.*",
+                                    "data",
+                                    "tests.*",
+                                    "tests")
+                           ),
+    package_data={'biovida': ['images/_resources/*.h5', 'images/_resources/*.p'],},
     data_files=[('', ['LICENSE.md'])],
-    install_requires=required_dependencies(),
+    install_requires=['bs4', 'h5py', 'keras', 'lxml', 'numpy', 'pandas', 'Pillow',
+                      'pydicom', 'requests', 'scikit-image', 'scipy', 'theano', 'tqdm'],
     classifiers=['Development Status :: 2 - Pre-Alpha',
                  'Natural Language :: English',
                  'Intended Audience :: Science/Research',
-                 'Programming Language :: Python :: 3.4',
+                 'Programming Language :: Python :: 2.7',
                  'Programming Language :: Python :: 3.5',
                  'License :: OSI Approved :: BSD License'
     ],
