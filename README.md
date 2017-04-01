@@ -106,8 +106,11 @@ from biovida.images import ImageProcessing
 # 2. Instantiate the Tool using the OpeniInterface Instance
 ip = ImageProcessing(opi)
  
-# 3. Clean the Image Data
+# 3. Analyze the Images
 idf = ip.auto()
+
+# 4. Use the Analysis to Clean Images
+ip.clean_image_dataframe()
 ```
 
 These cleaned images can easily be save as follows:
