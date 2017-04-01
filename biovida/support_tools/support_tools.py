@@ -13,8 +13,8 @@ import pandas as pd
 from itertools import chain
 from six.moves.html_parser import HTMLParser
 
-# Pull out the unescape function
 unescape = HTMLParser().unescape
+
 _only_numeric_regex = re.compile(r'[^\d.]+')
 _cln_extent_1_regex = re.compile('\s\s+')
 _cln_extent_2_regex = re.compile('\s+')
@@ -392,18 +392,3 @@ def data_frame_col_drop(data_frame, columns_to_drop, data_frame_name):
         raise TypeError("`{0}` is not a DataFrame.".format(data_frame_name))
     columns_to_keep = [i for i in data_frame.columns if i not in columns_to_drop]
     return data_frame[columns_to_keep]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
