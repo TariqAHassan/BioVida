@@ -170,7 +170,9 @@
     <div class="col-md-9 content">
       
   <h1>Source code for biovida.images.openi_interface</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="c1"># coding: utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Open-i Interface</span>
 <span class="sd">    ~~~~~~~~~~~~~~~~</span>
@@ -1099,10 +1101,11 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">):</span>
                 <span class="n">settings_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
                 <span class="n">settings_dict_for_pull</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">settings_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">]}</span>
+                <span class="n">settings_dict_for_pull</span><span class="p">[</span><span class="s1">&#39;new_records_pull&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># adding this separately in `pull` breaks in python2</span>
 
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Resuming Download...&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">load_records_db</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">])</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="o">**</span><span class="n">settings_dict_for_pull</span><span class="p">,</span> <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="o">**</span><span class="n">settings_dict_for_pull</span><span class="p">)</span>
 
             <span class="c1"># `temp_directory_path` will be destroyed when `pull()` exits successfully</span>
 
@@ -1226,7 +1229,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">records_db</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">last_query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">**</span><span class="n">last_query</span><span class="p">,</span> <span class="n">print_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">last_query</span><span class="p">[</span><span class="s1">&#39;print_results&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">**</span><span class="n">last_query</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1411,12 +1415,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">new_records_pull</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`records_db` is not a dataframe.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">new_records_pull</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-
         <span class="k">if</span> <span class="n">new_records_pull</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_search_url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`search()` must be called before `pull()`.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Records</span><span class="o">.</span><span class="n">records_pull</span><span class="p">(</span><span class="n">search_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_search_url</span><span class="p">,</span>
                                                          <span class="n">to_harvest</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_search_to_harvest</span><span class="p">,</span>
                                                          <span class="n">total</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_search_total</span><span class="p">,</span>

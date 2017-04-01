@@ -170,25 +170,23 @@
     <div class="col-md-9 content">
       
   <h1>Source code for biovida.genomics.disgenet_interface</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="c1"># coding: utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    DisGeNET Interface</span>
 <span class="sd">    ~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
 
 <span class="c1"># Tool to create required caches</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
 
 <span class="c1"># BioVida Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">header</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">camel_to_snake_case</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">header</span><span class="p">,</span> <span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span>
 
 <span class="c1"># BioVida Printing Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.printing</span> <span class="k">import</span> <span class="n">dict_pprint</span>
@@ -384,7 +382,8 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="n">header</span><span class="p">(</span><span class="s2">&quot;Downloading DisGeNET Database... &quot;</span><span class="p">,</span> <span class="n">flank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="c1"># Harvest</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;header&#39;</span><span class="p">],</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;header&#39;</span><span class="p">],</span>
+                             <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">)</span>
             <span class="c1"># Clean and Save</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_df_clean</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">save_address</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -397,41 +396,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">current_database_description</span> <span class="o">=</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">df</span></div></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </pre></div>
 
     </div>

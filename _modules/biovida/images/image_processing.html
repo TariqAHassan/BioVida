@@ -170,13 +170,14 @@
     <div class="col-md-9 content">
       
   <h1>Source code for biovida.images.image_processing</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="c1"># coding: utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Image Processing</span>
 <span class="sd">    ~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -185,18 +186,19 @@
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">ImageStat</span>
 <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">imread</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">os_join</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">basename</span> <span class="k">as</span> <span class="n">os_basename</span>
 
 <span class="c1"># General tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">items_null</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">data_frame_col_drop</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">items_null</span><span class="p">,</span> <span class="n">data_frame_col_drop</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span>
 
 <span class="c1"># Tools form the image subpackage</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_and_scale_images</span>
 
 <span class="kn">from</span> <span class="nn">biovida.images._resources._model_metadata</span> <span class="k">import</span> <span class="n">trained_open_i_modality_types</span>
-<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">nonessential_openi_columns</span>
-<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="n">grayscale_openi_modalities</span>
+<span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">nonessential_openi_columns</span><span class="p">,</span>
+                                                                         <span class="n">grayscale_openi_modalities</span><span class="p">)</span>
 
 <span class="c1"># Models</span>
 <span class="kn">from</span> <span class="nn">biovida.images.models.border_detection</span> <span class="k">import</span> <span class="n">border_detection</span>
@@ -267,6 +269,7 @@
 
         <span class="c1"># Extract the records_db/cache_records_db database</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_db</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="s1">&#39;cached_images_path&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No &#39;cached_images_path&#39; column in &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_to_extract</span><span class="p">))</span>
@@ -936,85 +939,95 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span></div>
 
-    <span class="k">def</span> <span class="nf">_save_method_error_checking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_rule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_save_method_error_checking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_rule</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Check for error that would cause ``save()`` to fail.</span>
 
-<span class="sd">        :param save_rule: see ``save()``</span>
-<span class="sd">        :type save_rule: ``str`` or ``function``</span>
+<span class="sd">        :param output_rule: see ``output()``</span>
+<span class="sd">        :type output_rule: ``str`` or ``function``</span>
+<span class="sd">        :param action: see ``output``</span>
+<span class="sd">        :type action: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">save_rule</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`save_rule` must be a string or function.&quot;</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`action` must be either &#39;copy&#39; or &#39;ndarray&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">output_rule</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`output_rule` must be a string or function.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;invalid_image&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;`image_dataframe` must contain a &#39;invalid_image&#39; column which uses booleans to</span><span class="se">\n</span><span class="s2">&quot;</span>
                            <span class="s2">&quot;indicate whether or not to include an entry in the cleaned dataset.</span><span class="se">\n</span><span class="s2">&quot;</span>
                            <span class="s2">&quot;To automate this process, consider using the `auto_decision()` method.&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImageProcessing.cleaned_images_data_frame"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.cleaned_images_data_frame">[docs]</a>    <span class="k">def</span> <span class="nf">cleaned_images_data_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crop_images</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessing.clean_image_dataframe"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.clean_image_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">clean_image_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crop_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Define a dataframe with rows of images found to be &#39;valid&#39;.</span>
 <span class="sd">        These &#39;valid&#39; images are cleaned and stored as PIL images in a ``&#39;cleaned_image&#39;`` column.</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            </span>
+<span class="sd">            The DataFrame this method creates can be viewed with ``INSTANCE.image_data_frame_cleaned``.</span>
 
-<span class="sd">        :param crop_images: see ``save()``.</span>
+<span class="sd">        :param crop_images: Crop the images using analyses results from `border_analysis()` and</span>
+<span class="sd">                            ``logo_analysis()``. Defaults to ``True``.</span>
 <span class="sd">        :type crop_images: ``bool``</span>
-<span class="sd">        :param convert_to_rgb: see ``save()``</span>
+<span class="sd">        :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.</span>
 <span class="sd">        :type convert_to_rgb: ``bool``</span>
-<span class="sd">        :param status: see ``save()``</span>
+<span class="sd">        :param status: display status bar. Defaults to ``True``.</span>
 <span class="sd">        :type status: ``bool``</span>
 <span class="sd">        :return: ``self.image_dataframe`` where the &#39;invalid_image&#39; column is ``True``, with the addition of</span>
 <span class="sd">                  a &#39;cleaned_image&#39; populated by PIL image to be saved to disk.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s1">&#39;invalid_image&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No `invalid_image` column in `image_dataframe`;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                           <span class="s2">&quot;required to determine output.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No `invalid_image` column in `image_dataframe`,</span><span class="se">\n</span><span class="s2">&quot;</span>
+                           <span class="s2">&quot;which is required to determine output.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                           <span class="s2">&quot;Consider calling the ``auto()`` method.&quot;</span><span class="p">)</span>
 
-        <span class="n">return_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span>
+        <span class="n">image_data_frame_cleaned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;invalid_image&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">True</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">crop_images</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Cropping Images...&quot;</span><span class="p">)</span>
-            <span class="n">return_df</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cropper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">return_df</span><span class="p">,</span> <span class="n">return_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                                       <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+            <span class="n">image_data_frame_cleaned</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cropper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">image_data_frame_cleaned</span><span class="p">,</span>
+                                                                      <span class="n">return_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                                      <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span>
+                                                                      <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Loading Images...&quot;</span><span class="p">)</span>
-            <span class="n">return_df</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pil_load</span><span class="p">(</span><span class="n">return_df</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span> <span class="n">convert_to_rgb</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="n">image_data_frame_cleaned</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pil_load</span><span class="p">(</span><span class="n">image_data_frame_cleaned</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span>
+                                                                       <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span>
+                                                                       <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">return_df</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span> <span class="o">=</span> <span class="n">image_data_frame_cleaned</span></div>
 
-<div class="viewcode-block" id="ImageProcessing.save"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-             <span class="n">save_rule</span><span class="p">,</span>
-             <span class="n">create_dirs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-             <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-             <span class="n">crop_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-             <span class="n">convert_to_rgb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-             <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessing.output"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">output_rule</span><span class="p">,</span>
+               <span class="n">create_dirs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span>
+               <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Save processed images to disk.</span>
 
-<span class="sd">        :param save_rule:</span>
+<span class="sd">        :param output_rule:</span>
 
 <span class="sd">            - if a ``str``: the directory to save the images.</span>
 <span class="sd">            - if a ``function``: it must (1) accept a single parameter (argument) and (2) return system path(s)</span>
 <span class="sd">              [see example below].</span>
 
-<span class="sd">        :type save_rule: ``str`` or ``function``</span>
+<span class="sd">        :type output_rule: ``str`` or ``function``</span>
 <span class="sd">        :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist.</span>
 <span class="sd">                            Defaults to ``False``.</span>
 <span class="sd">        :type create_dirs: ``bool``</span>
 <span class="sd">        :param allow_overwrite: if ``True`` allow existing images to be overwritten. Defaults to ``True``.</span>
 <span class="sd">        :type allow_overwrite: ``bool``</span>
-<span class="sd">        :param crop_images: Crop the images using analyses results from `border_analysis()` and</span>
-<span class="sd">                            ``logo_analysis()``. Defaults to ``True``.</span>
-<span class="sd">        :type crop_images: ``bool``</span>
-<span class="sd">        :param convert_to_rgb: if ``True``, use the PIL library to convert the images to RGB. Defaults to ``False``.</span>
-<span class="sd">        :type convert_to_rgb: ``bool``</span>
+<span class="sd">        :param action: one of &#39;copy&#39;, &#39;ndarray&#39;.</span>
+<span class="sd">        :type action: ``str``</span>
 <span class="sd">        :param status: display status bar. Defaults to ``True``.</span>
 <span class="sd">        :type status: ``bool``</span>
 
@@ -1029,12 +1042,16 @@
 <span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; ip = ImageProcessing(opi)</span>
 <span class="sd">        &gt;&gt;&gt; ip.auto()</span>
+<span class="sd">        </span>
+<span class="sd">        Next, prune invalid images </span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; ip.clean_image_dataframe()</span>
 
-<span class="sd">        A Simple Save Rule</span>
+<span class="sd">        A Simple Output Rule</span>
 
-<span class="sd">        &gt;&gt;&gt; ip.save(&#39;/your/path/here/images&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; ip.output(&#39;/your/path/here/images&#39;)</span>
 
-<span class="sd">        A More Complex Save Rule</span>
+<span class="sd">        A More Complex Output Rule</span>
 
 <span class="sd">        &gt;&gt;&gt; def my_save_rule(row):</span>
 <span class="sd">        &gt;&gt;&gt;     if isinstance(row[&#39;abstract&#39;], str) and &#39;lung&#39; in row[&#39;abstract&#39;]:</span>
@@ -1045,43 +1062,64 @@
 <span class="sd">        &gt;&gt;&gt; ip.save(my_save_rule)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_method_error_checking</span><span class="p">(</span><span class="n">save_rule</span><span class="p">)</span>
+        <span class="c1"># Limit to &#39;valid&#39; images</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`image_data_frame_cleaned` is not a DataFrame.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot;The `clean_image_dataframe()` method must be called before ``output()``.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Limit to valid images</span>
-        <span class="n">return_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_images_data_frame</span><span class="p">(</span><span class="n">crop_images</span><span class="o">=</span><span class="n">crop_images</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span>
-                                                   <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_method_error_checking</span><span class="p">(</span><span class="n">output_rule</span><span class="o">=</span><span class="n">output_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">allow_write</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;allow_write&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">ndarray_with_path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ndarray_with_path&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">save_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Wrap `save_rule` to ensure it is, or</span>
-<span class="sd">            will yield, a valid path.&quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">save_path</span> <span class="o">=</span> <span class="n">save_rule</span>
-            <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">save_rule</span><span class="p">):</span>
-                <span class="n">save_path</span> <span class="o">=</span> <span class="n">save_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">save_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="n">output_rule</span>
+            <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">output_rule</span><span class="p">):</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="n">output_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">group</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;String Expected.</span><span class="se">\n</span><span class="s2">The function passed to `save_rule` (`</span><span class="si">{0}</span><span class="s2">`)</span><span class="se">\n</span><span class="s2">returned &quot;</span>
-                                    <span class="s2">&quot;an object of type &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_rule</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">save_path</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">save_path</span>
-            <span class="k">elif</span> <span class="n">create_dirs</span><span class="p">:</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">save_path</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No such directory:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{0}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                                         <span class="s2">&quot;Consider setting `create_dirs=True`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_path</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;String Expected.</span><span class="se">\n</span><span class="s2">The function passed to `output_rule` &quot;</span>
+                                    <span class="s2">&quot;(`</span><span class="si">{0}</span><span class="s2">`)</span><span class="se">\n</span><span class="s2">returned an object of type &quot;</span>
+                                    <span class="s2">&quot;&#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_rule</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">group</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">group</span>
+                <span class="k">elif</span> <span class="n">create_dirs</span> <span class="ow">and</span> <span class="n">allow_write</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">group</span>
+                <span class="k">elif</span> <span class="n">allow_write</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No such directory:</span><span class="se">\n</span><span class="s2">&#39;</span><span class="si">{0}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                             <span class="s2">&quot;Consider setting `create_dirs=True`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">group</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">group</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Saving Images...&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_status</span><span class="p">(</span><span class="n">return_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">return_df</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Generating Images...&quot;</span><span class="p">)</span>
+
+        <span class="n">return_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span>
+                                         <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span><span class="p">)):</span>
             <span class="n">save_target</span> <span class="o">=</span> <span class="n">save_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_target</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">full_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_target</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-                <span class="k">if</span> <span class="n">allow_overwrite</span><span class="p">:</span>
-                    <span class="n">row</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">):</span>
-                    <span class="n">row</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span></div></div>
+                <span class="n">full_save_path</span> <span class="o">=</span> <span class="n">os_join</span><span class="p">(</span><span class="n">save_target</span><span class="p">,</span> <span class="n">os_basename</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">allow_overwrite</span> <span class="ow">and</span> <span class="n">allow_write</span><span class="p">:</span>
+                        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">allow_write</span><span class="p">:</span>
+                        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">full_save_path</span><span class="p">)</span>
+                    <span class="n">return_dict</span><span class="p">[</span><span class="n">os_basename</span><span class="p">(</span><span class="n">save_target</span><span class="p">)]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">full_save_path</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ndarray_with_path</span><span class="p">:</span>
+                        <span class="n">return_dict</span><span class="p">[</span><span class="n">os_basename</span><span class="p">(</span><span class="n">save_target</span><span class="p">)]</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]),</span> <span class="n">full_save_path</span><span class="p">)]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">return_dict</span><span class="p">[</span><span class="n">os_basename</span><span class="p">(</span><span class="n">save_target</span><span class="p">)]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">])]</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ndarray_with_path</span> <span class="k">else</span> <span class="n">v</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">return_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">return_dict</span><span class="p">)</span></div></div>
 </pre></div>
 
     </div>

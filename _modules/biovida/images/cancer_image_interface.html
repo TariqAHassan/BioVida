@@ -170,13 +170,14 @@
     <div class="col-md-9 content">
       
   <h1>Source code for biovida.images.cancer_image_interface</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="c1"># coding: utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Cancer Imaging Archive Interface</span>
 <span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">dicom</span>
@@ -198,18 +199,18 @@
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">NoResultsFound</span>
 
 <span class="c1"># Database Management</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_records_db_merge</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_record_update_dbs_joiner</span>
-<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="n">_prune_rows_with_deleted_images</span>
+<span class="kn">from</span> <span class="nn">biovida.images.image_cache_mgmt</span> <span class="k">import</span> <span class="p">(</span><span class="n">_records_db_merge</span><span class="p">,</span>
+                                             <span class="n">_record_update_dbs_joiner</span><span class="p">,</span>
+                                             <span class="n">_prune_rows_with_deleted_images</span><span class="p">)</span>
 
 <span class="c1"># General Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">header</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">only_numeric</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">combine_dicts</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">camel_to_snake_case</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">data_frame_col_drop</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">cln</span><span class="p">,</span>
+                                                 <span class="n">header</span><span class="p">,</span>
+                                                 <span class="n">only_numeric</span><span class="p">,</span>
+                                                 <span class="n">combine_dicts</span><span class="p">,</span>
+                                                 <span class="n">camel_to_snake_case</span><span class="p">,</span>
+                                                 <span class="n">data_frame_col_drop</span><span class="p">,</span>
+                                                 <span class="n">list_to_bulletpoints</span><span class="p">)</span>
 
 <span class="c1"># Import Printing Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.printing</span> <span class="k">import</span> <span class="n">pandas_pprint</span>
@@ -1195,10 +1196,11 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">):</span>
                 <span class="n">settings_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
                 <span class="n">settings_dict_for_pull</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">settings_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">]}</span>
+                <span class="n">settings_dict_for_pull</span><span class="p">[</span><span class="s1">&#39;new_records_pull&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># adding this separately in `pull` breaks in python2</span>
 
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Resuming Download...&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">load_records_db</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">])</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="o">**</span><span class="n">settings_dict_for_pull</span><span class="p">,</span> <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="o">**</span><span class="n">settings_dict_for_pull</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_tcia_cache_records_db_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1330,7 +1332,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">records_db</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">last_query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">**</span><span class="n">last_query</span><span class="p">,</span> <span class="n">download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">last_query</span><span class="p">[</span><span class="s1">&#39;download_override&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">last_query</span><span class="p">[</span><span class="s1">&#39;pretty_print&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">**</span><span class="n">last_query</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1645,12 +1649,10 @@
 <span class="sd">        :return: a DataFrame with the record information.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">new_records_pull</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-
         <span class="k">if</span> <span class="n">new_records_pull</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_query</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`search()` must be called before `pull()`.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_records_db_gen</span><span class="p">(</span><span class="n">patient_limit</span><span class="o">=</span><span class="n">patient_limit</span><span class="p">,</span>
                                                    <span class="n">collections_limit</span><span class="o">=</span><span class="n">collections_limit</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
@@ -1669,26 +1671,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_handler</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span></div></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </pre></div>
 
     </div>

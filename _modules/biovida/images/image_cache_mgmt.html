@@ -170,13 +170,14 @@
     <div class="col-md-9 content">
       
   <h1>Source code for biovida.images.image_cache_mgmt</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="c1"># coding: utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Image Cache Management</span>
 <span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -187,13 +188,15 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 
 <span class="c1"># General Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">multimap</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">directory_existence_handler</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">cln</span><span class="p">,</span>
+                                                 <span class="n">multimap</span><span class="p">,</span>
+                                                 <span class="n">directory_existence_handler</span><span class="p">)</span>
 
 <span class="c1"># Utilities</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.utilities</span> <span class="k">import</span> <span class="n">train_val_test</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.utilities</span> <span class="k">import</span> <span class="n">_file_paths_dict_to_ndarrays</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.utilities</span> <span class="k">import</span> <span class="p">(</span><span class="n">_tvt_dict_gen</span><span class="p">,</span>
+                                             <span class="n">train_val_test</span><span class="p">,</span>
+                                             <span class="n">_train_val_test_engine</span><span class="p">,</span>
+                                             <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">)</span>
 
 <span class="c1"># Import Printing Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools</span> <span class="k">import</span> <span class="n">pandas_pprint</span>
@@ -793,22 +796,23 @@
                              <span class="n">allow_creation</span><span class="o">=</span><span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">copy_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;String, list or tuple expected. &quot;</span>
-                            <span class="s2">&quot;`divvy_rule` returned an object of type &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">copy_to</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+                            <span class="s2">&quot;`divvy_rule` returned an object of type &quot;</span>
+                            <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">copy_to</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">divvy_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
-        <span class="n">copy_to</span> <span class="o">=</span> <span class="n">divvy_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">divvy_rule</span><span class="p">)</span> <span class="k">else</span> <span class="n">divvy_rule</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">copy_to</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">divvy_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">divvy_rule</span><span class="p">)</span> <span class="k">else</span> <span class="n">divvy_rule</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">copy_to</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">copy_to</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_val_test_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">copy_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">copy_to</span><span class="p">)</span>
+            <span class="n">copy_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">column_to_use</span><span class="p">],</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
             <span class="n">cache_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="n">column_to_use</span><span class="p">]]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">column_to_use</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">column_to_use</span><span class="p">])</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">copy_to</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">return</span> <span class="p">[[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">copy_to</span><span class="p">),</span> <span class="n">cache_info</span><span class="p">]]</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">copy_to</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="p">[[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">cache_info</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">copy_to</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="n">cache_info</span><span class="p">]]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="p">[[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">cache_info</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -831,8 +835,8 @@
 <span class="sd">    :return: see ``train_val_test``.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">random_state</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_state&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">target</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_dir&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="n">random_state</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_state&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">delete_source</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;delete_source&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span> <span class="k">else</span> <span class="kc">False</span>
 
     <span class="n">output_dict</span> <span class="o">=</span> <span class="n">train_val_test</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">divvy_info</span><span class="p">,</span>
@@ -848,17 +852,73 @@
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Convert the list evolved inside ``divvy_rule_apply()`` in</span>
-<span class="sd">    ``image_divvy()`` into a dictionary</span>
+<span class="sd">    ``image_divvy()`` into a dictionary.</span>
 
 <span class="sd">    :param divvy_info: a list of the form ``[[string_1, [&#39;a&#39;, &#39;b&#39;]], [string_1, [&#39;c&#39;, &#39;d&#39;]], [string_2, [&#39;e&#39;]], ...]``.</span>
 <span class="sd">    :type divvy_info: ``list``</span>
 <span class="sd">    :return: a dictionary form: ``{string_1: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;], string_2: [&#39;e&#39;], ...}``.</span>
-<span class="sd">    :rtype: ``Pandas DataFrame``</span>
+<span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">divvy_info</span><span class="p">:</span>
         <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">v</span>
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_divvy_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="p">,</span>
+                            <span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Handle the special case of &#39;divvying&#39; when an instance of the ``ImageProcessing``</span>
+<span class="sd">    class is passed to ``image_divvy()``.</span>
+<span class="sd">    </span>
+<span class="sd">    This has to be to be handled seperately so that knowlege obtained</span>
+<span class="sd">    through ``ImageProcessing``&#39;s about how to crop the images, for example,</span>
+<span class="sd">    can actually applied if the user wishes.</span>
+<span class="sd">    </span>
+<span class="sd">    :param instance: see ``image_divvy()``.</span>
+<span class="sd">    :type instance: ``ImageProcessing``</span>
+<span class="sd">    :param divvy_rule:  see ``image_divvy()``.</span>
+<span class="sd">    :type divvy_rule: ``str`` or ``function``</span>
+<span class="sd">    :param action:  see ``image_divvy()``.</span>
+<span class="sd">    :type action: ``str``</span>
+<span class="sd">    :param train_val_test_dict: see ``image_divvy()``.</span>
+<span class="sd">    :type train_val_test_dict: ``dict`` or ``None``</span>
+<span class="sd">    :param create_dirs:  see ``image_divvy()``.</span>
+<span class="sd">    :type create_dirs: ``bool``</span>
+<span class="sd">    :param allow_overwrite: see ``image_divvy()``.</span>
+<span class="sd">    :type allow_overwrite: ``bool``</span>
+<span class="sd">    :param verbose: see ``image_divvy()``.</span>
+<span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    :return: yeild of ``ImageProcessing.output`` or ``_train_val_test_engine()``.</span>
+<span class="sd">    :rtype: ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_val_test_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">output_dict</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">output_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">create_dirs</span><span class="o">=</span><span class="n">create_dirs</span><span class="p">,</span>
+                                      <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_val_test_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
+            <span class="n">ndarray_with_path</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">engine_action</span> <span class="o">=</span> <span class="s1">&#39;write_ndarray&#39;</span>
+            <span class="n">target_path</span> <span class="o">=</span> <span class="n">train_val_test_dict</span><span class="p">[</span><span class="s1">&#39;target_dir&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
+            <span class="n">ndarray_with_path</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">engine_action</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">target_path</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">divvy_info</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">output_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span>
+                                     <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span>  <span class="c1"># used so that cropping is applied.</span>
+                                     <span class="n">ndarray_with_path</span><span class="o">=</span><span class="n">ndarray_with_path</span><span class="p">)</span>
+
+        <span class="n">output_dict</span> <span class="o">=</span> <span class="n">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">engine_action</span><span class="p">,</span>
+                                             <span class="n">tvt</span><span class="o">=</span><span class="n">_tvt_dict_gen</span><span class="p">(</span><span class="n">train_val_test_dict</span><span class="p">),</span>
+                                             <span class="n">group_files_dict</span><span class="o">=</span><span class="n">divvy_info</span><span class="p">,</span>
+                                             <span class="n">target_path</span><span class="o">=</span><span class="n">target_path</span><span class="p">,</span>
+                                             <span class="n">random_state</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_state&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                             <span class="n">allowed_actions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;write_ndarray&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_dict</span>
 
 
 <div class="viewcode-block" id="image_divvy"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.image_divvy">[docs]</a><span class="k">def</span> <span class="nf">image_divvy</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span>
@@ -953,7 +1013,7 @@
 <span class="sd">    |</span>
 <span class="sd">    | **Usage 1a**: Copy Images from the Cache to a New Location</span>
 
-<span class="sd">    &gt;&gt;&gt; image_divvy(opi, divvy_rule=&quot;/your/output/path/here/output&quot;, action=&#39;copy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; summary_dict = image_divvy(opi, divvy_rule=&quot;/your/output/path/here/output&quot;, action=&#39;copy&#39;)</span>
 
 <span class="sd">    |</span>
 <span class="sd">    | **Usage 1b**: Converting to ``ndarrays``</span>
@@ -982,7 +1042,7 @@
 <span class="sd">    &gt;&gt;&gt;         elif &#39;ct&#39; == row[&#39;image_modality_major&#39;]:</span>
 <span class="sd">    &gt;&gt;&gt;             return &#39;/your/path/here/CT_images&#39;</span>
 <span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; image_divvy(opi, divvy_rule=my_divvy_rule2, action=&#39;copy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; summary_dict = image_divvy(opi, divvy_rule=my_divvy_rule2, action=&#39;copy&#39;)</span>
 
 <span class="sd">    |</span>
 <span class="sd">    | **Usage 2b**: A Rule which can Return Multiple Save Locations for a Single Row</span>
@@ -996,7 +1056,7 @@
 <span class="sd">    &gt;&gt;&gt;             locations.append(&#39;/your/path/here/pelvis_images&#39;)</span>
 <span class="sd">    &gt;&gt;&gt;     return locations</span>
 <span class="sd">    ...</span>
-<span class="sd">    &gt;&gt;&gt; image_divvy(opi, divvy_rule=my_divvy_rule2, action=&#39;copy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; summary_dict= image_divvy(opi, divvy_rule=my_divvy_rule2, action=&#39;copy&#39;)</span>
 
 <span class="sd">    |</span>
 <span class="sd">    | **Usage 3**: Divvying into *train/validation/test*</span>
@@ -1004,18 +1064,32 @@
 <span class="sd">    **i**. Copying to a New Location (reusing ``my_divvy_rule1``)</span>
 
 <span class="sd">    &gt;&gt;&gt; train_val_test_dict = {&#39;train&#39;: 0.7, &#39;test&#39;: 0.3, &#39;target_dir&#39;: &#39;/your/path/here/output&#39;}</span>
-<span class="sd">    &gt;&gt;&gt; image_divvy(opi, divvy_rule=my_divvy_rule1, action=&#39;copy&#39;, train_val_test_dict=train_val_test_dict)</span>
+<span class="sd">    &gt;&gt;&gt; summary_dict = image_divvy(opi, divvy_rule=my_divvy_rule1, action=&#39;copy&#39;, train_val_test_dict=train_val_test_dict)</span>
 
 <span class="sd">    **ii**. Obtaining ``ndarrays`` (numpy arrays)</span>
 
 <span class="sd">    &gt;&gt;&gt; train_val_test_dict = {&#39;train&#39;: 0.7, &#39;validation&#39;: 0.2, &#39;test&#39;: 0.1}</span>
-<span class="sd">    &gt;&gt;&gt; tvt = image_divvy(opi, divvy_rule=my_divvy_rule1, action=&#39;ndarray&#39;, train_val_test_dict=train_val_test_dict)</span>
+<span class="sd">    &gt;&gt;&gt; image_dict = image_divvy(opi, divvy_rule=my_divvy_rule1, action=&#39;ndarray&#39;, train_val_test_dict=train_val_test_dict)</span>
 
 <span class="sd">    The resultant ``ndarrays`` can be unpacked as follows:</span>
 
-<span class="sd">    &gt;&gt;&gt; train_ct, train_mri = tvt[&#39;train&#39;][&#39;ct&#39;], tvt[&#39;train&#39;][&#39;mri&#39;]</span>
-<span class="sd">    &gt;&gt;&gt; val_ct, val_mri = tvt[&#39;validation&#39;][&#39;ct&#39;], tvt[&#39;validation&#39;][&#39;mri&#39;]</span>
-<span class="sd">    &gt;&gt;&gt; test_ct, test_mri = tvt[&#39;test&#39;][&#39;ct&#39;], tvt[&#39;test&#39;][&#39;mri&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; train_ct, train_mri = image_dict[&#39;train&#39;][&#39;ct&#39;], image_dict[&#39;train&#39;][&#39;mri&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; val_ct, val_mri = image_dict[&#39;validation&#39;][&#39;ct&#39;], image_dict[&#39;validation&#39;][&#39;mri&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; test_ct, test_mri = image_dict[&#39;test&#39;][&#39;ct&#39;], image_dict[&#39;test&#39;][&#39;mri&#39;]</span>
+<span class="sd">    </span>
+<span class="sd">    This function behaves the same if passed an instance of ``ImageProcessing``</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; ip = ImageProcessing(opi)</span>
+<span class="sd">    &gt;&gt;&gt; ip.auto()</span>
+<span class="sd">    &gt;&gt;&gt; ip.clean_image_dataframe()</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; image_dict = image_divvy(ip, divvy_rule=my_divvy_rule1, action=&#39;ndarray&#39;, train_val_test_dict=train_val_test_dict)</span>
+<span class="sd">    ...</span>
+<span class="sd">    </span>
+<span class="sd">    .. note::</span>
+<span class="sd">    </span>
+<span class="sd">        If an instance of ``ImageProcessing`` is passed to ``image_divvy``, the ``image_data_frame_cleaned``</span>
+<span class="sd">        dataframe will be extracted.</span>
 
 <span class="sd">    .. note::</span>
 
@@ -1030,10 +1104,14 @@
 <span class="sd">        performance metrics (e.g., accuracy) when assessing fitted models.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_image_divvy_error_checking</span><span class="p">(</span><span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
+    <span class="n">_image_divvy_error_checking</span><span class="p">(</span><span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+                                <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ImageProcessing&#39;</span><span class="p">:</span>
-        <span class="n">data_frame</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">image_dataframe</span>
+        <span class="k">return</span> <span class="n">_divvy_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span>
+                                       <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">,</span>
+                                       <span class="n">create_dirs</span><span class="o">=</span><span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">,</span>
+                                       <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">db_to_extract</span> <span class="o">==</span> <span class="s1">&#39;unify_against_images&#39;</span><span class="p">:</span>
         <span class="n">data_frame</span> <span class="o">=</span> <span class="n">instance</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1071,28 +1149,6 @@
         <span class="k">return</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">divvy_info</span></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </pre></div>
 
     </div>

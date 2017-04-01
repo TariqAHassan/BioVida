@@ -170,29 +170,34 @@
     <div class="col-md-9 content">
       
   <h1>Source code for biovida.support_tools.utilities</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="c1"># coding: utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Utilities</span>
 <span class="sd">    ~~~~~~~~~</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># Imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="k">import</span> <span class="n">imread</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">os_join</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">basename</span> <span class="k">as</span> <span class="n">os_basename</span>
 
 <span class="c1"># General Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">is_int</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">isclose</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">is_numeric</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">list_to_bulletpoints</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">InsufficientNumberOfFiles</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">directory_existence_handler</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">is_int</span><span class="p">,</span>
+                                                 <span class="n">isclose</span><span class="p">,</span>
+                                                 <span class="n">is_numeric</span><span class="p">,</span>
+                                                 <span class="n">list_to_bulletpoints</span><span class="p">,</span>
+                                                 <span class="n">InsufficientNumberOfFiles</span><span class="p">,</span>
+                                                 <span class="n">directory_existence_handler</span><span class="p">)</span>
+
+
+<span class="n">_TVT_GROUPS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -215,19 +220,15 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">os_join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">to_block</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_train_val_test_error_checking</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">delete_source</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">tvt</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_train_val_test_error_checking</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">allowed_actions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Check for possible errors for ``train_val_test()``.</span>
+<span class="sd">    Check for possible errors for before spinning up engine.</span>
 
-<span class="sd">    :param data: see ``train_val_test()``.</span>
-<span class="sd">    :type data: ``str`` or ``dict``</span>
 <span class="sd">    :param target_dir: see ``train_val_test()``.</span>
 <span class="sd">    :type target_dir: ``str``</span>
 <span class="sd">    :param action: see ``train_val_test()``.</span>
 <span class="sd">    :type action: ``str``</span>
-<span class="sd">    :param delete_source: see ``train_val_test()``.</span>
-<span class="sd">    :type delete_source: ``bool``</span>
 <span class="sd">    :param group_files_dict: as evolved in side ``train_val_test()``.</span>
 <span class="sd">    :type group_files_dict: ``dict``</span>
 <span class="sd">    :param tvt: as evolved in side ``train_val_test()``.</span>
@@ -239,16 +240,14 @@
         <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`</span><span class="si">{0}</span><span class="s2">` cannot be `True`&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The following parameters do not sum to 1: </span><span class="si">{0}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">()))))</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The values of `data` must be lists or tuples.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">,</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`action` must be one of: &#39;copy&#39;, &#39;move&#39;, &#39;ndarray&#39;.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`target_dir` has no effect when `action=&#39;ndarray&#39;`&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_source</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`delete_source` must be a boolean.&quot;</span><span class="p">)</span>
-    
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The following parameters do not sum to 1:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                         <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">()))))</span>
+    <span class="c1"># if isinstance(data, dict) and not all(isinstance(i, (list, tuple)) for i in data.values()):</span>
+    <span class="c1">#     raise TypeError(&quot;The values of `data` must be lists or tuples.&quot;)</span>
+    <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_actions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`action` must be one of:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                         <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">allowed_actions</span><span class="p">)))</span>
+
     <span class="n">min_number_of_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">group_files_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">group_files_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_number_of_files</span><span class="p">:</span>
@@ -295,7 +294,7 @@
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
 
-<span class="k">def</span> <span class="nf">_list_divide</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">tvt</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_list_divide</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">random_state</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Splits a list, ``l``, into proportions described in ``tvt``.</span>
@@ -304,6 +303,8 @@
 <span class="sd">    :type l: ``list``</span>
 <span class="sd">    :param tvt: as evolved in side ``train_val_test()``.</span>
 <span class="sd">    :type tvt: ``dict``</span>
+<span class="sd">    :param random_state: set a seed for random shuffling. Similar to ``sklearn.model_selection.train_test_split``.</span>
+<span class="sd">    :type random_state: ``int``</span>
 <span class="sd">    :return: a dictionary of the form: ``{tvt_key_1: [file_path, file_path, ...], ...}``. Sorted to ensure</span>
 <span class="sd">             generation order is train --&gt; validation --&gt; test.</span>
 <span class="sd">    :rtype: ``list``</span>
@@ -316,12 +317,20 @@
 
 <span class="sd">    &gt;&gt;&gt; l = [&#39;file/path/image_1.png&#39;, &#39;file/path/image_2.png&#39;, &#39;file/path/image_3.png&#39;, &#39;file/path/image_4.png&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; tvt = {&#39;validation&#39;: 0.5, &#39;train&#39;: 0.5}</span>
-<span class="sd">    &gt;&gt;&gt; _list_divide(l, tvt)</span>
+<span class="sd">    &gt;&gt;&gt; _list_divide(l, tvt, random_state=None)</span>
 <span class="sd">    ...</span>
 <span class="sd">    [(&#39;train&#39;, [&#39;file/path/image_4.png&#39;, &#39;file/path/image_2.png&#39;]),</span>
 <span class="sd">    (&#39;validation&#39;, [&#39;file/path/image_1.png&#39;, &#39;file/path/image_3.png&#39;])]</span>
+<span class="sd">    </span>
+<span class="sd">    .. note::</span>
+<span class="sd">    </span>
+<span class="sd">        This function also works with lists of ndarrays, e.g.,</span>
+<span class="sd">        ``l = [ndarray, ndarray, ndarray, ...]``.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">is_int</span><span class="p">(</span><span class="n">random_state</span><span class="p">):</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+
     <span class="n">l_shuffled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="n">tvt_sorted</span> <span class="o">=</span> <span class="n">_train_val_test_dict_sort</span><span class="p">(</span><span class="n">tvt</span><span class="p">)</span>
 
@@ -369,31 +378,44 @@
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">values_to_ndarrays</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">status_outer</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
 
 
-<span class="k">def</span> <span class="nf">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">target_path</span><span class="p">,</span> <span class="n">random_state</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">target_path</span><span class="p">,</span> <span class="n">random_state</span><span class="p">,</span> <span class="n">allowed_actions</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Engine to power ``train_val_test()``.</span>
 
-<span class="sd">    :param action: see``train_val_test()``.</span>
-<span class="sd">    :type action: ``str``</span>
+<span class="sd">    :param action: &#39;copy&#39;, &#39;move&#39; or &#39;write_ndarray&#39;</span>
+<span class="sd">    :type action: ``str`` or ``None``</span>
 <span class="sd">    :param tvt: as evolved in side ``train_val_test()``.</span>
 <span class="sd">    :type tvt: ``dict``</span>
 <span class="sd">    :param group_files_dict: as evolved in side ``train_val_test()`` -- ``{&#39;group&#39;: [file_path, file_path, ...], ...}``.</span>
+<span class="sd">                             </span>
+<span class="sd">                             </span>
+<span class="sd">                    .. note::</span>
+<span class="sd">                    </span>
+<span class="sd">                        If ``action=&#39;write_ndarray&#39;``, this this data is expected to be of the form:</span>
+<span class="sd">                        `{&#39;group&#39;: [(ndarray, PATH), (ndarray, PATH), ...], ...}``.</span>
+<span class="sd">    </span>
 <span class="sd">    :type group_files_dict: ``dict``</span>
 <span class="sd">    :param target_path: see ``train_val_test()``.</span>
-<span class="sd">    :type target_path: ``str``</span>
+<span class="sd">    :type target_path: ``str`` or ``None``</span>
 <span class="sd">    :param random_state: set a seed for random shuffling. Similar to ``sklearn.model_selection.train_test_split``.</span>
 <span class="sd">    :type random_state: ``None`` or ``int``</span>
+<span class="sd">    :param allowed_actions: a list of allowed values for ``action``.</span>
+<span class="sd">    :type allowed_actions: ``list`` or ``tuple``</span>
 <span class="sd">    :param verbose: see ``train_val_test()``.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :return: a nested dictionary of the form ``{&#39;train&#39;/&#39;val&#39;/&#39;test&#39;: {group_files_dict.key: [file, file, ...], ...}, ...}``.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">is_int</span><span class="p">(</span><span class="n">random_state</span><span class="p">):</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+    <span class="n">_train_val_test_error_checking</span><span class="p">(</span><span class="n">target_dir</span><span class="o">=</span><span class="n">target_path</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+                                   <span class="n">group_files_dict</span><span class="o">=</span><span class="n">group_files_dict</span><span class="p">,</span> <span class="n">tvt</span><span class="o">=</span><span class="n">tvt</span><span class="p">,</span>
+                                   <span class="n">allowed_actions</span><span class="o">=</span><span class="n">allowed_actions</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">status_bar</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="n">iterable</span>
+
+    <span class="k">def</span> <span class="nf">output_dic_value</span><span class="p">(</span><span class="n">value2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">path</span> <span class="k">for</span> <span class="p">(</span><span class="n">nd</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">in</span> <span class="n">value2</span><span class="p">]</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;write_ndarray&#39;</span> <span class="k">else</span> <span class="n">value2</span>
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Splitting Data...&quot;</span><span class="p">)</span>
@@ -402,26 +424,40 @@
         <span class="n">shutil_func</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span>
     <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;move&#39;</span><span class="p">:</span>
         <span class="n">shutil_func</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">move</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Note: it&#39;s logically impossible for this to be called and raise an error.</span>
-        <span class="n">shutil_func</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="n">output_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">group_files_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Divvying &#39;</span><span class="si">{0}</span><span class="s2">&#39;...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os_basename</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span>
-        <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">_list_divide</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">tvt</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">_list_divide</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">):</span>
+            <span class="n">out_value</span> <span class="o">=</span> <span class="n">output_dic_value</span><span class="p">(</span><span class="n">value2</span><span class="o">=</span><span class="n">v2</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">k2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output_dict</span><span class="p">:</span>
-                <span class="n">output_dict</span><span class="p">[</span><span class="n">k2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v2</span><span class="p">}</span>
+                <span class="n">output_dict</span><span class="p">[</span><span class="n">k2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">out_value</span><span class="p">}</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">output_dict</span><span class="p">[</span><span class="n">k2</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2</span>
-            <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">):</span>
+                <span class="n">output_dict</span><span class="p">[</span><span class="n">k2</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_value</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">,</span> <span class="s1">&#39;write_ndarray&#39;</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span>
                 <span class="n">target</span> <span class="o">=</span> <span class="n">directory_existence_handler</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">k</span><span class="p">)),</span> <span class="n">allow_creation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">status_bar</span><span class="p">(</span><span class="n">v2</span><span class="p">):</span>
-                    <span class="n">shutil_func</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">os_basename</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">status_bar</span><span class="p">(</span><span class="n">v2</span><span class="p">):</span>
+                        <span class="n">shutil_func</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">os_basename</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;write_ndarray&#39;</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">nd</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">in</span> <span class="n">status_bar</span><span class="p">(</span><span class="n">v2</span><span class="p">):</span>
+                        <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">nd</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">os_basename</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Structure:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_train_val_test_dict_sort</span><span class="p">(</span><span class="n">output_dict</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;- &#39;</span><span class="si">{0}</span><span class="s2">&#39;:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+
     <span class="k">return</span> <span class="n">output_dict</span>
+
+
+<span class="k">def</span> <span class="nf">_tvt_dict_gen</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract those of the train, validation, test (tvt)</span>
+<span class="sd">     params which are numeric.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_TVT_GROUPS</span> <span class="ow">and</span> <span class="n">is_numeric</span><span class="p">(</span><span class="n">v</span><span class="p">)}</span>
 
 
 <div class="viewcode-block" id="train_val_test"><a class="viewcode-back" href="../../../source/biovida.html#biovida.support_tools.utilities.train_val_test">[docs]</a><span class="k">def</span> <span class="nf">train_val_test</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>
@@ -439,7 +475,7 @@
 
 <span class="sd">    :param data: </span>
 <span class="sd">    </span>
-<span class="sd">        - a dictionary of the form: ``{group_name: [file_path, file_path], ...}``</span>
+<span class="sd">        - a dictionary of the form: ``{group_name: [file_path, file_path, ...], ...}``.</span>
 <span class="sd">        - the directory containing the data. This directory should contain subdirectories (the categories)</span>
 <span class="sd">          populated with the files.</span>
 
@@ -591,7 +627,6 @@
 <span class="sd">        - providing a path to ``target_dir``, e.g., ``target_dir=&#39;/path/to/output/output_data&#39;``</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">target_path</span> <span class="o">=</span> <span class="n">target_dir</span>
@@ -603,28 +638,23 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">target_path</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">existing_dirs</span> <span class="o">=</span> <span class="n">_subdirectories_in_path</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">to_block</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">existing_dirs</span> <span class="o">=</span> <span class="n">_subdirectories_in_path</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">to_block</span><span class="o">=</span><span class="n">_TVT_GROUPS</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">tvt</span> <span class="o">=</span> <span class="n">_tvt_dict_gen</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
 
-    <span class="c1"># Extract those of the train, validation, test (tvt) params which are numeric.</span>
-    <span class="n">tvt</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">groups</span> <span class="ow">and</span> <span class="n">is_numeric</span><span class="p">(</span><span class="n">v</span><span class="p">)}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_source</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`delete_source` must be a boolean.&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">group_files_dict</span> <span class="o">=</span> <span class="n">_existing_files_dict_gen</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">to_block</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span>
+        <span class="n">group_files_dict</span> <span class="o">=</span> <span class="n">_existing_files_dict_gen</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">to_block</span><span class="o">=</span><span class="n">_TVT_GROUPS</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">group_files_dict</span> <span class="o">=</span> <span class="n">data</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`data` must be a string or dictionary.&quot;</span><span class="p">)</span>
 
-    <span class="n">_train_val_test_error_checking</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
-                                   <span class="n">delete_source</span><span class="o">=</span><span class="n">delete_source</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="o">=</span><span class="n">group_files_dict</span><span class="p">,</span> <span class="n">tvt</span><span class="o">=</span><span class="n">tvt</span><span class="p">)</span>
-
     <span class="n">output_dict</span> <span class="o">=</span> <span class="n">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="o">=</span><span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="o">=</span><span class="n">group_files_dict</span><span class="p">,</span>
-                                         <span class="n">target_path</span><span class="o">=</span><span class="n">target_path</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Structure:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_train_val_test_dict_sort</span><span class="p">(</span><span class="n">output_dict</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;- &#39;</span><span class="si">{0}</span><span class="s2">&#39;:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+                                         <span class="n">target_path</span><span class="o">=</span><span class="n">target_path</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
+                                         <span class="n">allowed_actions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">,</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">),</span>
+                                         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">existing_dirs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">delete_source</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">existing_dirs</span><span class="p">:</span>

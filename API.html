@@ -902,18 +902,23 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.images.image_processing.ImageProcessing.cleaned_images_data_frame">
-<code class="descname">cleaned_images_data_frame</code><span class="sig-paren">(</span><em>crop_images</em>, <em>convert_to_rgb</em>, <em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing.cleaned_images_data_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.cleaned_images_data_frame" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.image_processing.ImageProcessing.clean_image_dataframe">
+<code class="descname">clean_image_dataframe</code><span class="sig-paren">(</span><em>crop_images=True</em>, <em>convert_to_rgb=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing.clean_image_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.clean_image_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define a dataframe with rows of images found to be &#8216;valid&#8217;.
 These &#8216;valid&#8217; images are cleaned and stored as PIL images in a <code class="docutils literal"><span class="pre">'cleaned_image'</span></code> column.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The DataFrame this method creates can be viewed with <code class="docutils literal"><span class="pre">INSTANCE.image_data_frame_cleaned</span></code>.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>crop_images</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">save()</span></code>.</li>
-<li><strong>convert_to_rgb</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">save()</span></code></li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; see <code class="docutils literal"><span class="pre">save()</span></code></li>
+<li><strong>crop_images</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; Crop the images using analyses results from <cite>border_analysis()</cite> and
+<code class="docutils literal"><span class="pre">logo_analysis()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>convert_to_rgb</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, use the PIL library to convert the images to RGB. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -929,15 +934,15 @@ a &#8216;cleaned_image&#8217; populated by PIL image to be saved to disk.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="biovida.images.image_processing.ImageProcessing.save">
-<code class="descname">save</code><span class="sig-paren">(</span><em>save_rule</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>crop_images=True</em>, <em>convert_to_rgb=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.save" title="Permalink to this definition">¶</a></dt>
+<dt id="biovida.images.image_processing.ImageProcessing.output">
+<code class="descname">output</code><span class="sig-paren">(</span><em>output_rule</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>action='copy'</em>, <em>status=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.output" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save processed images to disk.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>save_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; <ul>
+<li><strong>output_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; <ul>
 <li>if a <code class="docutils literal"><span class="pre">str</span></code>: the directory to save the images.</li>
 <li>if a <code class="docutils literal"><span class="pre">function</span></code>: it must (1) accept a single parameter (argument) and (2) return system path(s)
 [see example below].</li>
@@ -946,9 +951,7 @@ a &#8216;cleaned_image&#8217; populated by PIL image to be saved to disk.</p>
 <li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>crop_images</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; Crop the images using analyses results from <cite>border_analysis()</cite> and
-<code class="docutils literal"><span class="pre">logo_analysis()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>convert_to_rgb</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, use the PIL library to convert the images to RGB. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; one of &#8216;copy&#8217;, &#8216;ndarray&#8217;.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
@@ -968,11 +971,15 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>A Simple Save Rule</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;/your/path/here/images&#39;</span><span class="p">)</span>
+<p>Next, prune invalid images</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">clean_image_dataframe</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>A More Complex Save Rule</p>
+<p>A Simple Output Rule</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;/your/path/here/images&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A More Complex Output Rule</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_save_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;lung&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;abstract&#39;</span><span class="p">]:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="s1">&#39;/your/path/here/lung_images&#39;</span>
@@ -1937,7 +1944,7 @@ return a dictionary of the form <code class="docutils literal"><span class="pre"
 <div class="line"><br /></div>
 <div class="line"><strong>Usage 1a</strong>: Copy Images from the Cache to a New Location</div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="s2">&quot;/your/output/path/here/output&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">summary_dict</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="s2">&quot;/your/output/path/here/output&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="line-block">
@@ -1970,7 +1977,7 @@ return a dictionary of the form <code class="docutils literal"><span class="pre"
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">elif</span> <span class="s1">&#39;ct&#39;</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]:</span>
 <span class="gp">&gt;&gt;&gt; </span>            <span class="k">return</span> <span class="s1">&#39;/your/path/here/CT_images&#39;</span>
 <span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule2</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">summary_dict</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule2</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="line-block">
@@ -1986,7 +1993,7 @@ return a dictionary of the form <code class="docutils literal"><span class="pre"
 <span class="gp">&gt;&gt;&gt; </span>            <span class="n">locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/your/path/here/pelvis_images&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">locations</span>
 <span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule2</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">summary_dict</span><span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule2</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="line-block">
@@ -1995,19 +2002,34 @@ return a dictionary of the form <code class="docutils literal"><span class="pre"
 </div>
 <p><strong>i</strong>. Copying to a New Location (reusing <code class="docutils literal"><span class="pre">my_divvy_rule1</span></code>)</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train_val_test_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;target_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;/your/path/here/output&#39;</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">summary_dict</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>ii</strong>. Obtaining <code class="docutils literal"><span class="pre">ndarrays</span></code> (numpy arrays)</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train_val_test_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">tvt</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_dict</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The resultant <code class="docutils literal"><span class="pre">ndarrays</span></code> can be unpacked as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train_ct</span><span class="p">,</span> <span class="n">train_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">val_ct</span><span class="p">,</span> <span class="n">val_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">test_ct</span><span class="p">,</span> <span class="n">test_mri</span> <span class="o">=</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tvt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train_ct</span><span class="p">,</span> <span class="n">train_mri</span> <span class="o">=</span> <span class="n">image_dict</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">image_dict</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">val_ct</span><span class="p">,</span> <span class="n">val_mri</span> <span class="o">=</span> <span class="n">image_dict</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">image_dict</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_ct</span><span class="p">,</span> <span class="n">test_mri</span> <span class="o">=</span> <span class="n">image_dict</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">image_dict</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;mri&#39;</span><span class="p">]</span>
 </pre></div>
+</div>
+<p>This function behaves the same if passed an instance of <code class="docutils literal"><span class="pre">ImageProcessing</span></code></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ImageProcessing</span><span class="p">(</span><span class="n">opi</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span><span class="o">.</span><span class="n">clean_image_dataframe</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">image_dict</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">my_divvy_rule1</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If an instance of <code class="docutils literal"><span class="pre">ImageProcessing</span></code> is passed to <code class="docutils literal"><span class="pre">image_divvy</span></code>, the <code class="docutils literal"><span class="pre">image_data_frame_cleaned</span></code>
+dataframe will be extracted.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -2039,7 +2061,7 @@ performance metrics (e.g., accuracy) when assessing fitted models.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>data</strong> (<code class="docutils literal"><span class="pre">dict</span></code> or <code class="docutils literal"><span class="pre">str</span></code>) &#8211; <ul>
-<li>a dictionary of the form: <code class="docutils literal"><span class="pre">{group_name:</span> <span class="pre">[file_path,</span> <span class="pre">file_path],</span> <span class="pre">...}</span></code></li>
+<li>a dictionary of the form: <code class="docutils literal"><span class="pre">{group_name:</span> <span class="pre">[file_path,</span> <span class="pre">file_path,</span> <span class="pre">...],</span> <span class="pre">...}</span></code>.</li>
 <li>the directory containing the data. This directory should contain subdirectories (the categories)
 populated with the files.</li>
 </ul>
