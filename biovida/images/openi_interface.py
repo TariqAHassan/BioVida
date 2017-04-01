@@ -927,10 +927,11 @@ class OpeniInterface(object):
             if len(latent_pickles):
                 settings_dict = pickle.load(open(latent_pickles[0], "rb"))
                 settings_dict_for_pull = {k: v for k, v in settings_dict.items() if k not in ['records_db']}
+                settings_dict_for_pull['new_records_pull'] = False  # adding this separately in `pull` breaks in python2
 
                 print("\n\nResuming Download...")
                 self.load_records_db(records_db=settings_dict['records_db'])
-                self.pull(**settings_dict_for_pull, new_records_pull=False)
+                self.pull(**settings_dict_for_pull)
 
             # `temp_directory_path` will be destroyed when `pull()` exits successfully
 
@@ -1054,7 +1055,8 @@ class OpeniInterface(object):
             self.records_db = pd.read_pickle(records_db)
         self._pull_time = self.records_db['pull_time'].iloc[0]
         last_query = self.records_db['query'].iloc[0]
-        self.search(**last_query, print_results=False)
+        last_query['print_results'] = False
+        self.search(**last_query)
 
     @property
     def records_db_short(self):
