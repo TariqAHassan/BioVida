@@ -5,8 +5,6 @@ python:
 # command to install dependencies
 cache: pip3
 install:
-  - "sudo apt-get install gcc"
-  - "sudo apt-get install libstdc++6"
   - "pip install bs4 h5py keras lxml numpy pandas Pillow pydicom requests scikit-image scipy tensorflow theano tqdm"
 # command to run tests
 script:
