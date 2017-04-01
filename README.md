@@ -119,8 +119,7 @@ These cleaned images can easily be save as follows:
 ip.save("/save/directory")
 ```
 
-Alternatively, they can be directly divided into
-training and test sets.
+It is also easy to divided these images into training and test sets.
 
 ```python
 from biovida.images import image_divvy
