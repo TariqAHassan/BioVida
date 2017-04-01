@@ -693,16 +693,20 @@ def _divvy_info_to_dict(divvy_info):
     return dict(d)
 
 
-def _divvy_image_processing(instance, divvy_rule, action, train_val_test_dict,
-                            create_dirs, allow_overwrite, verbose):
+def _divvy_image_processing(instance,
+                            divvy_rule,
+                            action,
+                            train_val_test_dict,
+                            create_dirs,
+                            allow_overwrite,
+                            verbose):
     """
     
     Handle the special case of 'divvying' when an instance of the ``ImageProcessing``
     class is passed to ``image_divvy()``.
     
-    This has to be to be handled seperately so that knowlege obtained
-    through ``ImageProcessing``'s about how to crop the images, for example,
-    can actually applied if the user wishes.
+    This has to be to be handled separately so that cropping information,
+    determined by ``ImageProcessing``'s analysis methods, can be applied.
     
     :param instance: see ``image_divvy()``.
     :type instance: ``ImageProcessing``
