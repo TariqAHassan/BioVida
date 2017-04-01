@@ -126,14 +126,12 @@ It is also easy to divided these images into training and test sets.
 from biovida.images import image_divvy
 
 def my_divvy_rule(row):
-    if row['invalid_image'] is False:
-        if row['image_modality_major'] == 'x_ray':
-            return 'x_ray'
-        elif row['image_modality_major'] == 'ct':
-            return 'ct'
+    if row['image_modality_major'] == 'x_ray':
+        return 'x_ray'
+    elif row['image_modality_major'] == 'ct':
+        return 'ct'
 
 tt = image_divvy(ip, my_divvy_rule, action='ndarray', train_val_test_dict={'train': 0.8, 'test': 0.2})
-
 # These ndarrays can be unpack as shown above.
 ```
 
