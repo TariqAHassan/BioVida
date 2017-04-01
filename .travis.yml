@@ -4,7 +4,7 @@ python:
   - "3.5"
 # command to install dependencies
 cache: pip3
-install: "pip install bs4 h5py keras lxml numpy pandas Pillow pydicom requests scikit-image scipy tqdm"
+install: "pip install bs4 h5py keras lxml numpy pandas Pillow pydicom requests scikit-image scipy tensorflow theano tqdm"
 # command to run tests
 script:
   - python -W"ignore" tests/biovida_diagnostics_test.py
