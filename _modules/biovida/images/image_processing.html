@@ -179,15 +179,17 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pkg_resources</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">ImageStat</span>
 <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">imread</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">os_join</span>
+<span class="kn">from</span> <span class="nn">six.moves.urllib.parse</span> <span class="k">import</span> <span class="n">urljoin</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">basename</span> <span class="k">as</span> <span class="n">os_basename</span>
 
 <span class="c1"># General tools</span>
@@ -196,7 +198,7 @@
 <span class="c1"># Tools form the image subpackage</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_and_scale_images</span>
 
-<span class="kn">from</span> <span class="nn">biovida.images._resources._model_metadata</span> <span class="k">import</span> <span class="n">trained_open_i_modality_types</span>
+<span class="c1"># Open-i Support Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.images._interface_support.openi.openi_support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">nonessential_openi_columns</span><span class="p">,</span>
                                                                          <span class="n">grayscale_openi_modalities</span><span class="p">)</span>
 
@@ -223,14 +225,55 @@
 <span class="sd">    :param db_to_extract: ``records_db`` or``cache_records_db``. Defaults to &#39;records_db&#39;.</span>
 <span class="sd">    :type db_to_extract: ``str``</span>
 <span class="sd">    :param model_location: the location of the model for Convnet.</span>
-<span class="sd">                      If `None`, the default model will be used. Defaults to ``None``.</span>
+<span class="sd">                           If `None`, the default model will be used. Defaults to ``None``.</span>
 <span class="sd">    :type model_location: ``str``</span>
+<span class="sd">    :param download_override: If ``True``, download the &#39;visual_image_problems_model&#39; weights (and</span>
+<span class="sd">                              associated resources) regardless of whether or not these files are already cached.</span>
+<span class="sd">                              Defaults to ``False``.</span>
+<span class="sd">    :type download_override: ``bool``</span>
 <span class="sd">    :param verbose: if ``True``, print additional details. Defaults to ``False``.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 
 <span class="sd">    :var image_dataframe: this is the dataframe that was passed when instantiating the class and</span>
 <span class="sd">                          contains a cache of all analyses run as new columns.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_obtain_model_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_override</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Obtain the &#39;visual_image_problems_model&#39; </span>
+<span class="sd">        </span>
+<span class="sd">        :param download_override: If ``True``, download the &#39;visual_image_problems_model&#39; weights (and</span>
+<span class="sd">                                  associated resources) regardless of whether or not these files are already cached.</span>
+<span class="sd">        :type download_override: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resources_path</span> <span class="o">=</span> <span class="n">os_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;aux&#39;</span><span class="p">],</span> <span class="s1">&#39;image_processing_resources&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">resources_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">resources_path</span><span class="p">)</span>
+
+        <span class="n">base_url</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/TariqAHassan/BioVida/master/biovida/images/resources/&#39;</span>
+
+        <span class="n">required_resources</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;trained_open_i_modality_types.json&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;visual_image_problems_model.h5&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;visual_image_problems_model_support.p&quot;</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">required_resources</span><span class="p">:</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os_join</span><span class="p">(</span><span class="n">resources_path</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">download_override</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading &#39;</span><span class="si">{0}</span><span class="s2">&#39;... &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">resource</span><span class="p">))</span>
+                <span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">urljoin</span><span class="p">(</span><span class="n">base_url</span><span class="p">,</span> <span class="n">resource</span><span class="p">),</span> <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_path</span> <span class="o">=</span> <span class="n">os_join</span><span class="p">(</span><span class="n">resources_path</span><span class="p">,</span> <span class="s2">&quot;visual_image_problems_model.h5&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Load &#39;trained_open_i_modality_types.json&#39; into memory</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">resources_path</span><span class="p">,</span> <span class="s1">&#39;trained_open_i_modality_types.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trained_open_i_modality_types</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_extract_db</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">):</span>
@@ -257,7 +300,12 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The &#39;</span><span class="si">{0}</span><span class="s2">&#39; of `instance` must be of &quot;</span>
                             <span class="s2">&quot;type DataFrame, not: &#39;</span><span class="si">{1}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_to_extract</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">extract</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span> <span class="n">model_location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">instance</span><span class="p">,</span>
+                 <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span>
+                 <span class="n">model_location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_to_extract</span> <span class="o">=</span> <span class="n">db_to_extract</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;_cache_path&#39;</span><span class="p">)</span>
@@ -282,15 +330,18 @@
 
         <span class="c1"># Load the CNN</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span> <span class="o">=</span> <span class="n">ImageClassificationCNN</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trained_open_i_modality_types</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_path</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obtain_model_resources</span><span class="p">(</span><span class="n">download_override</span><span class="o">=</span><span class="n">download_override</span><span class="p">)</span>
 
         <span class="c1"># Load the model weights and architecture.</span>
-        <span class="n">model_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;biovida&#39;</span><span class="p">,</span> <span class="s1">&#39;images/_resources/visual_image_problems_model.h5&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model_location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_location</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`model_location` must either be a string or `None`.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">model_location</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_path</span><span class="p">,</span> <span class="n">override_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; could not be located.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">model_location</span><span class="p">)))</span>
 
@@ -400,10 +451,9 @@
 <span class="sd">        :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.</span>
 <span class="sd">        :type new_analysis: ``bool``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_print_update</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Starting Grayscale Analysis...&quot;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="s1">&#39;grayscale&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="n">new_analysis</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_print_update</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Starting Grayscale Analysis...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;grayscale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">progress_map</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_grayscale_image</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span></div>
 
@@ -624,6 +674,8 @@
 
 <div class="viewcode-block" id="ImageProcessing.crop_decision"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.crop_decision">[docs]</a>    <span class="k">def</span> <span class="nf">crop_decision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Decide where to crop the images, if at all.</span>
 
 <span class="sd">        :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.</span>
 <span class="sd">        :type new_analysis: ``bool``</span>
@@ -776,7 +828,7 @@
 
         <span class="k">if</span> <span class="n">limit_to_known_modalities</span><span class="p">:</span>  <span class="c1"># ToDo: Temporary. Future: avoid passing through the model in the first place.</span>
             <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">trained_open_i_modality_types</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trained_open_i_modality_types</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;image_modality_major&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageProcessing.auto_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.auto_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">auto_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_known_modalities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -828,7 +880,10 @@
 <span class="sd">                                        to cause the image to be marked as invalid.</span>
 <span class="sd">                                        For instance, a threshold value of `0.5` would mean that any image</span>
 <span class="sd">                                        which contains a image problem probability above `0.5` will be marked</span>
-<span class="sd">                                        as invalid. NOTE: Currently not in use.</span>
+<span class="sd">                                        as invalid. </span>
+<span class="sd">                                        </span>
+<span class="sd">                                        NOTE: Currently not in use.</span>
+<span class="sd">                                        </span>
 <span class="sd">        :type image_problem_threshold: ``float``</span>
 <span class="sd">        :return: a list of the form ``[invalid image (boolean), reasons for decision if the former is True]``, wrapped</span>
 <span class="sd">                 in a pandas series so it can be neatly split into two columns when called via. ``DataFrame.apply()``.</span>

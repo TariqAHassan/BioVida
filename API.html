@@ -684,7 +684,7 @@ This parameter is not case sensitive. Defaults to <code class="docutils literal"
 <h3>Image Processing<a class="headerlink" href="#image-processing" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.images.image_processing.ImageProcessing">
-<em class="property">class </em><code class="descclassname">biovida.images.image_processing.</code><code class="descname">ImageProcessing</code><span class="sig-paren">(</span><em>instance</em>, <em>db_to_extract='records_db'</em>, <em>model_location=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">biovida.images.image_processing.</code><code class="descname">ImageProcessing</code><span class="sig-paren">(</span><em>instance</em>, <em>db_to_extract='records_db'</em>, <em>model_location=None</em>, <em>download_override=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class is designed to allow easy analysis of cached image data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -695,6 +695,9 @@ This parameter is not case sensitive. Defaults to <code class="docutils literal"
 <li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <code class="docutils literal"><span class="pre">records_db</span></code> or``cache_records_db``. Defaults to &#8216;records_db&#8217;.</li>
 <li><strong>model_location</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the location of the model for Convnet.
 If <cite>None</cite>, the default model will be used. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, download the &#8216;visual_image_problems_model&#8217; weights (and
+associated resources) regardless of whether or not these files are already cached.
+Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional details. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
@@ -787,7 +790,8 @@ and less than 1/2.5 of the image&#8217;s height.</li>
 <dl class="method">
 <dt id="biovida.images.image_processing.ImageProcessing.crop_decision">
 <code class="descname">crop_decision</code><span class="sig-paren">(</span><em>new_analysis=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#ImageProcessing.crop_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.ImageProcessing.crop_decision" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<dd><p>Decide where to crop the images, if at all.</p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
@@ -1184,6 +1188,12 @@ will be added automatically.</li>
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.load">
 <code class="descname">load</code><span class="sig-paren">(</span><em>path</em>, <em>override_existing=False</em>, <em>default_model_load=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a model from disk.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method expects an additional file ending in &#8220;_support.p&#8221;.
+For example: if <code class="docutils literal"><span class="pre">path='/your/path/my_model.h5'</span></code>, a file entitled
+<code class="docutils literal"><span class="pre">'/your/path/my_model_support.p'</span></code> is also expected.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1363,20 +1373,23 @@ a location and the median signal strength of the average image.</li>
 </tbody>
 </table>
 <p>Take the following lower border in an image:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">_____________________________</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>     <span class="o">---</span> <span class="n">Image</span> <span class="n">Here</span> <span class="o">---</span>
+<span class="n">_____________________________</span>
 <span class="n">The</span> <span class="n">quick</span> <span class="n">brown</span> <span class="n">fox</span> <span class="n">jumped</span>
 <span class="n">over</span> <span class="n">jumps</span> <span class="n">over</span> <span class="n">the</span> <span class="n">lazy</span> <span class="n">dog</span>
 <span class="o">-----------------------------</span>
 </pre></div>
 </div>
 <p>One pass of this procedure should produce:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">_____________________________</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>     <span class="o">---</span> <span class="n">Image</span> <span class="n">Here</span> <span class="o">---</span>
+<span class="n">_____________________________</span>
 <span class="n">The</span> <span class="n">quick</span> <span class="n">brown</span> <span class="n">fox</span> <span class="n">jumped</span>
 <span class="o">-----------------------------</span>
 </pre></div>
 </div>
 <p>Following this up with a second pass should yeild:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">_____________________________</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>     <span class="o">---</span> <span class="n">Image</span> <span class="n">Here</span> <span class="o">---</span>
+<span class="n">_____________________________</span>
 </pre></div>
 </div>
 </dd></dl>
