@@ -1049,7 +1049,7 @@ class OpeniInterface(object):
         Load a ``records_db``
 
         :param records_db: a system path or ``records_db`` itself.
-        :type records_db: ``str``
+        :type records_db: ``str`` or ``Pandas DataFrame``
         """
         if isinstance(records_db, pd.DataFrame):
             self.records_db = records_db
