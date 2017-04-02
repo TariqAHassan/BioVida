@@ -233,7 +233,7 @@ def _data_frame_clean(data_frame, verbose):
     :rtype:  ``Pandas DataFrame``
     """
     if verbose:
-        print("\n\nCleaning Text Information...\n\n")
+        print("\nCleaning Text Information...")
 
     # Clean the abstract
     data_frame['abstract'] = data_frame['abstract'].map(abstract_cleaner)
@@ -335,7 +335,7 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
 
     # Run Feature Extracting Tool and Join with `data_frame`.
     if verbose:
-        print("\n\nExtracting Features from Text...\n")
+        print("\nExtracting Features from Text...")
     extract = [feature_extract_wrapper(row) for _, row in tqdm(data_frame.iterrows(), total=len(data_frame))]
     extract_df = pd.DataFrame(extract)
 

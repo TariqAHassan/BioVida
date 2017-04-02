@@ -794,7 +794,7 @@ class _OpeniImages(object):
         :type use_image_caption: ``bool``
         """
         if self._verbose:
-            print("Obtaining Images... ")
+            print("\nObtaining Images... ")
 
         def block_decision(ipt):
             """Decide whether or not to block the downloading."""
