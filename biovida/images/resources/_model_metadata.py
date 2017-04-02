@@ -18,6 +18,7 @@ trained_open_i_modality_types = (
     'x_ray',
 )
 
+
 # Note: this write command is only compatible with Python 3.
 with open('./biovida/images/resources/trained_open_i_modality_types.json', 'w') as f:
     json.dump(trained_open_i_modality_types, f, ensure_ascii=False)
