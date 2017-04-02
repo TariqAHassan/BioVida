@@ -7,24 +7,26 @@
 
 """
 import os
+import json
+import requests
 import numpy as np
 import pandas as pd
-import pkg_resources
 from PIL import Image
 from tqdm import tqdm
 from PIL import ImageStat
 from scipy.misc import imread
 from collections import defaultdict
 from os.path import join as os_join
+from six.moves.urllib.parse import urljoin
 from os.path import basename as os_basename
 
 # General tools
-from biovida.support_tools.support_tools import items_null, data_frame_col_drop, list_to_bulletpoints
+from biovida.support_tools.support_tools import items_null, header, data_frame_col_drop, list_to_bulletpoints
 
 # Tools form the image subpackage
 from biovida.images._image_tools import load_and_scale_images
 
-from biovida.images._resources._model_metadata import trained_open_i_modality_types
+# Open-i Support Tools
 from biovida.images._interface_support.openi.openi_support_tools import (nonessential_openi_columns,
                                                                          grayscale_openi_modalities)
 
@@ -51,14 +53,66 @@ class ImageProcessing(object):
     :param db_to_extract: ``records_db`` or``cache_records_db``. Defaults to 'records_db'.
     :type db_to_extract: ``str``
     :param model_location: the location of the model for Convnet.
-                      If `None`, the default model will be used. Defaults to ``None``.
+                           If `None`, the default model will be used. Defaults to ``None``.
     :type model_location: ``str``
+    :param download_override: If ``True``, download the 'visual_image_problems_model' weights (and
+                              associated resources) regardless of whether or not these files are already cached.
+                              Defaults to ``False``.
+    :type download_override: ``bool``
     :param verbose: if ``True``, print additional details. Defaults to ``False``.
     :type verbose: ``bool``
 
     :var image_dataframe: this is the dataframe that was passed when instantiating the class and
                           contains a cache of all analyses run as new columns.
     """
+
+    def _obtain_model_resources(self, download_override):
+        """
+        
+        Obtain the 'visual_image_problems_model' 
+        
+        :param download_override: If ``True``, download the 'visual_image_problems_model' weights (and
+                                  associated resources) regardless of whether or not these files are already cached.
+        :type download_override: ``bool``
+        """
+        openi_path_aux = self.instance._created_image_dirs['aux']
+        resources_path = os_join(openi_path_aux, 'resources')
+        if not os.path.isdir(resources_path):
+            os.makedirs(resources_path)
+
+        BASE_URL = 'https://github.com/TariqAHassan/BioVida/blob/master/biovida/images/resources'
+
+        required_resources = ["trained_open_i_modality_types.json",
+                              "visual_image_problems_model.h5",
+                              "visual_image_problems_model_support.p"]
+
+        def progress_download(url, file_path):
+            response = requests.get(url, stream=True)
+            with open(file_path, "wb") as file:
+                for data in tqdm(response.iter_content()):
+                    file.write(data)
+
+        def download(url, file_path):
+            response = requests.get(url)
+            with open(file_path, 'wb') as file:
+                file.write(response.content)
+
+        for resource in required_resources:
+            file_path = os_join(resources_path, resource)
+            if not os.path.isfile(file_path) or download_override:
+                if self._verbose:
+                    header("Downloading '{0}'... ".format(resource))
+                if self._verbose and resource == 'visual_image_problems_model.h5':
+                    # Somewhat large file at ~50 mb.
+                    progress_download(url=urljoin(BASE_URL, resource), file_path=file_path)
+                else:
+                    download(url=urljoin(BASE_URL, resource), file_path=file_path)
+
+        self.model_path = os_join(resources_path, "visual_image_problems_model.h5")
+
+        # Load 'trained_open_i_modality_types.json' into memory
+        with open(os_join(resources_path, 'trained_open_i_modality_types.json')) as json_data:
+            self.trained_open_i_modality_types = json.load(json_data)
 
     @staticmethod
     def _extract_db(instance, db_to_extract):
@@ -85,7 +139,12 @@ class ImageProcessing(object):
             raise TypeError("The '{0}' of `instance` must be of "
                             "type DataFrame, not: '{1}'.".format(db_to_extract, type(extract).__name__))
 
-    def __init__(self, instance, db_to_extract='records_db', model_location=None, verbose=True):
+    def __init__(self,
+                 instance,
+                 db_to_extract='records_db',
+                 model_location=None,
+                 download_override=False,
+                 verbose=True):
         self._verbose = verbose
         self.db_to_extract = db_to_extract
         self._cache_path = getattr(instance, '_cache_path')
@@ -110,17 +169,21 @@ class ImageProcessing(object):
 
         # Load the CNN
         self._ircnn = ImageClassificationCNN()
+        self._model_path = None
+
+        self._obtain_model_resources(download_override=download_override)
 
         # Load the model weights and architecture.
-        model_path = pkg_resources.resource_filename('biovida', 'images/_resources/visual_image_problems_model.h5')
         if model_location is None:
-            self._ircnn.load(model_path, override_existing=True)
+            self._ircnn.load(self._model_path, override_existing=True)
         elif not isinstance(model_location, str):
             raise ValueError("`model_location` must either be a string or `None`.")
         elif os.path.isfile(model_location):
-            self._ircnn.load(model_path, override_existing=True)
+            self._ircnn.load(self._model_path, override_existing=True)
         else:
             raise FileNotFoundError("'{0}' could not be located.".format(str(model_location)))
+
+        self.trained_open_i_modality_types = None
 
         # Load the visual image problems the model can detect
         self.model_classes = list(self._ircnn.data_classes.keys())
@@ -604,7 +667,7 @@ class ImageProcessing(object):
 
         if limit_to_known_modalities:  # ToDo: Temporary. Future: avoid passing through the model in the first place.
             for index, row in self.image_dataframe.iterrows():
-                if row['image_modality_major'] not in trained_open_i_modality_types:
+                if row['image_modality_major'] not in self.trained_open_i_modality_types:
                     self.image_dataframe.set_value(index, 'image_modality_major', np.NaN)
 
     def auto_analysis(self, limit_to_known_modalities=True, new_analysis=False, status=True):
