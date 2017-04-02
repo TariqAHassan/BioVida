@@ -100,7 +100,7 @@ test_ct, test_xray = tt['test']['ct'], tt['test']['x_ray']
 
 Unfortunately, the data pulled from Open-i above
 is likely to contain a large number of images 
-unrelated to search query and/or unsuitable for machine learning.
+unrelated to the search query and/or are unsuitable for machine learning.
 
 The *experimental* ``ImageProcessing`` class can be used to completely
 automate this data cleaning process.
