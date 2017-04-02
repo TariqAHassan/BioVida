@@ -68,6 +68,8 @@ class _OpeniSearch(object):
         self._root_url = 'https://openi.nlm.nih.gov'
         self.current_search = None
         self.search_dict, self.ordered_params = openi_search_information()
+        self.search_params = ('image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
+                              'specialties', 'video', 'exclusions')
 
     @staticmethod
     def _openi_search_special_case(search_param, blocked, passed):
@@ -199,19 +201,25 @@ class _OpeniSearch(object):
 
         return total, sample['list'][0]
 
-    def options(self, search_parameter, print_options=True):
+    def options(self, search_parameter=None, print_options=True):
         """
 
         Options for parameters of `openi_search()`.
 
         :param search_parameter: one of: 'image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
-                                         'specialties', 'video' or `exclusions`.
+                                         'specialties', 'video' or `exclusions`. If ``None``, print the parameters
+                                         of ``search()``.
         :param print_options: if True, pretty print the options, else return as a ``list``.
         :return: a list of valid values for a given search `search_parameter`.
         :rtype: ``list``
         """
         # Terms to blocked from displaying to users if search_parameter != 'exclusions'
         exclusions = ['exclude_graphics', 'exclude_multipanel']
+
+        if search_parameter is None:
+            print("Search Parameters:\n{0}".format(list_to_bulletpoints(self.search_params)))
+        elif not isinstance(search_parameter, str):
+            raise TypeError("`search_parameter` must be a string or None.")
 
         if search_parameter == 'exclusions':
             opts = [i.split("_")[1] for i in exclusions]
@@ -1050,13 +1058,14 @@ class OpeniInterface(object):
         """Return `cache_records_db` with nonessential columns removed."""
         return data_frame_col_drop(self.cache_records_db, nonessential_openi_columns, 'cache_records_db')
 
-    def options(self, search_parameter, print_options=True):
+    def options(self, search_parameter=None, print_options=True):
         """
 
         Options for parameters of ``search()``.
 
         :param search_parameter: one of: 'image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
-                                         'specialties', 'video' or 'exclusions'.
+                                         'specialties', 'video' or `exclusions`. If ``None``, print the parameters
+                                         of ``search()``.
         :type search_parameter: ``str``
         :param print_options: if ``True``, pretty print the options, else return as a ``list``. Defaults to ``True``.
         :type print_options: ``bool``
