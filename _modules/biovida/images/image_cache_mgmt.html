@@ -480,7 +480,7 @@
 <span class="n">_image_instance_image_columns</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># Note: the first item should be the default.</span>
     <span class="s1">&#39;OpeniInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
-    <span class="s1">&#39;ImageProcessing&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
+    <span class="s1">&#39;OpeniImageProcessing&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
     <span class="s1">&#39;unify_against_images&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
     <span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">)</span>
 <span class="p">}</span>
@@ -631,7 +631,7 @@
         <span class="n">index_dict_update</span><span class="p">(</span><span class="n">data_frame_name</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s1">&#39;after&#39;</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">=</span><span class="n">data_frame</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_frame</span><span class="p">,</span> <span class="n">to_conserve</span>
 
-    <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ImageProcessing&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;OpeniImageProcessing&#39;</span><span class="p">:</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">,</span> <span class="n">to_conserve</span> <span class="o">=</span> <span class="n">non_cache_db</span><span class="p">(</span><span class="s1">&#39;image_dataframe&#39;</span><span class="p">,</span> <span class="n">instance</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">,</span> <span class="n">enact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">db_to_extract</span> <span class="o">==</span> <span class="s1">&#39;records_db&#39;</span><span class="p">:</span>
             <span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="n">to_conserve</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -874,14 +874,14 @@
                             <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    </span>
-<span class="sd">    Handle the special case of &#39;divvying&#39; when an instance of the ``ImageProcessing``</span>
+<span class="sd">    Handle the special case of &#39;divvying&#39; when an instance of the ``OpeniImageProcessing``</span>
 <span class="sd">    class is passed to ``image_divvy()``.</span>
 <span class="sd">    </span>
 <span class="sd">    This has to be to be handled separately so that cropping information,</span>
-<span class="sd">    determined by ``ImageProcessing``&#39;s analysis methods, can be applied.</span>
+<span class="sd">    determined by ``OpeniImageProcessing``&#39;s analysis methods, can be applied.</span>
 <span class="sd">    </span>
 <span class="sd">    :param instance: see ``image_divvy()``.</span>
-<span class="sd">    :type instance: ``ImageProcessing``</span>
+<span class="sd">    :type instance: ``OpeniImageProcessing``</span>
 <span class="sd">    :param divvy_rule:  see ``image_divvy()``.</span>
 <span class="sd">    :type divvy_rule: ``str`` or ``function``</span>
 <span class="sd">    :param action:  see ``image_divvy()``.</span>
@@ -894,7 +894,7 @@
 <span class="sd">    :type allow_overwrite: ``bool``</span>
 <span class="sd">    :param verbose: see ``image_divvy()``.</span>
 <span class="sd">    :type verbose: ``bool``</span>
-<span class="sd">    :return: yeild of ``ImageProcessing.output`` or ``_train_val_test_engine()``.</span>
+<span class="sd">    :return: yeild of ``OpeniImageProcessing.output`` or ``_train_val_test_engine()``.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_val_test_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -938,15 +938,15 @@
 
 <span class="sd">    Grouping Cached Images.</span>
 <span class="sd">    </span>
-<span class="sd">        .. warning::</span>
-<span class="sd">        </span>
-<span class="sd">            Currently, if an ``ImageProcessing`` instance is first passed to</span>
-<span class="sd">            ``biovida.unification.unify_against_images`` and then to this function,</span>
-<span class="sd">            image cropping will not be applied.</span>
+<span class="sd">    .. warning::</span>
+<span class="sd">    </span>
+<span class="sd">        Currently, if an ``OpeniImageProcessing`` instance is first passed to</span>
+<span class="sd">        ``biovida.unification.unify_against_images`` and then to this function,</span>
+<span class="sd">        image cropping will not be applied.</span>
 
 <span class="sd">    :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of</span>
-<span class="sd">                     ``OpeniInterface``, ``ImageProcessing`` or ``CancerImageInterface``.</span>
-<span class="sd">    :type instance: ``OpeniInterface``, ``ImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``</span>
+<span class="sd">                     ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``.</span>
+<span class="sd">    :type instance: ``OpeniInterface``, ``OpeniImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``</span>
 <span class="sd">    :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return</span>
 <span class="sd">                       system path(s) [see example below].</span>
 <span class="sd">    :type divvy_rule: ``str`` or ``function``</span>
@@ -966,7 +966,7 @@
 
 <span class="sd">        .. note::</span>
 
-<span class="sd">            If an instance of ``ImageProcessing`` is passed, the dataframe will be extracted automatically.</span>
+<span class="sd">            If an instance of ``OpeniImageProcessing`` is passed, the dataframe will be extracted automatically.</span>
 
 <span class="sd">    :type db_to_extract: ``str``</span>
 <span class="sd">    :param train_val_test_dict: a dictionary denoting the proportions for any of: ``&#39;train&#39;``, ``&#39;validation&#39;`` and/or ``&#39;test&#39;``.</span>
@@ -1087,9 +1087,9 @@
 <span class="sd">    &gt;&gt;&gt; val_ct, val_mri = image_dict[&#39;validation&#39;][&#39;ct&#39;], image_dict[&#39;validation&#39;][&#39;mri&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; test_ct, test_mri = image_dict[&#39;test&#39;][&#39;ct&#39;], image_dict[&#39;test&#39;][&#39;mri&#39;]</span>
 <span class="sd">    </span>
-<span class="sd">    This function behaves the same if passed an instance of ``ImageProcessing``</span>
+<span class="sd">    This function behaves the same if passed an instance of ``OpeniImageProcessing``</span>
 <span class="sd">    </span>
-<span class="sd">    &gt;&gt;&gt; ip = ImageProcessing(opi)</span>
+<span class="sd">    &gt;&gt;&gt; ip = OpeniImageProcessing(opi)</span>
 <span class="sd">    &gt;&gt;&gt; ip.auto()</span>
 <span class="sd">    &gt;&gt;&gt; ip.clean_image_dataframe()</span>
 <span class="sd">    </span>
@@ -1098,7 +1098,7 @@
 <span class="sd">    </span>
 <span class="sd">    .. note::</span>
 <span class="sd">    </span>
-<span class="sd">        If an instance of ``ImageProcessing`` is passed to ``image_divvy``, the ``image_data_frame_cleaned``</span>
+<span class="sd">        If an instance of ``OpeniImageProcessing`` is passed to ``image_divvy``, the ``image_data_frame_cleaned``</span>
 <span class="sd">        dataframe will be extracted.</span>
 
 <span class="sd">    .. note::</span>
@@ -1114,11 +1114,11 @@
 <span class="sd">        performance metrics (e.g., accuracy) when assessing fitted models.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># ToDo: remove need for the first (`ImageProcessing`-related) warning given in the docstring above.</span>
+    <span class="c1"># ToDo: remove need for the first (`OpeniImageProcessing`-related) warning given in the docstring above.</span>
     <span class="n">_image_divvy_error_checking</span><span class="p">(</span><span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
                                 <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ImageProcessing&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;OpeniImageProcessing&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_divvy_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span>
                                        <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">,</span>
                                        <span class="n">create_dirs</span><span class="o">=</span><span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">,</span>

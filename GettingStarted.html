@@ -256,10 +256,9 @@ in machine learning, namely convolutional neural networks.</p>
 <a class="reference external" href="https://github.com/tqdm/tqdm">tqdm</a>.</p>
 <p>The BioVida installer will automatically install all of these packages.</p>
 <p><strong>Notes</strong>:</p>
-<p>1. Keras is used to power the convolutional neural networks in this project. This has the advantage of
-allowing either <a class="reference external" href="https://www.tensorflow.org">TensorFlow</a> or
-<a class="reference external" href="http://deeplearning.net/software/theano/">Theano</a> to be used as a computational backend.
-If neither is present at install time, BioVida will automatically install TensorFlow for you.</p>
+<ol class="arabic simple">
+<li>Keras is used to power the convolutional neural networks in this project.</li>
+</ol>
 <p>2. To use <code class="docutils literal"><span class="pre">scipy</span></code> on macOS (formerly OSX) you will need <code class="docutils literal"><span class="pre">gcc</span></code>, which can be obtained with <code class="docutils literal"><span class="pre">homebrew</span></code> via.
 <code class="docutils literal"><span class="pre">$</span> <span class="pre">brew</span> <span class="pre">install</span> <span class="pre">gcc</span></code>. If you do not have <code class="docutils literal"><span class="pre">homebrew</span></code> installed, it can be installed by following the instructions
 provided <a class="reference external" href="https://brew.sh">here</a>.</p>
@@ -321,10 +320,10 @@ reviewed:</p>
 <h2>Automated Image Data Cleaning<a class="headerlink" href="#automated-image-data-cleaning" title="Permalink to this headline">¶</a></h2>
 <p>Cleaning the images which have been downloaded is extremely simple.</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import Image Processing Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">ImageProcessing</span>
+<span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">OpeniImageProcessing</span>
 
 <span class="c1"># 2. Instantiate the Tool using the OpeniInterface Instance</span>
-<span class="n">ip</span> <span class="o">=</span> <span class="n">ImageProcessing</span><span class="p">(</span><span class="n">opi</span><span class="p">)</span>
+<span class="n">ip</span> <span class="o">=</span> <span class="n">OpeniImageProcessing</span><span class="p">(</span><span class="n">opi</span><span class="p">)</span>
 
 <span class="c1"># 3. Clean the Image Data</span>
 <span class="n">idf</span> <span class="o">=</span> <span class="n">ip</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
@@ -333,7 +332,7 @@ reviewed:</p>
 <span class="n">ip</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;/save/directory/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>While the <code class="docutils literal"><span class="pre">ImageProcessing()</span></code> classes allows you to
+<p>While the <code class="docutils literal"><span class="pre">OpeniImageProcessing()</span></code> classes allows you to
 to control the image processing more precisely if you
 wish (see the documentation <a class="reference external" href="https://tariqahassan.github.io/BioVida/API.html#image-processing">here</a>), this
 fully automated approach should suffice in most cases.</p>

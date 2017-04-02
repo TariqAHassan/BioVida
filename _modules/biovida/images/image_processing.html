@@ -211,7 +211,7 @@
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="ImageProcessing"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing">[docs]</a><span class="k">class</span> <span class="nc">ImageProcessing</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="OpeniImageProcessing"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing">[docs]</a><span class="k">class</span> <span class="nc">OpeniImageProcessing</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    This class is designed to allow easy analysis of cached image data.</span>
@@ -279,11 +279,11 @@
     <span class="k">def</span> <span class="nf">_extract_db</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Extracts a database from the `instance` parameter of ImageProcessing().</span>
+<span class="sd">        Extracts a database from the `instance` parameter of OpeniImageProcessing().</span>
 
-<span class="sd">        :param db_to_extract: see ``ImageProcessing()``.</span>
+<span class="sd">        :param db_to_extract: see ``OpeniImageProcessing()``.</span>
 <span class="sd">        :type db_to_extract: ``str``</span>
-<span class="sd">        :param instance: see ``ImageProcessing()``.</span>
+<span class="sd">        :param instance: see ``OpeniImageProcessing()``.</span>
 <span class="sd">        :type instance: ``OpenInterface Class``</span>
 <span class="sd">        :return: extract database</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
@@ -437,7 +437,7 @@
         <span class="n">stat</span> <span class="o">=</span> <span class="n">ImageStat</span><span class="o">.</span><span class="n">Stat</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span> <span class="o">==</span> <span class="n">stat</span><span class="o">.</span><span class="n">sum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ImageProcessing.grayscale_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.grayscale_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">grayscale_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="OpeniImageProcessing.grayscale_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.grayscale_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">grayscale_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Analyze the images to determine whether or not they are grayscale</span>
@@ -524,7 +524,7 @@
 
         <span class="k">return</span> <span class="n">results</span>
 
-<div class="viewcode-block" id="ImageProcessing.logo_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.logo_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">logo_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="OpeniImageProcessing.logo_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.logo_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">logo_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                       <span class="n">match_quality_threshold</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
                       <span class="n">xy_position_threshold</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">2.5</span><span class="p">),</span>
                       <span class="n">base_resizes</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
@@ -581,7 +581,7 @@
                                                                                 <span class="n">output_params</span><span class="o">=</span><span class="n">output_params</span><span class="p">,</span>
                                                                                 <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageProcessing.border_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.border_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">border_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="OpeniImageProcessing.border_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.border_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">border_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                         <span class="n">signal_strength_threshold</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
                         <span class="n">min_border_separation</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
                         <span class="n">lower_bar_search_space</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
@@ -672,7 +672,7 @@
         <span class="n">crop_candidates</span> <span class="o">=</span> <span class="n">lhborder</span> <span class="o">+</span> <span class="n">hbar</span>
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">crop_candidates</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">crop_candidates</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
 
-<div class="viewcode-block" id="ImageProcessing.crop_decision"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.crop_decision">[docs]</a>    <span class="k">def</span> <span class="nf">crop_decision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="OpeniImageProcessing.crop_decision"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.crop_decision">[docs]</a>    <span class="k">def</span> <span class="nf">crop_decision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        </span>
 <span class="sd">        Decide where to crop the images, if at all.</span>
@@ -779,7 +779,7 @@
 
         <span class="k">return</span> <span class="n">all_cropped_images</span>
 
-<div class="viewcode-block" id="ImageProcessing.visual_image_problems"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.visual_image_problems">[docs]</a>    <span class="k">def</span> <span class="nf">visual_image_problems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_known_modalities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="OpeniImageProcessing.visual_image_problems"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.visual_image_problems">[docs]</a>    <span class="k">def</span> <span class="nf">visual_image_problems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_known_modalities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        This method is powered by a Convolutional Neural Network which</span>
@@ -831,7 +831,7 @@
                 <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trained_open_i_modality_types</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;image_modality_major&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageProcessing.auto_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.auto_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">auto_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_known_modalities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="OpeniImageProcessing.auto_analysis"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.auto_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">auto_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_known_modalities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Automatically use the class methods to analyze the ``image_dataframe`` using default</span>
@@ -926,7 +926,7 @@
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">reasons</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">reasons</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reasons</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">])</span>
 
-<div class="viewcode-block" id="ImageProcessing.auto_decision"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.auto_decision">[docs]</a>    <span class="k">def</span> <span class="nf">auto_decision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valid_floor</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">problems_to_ignore</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OpeniImageProcessing.auto_decision"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.auto_decision">[docs]</a>    <span class="k">def</span> <span class="nf">auto_decision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valid_floor</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">problems_to_ignore</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Automatically generate &#39;invalid_image&#39; column in the `image_dataframe`</span>
@@ -962,7 +962,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;invalid_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;invalid_image_reasons&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageProcessing.auto"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.auto">[docs]</a>    <span class="k">def</span> <span class="nf">auto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valid_floor</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">limit_to_known_modalities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="viewcode-block" id="OpeniImageProcessing.auto"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.auto">[docs]</a>    <span class="k">def</span> <span class="nf">auto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valid_floor</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">limit_to_known_modalities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
              <span class="n">problems_to_ignore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1013,7 +1013,7 @@
                            <span class="s2">&quot;indicate whether or not to include an entry in the cleaned dataset.</span><span class="se">\n</span><span class="s2">&quot;</span>
                            <span class="s2">&quot;To automate this process, consider using the `auto_decision()` method.&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImageProcessing.clean_image_dataframe"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.clean_image_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">clean_image_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crop_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="OpeniImageProcessing.clean_image_dataframe"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.clean_image_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">clean_image_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crop_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_to_rgb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Define a dataframe with rows of images found to be &#39;valid&#39;.</span>
@@ -1058,7 +1058,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span> <span class="o">=</span> <span class="n">image_data_frame_cleaned</span></div>
 
-<div class="viewcode-block" id="ImageProcessing.output"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.ImageProcessing.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="OpeniImageProcessing.output"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">output_rule</span><span class="p">,</span>
                <span class="n">create_dirs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1089,13 +1089,13 @@
 <span class="sd">        :Example:</span>
 
 <span class="sd">        &gt;&gt;&gt; from biovida.images import OpeniInterface</span>
-<span class="sd">        &gt;&gt;&gt; from biovida.images import ImageProcessing</span>
+<span class="sd">        &gt;&gt;&gt; from biovida.images import OpeniImageProcessing</span>
 <span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; opi = OpeniInterface()</span>
 <span class="sd">        &gt;&gt;&gt; opi.search(image_type=&#39;mri&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; opi.pull()</span>
 <span class="sd">        ...</span>
-<span class="sd">        &gt;&gt;&gt; ip = ImageProcessing(opi)</span>
+<span class="sd">        &gt;&gt;&gt; ip = OpeniImageProcessing(opi)</span>
 <span class="sd">        &gt;&gt;&gt; ip.auto()</span>
 <span class="sd">        </span>
 <span class="sd">        Next, prune invalid images </span>
