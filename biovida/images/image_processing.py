@@ -153,7 +153,10 @@ class OpeniImageProcessing(object):
         self._medpix_path = instance._created_image_dirs['medpix_logo']
 
         # Spin up tqdm
-        tqdm.pandas("status")
+        try:
+            tqdm().pandas()
+        except:
+            tqdm.pandas(desc='status')
 
         # Load the CNN
         self._ircnn = ImageClassificationCNN()

@@ -53,7 +53,10 @@ from biovida.images._interface_support.cancer_image.cancer_image_parameters impo
 from biovida.images._interface_support.cancer_image.cancer_image_support_tools import nonessential_cancer_image_columns
 
 # Spin up tqdm
-tqdm.pandas("status")
+try:
+    tqdm().pandas()
+except:
+    tqdm.pandas(desc='status')
 
 
 # ----------------------------------------------------------------------------------------------------------
