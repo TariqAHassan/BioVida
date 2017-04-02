@@ -9,7 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 from biovida.images import image_delete
 from biovida.images import OpeniInterface
-from biovida.images import ImageProcessing
+from biovida.images import OpeniImageProcessing
 from data._private.paths import output_dir
 
 
@@ -42,7 +42,7 @@ opi.records_db = opi.records_db[0:10000].reset_index(drop=True)
 opi.pull(new_records_pull=False, download_limit=None)
 
 # Check for grayscale
-ip = ImageProcessing(opi)
+ip = OpeniImageProcessing(opi)
 ip.grayscale_analysis()
 
 

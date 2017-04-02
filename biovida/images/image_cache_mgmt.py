@@ -308,7 +308,7 @@ def _prune_rows_with_deleted_images(cache_records_db, columns, save_path):
 _image_instance_image_columns = {
     # Note: the first item should be the default.
     'OpeniInterface': ('cached_images_path',),
-    'ImageProcessing': ('cached_images_path',),
+    'OpeniImageProcessing': ('cached_images_path',),
     'unify_against_images': ('cached_images_path',),
     'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path')
 }
@@ -459,7 +459,7 @@ def image_delete(instance, delete_rule, verbose=True):
         index_dict_update(data_frame_name, stage='after', data_frame=data_frame)
         return data_frame, to_conserve
 
-    if instance.__class__.__name__ == 'ImageProcessing':
+    if instance.__class__.__name__ == 'OpeniImageProcessing':
         instance.image_dataframe, to_conserve = non_cache_db('image_dataframe', instance.image_dataframe, enact=True)
         if instance.db_to_extract == 'records_db':
             instance.instance.records_db = instance.instance.records_db[to_conserve].reset_index(drop=True)
@@ -702,14 +702,14 @@ def _divvy_image_processing(instance,
                             verbose):
     """
     
-    Handle the special case of 'divvying' when an instance of the ``ImageProcessing``
+    Handle the special case of 'divvying' when an instance of the ``OpeniImageProcessing``
     class is passed to ``image_divvy()``.
     
     This has to be to be handled separately so that cropping information,
-    determined by ``ImageProcessing``'s analysis methods, can be applied.
+    determined by ``OpeniImageProcessing``'s analysis methods, can be applied.
     
     :param instance: see ``image_divvy()``.
-    :type instance: ``ImageProcessing``
+    :type instance: ``OpeniImageProcessing``
     :param divvy_rule:  see ``image_divvy()``.
     :type divvy_rule: ``str`` or ``function``
     :param action:  see ``image_divvy()``.
@@ -722,7 +722,7 @@ def _divvy_image_processing(instance,
     :type allow_overwrite: ``bool``
     :param verbose: see ``image_divvy()``.
     :type verbose: ``bool``
-    :return: yeild of ``ImageProcessing.output`` or ``_train_val_test_engine()``.
+    :return: yeild of ``OpeniImageProcessing.output`` or ``_train_val_test_engine()``.
     :rtype: ``dict``
     """
     if action in ('copy', 'ndarray') and not isinstance(train_val_test_dict, dict):
@@ -768,13 +768,13 @@ def image_divvy(instance,
     
     .. warning::
     
-        Currently, if an ``ImageProcessing`` instance is first passed to
+        Currently, if an ``OpeniImageProcessing`` instance is first passed to
         ``biovida.unification.unify_against_images`` and then to this function,
         image cropping will not be applied.
 
     :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
-                     ``OpeniInterface``, ``ImageProcessing`` or ``CancerImageInterface``.
-    :type instance: ``OpeniInterface``, ``ImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``
+                     ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``.
+    :type instance: ``OpeniInterface``, ``OpeniImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
     :type divvy_rule: ``str`` or ``function``
@@ -794,7 +794,7 @@ def image_divvy(instance,
 
         .. note::
 
-            If an instance of ``ImageProcessing`` is passed, the dataframe will be extracted automatically.
+            If an instance of ``OpeniImageProcessing`` is passed, the dataframe will be extracted automatically.
 
     :type db_to_extract: ``str``
     :param train_val_test_dict: a dictionary denoting the proportions for any of: ``'train'``, ``'validation'`` and/or ``'test'``.
@@ -915,9 +915,9 @@ def image_divvy(instance,
     >>> val_ct, val_mri = image_dict['validation']['ct'], image_dict['validation']['mri']
     >>> test_ct, test_mri = image_dict['test']['ct'], image_dict['test']['mri']
     
-    This function behaves the same if passed an instance of ``ImageProcessing``
+    This function behaves the same if passed an instance of ``OpeniImageProcessing``
     
-    >>> ip = ImageProcessing(opi)
+    >>> ip = OpeniImageProcessing(opi)
     >>> ip.auto()
     >>> ip.clean_image_dataframe()
     
@@ -926,7 +926,7 @@ def image_divvy(instance,
     
     .. note::
     
-        If an instance of ``ImageProcessing`` is passed to ``image_divvy``, the ``image_data_frame_cleaned``
+        If an instance of ``OpeniImageProcessing`` is passed to ``image_divvy``, the ``image_data_frame_cleaned``
         dataframe will be extracted.
 
     .. note::
@@ -942,11 +942,11 @@ def image_divvy(instance,
         performance metrics (e.g., accuracy) when assessing fitted models.
 
     """
-    # ToDo: remove need for the first (`ImageProcessing`-related) warning given in the docstring above.
+    # ToDo: remove need for the first (`OpeniImageProcessing`-related) warning given in the docstring above.
     _image_divvy_error_checking(divvy_rule=divvy_rule, action=action,
                                 train_val_test_dict=train_val_test_dict)
 
-    if type(instance).__name__ == 'ImageProcessing':
+    if type(instance).__name__ == 'OpeniImageProcessing':
         return _divvy_image_processing(instance=instance, divvy_rule=divvy_rule,
                                        action=action, train_val_test_dict=train_val_test_dict,
                                        create_dirs=create_dirs, allow_overwrite=allow_overwrite,

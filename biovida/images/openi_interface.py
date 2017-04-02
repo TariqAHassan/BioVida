@@ -1178,7 +1178,7 @@ class OpeniInterface(object):
 
                         .. warning::
 
-                                The analyses performed by the ``image_processing.ImageProcessing`` class are
+                                The analyses performed by the ``image_processing.OpeniImageProcessing`` class are
                                 most accurate with large images.
 
         :type image_size: ``str`` or ``None``

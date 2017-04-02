@@ -39,7 +39,7 @@ from biovida.images.models.image_classification import ImageClassificationCNN
 pd.options.mode.chained_assignment = None
 
 
-class ImageProcessing(object):
+class OpeniImageProcessing(object):
     """
 
     This class is designed to allow easy analysis of cached image data.
@@ -107,11 +107,11 @@ class ImageProcessing(object):
     def _extract_db(instance, db_to_extract):
         """
 
-        Extracts a database from the `instance` parameter of ImageProcessing().
+        Extracts a database from the `instance` parameter of OpeniImageProcessing().
 
-        :param db_to_extract: see ``ImageProcessing()``.
+        :param db_to_extract: see ``OpeniImageProcessing()``.
         :type db_to_extract: ``str``
-        :param instance: see ``ImageProcessing()``.
+        :param instance: see ``OpeniImageProcessing()``.
         :type instance: ``OpenInterface Class``
         :return: extract database
         :rtype: ``Pandas DataFrame``
@@ -917,13 +917,13 @@ class ImageProcessing(object):
         :Example:
 
         >>> from biovida.images import OpeniInterface
-        >>> from biovida.images import ImageProcessing
+        >>> from biovida.images import OpeniImageProcessing
         ...
         >>> opi = OpeniInterface()
         >>> opi.search(image_type='mri')
         >>> opi.pull()
         ...
-        >>> ip = ImageProcessing(opi)
+        >>> ip = OpeniImageProcessing(opi)
         >>> ip.auto()
         
         Next, prune invalid images 

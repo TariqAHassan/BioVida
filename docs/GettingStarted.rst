@@ -124,10 +124,10 @@ Cleaning the images which have been downloaded is extremely simple.
 .. code:: python
 
     # 1. Import Image Processing Tools
-    from biovida.images import ImageProcessing
+    from biovida.images import OpeniImageProcessing
 
     # 2. Instantiate the Tool using the OpeniInterface Instance
-    ip = ImageProcessing(opi)
+    ip = OpeniImageProcessing(opi)
 
     # 3. Clean the Image Data
     idf = ip.auto()
@@ -135,7 +135,7 @@ Cleaning the images which have been downloaded is extremely simple.
     # 4. Save the Cleaned Images
     ip.save("/save/directory/")
 
-While the ``ImageProcessing()`` classes allows you to
+While the ``OpeniImageProcessing()`` classes allows you to
 to control the image processing more precisely if you
 wish (see the documentation `here <https://tariqahassan.github.io/BioVida/API.html#image-processing>`__), this
 fully automated approach should suffice in most cases.

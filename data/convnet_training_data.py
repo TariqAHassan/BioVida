@@ -8,7 +8,7 @@
 import os
 from os.path import join as os_join
 from biovida.images import OpeniInterface
-from biovida.images import ImageProcessing
+from biovida.images import OpeniImageProcessing
 from biovida.images import image_delete
 
 from biovida.images.image_cache_mgmt import image_divvy
@@ -49,7 +49,7 @@ opi.pull(new_records_pull=False)
 # ----------------------------------------------------------------------------------------------------------
 
 
-ip = ImageProcessing(opi, db_to_extract='records_db')
+ip = OpeniImageProcessing(opi, db_to_extract='records_db')
 ip.grayscale_analysis()
 
 

@@ -24,15 +24,15 @@ def unify_against_images(interfaces,
     Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)
     with Diagnostic and Genomic Data.
 
-    :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``, or some
+    :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``, or some
                            combination inside an iterable.
-    :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``.
+    :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``.
     :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db' or 'image_dataframe'.
                           Defaults to 'records_db'.
 
                     .. note::
 
-                        If an instance of ``ImageProcessing`` is passed to ``interfaces``, the ``image_dataframe``
+                        If an instance of ``OpeniImageProcessing`` is passed to ``interfaces``, the ``image_dataframe``
                         attribute will be extracted regardless of the value passed to this argument.
 
     :type db_to_extract: ``str``

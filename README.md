@@ -102,15 +102,15 @@ Unfortunately, the data pulled from Open-i above
 is likely to contain a large number of images 
 unrelated to the search query and/or are unsuitable for machine learning.
 
-The *experimental* ``ImageProcessing`` class can be used to completely
+The *experimental* ``OpeniImageProcessing`` class can be used to completely
 automate this data cleaning process.
 
 ```python
 # 1. Import Image Processing Tools
-from biovida.images import ImageProcessing
+from biovida.images import OpeniImageProcessing
 
 # 2. Instantiate the Tool using the OpeniInterface Instance
-ip = ImageProcessing(opi)
+ip = OpeniImageProcessing(opi)
  
 # 3. Analyze the Images
 idf = ip.auto()

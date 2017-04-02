@@ -113,14 +113,14 @@ class _ImagesInterfaceIntegration(object):
     def _image_processing_prep(self, db):
         """
 
-        A tool to clean and standardize a database from a ``ImageProcessing`` instance.
+        A tool to clean and standardize a database from a ``OpeniImageProcessing`` instance.
 
-        :param db: a database from a ``ImageProcessing`` instance.
+        :param db: a database from a ``OpeniImageProcessing`` instance.
         :type db: ``Pandas DataFrame``
         :return: a cleaned and standardize ``db``.
         :rtype: ``Pandas DataFrame``
         """
-        # Note: if the ``ImageProcessing`` class is updated to handle
+        # Note: if the ``OpeniImageProcessing`` class is updated to handle
         # instances other than ``OpeniInterface``, this approach will need to be changed.
         return self._open_i_prep(db)
 
@@ -183,7 +183,7 @@ class _ImagesInterfaceIntegration(object):
         """
         return {'OpeniInterface': self._open_i_prep,
                 'CancerImageInterface': self._cancer_image_prep,
-                'ImageProcessing': self._image_processing_prep}
+                'OpeniImageProcessing': self._image_processing_prep}
 
     def integration(self, interfaces, db_to_extract):
         """
@@ -207,16 +207,16 @@ class _ImagesInterfaceIntegration(object):
 
          *NOTE: this column will be dropped after passing through ``_DiseaseSymptomsIntegration().integration()``.
 
-        :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``, or some
+        :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``, or some
                            combination inside an iterable.
-        :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``ImageProcessing``.
+        :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``.
         :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
         :type db_to_extract: ``str``
         :return: standardize interfaces
         :rtype: ``Pandas DataFrame``
         """
         interfaces_types = [type(i).__name__ for i in interfaces]
-        if 'ImageProcessing' in interfaces_types:
+        if 'OpeniImageProcessing' in interfaces_types:
             self._additional_columns += possible_openi_image_processing_cols
         if 'CancerImageInterface' in interfaces_types:
             self._additional_columns += ['source_images_path']
@@ -225,7 +225,7 @@ class _ImagesInterfaceIntegration(object):
         for class_instance in interfaces:
             interface_name = type(class_instance).__name__
             func = self._prep_class_dict[interface_name]
-            if interface_name == 'ImageProcessing':
+            if interface_name == 'OpeniImageProcessing':
                 database = getattr(class_instance, "image_dataframe")
             else:
                 database = getattr(class_instance, db_to_extract)
@@ -719,7 +719,7 @@ def images_unify(interfaces, db_to_extract='records_db', verbose=True, fuzzy_thr
     Unify Interfaces in the ``images`` subpackage against other BioVida APIs.
 
     :param interfaces: See: ``biovida.unify_domains.unify_against_images()``
-    :param interfaces: `list``, ``tuple``, ``OpeniInterface``, ``ImageProcessing`` or ``CancerImageInterface``
+    :param interfaces: `list``, ``tuple``, ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``
     :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
                           Defaults to 'records_db'.
     :type db_to_extract: ``str``
