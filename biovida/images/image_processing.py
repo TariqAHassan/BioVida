@@ -21,7 +21,7 @@ from six.moves.urllib.parse import urljoin
 from os.path import basename as os_basename
 
 # General tools
-from biovida.support_tools.support_tools import items_null, header, data_frame_col_drop, list_to_bulletpoints
+from biovida.support_tools.support_tools import items_null, data_frame_col_drop, list_to_bulletpoints
 
 # Tools form the image subpackage
 from biovida.images._image_tools import load_and_scale_images
@@ -75,22 +75,15 @@ class ImageProcessing(object):
                                   associated resources) regardless of whether or not these files are already cached.
         :type download_override: ``bool``
         """
-        openi_path_aux = self.instance._created_image_dirs['aux']
-        resources_path = os_join(openi_path_aux, 'resources')
+        resources_path = os_join(self.instance._created_image_dirs['aux'], 'resources')
         if not os.path.isdir(resources_path):
             os.makedirs(resources_path)
 
-        BASE_URL = 'https://github.com/TariqAHassan/BioVida/blob/master/biovida/images/resources'
+        base_url = 'https://raw.githubusercontent.com/TariqAHassan/BioVida/master/biovida/images/resources/'
 
         required_resources = ["trained_open_i_modality_types.json",
                               "visual_image_problems_model.h5",
                               "visual_image_problems_model_support.p"]
-
-        def progress_download(url, file_path):
-            response = requests.get(url, stream=True)
-            with open(file_path, "wb") as file:
-                for data in tqdm(response.iter_content()):
-                    file.write(data)
 
         def download(url, file_path):
             response = requests.get(url)
@@ -101,14 +94,10 @@ class ImageProcessing(object):
             file_path = os_join(resources_path, resource)
             if not os.path.isfile(file_path) or download_override:
                 if self._verbose:
-                    header("Downloading '{0}'... ".format(resource))
-                if self._verbose and resource == 'visual_image_problems_model.h5':
-                    # Somewhat large file at ~50 mb.
-                    progress_download(url=urljoin(BASE_URL, resource), file_path=file_path)
-                else:
-                    download(url=urljoin(BASE_URL, resource), file_path=file_path)
+                    print("Downloading '{0}'... ".format(resource))
+                download(url=urljoin(base_url, resource), file_path=file_path)
 
-        self.model_path = os_join(resources_path, "visual_image_problems_model.h5")
+        self._model_path = os_join(resources_path, "visual_image_problems_model.h5")
 
         # Load 'trained_open_i_modality_types.json' into memory
         with open(os_join(resources_path, 'trained_open_i_modality_types.json')) as json_data:
@@ -169,6 +158,7 @@ class ImageProcessing(object):
 
         # Load the CNN
         self._ircnn = ImageClassificationCNN()
+        self.trained_open_i_modality_types = None
         self._model_path = None
 
         self._obtain_model_resources(download_override=download_override)
@@ -182,8 +172,6 @@ class ImageProcessing(object):
             self._ircnn.load(self._model_path, override_existing=True)
         else:
             raise FileNotFoundError("'{0}' could not be located.".format(str(model_location)))
-
-        self.trained_open_i_modality_types = None
 
         # Load the visual image problems the model can detect
         self.model_classes = list(self._ircnn.data_classes.keys())
@@ -719,7 +707,10 @@ class ImageProcessing(object):
                                         to cause the image to be marked as invalid.
                                         For instance, a threshold value of `0.5` would mean that any image
                                         which contains a image problem probability above `0.5` will be marked
-                                        as invalid. NOTE: Currently not in use.
+                                        as invalid. 
+                                        
+                                        NOTE: Currently not in use.
+                                        
         :type image_problem_threshold: ``float``
         :return: a list of the form ``[invalid image (boolean), reasons for decision if the former is True]``, wrapped
                  in a pandas series so it can be neatly split into two columns when called via. ``DataFrame.apply()``.
