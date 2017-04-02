@@ -101,16 +101,9 @@ class _CancerImageArchiveOverview(object):
         # Convert column names from camelCase to snake_cake
         summary_df.columns = list(map(camel_to_snake_case, summary_df.columns))
 
-        # Drop Studies which are 'Coming Soon'.
         summary_df = summary_df[summary_df['status'].str.strip().str.lower() != 'coming soon']
-
-        # Drop Studies which are on phantoms
         summary_df = summary_df[~summary_df['location'].str.lower().str.contains('phantom')]
-
-        # Drop Studies which are on mice or phantoms
         summary_df = summary_df[~summary_df['collection'].str.lower().str.contains('mouse|phantom')]
-
-        # Only Keep Studies which are public
         summary_df = summary_df[summary_df['access'].str.strip().str.lower() == 'public'].reset_index(drop=True)
 
         # Add Full Name for Modalities
@@ -121,10 +114,7 @@ class _CancerImageArchiveOverview(object):
         summary_df['location'] = summary_df['location'].map(
             lambda x: cln(x.replace(" and ", ", ").replace("Head-Neck", "Head, Neck")).split(", "))
 
-        # Convert 'Update' to Datetime
         summary_df['updated'] = pd.to_datetime(summary_df['updated'], infer_datetime_format=True)
-
-        # Clean Column names
         summary_df.columns = list(map(lambda x: cln(x, extent=2), summary_df.columns))
 
         return summary_df
@@ -306,7 +296,6 @@ class _CancerImageArchiveRecords(object):
         # Download a summary of all patients in a study
         study_df = self._robust_study_extract(study)
 
-        # Convert study_date to datetime
         study_df['study_date'] = pd.to_datetime(study_df['study_date'], infer_datetime_format=True)
 
         # Divide Study into stages (e.g., Baseline (session 1); Baseline + 1 Month (session 2), etc.
@@ -355,12 +344,10 @@ class _CancerImageArchiveRecords(object):
         # Convert column names from camelCase to snake_cake
         patient_df.columns = list(map(camel_to_snake_case, patient_df.columns))
 
-        # Add sex, age, session, and study_date
+        # Add sex, age, session, study_date and patient id
         patient_info = patient_df['study_instance_uid'].map(
             lambda x: {k: patient_dict[x][k] for k in ('sex', 'age', 'session', 'study_date')})
         patient_df = patient_df.join(pd.DataFrame(patient_info.tolist()))
-
-        # Add patient_id
         patient_df['patient_id'] = patient
 
         return patient_df
@@ -405,10 +392,8 @@ class _CancerImageArchiveRecords(object):
         patient_study_df['body_part_examined'] = patient_study_df['body_part_examined'].map(
             lambda x: cln(x).lower() if isinstance(x, str) else x, na_action='ignore')
 
-        # Convert series_date to datetime
         patient_study_df['series_date'] = pd.to_datetime(patient_study_df['series_date'], infer_datetime_format=True)
 
-        # Sort and Return
         return patient_study_df.sort_values(by=['patient_id', 'session']).reset_index(drop=True)
 
     def _get_condition_name(self, collection_series, overview_download_override):
@@ -485,7 +470,6 @@ class _CancerImageArchiveRecords(object):
         patient_study_df['query'] = [search_dict] * patient_study_df.shape[0]
         patient_study_df['pull_time'] = [pull_time] * patient_study_df.shape[0]
 
-        # Clean the dataframe
         self.records_df = self._clean_patient_study_df(patient_study_df)
 
         return self.records_df
@@ -655,7 +639,6 @@ class _CancerImageArchiveImages(object):
         :return: the length of the replacement, if ``return_replacement_len`` is ``True``
         :rtype: ``int`` or ``None``
         """
-        # Extract the current value.
         current = self.real_time_update_db.get_value(index, column)
 
         def cleaner(to_clean):
@@ -668,10 +651,8 @@ class _CancerImageArchiveImages(object):
         # Generate the replacement
         replacement = replacement_candidate if len(replacement_candidate) else np.NaN
 
-        # Set the value
         self.real_time_update_db.set_value(index, column, replacement)
 
-        # Return the length if requested.
         return len(replacement) if return_replacement_len and isinstance(replacement, (list, tuple)) else None
 
     def _save_dicom_as_image(self,
@@ -944,7 +925,6 @@ class _CancerImageArchiveImages(object):
         pickle.dump({k: v for k, v in locals().items() if k not in ('self', 'settings_path')},
                     open(settings_path, "wb"))
 
-        # Apply limit on number of sessions, if any
         if isinstance(session_limit, int):
             if session_limit < 1:
                 raise ValueError("`session_limit` must be greater than or equal to 1.")
@@ -956,7 +936,6 @@ class _CancerImageArchiveImages(object):
         # Instantiate `self.real_time_update_db`
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index)
 
-        # Harvest images
         self._pull_images_engine(save_dicom=save_dicom, allowed_modalities=allowed_modalities, save_png=save_png)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
