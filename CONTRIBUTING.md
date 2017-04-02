@@ -6,11 +6,7 @@ Contributing
 
 - Style: PEP8
   
-- Line length: < 120 characters (sorry PEP8)
-
-## Unit Testing
-
-In progress.
+- Line length: < 120 characters
 
 ## Documentation
 
