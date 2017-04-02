@@ -964,6 +964,19 @@ class CancerImageInterface(object):
     :type cache_path: ``str`` or ``None``
     :param verbose: if ``True`` print additional details
     :type verbose: ``bool``
+    
+    .. warning::
+    
+        If you wish to use any data obtained from this resource for any form of publication,
+        you must follow the citation guidelines provided by the study's authors on the project's
+        Cancer Imaging Archive repository page.
+    
+    .. warning::
+    
+        Several studies on the Cancer Imaging Archive are subject to publication blockades.
+        Therefore, if you intend to publish any findings which use data from this resource, you
+        must first check that the studies you have selected are not subject to such restrictions.
+    
     """
 
     def _save_cache_records_db(self):
