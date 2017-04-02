@@ -184,12 +184,26 @@
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_and_scale_images</span>
 
+<span class="c1"># The model in `/_resources` was trained using Theano.</span>
+<span class="c1"># TensorFlow cannot be used to load these weights until</span>
+<span class="c1"># this issue (https://github.com/fchollet/keras/pull/5898) is resolved.</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;KERAS_BACKEND&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;theano&#39;</span>
+
 <span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">callbacks</span>
 <span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
 <span class="kn">from</span> <span class="nn">keras.preprocessing.image</span> <span class="k">import</span> <span class="n">ImageDataGenerator</span>
 <span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Sequential</span><span class="p">,</span> <span class="n">load_model</span><span class="p">,</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="p">(</span><span class="n">Convolution2D</span><span class="p">,</span> <span class="n">MaxPooling2D</span><span class="p">,</span> <span class="n">ZeroPadding2D</span><span class="p">,</span> <span class="n">concatenate</span><span class="p">,</span> <span class="n">GlobalAveragePooling2D</span><span class="p">,</span>
-                          <span class="n">Activation</span><span class="p">,</span> <span class="n">Dropout</span><span class="p">,</span> <span class="n">Flatten</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">merge</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="p">(</span><span class="n">Convolution2D</span><span class="p">,</span>
+                          <span class="n">MaxPooling2D</span><span class="p">,</span>
+                          <span class="n">ZeroPadding2D</span><span class="p">,</span>
+                          <span class="n">concatenate</span><span class="p">,</span>
+                          <span class="n">GlobalAveragePooling2D</span><span class="p">,</span>
+                          <span class="n">Activation</span><span class="p">,</span>
+                          <span class="n">Dropout</span><span class="p">,</span>
+                          <span class="n">Flatten</span><span class="p">,</span>
+                          <span class="n">Dense</span><span class="p">,</span>
+                          <span class="n">Input</span><span class="p">,</span>
+                          <span class="n">merge</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="k">import</span> <span class="n">RMSprop</span><span class="p">,</span> <span class="n">SGD</span>
 
 <span class="c1"># Problem: ValueError: Negative dimension size caused by subtracting 2 from 1</span>
@@ -874,7 +888,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
     </p>
   </div>
 </footer>

@@ -273,16 +273,9 @@
         <span class="c1"># Convert column names from camelCase to snake_cake</span>
         <span class="n">summary_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
 
-        <span class="c1"># Drop Studies which are &#39;Coming Soon&#39;.</span>
         <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;coming soon&#39;</span><span class="p">]</span>
-
-        <span class="c1"># Drop Studies which are on phantoms</span>
         <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="o">~</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;phantom&#39;</span><span class="p">)]</span>
-
-        <span class="c1"># Drop Studies which are on mice or phantoms</span>
         <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="o">~</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;mouse|phantom&#39;</span><span class="p">)]</span>
-
-        <span class="c1"># Only Keep Studies which are public</span>
         <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;access&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;public&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Add Full Name for Modalities</span>
@@ -293,10 +286,7 @@
         <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; and &quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Head-Neck&quot;</span><span class="p">,</span> <span class="s2">&quot;Head, Neck&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">))</span>
 
-        <span class="c1"># Convert &#39;Update&#39; to Datetime</span>
         <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;updated&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;updated&#39;</span><span class="p">],</span> <span class="n">infer_datetime_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="c1"># Clean Column names</span>
         <span class="n">summary_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">summary_df</span>
@@ -478,11 +468,11 @@
         <span class="c1"># Download a summary of all patients in a study</span>
         <span class="n">study_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robust_study_extract</span><span class="p">(</span><span class="n">study</span><span class="p">)</span>
 
-        <span class="c1"># Convert study_date to datetime</span>
         <span class="n">study_df</span><span class="p">[</span><span class="s1">&#39;study_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">study_df</span><span class="p">[</span><span class="s1">&#39;study_date&#39;</span><span class="p">],</span> <span class="n">infer_datetime_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Divide Study into stages (e.g., Baseline (session 1); Baseline + 1 Month (session 2), etc.</span>
-        <span class="n">stages</span> <span class="o">=</span> <span class="n">study_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;patient_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_index_map</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;study_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">stages</span> <span class="o">=</span> <span class="n">study_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;patient_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_index_map</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;study_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 
         <span class="c1"># Apply stages</span>
         <span class="n">study_df</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">study_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">stages</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;patient_id&#39;</span><span class="p">]][</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;study_date&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -526,12 +516,10 @@
         <span class="c1"># Convert column names from camelCase to snake_cake</span>
         <span class="n">patient_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">patient_df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
 
-        <span class="c1"># Add sex, age, session, and study_date</span>
+        <span class="c1"># Add sex, age, session, study_date and patient id</span>
         <span class="n">patient_info</span> <span class="o">=</span> <span class="n">patient_df</span><span class="p">[</span><span class="s1">&#39;study_instance_uid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">patient_dict</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;session&#39;</span><span class="p">,</span> <span class="s1">&#39;study_date&#39;</span><span class="p">)})</span>
         <span class="n">patient_df</span> <span class="o">=</span> <span class="n">patient_df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">patient_info</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
-
-        <span class="c1"># Add patient_id</span>
         <span class="n">patient_df</span><span class="p">[</span><span class="s1">&#39;patient_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">patient</span>
 
         <span class="k">return</span> <span class="n">patient_df</span>
@@ -576,10 +564,8 @@
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;body_part_examined&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;body_part_examined&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Convert series_date to datetime</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;series_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;series_date&#39;</span><span class="p">],</span> <span class="n">infer_datetime_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># Sort and Return</span>
         <span class="k">return</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s1">&#39;session&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_condition_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection_series</span><span class="p">,</span> <span class="n">overview_download_override</span><span class="p">):</span>
@@ -656,7 +642,6 @@
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">search_dict</span><span class="p">]</span> <span class="o">*</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">pull_time</span><span class="p">]</span> <span class="o">*</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="c1"># Clean the dataframe</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_patient_study_df</span><span class="p">(</span><span class="n">patient_study_df</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records_df</span>
@@ -826,7 +811,6 @@
 <span class="sd">        :return: the length of the replacement, if ``return_replacement_len`` is ``True``</span>
 <span class="sd">        :rtype: ``int`` or ``None``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Extract the current value.</span>
         <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">cleaner</span><span class="p">(</span><span class="n">to_clean</span><span class="p">):</span>
@@ -839,10 +823,8 @@
         <span class="c1"># Generate the replacement</span>
         <span class="n">replacement</span> <span class="o">=</span> <span class="n">replacement_candidate</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">replacement_candidate</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
 
-        <span class="c1"># Set the value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">replacement</span><span class="p">)</span>
 
-        <span class="c1"># Return the length if requested.</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">replacement</span><span class="p">)</span> <span class="k">if</span> <span class="n">return_replacement_len</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">replacement</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_save_dicom_as_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -1115,7 +1097,6 @@
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;settings_path&#39;</span><span class="p">)},</span>
                     <span class="nb">open</span><span class="p">(</span><span class="n">settings_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
 
-        <span class="c1"># Apply limit on number of sessions, if any</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session_limit</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">session_limit</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`session_limit` must be greater than or equal to 1.&quot;</span><span class="p">)</span>
@@ -1127,7 +1108,6 @@
         <span class="c1"># Instantiate `self.real_time_update_db`</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_real_time_update_db</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
-        <span class="c1"># Harvest images</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_images_engine</span><span class="p">(</span><span class="n">save_dicom</span><span class="o">=</span><span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="o">=</span><span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">save_png</span><span class="o">=</span><span class="n">save_png</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="kc">None</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">})</span>
 
@@ -1156,6 +1136,19 @@
 <span class="sd">    :type cache_path: ``str`` or ``None``</span>
 <span class="sd">    :param verbose: if ``True`` print additional details</span>
 <span class="sd">    :type verbose: ``bool``</span>
+<span class="sd">    </span>
+<span class="sd">    .. warning::</span>
+<span class="sd">    </span>
+<span class="sd">        If you wish to use any data obtained from this resource for any form of publication,</span>
+<span class="sd">        you must follow the citation guidelines provided by the study authors on the project&#39;s</span>
+<span class="sd">        Cancer Imaging Archive repository page.</span>
+<span class="sd">    </span>
+<span class="sd">    .. warning::</span>
+<span class="sd">    </span>
+<span class="sd">        Several studies on the Cancer Imaging Archive are subject to publication blockades.</span>
+<span class="sd">        Therefore, if you intend to publish any findings which use data from this resource, you</span>
+<span class="sd">        must first check that the studies you have selected are not subject to such restrictions.</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_save_cache_records_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1324,7 +1317,7 @@
 <span class="sd">        Load a ``records_db``</span>
 
 <span class="sd">        :param records_db: a system path or ``records_db`` itself.</span>
-<span class="sd">        :type records_db: ``str``</span>
+<span class="sd">        :type records_db: ``str`` or ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span>
@@ -1685,7 +1678,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
     </p>
   </div>
 </footer>

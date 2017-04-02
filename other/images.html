@@ -234,7 +234,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) &#8211; a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
 </tr>
 </tbody>
 </table>
@@ -436,6 +436,18 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 </tr>
 </tbody>
 </table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If you wish to use any data obtained from this resource for any form of publication,
+you must follow the citation guidelines provided by the study authors on the project&#8217;s
+Cancer Imaging Archive repository page.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Several studies on the Cancer Imaging Archive are subject to publication blockades.
+Therefore, if you intend to publish any findings which use data from this resource, you
+must first check that the studies you have selected are not subject to such restrictions.</p>
+</div>
 <dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.save_records_db">
 <code class="descname">save_records_db</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.save_records_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.save_records_db" title="Permalink to this definition">¶</a></dt>
@@ -458,7 +470,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) &#8211; a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
 </tr>
 </tbody>
 </table>
@@ -1250,7 +1262,7 @@ However, if the image is cropped too much, the target pattern itself could be re
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
     </p>
   </div>
 </footer>

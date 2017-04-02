@@ -266,7 +266,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">general_error_msg</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not valid for `</span><span class="si">{1}</span><span class="s2">`.</span><span class="se">\n</span><span class="s2">Valid values for `</span><span class="si">{1}</span><span class="s2">`:</span><span class="se">\n</span><span class="si">{2}</span><span class="s2">&quot;</span>
 
-        <span class="c1"># Check `query`</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">search_arguments</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`query` must be a string.&quot;</span><span class="p">)</span>
 
@@ -278,7 +277,6 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only `lists`, `tuples` or `None` &quot;</span>
                                      <span class="s2">&quot;may be passed to `</span><span class="si">{0}</span><span class="s2">`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
-                <span class="c1"># Loop though items in `v`</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`tuples` or `lists` passed to `</span><span class="si">{0}</span><span class="s2">` &quot;</span>
@@ -288,7 +286,6 @@
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">general_error_msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                             <span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 
-                <span class="c1"># Block contradictory requests</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;rankby&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_openi_search_special_case</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">blocked</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;newest&#39;</span><span class="p">,</span> <span class="s1">&#39;oldest&#39;</span><span class="p">],</span> <span class="n">passed</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
 
@@ -306,15 +303,12 @@
 <span class="sd">        :param exclusions: a list of exclusions to pass to &#39;&amp;it&#39;.</span>
 <span class="sd">        :type exclusions: ``list`` or ``None``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Check `exclusions` is an acceptable type</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclusions</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="n">exclusions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`exclusions` must be a `list`, `tuple` or `None`.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Return if there is nothing to check</span>
         <span class="k">if</span> <span class="n">exclusions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">exclusions</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">exclusions</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">args</span>
 
-        <span class="c1"># Check exclusions only contains allowed types</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;graphics&#39;</span><span class="p">,</span> <span class="s1">&#39;multipanel&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`exclusions` must only include one or all of: &#39;graphics&#39;, &#39;multipanel&#39;.&quot;</span><span class="p">)</span>
 
@@ -364,17 +358,14 @@
         <span class="c1"># Get a sample request</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">search_query</span> <span class="o">+</span> <span class="s2">&quot;&amp;m=1&amp;n=1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
-        <span class="c1"># Get the total number of results</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]))</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not obtain total number of results from the Open-i API.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Block progress if no results found</span>
         <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NoResultsFound</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Please Try Refining Your Search.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Print number of results found</span>
         <span class="k">if</span> <span class="n">print_results</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Results Found: </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{:,.0f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">total</span><span class="p">)))</span>
 
@@ -400,7 +391,6 @@
             <span class="c1"># Get the relevant dict of params</span>
             <span class="n">search_dict_against_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cln</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
 
-            <span class="c1"># Report invalid `search_parameter`</span>
             <span class="k">if</span> <span class="n">search_dict_against_param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is not a valid parameter to pass to the Open-i API.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">))</span>
 
@@ -581,21 +571,17 @@
 <span class="sd">        :return: see description.</span>
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Initialize</span>
         <span class="n">end</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">bounds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-        <span class="c1"># Block invalid values for &#39;total&#39;.</span>
         <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is an invalid value for total.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">total</span><span class="p">)))</span>
 
-        <span class="c1"># Check `self.download_limit`</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`download_limit` must be an `int` or `None`.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`download_limit` cannot be less than 1.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Check total</span>
         <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="n">total</span><span class="p">)]</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_limit</span><span class="p">:</span>
@@ -606,7 +592,6 @@
         <span class="c1"># Compute the number of steps and floor</span>
         <span class="n">n_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">download_no</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span><span class="p">))</span>
 
-        <span class="c1"># Loop through the steps</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
             <span class="n">bounds</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">end</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
             <span class="n">end</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span>
@@ -815,14 +800,12 @@
         <span class="c1"># Compute a list of search ranges to pass to the Open-i API</span>
         <span class="n">bounds_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openi_bounds_formatter</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
 
-        <span class="c1"># Harvest the data</span>
         <span class="n">harvest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_records_pull_engine</span><span class="p">(</span><span class="n">bounds_list</span><span class="o">=</span><span class="n">bounds_list</span><span class="p">,</span>
                                             <span class="n">search_url</span><span class="o">=</span><span class="n">search_url</span><span class="p">,</span>
                                             <span class="n">to_harvest</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">harvest_vector</span><span class="p">(</span><span class="n">to_harvest</span><span class="p">),</span>
                                             <span class="n">records_sleep_time</span><span class="o">=</span><span class="n">records_sleep_time</span><span class="p">,</span>
                                             <span class="n">download_no</span><span class="o">=</span><span class="n">download_no</span><span class="p">)</span>
 
-        <span class="c1"># Convert to a DataFrame</span>
         <span class="n">records_db</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">harvest</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
         <span class="n">records_db</span> <span class="o">=</span> <span class="n">openi_raw_extract_and_clean</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">records_db</span><span class="p">,</span>
                                                  <span class="n">clinical_cases_only</span><span class="o">=</span><span class="n">clinical_cases_only</span><span class="p">,</span>
@@ -882,7 +865,6 @@
 <span class="sd">        :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``records_db``).</span>
 <span class="sd">        :type db_index: ``Pandas Series``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Define columns</span>
         <span class="n">real_time_update_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;download_success&#39;</span><span class="p">]</span>
 
         <span class="c1"># Instantiate</span>
@@ -1182,14 +1164,12 @@
                                     <span class="n">database_save_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;databases&#39;</span><span class="p">],</span>
                                     <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
-        <span class="c1"># Search attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_time</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_query</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_search_url</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_search_total</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_search_to_harvest</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># Databases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Path to cache record db</span>
@@ -1221,7 +1201,7 @@
 <span class="sd">        Load a ``records_db``</span>
 
 <span class="sd">        :param records_db: a system path or ``records_db`` itself.</span>
-<span class="sd">        :type records_db: ``str``</span>
+<span class="sd">        :type records_db: ``str`` or ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">records_db</span>
@@ -1454,7 +1434,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
     </p>
   </div>
 </footer>
