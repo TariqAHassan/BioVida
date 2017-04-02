@@ -10,13 +10,13 @@ import os
 import shutil
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 from warnings import warn
 from collections import Counter
 from collections import defaultdict
 
 # General Support Tools
-from biovida.support_tools.support_tools import (cln,
+from biovida.support_tools.support_tools import (tqdm,
+                                                 cln,
                                                  multimap,
                                                  directory_existence_handler)
 

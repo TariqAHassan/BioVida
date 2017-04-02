@@ -8,7 +8,6 @@
 """
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 from bs4 import BeautifulSoup
 from collections import Counter
 
@@ -19,7 +18,7 @@ from biovida.support_tools.support_tools import cln, unescape, remove_html_bulle
 from biovida.images._image_tools import NoResultsFound
 
 # General Support Tools
-from biovida.support_tools.support_tools import camel_to_snake_case
+from biovida.support_tools.support_tools import tqdm, camel_to_snake_case
 
 # Open-i API Parameters Information
 from biovida.images._interface_support.openi.openi_parameters import (openi_image_type_params,
@@ -33,7 +32,10 @@ from biovida.images._interface_support.openi._openi_text_feature_extraction impo
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 
 # Start tqdm
-tqdm.pandas(desc='status')
+try:
+    tqdm().pandas()
+except:
+    tqdm.pandas(desc='status')
 
 
 # ----------------------------------------------------------------------------------------------------------

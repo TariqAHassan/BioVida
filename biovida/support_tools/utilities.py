@@ -9,7 +9,6 @@
 import os
 import shutil
 import numpy as np
-from tqdm import tqdm
 from PIL import Image
 from warnings import warn
 from scipy.ndimage import imread
@@ -17,7 +16,8 @@ from os.path import join as os_join
 from os.path import basename as os_basename
 
 # General Support Tools
-from biovida.support_tools.support_tools import (is_int,
+from biovida.support_tools.support_tools import (tqdm,
+                                                 is_int,
                                                  isclose,
                                                  is_numeric,
                                                  list_to_bulletpoints,

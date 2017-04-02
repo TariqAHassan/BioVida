@@ -8,13 +8,12 @@
 """
 import numpy as np
 from PIL import Image
-from tqdm import tqdm
 from time import sleep
 from scipy.misc import imread, imresize
 from skimage.color.colorconv import rgb2gray
 
 # General Support Tools
-from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import tqdm
 
 
 # ----------------------------------------------------------------------------------------------------------

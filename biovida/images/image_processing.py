@@ -12,7 +12,6 @@ import requests
 import numpy as np
 import pandas as pd
 from PIL import Image
-from tqdm import tqdm
 from PIL import ImageStat
 from scipy.misc import imread
 from collections import defaultdict
@@ -21,7 +20,7 @@ from six.moves.urllib.parse import urljoin
 from os.path import basename as os_basename
 
 # General tools
-from biovida.support_tools.support_tools import items_null, data_frame_col_drop, list_to_bulletpoints
+from biovida.support_tools.support_tools import tqdm, items_null, data_frame_col_drop, list_to_bulletpoints
 
 # Tools form the image subpackage
 from biovida.images._image_tools import load_and_scale_images

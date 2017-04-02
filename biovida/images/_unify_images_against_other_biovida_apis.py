@@ -6,10 +6,9 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-# Note: To use these tools, see ``biovia.unify_domains.unify_against_images()``
+# Note: To use these tools, see ``biovida.unify_domains.unify_against_images()``
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 from copy import deepcopy
 from collections import defaultdict
 
@@ -19,8 +18,7 @@ from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 from biovida.diagnostics.disease_symptoms_interface import DiseaseSymptomsInterface
 
 # Support Tools
-from biovida.support_tools.support_tools import is_int
-from biovida.support_tools.support_tools import items_null
+from biovida.support_tools.support_tools import tqdm, is_int, items_null
 
 # Image Tools
 from biovida.images._image_tools import try_fuzzywuzzy_import
@@ -29,7 +27,10 @@ from biovida.images._image_tools import try_fuzzywuzzy_import
 from biovida.images._interface_support.openi.openi_support_tools import possible_openi_image_processing_cols
 
 # Start tqdm
-tqdm.pandas(desc='status')
+try:
+    tqdm().pandas()
+except:
+    tqdm.pandas(desc='status')
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -433,7 +434,10 @@ class _DiseaseOntologyIntegration(object):
             print("\n\nIntegrating Disease Ontology Data...")
 
         # Re-Registers tqdm
-        tqdm.pandas(desc='status')
+        try:
+            tqdm().pandas()
+        except:
+            tqdm.pandas(desc='status')
 
         # Extract disease information using the Disease Ontology database
         disease_ontology_data = data_frame['disease'].progress_map(

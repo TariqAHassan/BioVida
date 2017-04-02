@@ -14,6 +14,13 @@ import pandas as pd
 from itertools import chain
 from six.moves.html_parser import HTMLParser
 
+
+try:
+    __IPYTHON__
+    from tqdm import tqdm_notebook as tqdm
+except:
+    from tqdm import tqdm
+
 unescape = HTMLParser().unescape
 
 _only_numeric_regex = re.compile(r'[^\d.]+')

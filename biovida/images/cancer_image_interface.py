@@ -16,7 +16,6 @@ import requests
 import numpy as np
 import pandas as pd
 from PIL import Image
-from tqdm import tqdm
 from time import sleep
 from warnings import warn
 from datetime import datetime
@@ -32,7 +31,8 @@ from biovida.images.image_cache_mgmt import (_records_db_merge,
                                              _prune_rows_with_deleted_images)
 
 # General Support Tools
-from biovida.support_tools.support_tools import (cln,
+from biovida.support_tools.support_tools import (tqdm,
+                                                 cln,
                                                  header,
                                                  only_numeric,
                                                  combine_dicts,

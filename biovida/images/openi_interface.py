@@ -12,7 +12,6 @@ import pickle
 import requests
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 from math import floor
 from copy import deepcopy
 from datetime import datetime
@@ -46,7 +45,8 @@ from biovida.images._interface_support.openi.openi_text_processing import openi_
 from biovida.support_tools._cache_management import package_cache_creator
 
 # General Support Tools
-from biovida.support_tools.support_tools import (cln,
+from biovida.support_tools.support_tools import (tqdm,
+                                                 cln,
                                                  camel_to_snake_case,
                                                  data_frame_col_drop,
                                                  list_to_bulletpoints)

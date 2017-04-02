@@ -8,8 +8,9 @@
 """
 import os
 import pickle
-from tqdm import tqdm
 from warnings import warn
+
+from biovida.support_tools.support_tools import tqdm
 from biovida.images._image_tools import load_and_scale_images
 
 # The model in `/_resources` was trained using Theano.
