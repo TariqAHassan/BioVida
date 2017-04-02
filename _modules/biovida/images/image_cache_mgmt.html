@@ -937,6 +937,12 @@
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Grouping Cached Images.</span>
+<span class="sd">    </span>
+<span class="sd">        .. warning::</span>
+<span class="sd">        </span>
+<span class="sd">            Currently, if an ``ImageProcessing`` instance is first passed to</span>
+<span class="sd">            ``biovida.unification.unify_against_images`` and then to this function,</span>
+<span class="sd">            image cropping will not be applied.</span>
 
 <span class="sd">    :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of</span>
 <span class="sd">                     ``OpeniInterface``, ``ImageProcessing`` or ``CancerImageInterface``.</span>
@@ -1108,6 +1114,7 @@
 <span class="sd">        performance metrics (e.g., accuracy) when assessing fitted models.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ToDo: remove need for the first (`ImageProcessing`-related) warning given in the docstring above.</span>
     <span class="n">_image_divvy_error_checking</span><span class="p">(</span><span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
                                 <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
 

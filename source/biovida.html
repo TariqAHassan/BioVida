@@ -1593,6 +1593,14 @@ Any images associated with this row will also be destroyed.</p>
 <dt id="biovida.images.image_cache_mgmt.image_divvy">
 <code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>action='ndarray'</em>, <em>db_to_extract='records_db'</em>, <em>train_val_test_dict=None</em>, <em>create_dirs=True</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grouping Cached Images.</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Currently, if an <code class="docutils literal"><span class="pre">ImageProcessing</span></code> instance is first passed to
+<code class="docutils literal"><span class="pre">biovida.unification.unify_against_images</span></code> and then to this function,
+image cropping will not be applied.</p>
+</div>
+</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
