@@ -46,10 +46,7 @@ The BioVida installer will automatically install all of these packages.
 
 **Notes**:
 
-1. Keras is used to power the convolutional neural networks in this project. This has the advantage of
-allowing either `TensorFlow <https://www.tensorflow.org>`__ or
-`Theano <http://deeplearning.net/software/theano/>`__ to be used as a computational backend.
-If neither is present at install time, BioVida will automatically install TensorFlow for you.
+1. Keras is used to power the convolutional neural networks in this project.
 
 2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc``, which can be obtained with ``homebrew`` via.
 ``$ brew install gcc``. If you do not have ``homebrew`` installed, it can be installed by following the instructions
