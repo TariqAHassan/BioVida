@@ -310,7 +310,8 @@ class _CancerImageArchiveRecords(object):
         study_df['study_date'] = pd.to_datetime(study_df['study_date'], infer_datetime_format=True)
 
         # Divide Study into stages (e.g., Baseline (session 1); Baseline + 1 Month (session 2), etc.
-        stages = study_df.groupby('patient_id').apply(lambda x: self._date_index_map(x['study_date'].tolist())).to_dict()
+        stages = study_df.groupby('patient_id').apply(
+            lambda x: self._date_index_map(x['study_date'].tolist())).to_dict()
 
         # Apply stages
         study_df['session'] = study_df.apply(lambda x: stages[x['patient_id']][x['study_date']], axis=1)
