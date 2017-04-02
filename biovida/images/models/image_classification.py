@@ -629,6 +629,12 @@ class ImageClassificationCNN(object):
         """
 
         Load a model from disk.
+        
+        .. note::
+            
+            This method expects an additional file ending in "_support.p".
+            For example: if ``path='/your/path/my_model.h5'``, a file entitled
+            ``'/your/path/my_model_support.p'`` is also expected.
 
         :param path: path to save the data to.See: ``keras.models.Sequential()``.
         :type path: ``str``
