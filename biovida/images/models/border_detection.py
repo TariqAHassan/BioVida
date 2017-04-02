@@ -416,6 +416,7 @@ def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_thre
 
     .. code-block:: python
 
+             --- Image Here ---
         _____________________________
         The quick brown fox jumped
         over jumps over the lazy dog
@@ -425,6 +426,7 @@ def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_thre
 
     .. code-block:: python
 
+             --- Image Here ---
         _____________________________
         The quick brown fox jumped
         -----------------------------
@@ -433,6 +435,7 @@ def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_thre
 
     .. code-block:: python
 
+             --- Image Here ---
         _____________________________
 
     """
