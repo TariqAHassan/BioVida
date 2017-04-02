@@ -224,9 +224,7 @@ and API documentation [here].
 
 ## Contributing
 
-Contributions are always welcome. For more information, see the [contributing] information 
-for an outline of current problems.
-
+For more information on how to contribute, see the [contributing] document.
 
 ## Resources
 
