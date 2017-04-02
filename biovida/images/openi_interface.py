@@ -94,7 +94,6 @@ class _OpeniSearch(object):
         """
         general_error_msg = "'{0}' is not valid for `{1}`.\nValid values for `{1}`:\n{2}"
 
-        # Check `query`
         if not isinstance(search_arguments['query'], str):
             raise ValueError("`query` must be a string.")
 
@@ -106,7 +105,6 @@ class _OpeniSearch(object):
                 if not isinstance(v, (list, tuple)) and v is not None:
                     raise ValueError("Only `lists`, `tuples` or `None` "
                                      "may be passed to `{0}`.".format(k))
-                # Loop though items in `v`
                 for i in v:
                     if not isinstance(i, str):
                         raise ValueError("`tuples` or `lists` passed to `{0}` "
@@ -116,7 +114,6 @@ class _OpeniSearch(object):
                         raise ValueError(general_error_msg.format(
                             i, k, list_to_bulletpoints(self.search_dict[k][1].keys())))
 
-                # Block contradictory requests
                 if k == 'rankby':
                     self._openi_search_special_case(k, blocked=['newest', 'oldest'], passed=v)
 
@@ -134,15 +131,12 @@ class _OpeniSearch(object):
         :param exclusions: a list of exclusions to pass to '&it'.
         :type exclusions: ``list`` or ``None``
         """
-        # Check `exclusions` is an acceptable type
         if not isinstance(exclusions, (list, tuple)) and exclusions is not None:
             raise ValueError('`exclusions` must be a `list`, `tuple` or `None`.')
 
-        # Return if there is nothing to check
         if exclusions is None or (isinstance(exclusions, (list, tuple)) and not len(exclusions)):
             return args
 
-        # Check exclusions only contains allowed types
         if any(e not in ['graphics', 'multipanel'] for e in exclusions):
             raise ValueError("`exclusions` must only include one or all of: 'graphics', 'multipanel'.")
 
@@ -192,17 +186,14 @@ class _OpeniSearch(object):
         # Get a sample request
         sample = requests.get(search_query + "&m=1&n=1").json()
 
-        # Get the total number of results
         try:
             total = int(float(sample['total']))
         except:
             raise ValueError("Could not obtain total number of results from the Open-i API.")
 
-        # Block progress if no results found
         if total < 1:
             raise NoResultsFound("\n\nPlease Try Refining Your Search.")
 
-        # Print number of results found
         if print_results:
             print("\nResults Found: %s." % ('{:,.0f}'.format(total)))
 
@@ -228,7 +219,6 @@ class _OpeniSearch(object):
             # Get the relevant dict of params
             search_dict_against_param = self.search_dict.get(cln(search_parameter).strip().lower(), None)
 
-            # Report invalid `search_parameter`
             if search_dict_against_param is None:
                 raise ValueError("'{0}' is not a valid parameter to pass to the Open-i API.".format(search_parameter))
 
@@ -409,21 +399,17 @@ class _OpeniRecords(object):
         :return: see description.
         :rtype: ``list``
         """
-        # Initialize
         end = 1
         bounds = list()
 
-        # Block invalid values for 'total'.
         if total < 1:
             raise ValueError("'{0}' is an invalid value for total.".format(str(total)))
 
-        # Check `self.download_limit`
         if self.download_limit is not None and not isinstance(self.download_limit, int):
             raise ValueError("`download_limit` must be an `int` or `None`.")
         if isinstance(self.download_limit, int) and self.download_limit < 1:
             raise ValueError("`download_limit` cannot be less than 1.")
 
-        # Check total
         if total < self.req_limit:
             return [(1, total)]
         elif self.download_limit is not None and total > self.download_limit:
@@ -434,7 +420,6 @@ class _OpeniRecords(object):
         # Compute the number of steps and floor
         n_steps = int(floor(download_no / self.req_limit))
 
-        # Loop through the steps
         for _ in range(n_steps):
             bounds.append((end, end + (self.req_limit - 1)))
             end += self.req_limit
@@ -643,14 +628,12 @@ class _OpeniRecords(object):
         # Compute a list of search ranges to pass to the Open-i API
         bounds_list = self.openi_bounds_formatter(bounds)
 
-        # Harvest the data
         harvest = self._records_pull_engine(bounds_list=bounds_list,
                                             search_url=search_url,
                                             to_harvest=self.harvest_vector(to_harvest),
                                             records_sleep_time=records_sleep_time,
                                             download_no=download_no)
 
-        # Convert to a DataFrame
         records_db = pd.DataFrame(harvest).fillna(np.NaN)
         records_db = openi_raw_extract_and_clean(data_frame=records_db,
                                                  clinical_cases_only=clinical_cases_only,
@@ -710,7 +693,6 @@ class _OpeniImages(object):
         :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``records_db``).
         :type db_index: ``Pandas Series``
         """
-        # Define columns
         real_time_update_columns = ['cached_images_path', 'download_success']
 
         # Instantiate
@@ -1010,14 +992,12 @@ class OpeniInterface(object):
                                     database_save_location=self._created_image_dirs['databases'],
                                     verbose=verbose)
 
-        # Search attributes
         self._pull_time = None
         self.current_query = None
         self.current_search_url = None
         self.current_search_total = None
         self._current_search_to_harvest = None
 
-        # Databases
         self.records_db = None
 
         # Path to cache record db
