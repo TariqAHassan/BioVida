@@ -213,15 +213,15 @@ class _OpeniSearch(object):
         :return: a list of valid values for a given search `search_parameter`.
         :rtype: ``list``
         """
+        if search_parameter is not None and not isinstance(search_parameter, str):
+            raise TypeError("`search_parameter` must be a string or None.")
+
         # Terms to blocked from displaying to users if search_parameter != 'exclusions'
         exclusions = ['exclude_graphics', 'exclude_multipanel']
 
         if search_parameter is None:
-            print("Search Parameters:\n{0}".format(list_to_bulletpoints(self.search_params)))
-        elif not isinstance(search_parameter, str):
-            raise TypeError("`search_parameter` must be a string or None.")
-
-        if search_parameter == 'exclusions':
+            opts = self.search_params
+        elif search_parameter == 'exclusions':
             opts = [i.split("_")[1] for i in exclusions]
         else:
             # Get the relevant dict of params
