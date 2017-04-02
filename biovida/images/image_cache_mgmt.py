@@ -766,11 +766,11 @@ def image_divvy(instance,
 
     Grouping Cached Images.
     
-        .. warning::
-        
-            Currently, if an ``ImageProcessing`` instance is first passed to
-            ``biovida.unification.unify_against_images`` and then to this function,
-            image cropping will not be applied.
+    .. warning::
+    
+        Currently, if an ``ImageProcessing`` instance is first passed to
+        ``biovida.unification.unify_against_images`` and then to this function,
+        image cropping will not be applied.
 
     :param instance: the yield of the yield of ``biovida.unification.unify_against_images()`` or an instance of
                      ``OpeniInterface``, ``ImageProcessing`` or ``CancerImageInterface``.
