@@ -75,7 +75,7 @@ class ImageProcessing(object):
                                   associated resources) regardless of whether or not these files are already cached.
         :type download_override: ``bool``
         """
-        resources_path = os_join(self.instance._created_image_dirs['aux'], 'resources')
+        resources_path = os_join(self.instance._created_image_dirs['aux'], 'image_processing_resources')
         if not os.path.isdir(resources_path):
             os.makedirs(resources_path)
 
