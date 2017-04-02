@@ -279,10 +279,9 @@ class ImageProcessing(object):
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
         """
-        if self._verbose and self._print_update:
-            print("\n\nStarting Grayscale Analysis...")
-
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
+            if self._verbose and self._print_update:
+                print("\n\nStarting Grayscale Analysis...")
             self.image_dataframe['grayscale'] = self.image_dataframe['cached_images_path'].progress_map(
                 self._grayscale_image, na_action='ignore')
 
@@ -503,6 +502,8 @@ class ImageProcessing(object):
 
     def crop_decision(self, new_analysis=False):
         """
+        
+        Decide where to crop the images, if at all.
 
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
