@@ -30,6 +30,9 @@ from biovida.images._interface_support.openi._openi_imaging_modality_information
                                                                                          modality_specific_subtypes)
 
 
+CLINICAL_ARTICLE_TYPES = ('encounter', 'case_report')
+
+
 # ----------------------------------------------------------------------------------------------------------
 # Abstract Processing
 # ----------------------------------------------------------------------------------------------------------
@@ -460,11 +463,11 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
     'pancreatitis'
 
     """
-    # ToDO: this function is very computationally expensive and rather ineffective. Find a replacemnt.
+    # ToDO: this function is very computationally expensive and rather ineffective. Replace.
     generic = ('syndrome', 'disease')
 
     possible_diseases = list()
-    for e, source in enumerate((problems, title, background, image_caption, image_mention, abstract)):
+    for source in (image_caption, image_mention, problems, title, background, abstract):
         if isinstance(source, str) and len(source):
             source_clean = cln(BeautifulSoup(source, 'lxml').text.lower())
             for d in list_of_diseases:
@@ -476,12 +479,8 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
     no_substrings = _remove_substrings(possible_diseases)
     to_return = list(set([i[1] for i in no_substrings if i[1] not in generic]))
 
-    # if e == 0 and len(to_return):  # allow multiple matches for 'problems'.
     if len(to_return):
         return "; ".join(sorted(to_return))
-    # Otherwise, use the first match
-    # elif len(to_return):
-    #     return min(to_return, key=lambda x: x[0])[-1]
     # Try to fall back to `problems`.
     elif not len(to_return) and isinstance(problems, str):
         parsed_problems = cln(problems).split(";")
@@ -942,8 +941,8 @@ def feature_extract(x, list_of_diseases, image_caption_unique):
     """
     # Note: it may be useful to use 'unescape' here, e.g., unescape(x[c])...but no reason to support doing so currently.
     # However, if this were to occur, 'abstract' would need to be excluded in the service of ``_abstract_parser()``.
-    unpacked_values = [x[c] for c in ('abstract', 'problems', 'title', 'image_caption', 'image_mention')]
-    abstract, problems, title, image_caption, image_mention = unpacked_values
+    cols_to_unpack = ('abstract', 'problems', 'title', 'image_caption', 'image_mention', 'article_type')
+    abstract, problems, title, image_caption, image_mention, article_type = [x[c] for c in cols_to_unpack]
 
     d = {'parsed_abstract': _abstract_parser(abstract)}
     background = _background_extract(d)
@@ -953,8 +952,11 @@ def feature_extract(x, list_of_diseases, image_caption_unique):
 
     # Fall back
     if d['diagnosis'] is None:
-        d['diagnosis'] = _disease_guess(problems=problems, title=title, background=background, abstract=abstract,
-                                        image_caption=image_caption, image_mention=image_mention,
+        d['diagnosis'] = _disease_guess(problems=problems, title=title, background=background,
+                                        # Block use of 'abstract' when the article is not clinical.
+                                        abstract=abstract if article_type in CLINICAL_ARTICLE_TYPES else None,
+                                        image_caption=image_caption if image_caption_unique else None,
+                                        image_mention=image_mention,
                                         list_of_diseases=list_of_diseases)
 
     if isinstance(d['diagnosis'], str):
