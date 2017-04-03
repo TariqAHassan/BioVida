@@ -26,7 +26,8 @@ from biovida.images._interface_support.openi.openi_parameters import (openi_imag
                                                                       openi_image_type_modality_full)
 
 from biovida.images._interface_support.openi._openi_image_id_processing import image_id_short_gen
-from biovida.images._interface_support.openi._openi_text_feature_extraction import feature_extract
+from biovida.images._interface_support.openi._openi_text_feature_extraction import (CLINICAL_ARTICLE_TYPES,
+                                                                                    feature_extract)
 
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
@@ -122,10 +123,8 @@ def _apply_clinical_case_only(data_frame):
     :return: see description.
     :rtype: ``Pandas DataFrame``
     """
-    clinical_article_types = ('encounter', 'case_report')
-
     def test(article_type):
-        if isinstance(article_type, str) and article_type in clinical_article_types:
+        if isinstance(article_type, str) and article_type in CLINICAL_ARTICLE_TYPES:
             return True
         else:
             return False
