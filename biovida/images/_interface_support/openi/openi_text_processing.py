@@ -162,7 +162,7 @@ def _iterable_cleaner(iterable):
 def _df_make_hashable(data_frame):
     """
 
-    Ensure the records dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
+    Ensure the records dataframe can be hashed (i.e., ensure ``pandas.DataFrame.drop_duplicates`` does not fail).
 
     :param data_frame: the dataframe evolved inside ``openi_raw_extract_and_clean``.
     :type data_frame: ``Pandas DataFrame``
@@ -231,6 +231,10 @@ def _data_frame_clean(data_frame, verbose):
 
     # Clean the abstract
     data_frame['abstract'] = data_frame['abstract'].map(abstract_cleaner)
+
+    # Clean the 'image_caption'
+    data_frame['image_caption'] = data_frame['image_caption'].map(
+        lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
 
     # Add the full name for modalities (before the 'image_modality_major' values are altered below).
     data_frame['modality_full'] = data_frame['image_modality_major'].map(
