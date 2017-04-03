@@ -830,10 +830,10 @@ def _markers_guess(image_caption):
         if any(i in image_caption_clean for i in match_on):
             features.add("{0}s".format(term))
         # Example: '...along the left side (arrows)...'
-        elif len(re.findall(r'[(|\[]' + term + 's?[)|\]]', image_caption_clean)):
+        elif len(re.findall(r'[(|\[]' + term + 's?[)|\]|,|;]', image_caption_clean)):
             features.add("{0}s".format(term))
         # Example: '...to the left (red arrows)...'
-        elif len(re.findall(r'[(|\[].*? ' + term + 's?[)|\]]', image_caption_clean)):
+        elif len(re.findall(r'[(|\[].*? ' + term + 's?[)|\]|,|;]', image_caption_clean)):
             features.add("{0}s".format(term))
 
     # More markers may be added in the future
@@ -868,7 +868,7 @@ def _problematic_image_features(image_caption, image_caption_unique, enumeration
 
     :Example:
 
-    >>> _problematic_image_features('1. left (green asterisk). 2. right(red arrow)...', image_caption_unique=True)
+    >>> _problematic_image_features('1. left (green asterisk). 2. right(arrow; red and blue)...', image_caption_unique=True)
     ...
     ('arrows', 'asterisks', 'grids')
     """
