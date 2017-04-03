@@ -400,7 +400,7 @@ def _remove_substrings(list_of_terms):
 
     :Example:
 
-    # Source string: "The patient presented with congenital heart disease".
+    # Source string: "The patient presented with congenital heart disease...".
     >>> remove_substrings(list_of_terms=[[38, 'heart disease'], [27, 'congenital heart disease'], [44, 'disease']])
     ...
     [27, 'congenital heart disease']
@@ -421,9 +421,7 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
 
     Search `problems`, `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
 
-    Note: this function favors the first disease to occur in a source.
-    Another method would be to count the number of times the disease is mentioned in all sources...
-    Though, it is not obvious that -- rather more complex solution -- would be any less fallible.
+    Near future: count the number of times the disease is mentioned in all sources and use that to guide decision...
 
     Future Directions:
 
@@ -451,11 +449,18 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
 
     :Example:
 
-    >>> _disease_guess(None, None, None, '...a patient with pancreatitis, not Macrolipasemia', None, list_of_diseases)
+    >>> from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
+    >>> list_of_diseases = DiseaseOntInterface().pull()['name'].tolist()
+
+    >>> abstract = '...a patient with pancreatitis, not Macrolipasemia' 
+    >>> _disease_guess(problems=None, title=None, background=None,
+    ...                abstract=abstract, image_caption=None, image_mention=None,
+    ...                list_of_diseases=list_of_diseases)
     ...
     'pancreatitis'
 
     """
+    generic = ('syndrome', 'disease')
     # ToDO: this is very computationally expensive and rather ineffective. Replace!
 
     possible_diseases = list()
@@ -468,7 +473,8 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
             if len(possible_diseases):  # break to prevent a later source contradicting an earlier one.
                 break
 
-    to_return = _remove_substrings(possible_diseases)
+    no_substrings = _remove_substrings(possible_diseases)
+    to_return = [i for i in no_substrings if i[-1] not in generic]
 
     # if e == 0 and len(to_return):  # allow multiple matches for 'problems'.
     if len(to_return):
