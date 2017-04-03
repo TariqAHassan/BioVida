@@ -693,13 +693,13 @@ def _divvy_info_to_dict(divvy_info):
     return dict(d)
 
 
-def _divvy_image_processing(instance,
-                            divvy_rule,
-                            action,
-                            train_val_test_dict,
-                            create_dirs,
-                            allow_overwrite,
-                            verbose):
+def _divvy_openi_image_processing(instance,
+                                  divvy_rule,
+                                  action,
+                                  train_val_test_dict,
+                                  create_dirs,
+                                  allow_overwrite,
+                                  verbose):
     """
 
     Handle the special case of 'divvying' when an instance of the ``OpeniImageProcessing``
@@ -947,10 +947,10 @@ def image_divvy(instance,
                                 train_val_test_dict=train_val_test_dict)
 
     if type(instance).__name__ == 'OpeniImageProcessing':
-        return _divvy_image_processing(instance=instance, divvy_rule=divvy_rule,
-                                       action=action, train_val_test_dict=train_val_test_dict,
-                                       create_dirs=create_dirs, allow_overwrite=allow_overwrite,
-                                       verbose=verbose)
+        return _divvy_openi_image_processing(instance=instance, divvy_rule=divvy_rule,
+                                             action=action, train_val_test_dict=train_val_test_dict,
+                                             create_dirs=create_dirs, allow_overwrite=allow_overwrite,
+                                             verbose=verbose)
     elif db_to_extract == 'unify_against_images':
         data_frame = instance
     else:
