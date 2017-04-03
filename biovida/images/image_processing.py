@@ -140,7 +140,7 @@ class OpeniImageProcessing(object):
 
         # Extract the records_db/cache_records_db database
         self.image_dataframe = self._extract_db(instance, db_to_extract)
-        self.image_data_frame_cleaned = None
+        self.image_dataframe_cleaned = None
 
         if 'cached_images_path' not in self.image_dataframe.columns:
             raise KeyError("No 'cached_images_path' column in '{0}'.".format(db_to_extract))
@@ -841,7 +841,7 @@ class OpeniImageProcessing(object):
         
         .. note::
             
-            The DataFrame this method creates can be viewed with ``INSTANCE.image_data_frame_cleaned``.
+            The DataFrame this method creates can be viewed with ``INSTANCE.image_dataframe_cleaned``.
 
         :param crop_images: Crop the images using analyses results from `border_analysis()` and
                             ``logo_analysis()``. Defaults to ``True``.
@@ -859,24 +859,24 @@ class OpeniImageProcessing(object):
                            "which is required to determine output.\n"
                            "Consider calling the ``auto()`` method.")
 
-        image_data_frame_cleaned = self.image_dataframe[
+        image_dataframe_cleaned = self.image_dataframe[
             self.image_dataframe['invalid_image'] != True].reset_index(drop=True).copy(deep=True)
 
         if crop_images:
             if self._verbose:
                 print("\n\nCropping Images...")
-            image_data_frame_cleaned['cleaned_image'] = self._cropper(data_frame=image_data_frame_cleaned,
+            image_dataframe_cleaned['cleaned_image'] = self._cropper(data_frame=image_dataframe_cleaned,
                                                                       return_as_array=False,
                                                                       convert_to_rgb=convert_to_rgb,
                                                                       status=status)
         else:
             if self._verbose:
                 print("\n\nLoading Images...")
-            image_data_frame_cleaned['cleaned_image'] = self._pil_load(image_data_frame_cleaned['cached_images_path'],
+            image_dataframe_cleaned['cleaned_image'] = self._pil_load(image_dataframe_cleaned['cached_images_path'],
                                                                        convert_to_rgb=convert_to_rgb,
                                                                        status=status)
 
-        self.image_data_frame_cleaned = image_data_frame_cleaned
+        self.image_dataframe_cleaned = image_dataframe_cleaned
 
     def output(self,
                output_rule,
@@ -938,8 +938,8 @@ class OpeniImageProcessing(object):
 
         """
         # Limit to 'valid' images
-        if not isinstance(self.image_data_frame_cleaned, pd.DataFrame):
-            raise TypeError("`image_data_frame_cleaned` is not a DataFrame.\n"
+        if not isinstance(self.image_dataframe_cleaned, pd.DataFrame):
+            raise TypeError("`image_dataframe_cleaned` is not a DataFrame.\n"
                             "The `clean_image_dataframe()` method must be called before ``output()``.")
 
         self._save_method_error_checking(output_rule=output_rule, action=action)
@@ -973,8 +973,8 @@ class OpeniImageProcessing(object):
             print("\n\nGenerating Images...")
 
         return_dict = defaultdict(list)
-        for _, row in self._apply_status(self.image_data_frame_cleaned.iterrows(),
-                                         status=status, length=len(self.image_data_frame_cleaned)):
+        for _, row in self._apply_status(self.image_dataframe_cleaned.iterrows(),
+                                         status=status, length=len(self.image_dataframe_cleaned)):
             save_target = save_rule_wrapper(row)
             if isinstance(save_target, str):
                 full_save_path = os_join(save_target, os_basename(row['cached_images_path']))
