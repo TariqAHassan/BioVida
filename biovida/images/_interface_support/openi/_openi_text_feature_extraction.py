@@ -460,25 +460,25 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
     'pancreatitis'
 
     """
-    # ToDO: this is very computationally expensive and rather ineffective. Replace!
+    # ToDO: this function is very computationally expensive and rather ineffective. Find a replacemnt.
     generic = ('syndrome', 'disease')
 
     possible_diseases = list()
     for e, source in enumerate((problems, title, background, image_caption, image_mention, abstract)):
         if isinstance(source, str) and len(source):
-            source_clean = cln(unescape(source)).lower()
+            source_clean = cln(BeautifulSoup(source, 'lxml').text.lower())
             for d in list_of_diseases:
                 if d in source_clean:
                     possible_diseases.append([source_clean.find(d), d])
-            if len(possible_diseases):  # break to prevent a later source contradicting an earlier one.
-                break
+            # if len(possible_diseases):  # break to prevent a later source contradicting an earlier one.
+            #     break
 
     no_substrings = _remove_substrings(possible_diseases)
-    to_return = [i for i in no_substrings if i[-1] not in generic]
+    to_return = list(set([i[1] for i in no_substrings if i[1] not in generic]))
 
     # if e == 0 and len(to_return):  # allow multiple matches for 'problems'.
     if len(to_return):
-        return "; ".join(sorted([i[-1] for i in to_return]))
+        return "; ".join(sorted(to_return))
     # Otherwise, use the first match
     # elif len(to_return):
     #     return min(to_return, key=lambda x: x[0])[-1]
