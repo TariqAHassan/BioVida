@@ -701,13 +701,13 @@ def _divvy_image_processing(instance,
                             allow_overwrite,
                             verbose):
     """
-    
+
     Handle the special case of 'divvying' when an instance of the ``OpeniImageProcessing``
     class is passed to ``image_divvy()``.
-    
+
     This has to be to be handled separately so that cropping information,
     determined by ``OpeniImageProcessing``'s analysis methods, can be applied.
-    
+
     :param instance: see ``image_divvy()``.
     :type instance: ``OpeniImageProcessing``
     :param divvy_rule:  see ``image_divvy()``.
@@ -765,9 +765,9 @@ def image_divvy(instance,
     """
 
     Grouping Cached Images.
-    
+
     .. warning::
-    
+
         Currently, if an ``OpeniImageProcessing`` instance is first passed to
         ``biovida.unification.unify_against_images`` and then to this function,
         image cropping will not be applied.
@@ -914,18 +914,18 @@ def image_divvy(instance,
     >>> train_ct, train_mri = image_dict['train']['ct'], image_dict['train']['mri']
     >>> val_ct, val_mri = image_dict['validation']['ct'], image_dict['validation']['mri']
     >>> test_ct, test_mri = image_dict['test']['ct'], image_dict['test']['mri']
-    
+
     This function behaves the same if passed an instance of ``OpeniImageProcessing``
-    
+
     >>> ip = OpeniImageProcessing(opi)
     >>> ip.auto()
     >>> ip.clean_image_dataframe()
-    
+
     >>> image_dict = image_divvy(ip, divvy_rule=my_divvy_rule1, action='ndarray', train_val_test_dict=train_val_test_dict)
     ...
-    
+
     .. note::
-    
+
         If an instance of ``OpeniImageProcessing`` is passed to ``image_divvy``, the ``image_data_frame_cleaned``
         dataframe will be extracted.
 
