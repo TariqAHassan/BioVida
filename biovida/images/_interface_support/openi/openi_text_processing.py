@@ -265,12 +265,7 @@ def _unique_image_caption_dict_gen(data_frame, verbose):
     :return: see description
     :rtype: ``dict``
     """
-    try:
-        tqdm().pandas()
-    except:
-        tqdm.pandas(desc='status')
-
-    large_data_frame = 25000  # after this number of rows, show a progress bar.
+    large_data_frame = 25000  # after this number of rows, processing time is notable.
 
     def counter_wrapper(l):
         l_cleaned = filter(lambda x: isinstance(x, str) and len(cln(x)), l)
@@ -280,12 +275,10 @@ def _unique_image_caption_dict_gen(data_frame, verbose):
     def counter_wrapper_apply(row):
         return counter_wrapper(row['image_caption'].tolist())
 
-    if len(data_frame) >= large_data_frame:
-        if verbose:
-            print("\nAnalyzing Image Caption Frequency...")
-        d = data_frame.groupby('uid').progress_apply(counter_wrapper_apply).to_dict()
-    else:
-        d = data_frame.groupby('uid').apply(counter_wrapper_apply).to_dict()
+    if len(data_frame) >= large_data_frame and verbose:
+        print("\nAnalyzing Image Caption Frequency...")
+
+    d = data_frame.groupby('uid').apply(counter_wrapper_apply).to_dict()
 
     return {k: v for k, v in d.items() if v is not None}
 

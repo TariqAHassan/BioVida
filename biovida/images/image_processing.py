@@ -271,16 +271,11 @@ class OpeniImageProcessing(object):
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
         """
-        try:
-            tqdm().pandas()
-        except:
-            tqdm.pandas(desc='status')
-
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
             if self._verbose and self._print_update:
                 print("\n\nStarting Grayscale Analysis...")
-            self.image_dataframe['grayscale'] = self.image_dataframe['cached_images_path'].progress_map(
-                self._grayscale_image, na_action='ignore')
+            self.image_dataframe['grayscale'] = [self._grayscale_image(i)
+                                                 for i in self.image_dataframe['cached_images_path']]
 
     @staticmethod
     def _logo_analysis_out(analysis_results, output_params):

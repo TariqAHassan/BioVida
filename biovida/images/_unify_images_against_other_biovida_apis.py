@@ -427,17 +427,11 @@ class _DiseaseOntologyIntegration(object):
         if self.verbose:
             print("\nIntegrating Disease Ontology Data...")
 
-        try:
-            tqdm().pandas()
-        except:
-            tqdm.pandas(desc='status')
-
         # Extract disease information using the Disease Ontology database
-        disease_ontology_data = data_frame['disease'].progress_map(
-            lambda x: self._find_disease_info(x, fuzzy_threshold))
+        disease_ontology_data = [self._find_disease_info(i, fuzzy_threshold) for i in data_frame['disease']]
 
         # Convert `disease_ontology_data` to a dataframe
-        disease_ontology_addition = pd.DataFrame(disease_ontology_data.tolist())
+        disease_ontology_addition = pd.DataFrame(disease_ontology_data)
 
         # Add the columns in `disease_ontology_addition` to `data_frame`.
         for c in self.ont_name_dict_nest_keys:

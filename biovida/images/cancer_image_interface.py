@@ -1379,11 +1379,6 @@ class CancerImageInterface(object):
         :rtype: ``Pandas Series``
         """
         # ToDo: remove need for ``save_dicom=True`` by calling upstream before the temporary dicom files are destroyed.
-        try:
-            tqdm().pandas()
-        except:
-            tqdm.pandas(desc='status')
-
         if database == 'records_db':
             database_to_use = self.records_db
         elif database == 'cache_records_db':
@@ -1408,7 +1403,7 @@ class CancerImageInterface(object):
                 else:
                     return {p: dicom_to_dict(dicom_file=p) for p in paths}
 
-        return db['cached_dicom_images_path'].progress_map(dicom_apply, na_action='ignore')
+        return pd.Series([dicom_apply(p) for p in db['cached_dicom_images_path']], index=db.index)
 
     def pull(self,
              patient_limit=3,
