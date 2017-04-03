@@ -636,7 +636,7 @@ class OpeniImageProcessing(object):
         if 'visual_image_problems' in self.image_dataframe.columns and not new_analysis:
             return None
 
-        cropped_images_for_analysis = self._cropper(return_as_array=True)
+        cropped_images_for_analysis = self._cropper(return_as_array=True, status=status)
 
         if self._verbose and self._print_update:
             print("\n\nPreparing Images for Neural Network...")
