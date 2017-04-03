@@ -210,7 +210,7 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
             return imread(path)
 
     def drop_none(l):
-        return list(filter(None, l))
+        return [i for i in l if i is not None]
 
     def values_to_ndarrays(d):
         return {k2: np.array(drop_none([nd_load(i) for i in v2])) for k2, v2 in status_inner(d.items())}
