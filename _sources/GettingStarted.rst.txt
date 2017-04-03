@@ -49,5 +49,6 @@ The BioVida installer will automatically install all of these packages.
 1. Keras is used to power the convolutional neural networks in this project.
 
 2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc``, which can be obtained with ``homebrew`` via.
-``$ brew install gcc``. If you do not have ``homebrew`` installed, it can be installed by following the instructions
-provided `here <https://brew.sh>`__.
+   ``$ brew install gcc``. If you do not have ``homebrew`` installed, it can be installed by following the instructions
+   provided `here <https://brew.sh>`__.
+
