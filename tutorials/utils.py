@@ -8,7 +8,6 @@ import qgrid  # pip3 install git+https://github.com/quantopian/qgrid
 import numpy as np
 from PIL import Image
 from matplotlib.pyplot import imshow
-qgrid.nbinstall(overwrite=True)
 
 
 def qshow(data_frame, column_width=200):
