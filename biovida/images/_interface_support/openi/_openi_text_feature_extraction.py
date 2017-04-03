@@ -460,8 +460,8 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
     'pancreatitis'
 
     """
-    generic = ('syndrome', 'disease')
     # ToDO: this is very computationally expensive and rather ineffective. Replace!
+    generic = ('syndrome', 'disease')
 
     possible_diseases = list()
     for e, source in enumerate((problems, title, background, image_caption, image_mention, abstract)):
