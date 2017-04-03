@@ -234,7 +234,7 @@ def _data_frame_clean(data_frame, verbose):
 
     # Clean the 'image_caption'
     data_frame['image_caption'] = data_frame['image_caption'].map(
-        lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
+        lambda x: cln(BeautifulSoup(x, 'lxml').text) if isinstance(x, str) else x, na_action='ignore')
 
     # Add the full name for modalities (before the 'image_modality_major' values are altered below).
     data_frame['modality_full'] = data_frame['image_modality_major'].map(
