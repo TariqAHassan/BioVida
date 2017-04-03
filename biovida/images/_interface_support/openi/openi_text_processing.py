@@ -31,12 +31,6 @@ from biovida.images._interface_support.openi._openi_text_feature_extraction impo
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
 
-# Start tqdm
-try:
-    tqdm().pandas()
-except:
-    tqdm.pandas(desc='status')
-
 
 # ----------------------------------------------------------------------------------------------------------
 # Abstract Cleaning
@@ -271,6 +265,11 @@ def _unique_image_caption_dict_gen(data_frame, verbose):
     :return: see description
     :rtype: ``dict``
     """
+    try:
+        tqdm().pandas()
+    except:
+        tqdm.pandas(desc='status')
+
     large_data_frame = 25000  # after this number of rows, show a progress bar.
 
     def counter_wrapper(l):
@@ -283,7 +282,7 @@ def _unique_image_caption_dict_gen(data_frame, verbose):
 
     if len(data_frame) >= large_data_frame:
         if verbose:
-            print("\n\nAnalyzing Image Caption Frequency...")
+            print("\nAnalyzing Image Caption Frequency...")
         d = data_frame.groupby('uid').progress_apply(counter_wrapper_apply).to_dict()
     else:
         d = data_frame.groupby('uid').apply(counter_wrapper_apply).to_dict()

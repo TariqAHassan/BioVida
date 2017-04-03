@@ -26,12 +26,6 @@ from biovida.images._image_tools import try_fuzzywuzzy_import
 # Open-i Specific Tools
 from biovida.images._interface_support.openi.openi_support_tools import possible_openi_image_processing_cols
 
-# Start tqdm
-try:
-    tqdm().pandas()
-except:
-    tqdm.pandas(desc='status')
-
 
 # ----------------------------------------------------------------------------------------------------------
 # Interface Integration
@@ -431,9 +425,8 @@ class _DiseaseOntologyIntegration(object):
             raise ValueError("`fuzzy_threshold` cannot be `True`. Please provide a specific integer on ``(0, 100]``.")
 
         if self.verbose:
-            print("\n\nIntegrating Disease Ontology Data...")
+            print("\nIntegrating Disease Ontology Data...")
 
-        # Re-Registers tqdm
         try:
             tqdm().pandas()
         except:
@@ -632,7 +625,7 @@ class _DiseaseSymptomsIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         if self.verbose:
-            print("\n\nIntegrating Disease Symptoms Data...")
+            print("\nIntegrating Disease Symptoms Data...")
 
         # Generate a 'known_associated_symptoms' columns
         updated_data_frame = _resource_integration(data_frame=data_frame,
@@ -704,7 +697,7 @@ class _DisgenetIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         if self.verbose:
-            print("\n\nIntegrating DisGeNET Data...")
+            print("\nIntegrating DisGeNET Data...")
 
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_gene_dict,

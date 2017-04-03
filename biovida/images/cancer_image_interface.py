@@ -52,12 +52,6 @@ from biovida.images._interface_support.dicom_data_to_dict import dicom_to_dict
 from biovida.images._interface_support.cancer_image.cancer_image_parameters import CancerImageArchiveParams
 from biovida.images._interface_support.cancer_image.cancer_image_support_tools import nonessential_cancer_image_columns
 
-# Spin up tqdm
-try:
-    tqdm().pandas()
-except:
-    tqdm.pandas(desc='status')
-
 
 # ----------------------------------------------------------------------------------------------------------
 # Summarize Studies Provided Through the Cancer Imaging Archive
@@ -1385,6 +1379,11 @@ class CancerImageInterface(object):
         :rtype: ``Pandas Series``
         """
         # ToDo: remove need for ``save_dicom=True`` by calling upstream before the temporary dicom files are destroyed.
+        try:
+            tqdm().pandas()
+        except:
+            tqdm.pandas(desc='status')
+
         if database == 'records_db':
             database_to_use = self.records_db
         elif database == 'cache_records_db':
@@ -1409,7 +1408,6 @@ class CancerImageInterface(object):
                 else:
                     return {p: dicom_to_dict(dicom_file=p) for p in paths}
 
-        # Deploy and Return
         return db['cached_dicom_images_path'].progress_map(dicom_apply, na_action='ignore')
 
     def pull(self,

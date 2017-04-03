@@ -148,12 +148,6 @@ class OpeniImageProcessing(object):
         # Extract path to the MedPix Logo
         self._medpix_path = instance._created_image_dirs['medpix_logo']
 
-        # Spin up tqdm
-        try:
-            tqdm().pandas()
-        except:
-            tqdm.pandas(desc='status')
-
         # Load the CNN
         self._ircnn = ImageClassificationCNN()
         self.trained_open_i_modality_types = None
@@ -277,6 +271,11 @@ class OpeniImageProcessing(object):
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
         """
+        try:
+            tqdm().pandas()
+        except:
+            tqdm.pandas(desc='status')
+
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
             if self._verbose and self._print_update:
                 print("\n\nStarting Grayscale Analysis...")
