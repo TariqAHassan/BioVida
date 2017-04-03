@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
@@ -72,21 +72,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#installation">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#dependencies">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#image-data">Image Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
@@ -184,7 +169,6 @@
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
@@ -218,7 +202,8 @@
 <span class="kn">from</span> <span class="nn">biovida.support_tools._cache_management</span> <span class="k">import</span> <span class="n">package_cache_creator</span>
 
 <span class="c1"># General Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">cln</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">tqdm</span><span class="p">,</span>
+                                                 <span class="n">cln</span><span class="p">,</span>
                                                  <span class="n">camel_to_snake_case</span><span class="p">,</span>
                                                  <span class="n">data_frame_col_drop</span><span class="p">,</span>
                                                  <span class="n">list_to_bulletpoints</span><span class="p">)</span>
@@ -240,6 +225,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_root_url</span> <span class="o">=</span> <span class="s1">&#39;https://openi.nlm.nih.gov&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_search</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_params</span> <span class="o">=</span> <span class="n">openi_search_information</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_params</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;image_type&#39;</span><span class="p">,</span> <span class="s1">&#39;rankby&#39;</span><span class="p">,</span> <span class="s1">&#39;article_type&#39;</span><span class="p">,</span> <span class="s1">&#39;subset&#39;</span><span class="p">,</span> <span class="s1">&#39;collection&#39;</span><span class="p">,</span> <span class="s1">&#39;fields&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;specialties&#39;</span><span class="p">,</span> <span class="s1">&#39;video&#39;</span><span class="p">,</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_openi_search_special_case</span><span class="p">(</span><span class="n">search_param</span><span class="p">,</span> <span class="n">blocked</span><span class="p">,</span> <span class="n">passed</span><span class="p">):</span>
@@ -371,21 +358,27 @@
 
         <span class="k">return</span> <span class="n">total</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_parameter</span><span class="p">,</span> <span class="n">print_options</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_parameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_options</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Options for parameters of `openi_search()`.</span>
 
 <span class="sd">        :param search_parameter: one of: &#39;image_type&#39;, &#39;rankby&#39;, &#39;article_type&#39;, &#39;subset&#39;, &#39;collection&#39;, &#39;fields&#39;,</span>
-<span class="sd">                                         &#39;specialties&#39;, &#39;video&#39; or `exclusions`.</span>
+<span class="sd">                                         &#39;specialties&#39;, &#39;video&#39; or `exclusions`. If ``None``, print the parameters</span>
+<span class="sd">                                         of ``search()``.</span>
 <span class="sd">        :param print_options: if True, pretty print the options, else return as a ``list``.</span>
 <span class="sd">        :return: a list of valid values for a given search `search_parameter`.</span>
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">search_parameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">search_parameter</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`search_parameter` must be a string or None.&quot;</span><span class="p">)</span>
+
         <span class="c1"># Terms to blocked from displaying to users if search_parameter != &#39;exclusions&#39;</span>
         <span class="n">exclusions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;exclude_graphics&#39;</span><span class="p">,</span> <span class="s1">&#39;exclude_multipanel&#39;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">search_parameter</span> <span class="o">==</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">search_parameter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_params</span>
+        <span class="k">elif</span> <span class="n">search_parameter</span> <span class="o">==</span> <span class="s1">&#39;exclusions&#39;</span><span class="p">:</span>
             <span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Get the relevant dict of params</span>
@@ -735,7 +728,7 @@
 <span class="sd">        :param to_harvest: yield of ``harvest_vector()``.</span>
 <span class="sd">        :type to_harvest: ``list``</span>
 <span class="sd">        :param records_sleep_time: (every x downloads, period of time [seconds])</span>
-<span class="sd">        :type records_sleep_time: ``tuple``</span>
+<span class="sd">        :type records_sleep_time: ``tuple`` or ``None``</span>
 <span class="sd">        :param download_no: the number of records to download.</span>
 <span class="sd">        :type download_no: ``int``</span>
 <span class="sd">        :return: a list of dictionaries where the keys are future columns of the ``records_db`` dataframe.</span>
@@ -745,9 +738,11 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Number of Records to Download: </span><span class="si">{0}</span><span class="s2"> (chunk size: </span><span class="si">{1}</span><span class="s2"> records).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="s1">&#39;</span><span class="si">{:,.0f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">download_no</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req_limit</span><span class="p">)))</span>
 
+        <span class="n">do_sleep</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records_sleep_time</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">records_sleep_time</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
         <span class="n">harvested_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">bound</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">bounds_list</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">c</span> <span class="o">%</span> <span class="n">records_sleep_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">do_sleep</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">%</span> <span class="n">records_sleep_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sleep_with_noise</span><span class="p">(</span><span class="n">amount_of_time</span><span class="o">=</span><span class="n">records_sleep_time</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">harvested_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openi_block_harvest</span><span class="p">(</span><span class="n">search_url</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">bound</span><span class="p">,</span> <span class="n">to_harvest</span><span class="o">=</span><span class="n">to_harvest</span><span class="p">)</span>
 
@@ -779,7 +774,7 @@
 <span class="sd">        :param pull_time: yield of ``datetime.now()`` as as evolved inside ``OpeniInterface.pull()``.</span>
 <span class="sd">        :type pull_time: ``datetime.datetime``</span>
 <span class="sd">        :param records_sleep_time: (every x downloads, period of time [seconds])</span>
-<span class="sd">        :type records_sleep_time: ``tuple``</span>
+<span class="sd">        :type records_sleep_time: ``tuple`` or ``None``</span>
 <span class="sd">        :param clinical_cases_only: see ``OpeniInterface().pull()``</span>
 <span class="sd">        :type clinical_cases_only: ``bool``</span>
 <span class="sd">        :param download_limit: see ``OpeniInterface().pull()``</span>
@@ -949,7 +944,7 @@
 <span class="sd">        :param harvesting_information: as evolved inside ``harvesting_information``</span>
 <span class="sd">        :type harvesting_information: ``list``</span>
 <span class="sd">        :param images_sleep_time: see ``pull_images()``</span>
-<span class="sd">        :type images_sleep_time: ``tuple``</span>
+<span class="sd">        :type images_sleep_time: ``tuple`` or ``None``</span>
 <span class="sd">        :param image_size: see ``pull_images()``</span>
 <span class="sd">        :type image_size: ``str``</span>
 <span class="sd">        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence</span>
@@ -958,11 +953,13 @@
 <span class="sd">        :type use_image_caption: ``bool``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Obtaining Images... &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Obtaining Images... &quot;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">block_decision</span><span class="p">(</span><span class="n">ipt</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Decide whether or not to block the downloading.&quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="n">use_image_caption</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ipt</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ipt</span><span class="p">)</span>
+
+        <span class="n">do_sleep</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">images_sleep_time</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">images_sleep_time</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
             
         <span class="n">download_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">image_url</span><span class="p">,</span> <span class="n">image_problems_text</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">harvesting_information</span><span class="p">):</span>
@@ -976,7 +973,7 @@
                                                              <span class="n">block</span><span class="o">=</span><span class="n">block_decision</span><span class="p">(</span><span class="n">image_problems_text</span><span class="p">))</span>
 
             <span class="c1"># Sleep when `download_count` &#39;builds up&#39; to images_sleep_time[0].</span>
-            <span class="k">if</span> <span class="n">download_count</span> <span class="o">==</span> <span class="n">images_sleep_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">do_sleep</span> <span class="ow">and</span> <span class="n">download_count</span> <span class="o">==</span> <span class="n">images_sleep_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
                 <span class="n">sleep_with_noise</span><span class="p">(</span><span class="n">amount_of_time</span><span class="o">=</span><span class="n">images_sleep_time</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">download_count</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># reset</span>
 
@@ -996,7 +993,7 @@
 <span class="sd">        :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.</span>
 <span class="sd">                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
 <span class="sd">                                   (with mean = 0, sd = 0.75).</span>
-<span class="sd">        :type images_sleep_time: ``tuple``</span>
+<span class="sd">        :type images_sleep_time: ``tuple`` or ``None``</span>
 <span class="sd">        :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence</span>
 <span class="sd">                                  of problematic image properties (e.g., &#39;arrows&#39;) likely to corrupt</span>
 <span class="sd">                                  a dataset intended for machine learning. Defaults to ``False``.</span>
@@ -1222,13 +1219,14 @@
         <span class="sd">&quot;&quot;&quot;Return `cache_records_db` with nonessential columns removed.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">data_frame_col_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">nonessential_openi_columns</span><span class="p">,</span> <span class="s1">&#39;cache_records_db&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OpeniInterface.options"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.options">[docs]</a>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_parameter</span><span class="p">,</span> <span class="n">print_options</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="OpeniInterface.options"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.openi_interface.OpeniInterface.options">[docs]</a>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_parameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_options</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Options for parameters of ``search()``.</span>
 
 <span class="sd">        :param search_parameter: one of: &#39;image_type&#39;, &#39;rankby&#39;, &#39;article_type&#39;, &#39;subset&#39;, &#39;collection&#39;, &#39;fields&#39;,</span>
-<span class="sd">                                         &#39;specialties&#39;, &#39;video&#39; or &#39;exclusions&#39;.</span>
+<span class="sd">                                         &#39;specialties&#39;, &#39;video&#39; or `exclusions`. If ``None``, print the parameters</span>
+<span class="sd">                                         of ``search()``.</span>
 <span class="sd">        :type search_parameter: ``str``</span>
 <span class="sd">        :param print_options: if ``True``, pretty print the options, else return as a ``list``. Defaults to ``True``.</span>
 <span class="sd">        :type print_options: ``bool``</span>
@@ -1357,11 +1355,11 @@
 <span class="sd">        :param records_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.</span>
 <span class="sd">                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
 <span class="sd">                                   (with mean = 0, sd = 0.75).</span>
-<span class="sd">        :type records_sleep_time: ``tuple``</span>
+<span class="sd">        :type records_sleep_time: ``tuple`` or ``None``</span>
 <span class="sd">        :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.</span>
 <span class="sd">                                  Note: noise is randomly added to the sleep time by sampling from a normal distribution</span>
 <span class="sd">                                  (with mean = 0, sd = 0.75).</span>
-<span class="sd">        :type images_sleep_time: ``tuple``</span>
+<span class="sd">        :type images_sleep_time: ``tuple`` or ``None``</span>
 <span class="sd">        :param download_limit: max. number of results to download. If ``None``, no limit will be imposed</span>
 <span class="sd">                              (not recommended). Defaults to 100.</span>
 <span class="sd">        :type download_limit: ``None`` or ``int``</span>
@@ -1434,7 +1432,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
     </p>
   </div>
 </footer>

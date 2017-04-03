@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
@@ -72,21 +72,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#installation">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#dependencies">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#image-data">Image Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
@@ -182,13 +167,13 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 
 <span class="c1"># General Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">cln</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">tqdm</span><span class="p">,</span>
+                                                 <span class="n">cln</span><span class="p">,</span>
                                                  <span class="n">multimap</span><span class="p">,</span>
                                                  <span class="n">directory_existence_handler</span><span class="p">)</span>
 
@@ -865,21 +850,21 @@
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_divvy_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span>
-                            <span class="n">divvy_rule</span><span class="p">,</span>
-                            <span class="n">action</span><span class="p">,</span>
-                            <span class="n">train_val_test_dict</span><span class="p">,</span>
-                            <span class="n">create_dirs</span><span class="p">,</span>
-                            <span class="n">allow_overwrite</span><span class="p">,</span>
-                            <span class="n">verbose</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_divvy_openi_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span>
+                                  <span class="n">divvy_rule</span><span class="p">,</span>
+                                  <span class="n">action</span><span class="p">,</span>
+                                  <span class="n">train_val_test_dict</span><span class="p">,</span>
+                                  <span class="n">create_dirs</span><span class="p">,</span>
+                                  <span class="n">allow_overwrite</span><span class="p">,</span>
+                                  <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    </span>
+
 <span class="sd">    Handle the special case of &#39;divvying&#39; when an instance of the ``OpeniImageProcessing``</span>
 <span class="sd">    class is passed to ``image_divvy()``.</span>
-<span class="sd">    </span>
+
 <span class="sd">    This has to be to be handled separately so that cropping information,</span>
 <span class="sd">    determined by ``OpeniImageProcessing``&#39;s analysis methods, can be applied.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :param instance: see ``image_divvy()``.</span>
 <span class="sd">    :type instance: ``OpeniImageProcessing``</span>
 <span class="sd">    :param divvy_rule:  see ``image_divvy()``.</span>
@@ -937,9 +922,9 @@
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Grouping Cached Images.</span>
-<span class="sd">    </span>
+
 <span class="sd">    .. warning::</span>
-<span class="sd">    </span>
+
 <span class="sd">        Currently, if an ``OpeniImageProcessing`` instance is first passed to</span>
 <span class="sd">        ``biovida.unification.unify_against_images`` and then to this function,</span>
 <span class="sd">        image cropping will not be applied.</span>
@@ -1086,18 +1071,18 @@
 <span class="sd">    &gt;&gt;&gt; train_ct, train_mri = image_dict[&#39;train&#39;][&#39;ct&#39;], image_dict[&#39;train&#39;][&#39;mri&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; val_ct, val_mri = image_dict[&#39;validation&#39;][&#39;ct&#39;], image_dict[&#39;validation&#39;][&#39;mri&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; test_ct, test_mri = image_dict[&#39;test&#39;][&#39;ct&#39;], image_dict[&#39;test&#39;][&#39;mri&#39;]</span>
-<span class="sd">    </span>
+
 <span class="sd">    This function behaves the same if passed an instance of ``OpeniImageProcessing``</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; ip = OpeniImageProcessing(opi)</span>
 <span class="sd">    &gt;&gt;&gt; ip.auto()</span>
 <span class="sd">    &gt;&gt;&gt; ip.clean_image_dataframe()</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; image_dict = image_divvy(ip, divvy_rule=my_divvy_rule1, action=&#39;ndarray&#39;, train_val_test_dict=train_val_test_dict)</span>
 <span class="sd">    ...</span>
-<span class="sd">    </span>
+
 <span class="sd">    .. note::</span>
-<span class="sd">    </span>
+
 <span class="sd">        If an instance of ``OpeniImageProcessing`` is passed to ``image_divvy``, the ``image_data_frame_cleaned``</span>
 <span class="sd">        dataframe will be extracted.</span>
 
@@ -1119,10 +1104,10 @@
                                 <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;OpeniImageProcessing&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_divvy_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span>
-                                       <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">,</span>
-                                       <span class="n">create_dirs</span><span class="o">=</span><span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">,</span>
-                                       <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_divvy_openi_image_processing</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">divvy_rule</span><span class="o">=</span><span class="n">divvy_rule</span><span class="p">,</span>
+                                             <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">,</span>
+                                             <span class="n">create_dirs</span><span class="o">=</span><span class="n">create_dirs</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">,</span>
+                                             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">db_to_extract</span> <span class="o">==</span> <span class="s1">&#39;unify_against_images&#39;</span><span class="p">:</span>
         <span class="n">data_frame</span> <span class="o">=</span> <span class="n">instance</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1174,7 +1159,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
     </p>
   </div>
 </footer>

@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
@@ -74,21 +74,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#image-data">Image Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#cancer-imaging-archive">Cancer Imaging Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#genomic-data">Genomic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#data-harvesting">Data Harvesting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#exploring-available-databases">Exploring Available Databases</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#diagnostic-data">Diagnostic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Data Harvesting</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="API.html#open-i-interface">Open-i Interface</a></li>
@@ -139,21 +124,6 @@
 <li><a class="reference internal" href="#">Getting Started</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li><a class="reference internal" href="#image-data">Image Data</a><ul>
-<li><a class="reference internal" href="#cancer-imaging-archive">Cancer Imaging Archive</a></li>
-<li><a class="reference internal" href="#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
-<li><a class="reference internal" href="#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#genomic-data">Genomic Data</a><ul>
-<li><a class="reference internal" href="#data-harvesting">Data Harvesting</a></li>
-<li><a class="reference internal" href="#exploring-available-databases">Exploring Available Databases</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#diagnostic-data">Diagnostic Data</a><ul>
-<li><a class="reference internal" href="#id1">Data Harvesting</a></li>
-</ul>
-</li>
 </ul>
 </ul>
 </li>
@@ -198,21 +168,6 @@
 <li><a class="reference internal" href="#">Getting Started</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li><a class="reference internal" href="#image-data">Image Data</a><ul>
-<li><a class="reference internal" href="#cancer-imaging-archive">Cancer Imaging Archive</a></li>
-<li><a class="reference internal" href="#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
-<li><a class="reference internal" href="#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#genomic-data">Genomic Data</a><ul>
-<li><a class="reference internal" href="#data-harvesting">Data Harvesting</a></li>
-<li><a class="reference internal" href="#exploring-available-databases">Exploring Available Databases</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#diagnostic-data">Diagnostic Data</a><ul>
-<li><a class="reference internal" href="#id1">Data Harvesting</a></li>
-</ul>
-</li>
 </ul>
 
         </div>
@@ -263,171 +218,6 @@ in machine learning, namely convolutional neural networks.</p>
 <code class="docutils literal"><span class="pre">$</span> <span class="pre">brew</span> <span class="pre">install</span> <span class="pre">gcc</span></code>. If you do not have <code class="docutils literal"><span class="pre">homebrew</span></code> installed, it can be installed by following the instructions
 provided <a class="reference external" href="https://brew.sh">here</a>.</p>
 </div>
-<hr class="docutils" />
-<div class="section" id="image-data">
-<h1>Image Data<a class="headerlink" href="#image-data" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="cancer-imaging-archive">
-<h2>Cancer Imaging Archive<a class="headerlink" href="#cancer-imaging-archive" title="Permalink to this headline">¶</a></h2>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the interface for the Cancer Imaging Archive</span>
-<span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">CancerImageInterface</span>
-
-<span class="c1"># 2. Create an Instance of the Tool</span>
-<span class="n">cii</span> <span class="o">=</span> <span class="n">CancerImageInterface</span><span class="p">(</span><span class="n">YOUR_API_KEY_HERE</span><span class="p">)</span>
-
-<span class="c1"># 3. Perform a search</span>
-<span class="n">cii</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="s1">&#39;extremities&#39;</span><span class="p">)</span>
-
-<span class="c1"># 4. Pull the data</span>
-<span class="n">cdf</span> <span class="o">=</span> <span class="n">cii</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="open-i-biomedical-image-search-engine">
-<h2>Open-i BioMedical Image Search Engine<a class="headerlink" href="#open-i-biomedical-image-search-engine" title="Permalink to this headline">¶</a></h2>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the Interface for the NIH&#39;s Open-i API.</span>
-<span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">OpeniInterface</span>
-
-<span class="c1"># 2. Create an Instance of the Tool</span>
-<span class="n">opi</span> <span class="o">=</span> <span class="n">OpeniInterface</span><span class="p">()</span>
-
-<span class="c1"># 3. Perform a general search for MRIs and CTs</span>
-<span class="n">opi</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mri&#39;</span><span class="p">,</span> <span class="s1">&#39;ct&#39;</span><span class="p">])</span>  <span class="c1"># Results Found: 134,113.</span>
-
-<span class="c1"># 4. Pull the data</span>
-<span class="n">search_df</span> <span class="o">=</span> <span class="n">opi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>The DataFrame created above, <code class="docutils literal"><span class="pre">df</span></code>, contains data from all fields
-provided by the Open-i API. <sup>†</sup> Images referenced in the DataFrame will
-automatically be harvested (unless specified otherwise).</p>
-<p>The values accepted by the <code class="docutils literal"><span class="pre">image_type</span></code> argument above can easily be
-reviewed:</p>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">opi</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">search_parameter</span><span class="o">=</span><span class="s1">&#39;image_type&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Additionally, searches can easily be reviewed:</p>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">opi</span><span class="o">.</span><span class="n">current_search</span>
-<span class="c1"># {&#39;image_type&#39;: [&#39;mri&#39;, &#39;ct&#39;, &#39;exclude_graphics&#39;], &#39;query&#39;: &#39;&#39;}</span>
-
-<span class="n">opi</span><span class="o">.</span><span class="n">current_search_total</span>
-<span class="c1"># 134113</span>
-</pre></div>
-</div>
-<p>By default, graphics are excluded. This can be changed with <code class="docutils literal"><span class="pre">search()</span></code>&#8216;s <code class="docutils literal"><span class="pre">exclusions</span></code> parameter.</p>
-<p><sup>†</sup> <em>Note:</em> by default, data harvesting is truncated after the first 100 results.</p>
-</div>
-<div class="section" id="automated-image-data-cleaning">
-<h2>Automated Image Data Cleaning<a class="headerlink" href="#automated-image-data-cleaning" title="Permalink to this headline">¶</a></h2>
-<p>Cleaning the images which have been downloaded is extremely simple.</p>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import Image Processing Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">OpeniImageProcessing</span>
-
-<span class="c1"># 2. Instantiate the Tool using the OpeniInterface Instance</span>
-<span class="n">ip</span> <span class="o">=</span> <span class="n">OpeniImageProcessing</span><span class="p">(</span><span class="n">opi</span><span class="p">)</span>
-
-<span class="c1"># 3. Clean the Image Data</span>
-<span class="n">idf</span> <span class="o">=</span> <span class="n">ip</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
-
-<span class="c1"># 4. Save the Cleaned Images</span>
-<span class="n">ip</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;/save/directory/&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>While the <code class="docutils literal"><span class="pre">OpeniImageProcessing()</span></code> classes allows you to
-to control the image processing more precisely if you
-wish (see the documentation <a class="reference external" href="https://tariqahassan.github.io/BioVida/API.html#image-processing">here</a>), this
-fully automated approach should suffice in most cases.</p>
-<p><strong>Notice</strong>: <strong>This functionality is considered to be experimental</strong>.</p>
-</div>
-</div>
-<hr class="docutils" />
-<div class="section" id="genomic-data">
-<h1>Genomic Data<a class="headerlink" href="#genomic-data" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="data-harvesting">
-<h2>Data Harvesting<a class="headerlink" href="#data-harvesting" title="Permalink to this headline">¶</a></h2>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Create an instance of the tool</span>
-<span class="kn">from</span> <span class="nn">biovida.genomics</span> <span class="k">import</span> <span class="n">DisgenetInterface</span>
-
-<span class="c1"># 2. Create an Instance of the Tool</span>
-<span class="n">dna</span> <span class="o">=</span> <span class="n">DisgenetInterface</span><span class="p">()</span>
-
-<span class="c1"># 3. Pull a Database</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">dna</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s1">&#39;curated&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="exploring-available-databases">
-<h2>Exploring Available Databases<a class="headerlink" href="#exploring-available-databases" title="Permalink to this headline">¶</a></h2>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">dna</span><span class="o">.</span><span class="n">options</span><span class="p">()</span>
-<span class="c1"># Available Databases:</span>
-<span class="c1">#   - &#39;all&#39;</span>
-<span class="c1">#   - &#39;curated&#39;</span>
-<span class="c1">#   - &#39;snp_disgenet&#39;</span>
-
-<span class="n">dna</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="s1">&#39;curated&#39;</span><span class="p">)</span>
-<span class="c1"># - Full Name:    Curated Gene-Disease Associations</span>
-<span class="c1"># - Description:  The file contains gene-disease associations from UNIPROT, CTD (human subset),</span>
-<span class="c1">#                 ClinVar, Orphanet, and the GWAS Catalog.</span>
-</pre></div>
-</div>
-<p>As with the <code class="docutils literal"><span class="pre">OpeniInterface()</span></code> class above, it is easy to gain access
-to the most recent <code class="docutils literal"><span class="pre">pull</span></code> and related information.</p>
-<p>The database itself:</p>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">dna</span><span class="o">.</span><span class="n">current_database</span>
-</pre></div>
-</div>
-<p>Information about the database:</p>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">dna</span><span class="o">.</span><span class="n">current_database_name</span>
-<span class="c1"># &#39;curated&#39;</span>
-
-<span class="n">dna</span><span class="o">.</span><span class="n">current_database_full_name</span>
-<span class="c1"># &#39;Curated Gene-Disease Associations&#39;</span>
-
-<span class="n">dna</span><span class="o">.</span><span class="n">current_database_description</span>
-<span class="c1"># &#39;The file contains gene-disease associations from...&#39;</span>
-</pre></div>
-</div>
-</div>
-</div>
-<hr class="docutils" />
-<div class="section" id="diagnostic-data">
-<h1>Diagnostic Data<a class="headerlink" href="#diagnostic-data" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2>Data Harvesting<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the Interface for DiseaseOntology.org</span>
-<span class="kn">from</span> <span class="nn">biovida.diagnostics</span> <span class="k">import</span> <span class="n">DiseaseOntInterface</span>
-
-<span class="c1"># 2. Create an Instance of the Tool</span>
-<span class="n">doi</span> <span class="o">=</span> <span class="n">DiseaseOntInterface</span><span class="p">()</span>
-
-<span class="c1"># 3. Pull the Database</span>
-<span class="n">ddf</span> <span class="o">=</span> <span class="n">doi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>One can gain access to the database, by following
-the approach shown above (with <code class="docutils literal"><span class="pre">ddf</span></code>) or as follows:</p>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">doi</span><span class="o">.</span><span class="n">disease_db</span>
-</pre></div>
-</div>
-<p>It is also possible to inspect the date on which
-the database was created by <em>DiseaseOntology.org:</em></p>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">doi</span><span class="o">.</span><span class="n">db_date</span>
-<span class="c1"># datetime.datetime(2017, 1, 13, 0, 0)</span>
-</pre></div>
-</div>
-<p>Following a similar approach, information on the
-symptoms associated with numerous diseases can easily be obtained.</p>
-<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the Interface for Disease-Symptoms Information</span>
-<span class="kn">from</span> <span class="nn">biovida.diagnostics</span> <span class="k">import</span> <span class="n">DiseaseSymptomsInterface</span>
-
-<span class="c1"># 2. Create an Instance of the Tool</span>
-<span class="n">dsi</span> <span class="o">=</span> <span class="n">DiseaseSymptomsInterface</span><span class="p">()</span>
-
-<span class="c1"># 3. Pull the Database</span>
-<span class="n">dsdf</span> <span class="o">=</span> <span class="n">doi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-</div>
 
 
     </div>
@@ -442,7 +232,7 @@ symptoms associated with numerous diseases can easily be obtained.</p>
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
     </p>
   </div>
 </footer>

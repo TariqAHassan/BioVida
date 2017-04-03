@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
@@ -72,21 +72,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#installation">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#dependencies">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#image-data">Image Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#genomic-data">Genomic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../GettingStarted.html#id1">Data Harvesting</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../API.html#open-i-interface">Open-i Interface</a></li>
@@ -184,7 +169,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">ImageStat</span>
 <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">imread</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
@@ -193,7 +177,7 @@
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">basename</span> <span class="k">as</span> <span class="n">os_basename</span>
 
 <span class="c1"># General tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">items_null</span><span class="p">,</span> <span class="n">data_frame_col_drop</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">tqdm</span><span class="p">,</span> <span class="n">items_null</span><span class="p">,</span> <span class="n">data_frame_col_drop</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span>
 
 <span class="c1"># Tools form the image subpackage</span>
 <span class="kn">from</span> <span class="nn">biovida.images._image_tools</span> <span class="k">import</span> <span class="n">load_and_scale_images</span>
@@ -214,11 +198,7 @@
 <div class="viewcode-block" id="OpeniImageProcessing"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing">[docs]</a><span class="k">class</span> <span class="nc">OpeniImageProcessing</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    This class is designed to allow easy analysis of cached image data.</span>
-
-<span class="sd">    .. note:</span>
-
-<span class="sd">            Currently this class only supports instances of ``OpeniInterface``.</span>
+<span class="sd">    This class is designed to allow easy analysis and cleaning of cached Open-i image data.</span>
 
 <span class="sd">    :param instance: an instance of the ``biovida.images.openi_interface.OpenInterface()`` class.</span>
 <span class="sd">    :type instance: ``OpenInterface Class``</span>
@@ -317,16 +297,13 @@
 
         <span class="c1"># Extract the records_db/cache_records_db database</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_db</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe_cleaned</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="s1">&#39;cached_images_path&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No &#39;cached_images_path&#39; column in &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_to_extract</span><span class="p">))</span>
 
         <span class="c1"># Extract path to the MedPix Logo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_medpix_path</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">_created_image_dirs</span><span class="p">[</span><span class="s1">&#39;medpix_logo&#39;</span><span class="p">]</span>
-
-        <span class="c1"># Spin up tqdm</span>
-        <span class="n">tqdm</span><span class="o">.</span><span class="n">pandas</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
 
         <span class="c1"># Load the CNN</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ircnn</span> <span class="o">=</span> <span class="n">ImageClassificationCNN</span><span class="p">()</span>
@@ -454,8 +431,8 @@
         <span class="k">if</span> <span class="s1">&#39;grayscale&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="n">new_analysis</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_print_update</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Starting Grayscale Analysis...&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;grayscale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">progress_map</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_grayscale_image</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;grayscale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_grayscale_image</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                                                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]]</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_logo_analysis_out</span><span class="p">(</span><span class="n">analysis_results</span><span class="p">,</span> <span class="n">output_params</span><span class="p">):</span>
@@ -1021,7 +998,7 @@
 <span class="sd">        </span>
 <span class="sd">        .. note::</span>
 <span class="sd">            </span>
-<span class="sd">            The DataFrame this method creates can be viewed with ``INSTANCE.image_data_frame_cleaned``.</span>
+<span class="sd">            The DataFrame this method creates can be viewed with ``INSTANCE.image_dataframe_cleaned``.</span>
 
 <span class="sd">        :param crop_images: Crop the images using analyses results from `border_analysis()` and</span>
 <span class="sd">                            ``logo_analysis()``. Defaults to ``True``.</span>
@@ -1039,24 +1016,24 @@
                            <span class="s2">&quot;which is required to determine output.</span><span class="se">\n</span><span class="s2">&quot;</span>
                            <span class="s2">&quot;Consider calling the ``auto()`` method.&quot;</span><span class="p">)</span>
 
-        <span class="n">image_data_frame_cleaned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span>
+        <span class="n">image_dataframe_cleaned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe</span><span class="p">[</span><span class="s1">&#39;invalid_image&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">True</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">crop_images</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Cropping Images...&quot;</span><span class="p">)</span>
-            <span class="n">image_data_frame_cleaned</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cropper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">image_data_frame_cleaned</span><span class="p">,</span>
+            <span class="n">image_dataframe_cleaned</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cropper</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">image_dataframe_cleaned</span><span class="p">,</span>
                                                                       <span class="n">return_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                                                       <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span>
                                                                       <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Loading Images...&quot;</span><span class="p">)</span>
-            <span class="n">image_data_frame_cleaned</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pil_load</span><span class="p">(</span><span class="n">image_data_frame_cleaned</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span>
+            <span class="n">image_dataframe_cleaned</span><span class="p">[</span><span class="s1">&#39;cleaned_image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pil_load</span><span class="p">(</span><span class="n">image_dataframe_cleaned</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">],</span>
                                                                        <span class="n">convert_to_rgb</span><span class="o">=</span><span class="n">convert_to_rgb</span><span class="p">,</span>
                                                                        <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span> <span class="o">=</span> <span class="n">image_data_frame_cleaned</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe_cleaned</span> <span class="o">=</span> <span class="n">image_dataframe_cleaned</span></div>
 
 <div class="viewcode-block" id="OpeniImageProcessing.output"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_processing.OpeniImageProcessing.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">output_rule</span><span class="p">,</span>
@@ -1118,8 +1095,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Limit to &#39;valid&#39; images</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`image_data_frame_cleaned` is not a DataFrame.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe_cleaned</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`image_dataframe_cleaned` is not a DataFrame.</span><span class="se">\n</span><span class="s2">&quot;</span>
                             <span class="s2">&quot;The `clean_image_dataframe()` method must be called before ``output()``.&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_method_error_checking</span><span class="p">(</span><span class="n">output_rule</span><span class="o">=</span><span class="n">output_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">)</span>
@@ -1153,8 +1130,8 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Generating Images...&quot;</span><span class="p">)</span>
 
         <span class="n">return_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span>
-                                         <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_data_frame_cleaned</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe_cleaned</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span>
+                                         <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_dataframe_cleaned</span><span class="p">)):</span>
             <span class="n">save_target</span> <span class="o">=</span> <span class="n">save_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_target</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">full_save_path</span> <span class="o">=</span> <span class="n">os_join</span><span class="p">(</span><span class="n">save_target</span><span class="p">,</span> <span class="n">os_basename</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">]))</span>
@@ -1189,7 +1166,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
     </p>
   </div>
 </footer>

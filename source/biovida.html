@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
@@ -72,21 +72,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#installation">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#dependencies">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#image-data">Image Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#cancer-imaging-archive">Cancer Imaging Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#genomic-data">Genomic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#data-harvesting">Data Harvesting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#exploring-available-databases">Exploring Available Databases</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../GettingStarted.html#diagnostic-data">Diagnostic Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../GettingStarted.html#id1">Data Harvesting</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="../API.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../API.html#module-biovida.images.openi_interface">Images</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../API.html#open-i-interface">Open-i Interface</a></li>
@@ -345,7 +330,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.options">
-<code class="descname">options</code><span class="sig-paren">(</span><em>search_parameter</em>, <em>print_options=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.options" title="Permalink to this definition">¶</a></dt>
+<code class="descname">options</code><span class="sig-paren">(</span><em>search_parameter=None</em>, <em>print_options=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/openi_interface.html#OpeniInterface.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Options for parameters of <code class="docutils literal"><span class="pre">search()</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -353,7 +338,8 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>search_parameter</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; one of: &#8216;image_type&#8217;, &#8216;rankby&#8217;, &#8216;article_type&#8217;, &#8216;subset&#8217;, &#8216;collection&#8217;, &#8216;fields&#8217;,
-&#8216;specialties&#8217;, &#8216;video&#8217; or &#8216;exclusions&#8217;.</li>
+&#8216;specialties&#8217;, &#8216;video&#8217; or <cite>exclusions</cite>. If <code class="docutils literal"><span class="pre">None</span></code>, print the parameters
+of <code class="docutils literal"><span class="pre">search()</span></code>.</li>
 <li><strong>print_options</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the options, else return as a <code class="docutils literal"><span class="pre">list</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
@@ -453,10 +439,10 @@ column is obtained by analyzing the text associated with the image. This analysi
 most accurate with large images.</p>
 </div>
 </li>
-<li><strong>records_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
+<li><strong>records_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
 Note: noise is randomly added to the sleep time by sampling from a normal distribution
 (with mean = 0, sd = 0.75).</li>
-<li><strong>images_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
+<li><strong>images_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
 Note: noise is randomly added to the sleep time by sampling from a normal distribution
 (with mean = 0, sd = 0.75).</li>
 <li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
@@ -727,7 +713,7 @@ This parameter is not case sensitive. Defaults to <code class="docutils literal"
 <dt id="biovida.images.image_processing.OpeniImageProcessing">
 <em class="property">class </em><code class="descclassname">biovida.images.image_processing.</code><code class="descname">OpeniImageProcessing</code><span class="sig-paren">(</span><em>instance</em>, <em>db_to_extract='records_db'</em>, <em>model_location=None</em>, <em>download_override=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#OpeniImageProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class is designed to allow easy analysis of cached image data.</p>
+<p>This class is designed to allow easy analysis and cleaning of cached Open-i image data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -966,7 +952,7 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 These &#8216;valid&#8217; images are cleaned and stored as PIL images in a <code class="docutils literal"><span class="pre">'cleaned_image'</span></code> column.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The DataFrame this method creates can be viewed with <code class="docutils literal"><span class="pre">INSTANCE.image_data_frame_cleaned</span></code>.</p>
+<p class="last">The DataFrame this method creates can be viewed with <code class="docutils literal"><span class="pre">INSTANCE.image_dataframe_cleaned</span></code>.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2136,7 +2122,7 @@ complete. Defaults to <code class="docutils literal"><span class="pre">True</spa
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
     </p>
   </div>
 </footer>
