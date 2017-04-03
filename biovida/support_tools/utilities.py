@@ -7,6 +7,7 @@
 
 """
 import os
+import dicom
 import shutil
 import numpy as np
 from PIL import Image
@@ -197,8 +198,22 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
     else:
         status_inner = status_outer = identity_func
 
+    def nd_load(path):
+        if any(path.lower().endswith(i) for i in ('.dicom', '.dcm', '.dcm30')):
+            try:
+                return dicom.read_file(path).pixel_array
+            except:
+                warn("\nCould not load the following "
+                     "image as an ndarray:\n{0}".format(path))
+                return None
+        else:
+            return imread(path)
+
+    def drop_none(l):
+        return list(filter(None, l))
+
     def values_to_ndarrays(d):
-        return {k2: np.array([imread(i) for i in v2]) for k2, v2 in status_inner(d.items())}
+        return {k2: np.array(drop_none([nd_load(i) for i in v2])) for k2, v2 in status_inner(d.items())}
 
     if dimensions == 1:
         return values_to_ndarrays(dictionary)
