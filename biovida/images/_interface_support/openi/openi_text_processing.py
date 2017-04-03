@@ -97,7 +97,7 @@ def _df_add_missing_columns(data_frame):
     # Handle cases where some searches (e.g., collection='pubmed')
     # Open-i does not return these columns (not clear why...).
     to_check = ['license_type', 'image_caption_concepts', 'pub_med_url', 'license_url',
-                'medpix_article_id', 'medpix_figure_id', 'medpix_image_url']
+                'impression', 'note', 'medpix_article_id', 'medpix_figure_id', 'medpix_image_url']
 
     for c in to_check:
         if c not in data_frame.columns:
