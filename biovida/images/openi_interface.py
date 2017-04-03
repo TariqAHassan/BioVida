@@ -571,7 +571,7 @@ class _OpeniRecords(object):
         :param to_harvest: yield of ``harvest_vector()``.
         :type to_harvest: ``list``
         :param records_sleep_time: (every x downloads, period of time [seconds])
-        :type records_sleep_time: ``tuple``
+        :type records_sleep_time: ``tuple`` or ``None``
         :param download_no: the number of records to download.
         :type download_no: ``int``
         :return: a list of dictionaries where the keys are future columns of the ``records_db`` dataframe.
@@ -581,9 +581,11 @@ class _OpeniRecords(object):
             print("\nNumber of Records to Download: {0} (chunk size: {1} records).".format(
                 '{:,.0f}'.format(download_no), str(self.req_limit)))
 
+        do_sleep = isinstance(records_sleep_time, (list, tuple)) and len(records_sleep_time) == 2
+
         harvested_data = list()
         for c, bound in enumerate(tqdm(bounds_list), start=1):
-            if c % records_sleep_time[0] == 0:
+            if do_sleep and c % records_sleep_time[0] == 0:
                 sleep_with_noise(amount_of_time=records_sleep_time[1])
             harvested_data += self.openi_block_harvest(search_url, bound=bound, to_harvest=to_harvest)
 
@@ -615,7 +617,7 @@ class _OpeniRecords(object):
         :param pull_time: yield of ``datetime.now()`` as as evolved inside ``OpeniInterface.pull()``.
         :type pull_time: ``datetime.datetime``
         :param records_sleep_time: (every x downloads, period of time [seconds])
-        :type records_sleep_time: ``tuple``
+        :type records_sleep_time: ``tuple`` or ``None``
         :param clinical_cases_only: see ``OpeniInterface().pull()``
         :type clinical_cases_only: ``bool``
         :param download_limit: see ``OpeniInterface().pull()``
@@ -785,7 +787,7 @@ class _OpeniImages(object):
         :param harvesting_information: as evolved inside ``harvesting_information``
         :type harvesting_information: ``list``
         :param images_sleep_time: see ``pull_images()``
-        :type images_sleep_time: ``tuple``
+        :type images_sleep_time: ``tuple`` or ``None``
         :param image_size: see ``pull_images()``
         :type image_size: ``str``
         :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
@@ -799,6 +801,8 @@ class _OpeniImages(object):
         def block_decision(ipt):
             """Decide whether or not to block the downloading."""
             return use_image_caption == True and isinstance(ipt, (list, tuple)) and len(ipt)
+
+        do_sleep = isinstance(images_sleep_time, (list, tuple)) and len(images_sleep_time) == 2
             
         download_count = 0
         for index, image_url, image_problems_text in tqdm(harvesting_information):
@@ -812,7 +816,7 @@ class _OpeniImages(object):
                                                              block=block_decision(image_problems_text))
 
             # Sleep when `download_count` 'builds up' to images_sleep_time[0].
-            if download_count == images_sleep_time[0]:
+            if do_sleep and download_count == images_sleep_time[0]:
                 sleep_with_noise(amount_of_time=images_sleep_time[1])
                 download_count = 0  # reset
 
@@ -832,7 +836,7 @@ class _OpeniImages(object):
         :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
                                    Note: noise is randomly added to the sleep time by sampling from a normal distribution
                                    (with mean = 0, sd = 0.75).
-        :type images_sleep_time: ``tuple``
+        :type images_sleep_time: ``tuple`` or ``None``
         :param use_image_caption: if ``True`` block downloading of an image if its caption suggests the presence
                                   of problematic image properties (e.g., 'arrows') likely to corrupt
                                   a dataset intended for machine learning. Defaults to ``False``.
@@ -1194,11 +1198,11 @@ class OpeniInterface(object):
         :param records_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
                                    Note: noise is randomly added to the sleep time by sampling from a normal distribution
                                    (with mean = 0, sd = 0.75).
-        :type records_sleep_time: ``tuple``
+        :type records_sleep_time: ``tuple`` or ``None``
         :param images_sleep_time: tuple of the form: ``(every x downloads, period of time [seconds])``. Defaults to ``(10, 1.5)``.
                                   Note: noise is randomly added to the sleep time by sampling from a normal distribution
                                   (with mean = 0, sd = 0.75).
-        :type images_sleep_time: ``tuple``
+        :type images_sleep_time: ``tuple`` or ``None``
         :param download_limit: max. number of results to download. If ``None``, no limit will be imposed
                               (not recommended). Defaults to 100.
         :type download_limit: ``None`` or ``int``
