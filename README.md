@@ -218,9 +218,9 @@ Right side of DataFrame: External Information
 
 ## Documentation
 
-You can view a more extensive Getting Started guide by [clicking here]
-and API documentation [here].
-
+ * [Getting Started]
+ * [Tutorials] 
+ * [API Documentation]
 
 ## Contributing
 
@@ -233,7 +233,8 @@ scholarly work used by BioVida.
    
    
 [click here]: https://tariqahassan.github.io/BioVida/index.html
-[clicking here]: https://tariqahassan.github.io/BioVida/GettingStarted.html
-[here]: https://tariqahassan.github.io/BioVida/API.html
+[Getting Started]: https://tariqahassan.github.io/BioVida/GettingStarted.html
+[Tutorials]: https://github.com/TariqAHassan/BioVida/tree/master/tutorials
+[API Documentation]: https://tariqahassan.github.io/BioVida/API.html
 [Contributing]: https://github.com/TariqAHassan/BioVida/tree/master/docs/contributing
 [resources]: https://github.com/TariqAHassan/BioVida/blob/master/RESOURCES.md
