@@ -257,7 +257,7 @@ class OpeniImageProcessing(object):
         stat = ImageStat.Stat(image.convert("RGB"))
         return np.mean(stat.sum) == stat.sum[0]
 
-    def grayscale_analysis(self, new_analysis=False):
+    def grayscale_analysis(self, new_analysis=False, status=True):
         """
 
         Analyze the images to determine whether or not they are grayscale
@@ -270,12 +270,15 @@ class OpeniImageProcessing(object):
 
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
+        :param status: display status bar. Defaults to ``True``.
+        :type status: ``bool``
         """
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
             if self._verbose and self._print_update:
                 print("\n\nStarting Grayscale Analysis...")
-            self.image_dataframe['grayscale'] = [self._grayscale_image(i)
-                                                 for i in self.image_dataframe['cached_images_path']]
+            column = self.image_dataframe['cached_images_path']
+            grayscale = [self._grayscale_image(i) for i in self._apply_status(column, status=status)]
+            self.image_dataframe['grayscale'] = grayscale
 
     @staticmethod
     def _logo_analysis_out(analysis_results, output_params):
@@ -334,14 +337,13 @@ class OpeniImageProcessing(object):
         # the journal title (to check for their source being medpix).
         to_analyze = self._ndarray_extract(zip_with_column='journal_title')
 
-        for image, journal in self._apply_status(to_analyze, status):
+        for image, journal in self._apply_status(to_analyze, status=status):
             if 'medpix' not in str(journal).lower():
                 results.append(np.NaN)
             else:
                 analysis_results = robust_match_template_wrapper(image)
                 current = self._logo_analysis_out(analysis_results, output_params)
                 results.append(current)
-
         return results
 
     def logo_analysis(self,
@@ -669,9 +671,9 @@ class OpeniImageProcessing(object):
         self._print_update = True
 
         # Run Analysis Battery with Default Parameter Values
-        self.grayscale_analysis(new_analysis=new_analysis)
-        self.logo_analysis(new_analysis=new_analysis)
-        self.border_analysis(new_analysis=new_analysis)
+        self.grayscale_analysis(new_analysis=new_analysis, status=status)
+        self.logo_analysis(new_analysis=new_analysis, status=status)
+        self.border_analysis(new_analysis=new_analysis, status=status)
 
         # Compute Crop location
         self.crop_decision(new_analysis=new_analysis)
