@@ -468,15 +468,14 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
             if len(possible_diseases):  # break to prevent a later source contradicting an earlier one.
                 break
 
-    # Drop substrings
     to_return = _remove_substrings(possible_diseases)
 
-    # Allow multiple matches for 'problems'.
-    if e == 0 and len(to_return):
+    # if e == 0 and len(to_return):  # allow multiple matches for 'problems'.
+    if len(to_return):
         return "; ".join(sorted([i[-1] for i in to_return]))
     # Otherwise, use the first match
-    elif len(to_return):
-        return min(to_return, key=lambda x: x[0])[-1]
+    # elif len(to_return):
+    #     return min(to_return, key=lambda x: x[0])[-1]
     # Try to fall back to `problems`.
     elif not len(to_return) and isinstance(problems, str):
         parsed_problems = cln(problems).split(";")
