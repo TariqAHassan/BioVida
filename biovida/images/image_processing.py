@@ -41,11 +41,7 @@ pd.options.mode.chained_assignment = None
 class OpeniImageProcessing(object):
     """
 
-    This class is designed to allow easy analysis of cached image data.
-
-    .. note:
-
-            Currently this class only supports instances of ``OpeniInterface``.
+    This class is designed to allow easy analysis and cleaning of cached Open-i image data.
 
     :param instance: an instance of the ``biovida.images.openi_interface.OpenInterface()`` class.
     :type instance: ``OpenInterface Class``
