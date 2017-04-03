@@ -30,7 +30,7 @@ from biovida.images._interface_support.openi._openi_imaging_modality_information
                                                                                          modality_specific_subtypes)
 
 
-CLINICAL_ARTICLE_TYPES = ('encounter', 'case_report')
+CLINICAL_ARTICLE_TYPES = ('encounter', 'case_report', 'radiology_report')
 
 
 # ----------------------------------------------------------------------------------------------------------
