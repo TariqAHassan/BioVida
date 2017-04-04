@@ -515,7 +515,7 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
     :type new_column_name: ``str``
     :param verbose: If ``True``, print notice when downloading database.
     :type verbose: ``bool``
-    :param desc: description to pass to ``tqdm.tqdm()``.
+    :param desc: description to pass to ``tqdm``.
     :type desc: ``str`` or ``None``
     :return: ``data_frame`` with information extracted from ``resource_dict``
     :rtype: ``Pandas DataFrame``

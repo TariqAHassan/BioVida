@@ -100,7 +100,7 @@ def load_and_scale_images(list_of_images, image_size, axes=(2, 0, 1), status=Tru
 
     :param list_of_images: a list of paths to images.
     :type list_of_images: ``list`` or ``tuple``
-    :param image_size: to size to coerse the images to be, e.g., (150, 150)
+    :param image_size: to size to coerce the images to be, e.g., (150, 150)
     :type image_size: ``tuple``
     :param axes: the axes to transpose the image on.
     :type axes: ``tuple``
@@ -108,7 +108,7 @@ def load_and_scale_images(list_of_images, image_size, axes=(2, 0, 1), status=Tru
     :type status: ``bool``
     :param grayscale_first: convert the image to grayscale first.
     :type grayscale_first: ``bool``
-    :param desc: description to pass to ``tqdm.tqdm()``.
+    :param desc: description to pass to ``tqdm``.
     :type desc: ``str`` or ``None``
     :return: the images as ndarrays nested inside of another ndarray.
     :rtype: ``ndarray``
