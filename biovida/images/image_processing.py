@@ -20,7 +20,10 @@ from six.moves.urllib.parse import urljoin
 from os.path import basename as os_basename
 
 # General tools
-from biovida.support_tools.support_tools import tqdm, items_null, data_frame_col_drop, list_to_bulletpoints
+from biovida.support_tools.support_tools import (tqdm,
+                                                 items_null,
+                                                 data_frame_col_drop,
+                                                 list_to_bulletpoints)
 
 # Tools form the image subpackage
 from biovida.images._image_tools import load_and_scale_images
@@ -50,9 +53,9 @@ class OpeniImageProcessing(object):
     :param model_location: the location of the model for Convnet.
                            If `None`, the default model will be used. Defaults to ``None``.
     :type model_location: ``str``
-    :param download_override: If ``True``, download the 'visual_image_problems_model' weights (and
-                              associated resources) regardless of whether or not these files are already cached.
-                              Defaults to ``False``.
+    :param download_override: If ``True``, download a new copy of the 'visual_image_problems_model' weights (and
+                              associated resources) regardless of whether or not files with these names are
+                              already cached. Defaults to ``False``.
     :type download_override: ``bool``
     :param verbose: if ``True``, print additional details. Defaults to ``False``.
     :type verbose: ``bool``
@@ -171,34 +174,10 @@ class OpeniImageProcessing(object):
         # Container for images represented as `ndarrays`
         self._ndarrays_images = None
 
-        # Switch to control verbosity
-        self._print_update = False
-
     @property
     def image_dataframe_short(self):
         """Return `image_dataframe` with nonessential columns removed."""
         return data_frame_col_drop(self.image_dataframe, nonessential_openi_columns, 'image_dataframe')
-
-    @staticmethod
-    def _apply_status(x, status, length=None):
-        """
-
-        Applies a tqdm() progress bar to an an iterable (if `status` is True).
-
-        :param x: any iterable data structure.
-        :type x: ``iterable``
-        :param length: length of ``x`` (typically only needed for generators, which do not include this information).
-        :type length: ``int`` or ``None``
-        :return: ``x`` wrapped in a tqdm status bar if ``status`` is True, else the object is returned 'as is'.
-        :type: ``tqdm`` or ``any``
-        """
-        if status:
-            if length is None:
-                return tqdm(x, total=len(x))
-            else:
-                return tqdm(x, total=length)
-        else:
-            return x
 
     def _pil_load(self, image_paths, convert_to_rgb, status):
         """
@@ -216,7 +195,7 @@ class OpeniImageProcessing(object):
         """
         def conversion(image):
             return (Image.open(image).convert('RGB'), image) if convert_to_rgb else (Image.open(image), image)
-        return [conversion(i) for i in self._apply_status(image_paths, status)]
+        return [conversion(i) for i in tqdm(image_paths, desc="Loading Images", disable=not status)]
 
     def _ndarray_extract(self, zip_with_column=None, reload_override=False):
         """
@@ -274,10 +253,8 @@ class OpeniImageProcessing(object):
         :type status: ``bool``
         """
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
-            if self._verbose and self._print_update:
-                print("\n\nStarting Grayscale Analysis...")
             column = self.image_dataframe['cached_images_path']
-            grayscale = [self._grayscale_image(i) for i in self._apply_status(column, status=status)]
+            grayscale = [self._grayscale_image(i) for i in tqdm(column, desc='Grayscale Analysis', disable=not status)]
             self.image_dataframe['grayscale'] = grayscale
 
     @staticmethod
@@ -337,13 +314,14 @@ class OpeniImageProcessing(object):
         # the journal title (to check for their source being medpix).
         to_analyze = self._ndarray_extract(zip_with_column='journal_title')
 
-        for image, journal in self._apply_status(to_analyze, status=status):
+        for image, journal in tqdm(to_analyze, desc='Logo Analysis', disable=not status):
             if 'medpix' not in str(journal).lower():
                 results.append(np.NaN)
             else:
                 analysis_results = robust_match_template_wrapper(image)
                 current = self._logo_analysis_out(analysis_results, output_params)
                 results.append(current)
+
         return results
 
     def logo_analysis(self,
@@ -381,9 +359,6 @@ class OpeniImageProcessing(object):
         # Note: this method wraps ``biovida.images.models.template_matching.robust_match_template()``.
         if 'medpix_logo_bounding_box' in self.image_dataframe.columns and not new_analysis:
             return None
-
-        if self._verbose and self._print_update:
-            print("\n\nStarting Logo Analysis...")
 
         # Package Params
         output_params = (match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])
@@ -427,9 +402,6 @@ class OpeniImageProcessing(object):
         if all(x in self.image_dataframe.columns for x in ['hbar', 'hborder', 'vborder']) and not new_analysis:
             return None
 
-        if self._verbose and self._print_update:
-            print("\n\nStarting Border Analysis...")
-
         def ba_func(image):
             return border_detection(image,
                                     signal_strength_threshold=signal_strength_threshold,
@@ -440,10 +412,10 @@ class OpeniImageProcessing(object):
 
         to_analyze = self._ndarray_extract()
 
-        # Run the analysis.
-        border_analysis = [ba_func(i) for i in self._apply_status(to_analyze, status)]
+        # Run the analysis
+        border_analysis = [ba_func(i) for i in tqdm(to_analyze, desc='Border Analysis', disable=not status)]
 
-        # Convert to a dataframe and return
+        # Convert to a dataframe
         ba_df = pd.DataFrame(border_analysis).fillna(np.NaN)
 
         # Update datafame
@@ -581,16 +553,13 @@ class OpeniImageProcessing(object):
         :return: cropped PIL images.
         :rtype: ``list``
         """
-        if self._verbose and self._print_update:
-            print("\n\nComputing Crop Locations...")
-
         if isinstance(data_frame, pd.DataFrame):
             df = data_frame
         else:
             df = self.image_dataframe
 
         all_cropped_images = list()
-        for index, row in self._apply_status(df.iterrows(), status=status, length=len(df)):
+        for index, row in tqdm(df.iterrows(), desc='Computing Crop Locations', disable=not status, total=len(df)):
             cropped_image = self._apply_cropping(cached_images_path=row['cached_images_path'],
                                                  lower_crop=row['lower_crop'],
                                                  upper_crop=row['upper_crop'],
@@ -638,15 +607,13 @@ class OpeniImageProcessing(object):
 
         cropped_images_for_analysis = self._cropper(return_as_array=True, status=status)
 
-        if self._verbose and self._print_update:
-            print("\n\nPreparing Images for Neural Network...")
         transformed_images = load_and_scale_images(list_of_images=cropped_images_for_analysis,
-                                                   image_size=self._ircnn.image_shape, status=status)
+                                                   image_size=self._ircnn.image_shape, status=status,
+                                                   desc='Preparing Images for Neural Network')
 
-        if self._verbose and self._print_update:
-            print("\n\nScanning Images for Visual Problems with Neural Network...")
+        # Scan Images for Visual Problems with Neural Network
         self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
-                                                                            status=status, verbose=False)
+                                                                            status=status)
 
         if limit_to_known_modalities:  # ToDo: Temporary. Future: avoid passing through the model in the first place.
             for index, row in self.image_dataframe.iterrows():
@@ -667,9 +634,6 @@ class OpeniImageProcessing(object):
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
         """
-        # Permit Verbosity, if requested by the user upon class instantiation.
-        self._print_update = True
-
         # Run Analysis Battery with Default Parameter Values
         self.grayscale_analysis(new_analysis=new_analysis, status=status)
         self.logo_analysis(new_analysis=new_analysis, status=status)
@@ -681,9 +645,6 @@ class OpeniImageProcessing(object):
         # Generate predictions
         self.visual_image_problems(limit_to_known_modalities=limit_to_known_modalities,
                                    new_analysis=new_analysis, status=status)
-
-        # Ban Verbosity
-        self._print_update = False
 
     @staticmethod
     def _invalid_image_tests(row, problems_to_ignore, valid_floor, image_problem_threshold=None):
@@ -865,18 +826,13 @@ class OpeniImageProcessing(object):
             self.image_dataframe['invalid_image'] != True].reset_index(drop=True).copy(deep=True)
 
         if crop_images:
-            if self._verbose:
-                print("\n\nCropping Images...")
             image_dataframe_cleaned['cleaned_image'] = self._cropper(data_frame=image_dataframe_cleaned,
-                                                                      return_as_array=False,
-                                                                      convert_to_rgb=convert_to_rgb,
-                                                                      status=status)
+                                                                     return_as_array=False,
+                                                                     convert_to_rgb=convert_to_rgb,
+                                                                     status=status)
         else:
-            if self._verbose:
-                print("\n\nLoading Images...")
             image_dataframe_cleaned['cleaned_image'] = self._pil_load(image_dataframe_cleaned['cached_images_path'],
-                                                                       convert_to_rgb=convert_to_rgb,
-                                                                       status=status)
+                                                                       convert_to_rgb=convert_to_rgb, status=status)
 
         self.image_dataframe_cleaned = image_dataframe_cleaned
 
@@ -971,12 +927,9 @@ class OpeniImageProcessing(object):
             elif action == 'ndarray':
                 return group
 
-        if self._verbose:
-            print("\n\nGenerating Images...")
-
         return_dict = defaultdict(list)
-        for _, row in self._apply_status(self.image_dataframe_cleaned.iterrows(),
-                                         status=status, length=len(self.image_dataframe_cleaned)):
+        for _, row in tqdm(self.image_dataframe_cleaned.iterrows(), desc='Rendering Images',
+                           disable=not status, total=len(self.image_dataframe_cleaned)):
             save_target = save_rule_wrapper(row)
             if isinstance(save_target, str):
                 full_save_path = os_join(save_target, os_basename(row['cached_images_path']))

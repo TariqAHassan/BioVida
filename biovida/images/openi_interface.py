@@ -194,7 +194,7 @@ class _OpeniSearch(object):
             raise ValueError("Could not obtain total number of results from the Open-i API.")
 
         if total < 1:
-            raise NoResultsFound("\n\nPlease Try Refining Your Search.")
+            raise NoResultsFound("\nPlease Try Refining Your Search.")
 
         if print_results:
             print("\nResults Found: %s." % ('{:,.0f}'.format(total)))
@@ -584,7 +584,7 @@ class _OpeniRecords(object):
         do_sleep = isinstance(records_sleep_time, (list, tuple)) and len(records_sleep_time) == 2
 
         harvested_data = list()
-        for c, bound in enumerate(tqdm(bounds_list), start=1):
+        for c, bound in enumerate(tqdm(bounds_list, desc='Obtaining Records', disable=not self._verbose), start=1):
             if do_sleep and c % records_sleep_time[0] == 0:
                 sleep_with_noise(amount_of_time=records_sleep_time[1])
             harvested_data += self.openi_block_harvest(search_url, bound=bound, to_harvest=to_harvest)
@@ -795,9 +795,6 @@ class _OpeniImages(object):
                                   a dataset intended for machine learning. Defaults to ``False``.
         :type use_image_caption: ``bool``
         """
-        if self._verbose:
-            print("\nObtaining Images... ")
-
         def block_decision(ipt):
             """Decide whether or not to block the downloading."""
             return use_image_caption == True and isinstance(ipt, (list, tuple)) and len(ipt)
@@ -805,7 +802,8 @@ class _OpeniImages(object):
         do_sleep = isinstance(images_sleep_time, (list, tuple)) and len(images_sleep_time) == 2
             
         download_count = 0
-        for index, image_url, image_problems_text in tqdm(harvesting_information):
+        for index, image_url, image_problems_text in tqdm(harvesting_information, desc='Obtaining Images',
+                                                          disable=not self._verbose):
             # Generate the save path for the image
             image_save_path = self._title_image(url=image_url, image_size=image_size)
 
@@ -925,7 +923,7 @@ class OpeniInterface(object):
                 settings_dict_for_pull = {k: v for k, v in settings_dict.items() if k not in ['records_db']}
                 settings_dict_for_pull['new_records_pull'] = False  # adding this separately in `pull` breaks in python2
 
-                print("\n\nResuming Download...")
+                print("\nResuming Download...")
                 self.load_records_db(records_db=settings_dict['records_db'])
                 self.pull(**settings_dict_for_pull)
 

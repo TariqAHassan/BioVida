@@ -93,7 +93,7 @@ def image_transposer(converted_image, image_size, axes=(2, 0, 1)):
     return np.transpose(imresize(converted_image, image_size), axes).astype('float32')
 
 
-def load_and_scale_images(list_of_images, image_size, axes=(2, 0, 1), status=True, grayscale_first=False):
+def load_and_scale_images(list_of_images, image_size, axes=(2, 0, 1), status=True, grayscale_first=False, desc=None):
     """
 
     Load and scale a list of images from a directory
@@ -108,16 +108,12 @@ def load_and_scale_images(list_of_images, image_size, axes=(2, 0, 1), status=Tru
     :type status: ``bool``
     :param grayscale_first: convert the image to grayscale first.
     :type grayscale_first: ``bool``
+    :param desc: description to pass to ``tqdm.tqdm()``.
+    :type desc: ``str`` or ``None``
     :return: the images as ndarrays nested inside of another ndarray.
     :rtype: ``ndarray``
     """
     # Source: https://blog.rescale.com/neural-networks-using-keras-on-rescale/
-    def status_bar(x):
-        if status:
-            return tqdm(x)
-        else:
-            return x
-
     def load_func(image):
         if 'ndarray' == type(image).__name__:
             converted_image = image
@@ -131,7 +127,8 @@ def load_and_scale_images(list_of_images, image_size, axes=(2, 0, 1), status=Tru
             converted_image = np.asarray(loaded_image)
         return image_transposer(converted_image, image_size, axes=axes)
 
-    return np.array([load_func(image_name) for image_name in status_bar(list_of_images)]) / 255.0
+    loaded = [load_func(image_name) for image_name in tqdm(list_of_images, desc=desc, disable=not status)]
+    return np.array(loaded) / 255.0
 
 
 def show_plt(image):

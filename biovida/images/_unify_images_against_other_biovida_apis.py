@@ -500,7 +500,7 @@ def _disease_synonym_match_battery(disease, disease_synonyms, resource_dict, fuz
             return np.NaN  # capitulate
 
 
-def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column_name):
+def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column_name, verbose, desc):
     """
 
     Integrates information in ``resource_dict`` into ``data_frame`` as new column (``new_column_name``).
@@ -513,6 +513,10 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
     :type fuzzy_threshold: ``int``, `bool`, ``None``
     :param new_column_name: the name of the column with the extracted information.
     :type new_column_name: ``str``
+    :param verbose: If ``True``, print notice when downloading database.
+    :type verbose: ``bool``
+    :param desc: description to pass to ``tqdm.tqdm()``.
+    :type desc: ``str`` or ``None``
     :return: ``data_frame`` with information extracted from ``resource_dict``
     :rtype: ``Pandas DataFrame``
     """
@@ -529,7 +533,7 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
 
     # Map gene-disease information onto the dataframe
     matches = list()
-    for _, row in tqdm(data_frame.iterrows(), total=len(data_frame)):
+    for _, row in tqdm(data_frame.iterrows(), total=len(data_frame), desc=desc, disable=not verbose):
         match = _disease_synonym_match_battery(disease=row['disease'],
                                                disease_synonyms=row['disease_synonym'],
                                                resource_dict=resource_dict,
@@ -583,8 +587,7 @@ class _DiseaseSymptomsIntegration(object):
         # Create a disease-symptoms mapping
         self.disease_symptom_dict = self._disease_symptom_dict_gen(dis_symp_db)
 
-    @staticmethod
-    def _mentioned_symptoms(data_frame):
+    def _mentioned_symptoms(self, data_frame):
         """
 
         Match 'known_associated_symptoms' to the 'abstract' for the given row.
@@ -604,7 +607,10 @@ class _DiseaseSymptomsIntegration(object):
             else:
                 return np.NaN
 
-        return [match_symptoms(row) for _, row in tqdm(data_frame.iterrows(), total=len(data_frame))]
+        return [match_symptoms(row) for _, row in tqdm(data_frame.iterrows(),
+                                                       total=len(data_frame),
+                                                       desc='Identify Symptoms in Report',
+                                                       disable=not self.verbose)]
 
     def integration(self, data_frame, fuzzy_threshold=False):
         """
@@ -618,14 +624,13 @@ class _DiseaseSymptomsIntegration(object):
         :return: ``data_frame`` with a 'known_associated_symptoms' column.
         :rtype: ``Pandas DataFrame``
         """
-        if self.verbose:
-            print("\nIntegrating Disease Symptoms Data...")
-
         # Generate a 'known_associated_symptoms' columns
         updated_data_frame = _resource_integration(data_frame=data_frame,
                                                    resource_dict=self.disease_symptom_dict,
                                                    fuzzy_threshold=fuzzy_threshold,
-                                                   new_column_name='known_associated_symptoms')
+                                                   new_column_name='known_associated_symptoms',
+                                                   verbose=self.verbose,
+                                                   desc='Integrating Disease Symptoms Data')
 
         # Find 'known_associated_symptoms' which individual patients presented with by scanning the abstract
         updated_data_frame['mentioned_symptoms'] = self._mentioned_symptoms(updated_data_frame)
@@ -690,13 +695,12 @@ class _DisgenetIntegration(object):
         :return: ``data_frame`` with a 'known_associated_genes' column.
         :rtype: ``Pandas DataFrame``
         """
-        if self.verbose:
-            print("\nIntegrating DisGeNET Data...")
-
         return _resource_integration(data_frame=data_frame,
                                      resource_dict=self.disease_gene_dict,
                                      fuzzy_threshold=fuzzy_threshold,
-                                     new_column_name='known_associated_genes')
+                                     new_column_name='known_associated_genes',
+                                     verbose=self.verbose,
+                                     desc='Integrating DisGeNET Data')
 
 
 # ----------------------------------------------------------------------------------------------------------

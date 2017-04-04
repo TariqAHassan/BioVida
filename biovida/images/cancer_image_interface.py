@@ -416,7 +416,7 @@ class _CancerImageArchiveRecords(object):
         condition_name = summary_df[summary_df['collection'] == collection]['cancer_type'].iloc[0]
         return condition_name.lower() if isinstance(condition_name, str) else condition_name
 
-    def records_pull(self, study, search_dict, pull_time, overview_download_override=False, patient_limit=3):
+    def records_pull(self, study, search_dict, pull_time, patient_limit, verbose, overview_download_override=False):
         """
 
         Extract record of all images for all patients in a given study.
@@ -433,8 +433,10 @@ class _CancerImageArchiveRecords(object):
         :type overview_download_override: ``bool``
         :param patient_limit: limit on the number of patients to extract.
                              Patient IDs are sorted prior to this limit being imposed.
-                             If ``None``, no `patient_limit` will be imposed. Defaults to `3`.
+                             If ``None``, no `patient_limit` will be imposed.
         :type patient_limit: ``int`` or ``None``
+        :param verbose: if ``True`` print additional information. Defaults to ``False``.
+        :type verbose: ``bool``
         :return: a dataframe of all baseline images
         :rtype: ``Pandas DataFrame``
         """
@@ -452,7 +454,7 @@ class _CancerImageArchiveRecords(object):
 
         # Evolve a dataframe ('frame') for the baseline images of all patients
         frames = list()
-        for patient in tqdm(patients_to_obtain):
+        for patient in tqdm(patients_to_obtain, desc="Obtaining Records for '{0}'".format(study), disable=not verbose):
             frames.append(self._patient_image_summary(patient, study=study, patient_dict=study_dict[patient]))
 
         # Concatenate baselines frame for each patient
@@ -836,7 +838,7 @@ class _CancerImageArchiveImages(object):
         else:
             return False
 
-    def _pull_images_engine(self, save_dicom, allowed_modalities, save_png):
+    def _pull_images_engine(self, save_dicom, allowed_modalities, save_png, verbose):
         """
 
         Tool to coordinate the above machinery for pulling and downloading images (or locating them in the cache).
@@ -846,9 +848,12 @@ class _CancerImageArchiveImages(object):
         :param save_png: see: ``pull_images()``
         :param save_png: ``bool``
         :param allowed_modalities: see: ``pull_images()``
-        :type allowed_modalities: ``list``, ``tuple`` or ``None``.
+        :type allowed_modalities: ``list``, ``tuple`` or ``None``
+        :param verbose: if ``True`` print additional details.
+        :type verbose: ``bool``
         """
-        for index, row in tqdm(self.records_db_images.iterrows(), total=len(self.records_db_images)):
+        for index, row in tqdm(self.records_db_images.iterrows(), total=len(self.records_db_images),
+                               desc='Obtaining Images', disable=not verbose):
             # Check if the image should be harvested (or loaded from the cache).
             valid_image_modality = self._valid_modality(allowed_modalities, row['modality'], row['modality_full'])
 
@@ -887,7 +892,7 @@ class _CancerImageArchiveImages(object):
                 converted_image_count = len(sl_summary) if isinstance(sl_summary, (list, tuple)) else None
                 self.real_time_update_db.set_value(index, 'image_count_converted_cache', converted_image_count)
 
-    def pull_images(self, records_db, session_limit, save_png, save_dicom, allowed_modalities):
+    def pull_images(self, records_db, session_limit, save_png, save_dicom, allowed_modalities, verbose):
         """
 
         Pull Images from the Cancer Imaging Archive.
@@ -906,6 +911,8 @@ class _CancerImageArchiveImages(object):
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
                                    This parameter is not case sensitive.
         :type allowed_modalities: ``list``, ``tuple`` or ``None``
+        :param verbose: if ``True`` print additional details.
+        :type verbose: ``bool``
         :return: a dataframe with information about the images cached by this method.
         :rtype: ``Pandas DataFrame``
         """
@@ -933,7 +940,8 @@ class _CancerImageArchiveImages(object):
         # Instantiate `self.real_time_update_db`
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index)
 
-        self._pull_images_engine(save_dicom=save_dicom, allowed_modalities=allowed_modalities, save_png=save_png)
+        self._pull_images_engine(save_dicom=save_dicom, allowed_modalities=allowed_modalities,
+                                 save_png=save_png, verbose=verbose)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
         return _record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
@@ -1078,6 +1086,8 @@ class CancerImageInterface(object):
         shutil.rmtree(self._Images.temp_directory_path, ignore_errors=True)
 
     def __init__(self, api_key, cache_path=None, verbose=True):
+        if os.path.isdir(api_key):
+            raise ValueError("`api_key` must be not be a system path.")
         self._API_KEY = api_key
         self._cache_path = cache_path
         self._verbose = verbose
@@ -1319,13 +1329,12 @@ class CancerImageInterface(object):
         # Loop through and download all of the studies
         record_frames = list()
         for collection in all_collections:
-            if self._verbose:
-                print("\nDownloading Records for the '{0}' Collection...".format(collection))
             try:
                 record_frames.append(self._Records.records_pull(study=collection,
                                                                 search_dict=self.search_dict,
                                                                 pull_time=self._pull_time,
-                                                                patient_limit=patient_limit))
+                                                                patient_limit=patient_limit,
+                                                                verbose=self._verbose))
                 pull_success.append((True, collection))
             except IndexError as e:
                 warn("\nIndexError Encountered: {0}".format(e))
@@ -1476,13 +1485,12 @@ class CancerImageInterface(object):
             raise TypeError("`records_db` is not a DataFrame.")
 
         if save_png or save_dicom:
-            if self._verbose:
-                print("\nObtaining Images...")
             self.records_db = self._Images.pull_images(records_db=self.records_db,
                                                        session_limit=session_limit,
                                                        save_png=save_png,
                                                        save_dicom=save_dicom,
-                                                       allowed_modalities=allowed_modalities)
+                                                       allowed_modalities=allowed_modalities,
+                                                       verbose=self._verbose)
 
             # Add the new records_db datafame with the existing `cache_records_db`.
             self._tcia_cache_records_db_handler()

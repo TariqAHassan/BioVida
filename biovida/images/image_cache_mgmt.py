@@ -969,10 +969,9 @@ def image_divvy(instance,
                                                    allow_overwrite=allow_overwrite)
 
     def divvy_rule_apply():
-        if verbose:
-            print("\nApplying Divvy Rule...")
         divvy_info = list()
-        for _, row in tqdm(data_frame.iterrows(), total=len(data_frame)):
+        for _, row in tqdm(data_frame.iterrows(), total=len(data_frame),
+                           desc='Applying Divvy Rule', disable=not verbose):
             target = divvy_rule_wrapper(row)
             if isinstance(target, list):
                 for t in target:

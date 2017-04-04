@@ -674,7 +674,7 @@ class ImageClassificationCNN(object):
         predictions = ((data_classes_reversed[e], i) for e, i in enumerate(single_image_prediction))
         return sorted(predictions, key=lambda x: x[1], reverse=True)
 
-    def predict(self, list_of_images, status=True, verbose=False):
+    def predict(self, list_of_images, status=True):
         """
 
         Generate Predictions for a list of images.
@@ -683,16 +683,11 @@ class ImageClassificationCNN(object):
         :type list_of_images: ``list``
         :param status: True for a tqdm status bar; False for no status bar. Defaults to True.
         :type status: ``bool``
-        :param verbose: if True, print updates. Defaults to False
-        :type verbose: ``bool``
         :return: a list of lists with tuples of the form (name, probability). Defaults to False.
         :rtype: ``list``
         """
         if self.model is None:
             raise AttributeError("Predictions cannot be made until a model is loaded or trained.")
-
-        def status_bar(x):  # ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)
-            return tqdm(x) if status else x
 
         is_ndarray = [type(i).__name__ == 'ndarray' for i in list_of_images]
 
@@ -701,11 +696,10 @@ class ImageClassificationCNN(object):
         elif any(is_ndarray):
             raise ValueError("Only some of the items in `list_of_images` we found to be `ndarrays`.")
         else:
-            if verbose:
-                print("\n\nPreparing Images for Neural Network...")
             images = load_and_scale_images(list_of_images=list_of_images, image_size=self.image_shape,
-                                           status=status, grayscale_first=True)
+                                           status=status, grayscale_first=True,
+                                           desc='Preparing Images for Neural Network')
 
-        if verbose:
-            print("\n\nGenerating Predictions...")
-        return [self._prediction_labels(i) for i in status_bar(self.model.predict(images))]
+        # ToDo: tqdm not working properly (see: https://github.com/bstriner/keras-tqdm).
+        # return [self._prediction_labels(i) for i in tqdm(self.model.predict(images), disable=not status)]
+        return [self._prediction_labels(i) for i in self.model.predict(images)]
