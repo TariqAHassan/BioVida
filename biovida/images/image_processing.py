@@ -613,7 +613,7 @@ class OpeniImageProcessing(object):
 
         # Scan Images for Visual Problems with Neural Network
         self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
-                                                                            status=status)
+                                                                            status=status, desc='Scanning for Problems')
 
         if limit_to_known_modalities:  # ToDo: Temporary. Future: avoid passing through the model in the first place.
             for index, row in self.image_dataframe.iterrows():
@@ -832,7 +832,7 @@ class OpeniImageProcessing(object):
                                                                      status=status)
         else:
             image_dataframe_cleaned['cleaned_image'] = self._pil_load(image_dataframe_cleaned['cached_images_path'],
-                                                                       convert_to_rgb=convert_to_rgb, status=status)
+                                                                      convert_to_rgb=convert_to_rgb, status=status)
 
         self.image_dataframe_cleaned = image_dataframe_cleaned
 

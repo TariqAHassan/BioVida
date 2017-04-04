@@ -674,13 +674,15 @@ class ImageClassificationCNN(object):
         predictions = ((data_classes_reversed[e], i) for e, i in enumerate(single_image_prediction))
         return sorted(predictions, key=lambda x: x[1], reverse=True)
 
-    def predict(self, list_of_images, status=True):
+    def predict(self, list_of_images, desc=None, status=True):
         """
 
         Generate Predictions for a list of images.
 
         :param list_of_images: a list of paths (strings) to images or ``ndarrays``.
         :type list_of_images: ``list``
+        :param desc: description for ``tqdm``.
+        :type desc: ``str`` or ``None``
         :param status: True for a tqdm status bar; False for no status bar. Defaults to True.
         :type status: ``bool``
         :return: a list of lists with tuples of the form (name, probability). Defaults to False.
@@ -701,5 +703,4 @@ class ImageClassificationCNN(object):
                                            desc='Preparing Images')
 
         # ToDo: tqdm not working properly (see: https://github.com/bstriner/keras-tqdm).
-        # return [self._prediction_labels(i) for i in tqdm(self.model.predict(images), disable=not status)]
-        return [self._prediction_labels(i) for i in self.model.predict(images)]
+        return [self._prediction_labels(i) for i in tqdm(self.model.predict(images), desc=desc, disable=not status)]
