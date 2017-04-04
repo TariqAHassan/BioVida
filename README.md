@@ -234,7 +234,7 @@ scholarly work used by BioVida.
    
 [click here]: https://tariqahassan.github.io/BioVida/index.html
 [Getting Started]: https://tariqahassan.github.io/BioVida/GettingStarted.html
-[Tutorials]: https://nbviewer.jupyter.org/github/tariqahassan/Tutorials/tree/master/BioVida/
+[Tutorials]: https://nbviewer.jupyter.org/github/tariqahassan/BioVida/tree/master/tutorials/
 [API Documentation]: https://tariqahassan.github.io/BioVida/API.html
 [Contributing]: https://github.com/TariqAHassan/BioVida/blob/master/CONTRIBUTING.md
 [resources]: https://github.com/TariqAHassan/BioVida/blob/master/RESOURCES.md
