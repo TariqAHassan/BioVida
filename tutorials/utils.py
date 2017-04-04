@@ -11,7 +11,7 @@ from matplotlib.pyplot import imshow
 
 
 def qshow(data_frame, column_width=200):
-    qgrid.show_grid(data_frame, grid_options={'forceFitColumns': False, 'defaultColumnWidth': column_width})
+    return qgrid.show_grid(data_frame, grid_options={'forceFitColumns': False, 'defaultColumnWidth': column_width})
 
 
 def show_image(image):
