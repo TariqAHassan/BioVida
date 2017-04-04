@@ -191,7 +191,7 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
 
     if verbose:
         def desc_tqdm(x):
-            return tqdm(x, desc='Converting Images to ndarrays')
+            return tqdm(x, desc='Generating ndarrays')
         if dimensions == 1:
             status_inner, status_outer = desc_tqdm, identity_func
         elif dimensions == 2:

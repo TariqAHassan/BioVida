@@ -559,7 +559,7 @@ class OpeniImageProcessing(object):
             df = self.image_dataframe
 
         all_cropped_images = list()
-        for index, row in tqdm(df.iterrows(), desc='Computing Crop Locations', disable=not status, total=len(df)):
+        for index, row in tqdm(df.iterrows(), desc='Cropping Images', disable=not status, total=len(df)):
             cropped_image = self._apply_cropping(cached_images_path=row['cached_images_path'],
                                                  lower_crop=row['lower_crop'],
                                                  upper_crop=row['upper_crop'],
@@ -609,7 +609,7 @@ class OpeniImageProcessing(object):
 
         transformed_images = load_and_scale_images(list_of_images=cropped_images_for_analysis,
                                                    image_size=self._ircnn.image_shape, status=status,
-                                                   desc='Preparing Images for Neural Network')
+                                                   desc='Preparing Images')
 
         # Scan Images for Visual Problems with Neural Network
         self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],

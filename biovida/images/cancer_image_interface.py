@@ -454,7 +454,7 @@ class _CancerImageArchiveRecords(object):
 
         # Evolve a dataframe ('frame') for the baseline images of all patients
         frames = list()
-        for patient in tqdm(patients_to_obtain, desc="Obtaining Records for '{0}'".format(study), disable=not verbose):
+        for patient in tqdm(patients_to_obtain, desc="'{0}' Records".format(study), disable=not verbose):
             frames.append(self._patient_image_summary(patient, study=study, patient_dict=study_dict[patient]))
 
         # Concatenate baselines frame for each patient

@@ -698,7 +698,7 @@ class ImageClassificationCNN(object):
         else:
             images = load_and_scale_images(list_of_images=list_of_images, image_size=self.image_shape,
                                            status=status, grayscale_first=True,
-                                           desc='Preparing Images for Neural Network')
+                                           desc='Preparing Images')
 
         # ToDo: tqdm not working properly (see: https://github.com/bstriner/keras-tqdm).
         # return [self._prediction_labels(i) for i in tqdm(self.model.predict(images), disable=not status)]

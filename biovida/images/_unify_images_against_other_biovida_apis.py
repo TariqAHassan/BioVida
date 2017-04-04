@@ -609,7 +609,7 @@ class _DiseaseSymptomsIntegration(object):
 
         return [match_symptoms(row) for _, row in tqdm(data_frame.iterrows(),
                                                        total=len(data_frame),
-                                                       desc='Identify Symptoms in Report',
+                                                       desc='Identify Symptoms',
                                                        disable=not self.verbose)]
 
     def integration(self, data_frame, fuzzy_threshold=False):
@@ -630,7 +630,7 @@ class _DiseaseSymptomsIntegration(object):
                                                    fuzzy_threshold=fuzzy_threshold,
                                                    new_column_name='known_associated_symptoms',
                                                    verbose=self.verbose,
-                                                   desc='Integrating Disease Symptoms Data')
+                                                   desc='Integrating Symptoms')
 
         # Find 'known_associated_symptoms' which individual patients presented with by scanning the abstract
         updated_data_frame['mentioned_symptoms'] = self._mentioned_symptoms(updated_data_frame)
@@ -700,7 +700,7 @@ class _DisgenetIntegration(object):
                                      fuzzy_threshold=fuzzy_threshold,
                                      new_column_name='known_associated_genes',
                                      verbose=self.verbose,
-                                     desc='Integrating DisGeNET Data')
+                                     desc='Integrating DisGeNET')
 
 
 # ----------------------------------------------------------------------------------------------------------
