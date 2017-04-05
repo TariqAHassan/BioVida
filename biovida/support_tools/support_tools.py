@@ -16,9 +16,9 @@ from six.moves.html_parser import HTMLParser
 
 
 try:
-    import dicom
-except ImportError:
     import pydicom as dicom
+except ImportError:
+    import dicom
 
 
 try:
