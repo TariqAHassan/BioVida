@@ -722,7 +722,7 @@ def _divvy_openi_image_processing(instance,
     :type allow_overwrite: ``bool``
     :param verbose: see ``image_divvy()``.
     :type verbose: ``bool``
-    :return: yeild of ``OpeniImageProcessing.output`` or ``_train_val_test_engine()``.
+    :return: yield of ``OpeniImageProcessing.output`` or ``_train_val_test_engine()``.
     :rtype: ``dict``
     """
     if action in ('copy', 'ndarray') and not isinstance(train_val_test_dict, dict):
