@@ -927,7 +927,7 @@ class _CancerImageArchiveImages(object):
             os.makedirs(self.temp_directory_path)
 
         settings_path = os.path.join(self.temp_directory_path, "image_pull_settings.p")
-        pickle.dump({k: v for k, v in locals().items() if k not in ('self', 'settings_path')},
+        pickle.dump({k: v for k, v in locals().items() if k not in ('self', 'settings_path', 'verbose')},
                     open(settings_path, "wb"))
 
         if isinstance(session_limit, int):
@@ -1025,7 +1025,7 @@ class CancerImageInterface(object):
                 settings_dict_for_pull = {k: v for k, v in settings_dict.items() if k not in ['records_db']}
                 settings_dict_for_pull['new_records_pull'] = False  # adding this separately in `pull` breaks in python2
 
-                print("\n\nResuming Download...")
+                print("\nResuming Download...")
                 self.load_records_db(records_db=settings_dict['records_db'])
                 self.pull(**settings_dict_for_pull)
 
