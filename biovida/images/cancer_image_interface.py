@@ -1290,7 +1290,9 @@ class CancerImageInterface(object):
         # Cache Search
         self.current_query = summary_df.reset_index(drop=True)
 
-        if pretty_print and not IN_NOTEBOOK:
+        if pretty_print and IN_NOTEBOOK:
+            print(self.current_query)
+        elif pretty_print and not IN_NOTEBOOK:
             pandas_pprint(data=self.current_query, full_cols=True,
                           col_align='left', column_width_limit=10000)
 
@@ -1303,7 +1305,7 @@ class CancerImageInterface(object):
                  "If you still wish to proceed, consider adjusting `pull()`'s\n"
                  "`patient_limit` and `session_limit` parameters.")
 
-        if not pretty_print or not IN_NOTEBOOK:
+        if not pretty_print:
             return self.current_query
 
     def _pull_records(self, patient_limit, collections_limit):

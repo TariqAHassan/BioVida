@@ -367,13 +367,14 @@ def _pretty_print_image_delete(deleted_rows, verbose):
     if deleted_rows and verbose:
         print("\nIndices of Deleted Rows:\n")
         # Note: `.T` handles when values are of unequal length.
-        to_print = pd.DataFrame.from_dict(deleted_rows, orient='index').T
+        deleted_rows_df = pd.DataFrame.from_dict(deleted_rows, orient='index').T
+        # Put `records_db` before of `cache_records_db` if both are present.
+        to_print = deleted_rows_df[sorted(deleted_rows_df.columns, reverse=True)]
         if len(to_print):
             if IN_NOTEBOOK:
-                return to_print[sorted(to_print.columns, reverse=True)]
+                print(to_print)
             else:
-                pandas_pprint(to_print[sorted(to_print.columns, reverse=True)],
-                              full_rows=True, suppress_index=True)
+                pandas_pprint(to_print, full_rows=True, suppress_index=True)
         else:
             print("\nNo Rows Deleted.")
 
