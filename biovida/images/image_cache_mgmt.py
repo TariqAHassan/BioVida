@@ -917,6 +917,7 @@ def image_divvy(instance,
 
     This function behaves the same if passed an instance of ``OpeniImageProcessing``
 
+    >>> from biovida.images import OpeniImageProcessing
     >>> ip = OpeniImageProcessing(opi)
     >>> ip.auto()
     >>> ip.clean_image_dataframe()
