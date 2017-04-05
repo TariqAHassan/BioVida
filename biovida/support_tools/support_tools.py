@@ -16,6 +16,12 @@ from six.moves.html_parser import HTMLParser
 
 
 try:
+    import dicom
+except ImportError:
+    import pydicom as dicom
+
+
+try:
     __IPYTHON__
     IN_NOTEBOOK = True
     from tqdm import tqdm_notebook as tqdm
@@ -23,7 +29,9 @@ except:
     IN_NOTEBOOK = False
     from tqdm import tqdm
 
+
 unescape = HTMLParser().unescape
+
 
 _only_numeric_regex = re.compile(r'[^\d.]+')
 _cln_extent_1_regex = re.compile('\s\s+')

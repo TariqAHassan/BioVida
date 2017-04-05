@@ -7,7 +7,6 @@
 
 """
 import os
-import dicom
 import shutil
 import numpy as np
 from PIL import Image
@@ -18,6 +17,7 @@ from os.path import basename as os_basename
 
 # General Support Tools
 from biovida.support_tools.support_tools import (tqdm,
+                                                 dicom,
                                                  is_int,
                                                  isclose,
                                                  is_numeric,

@@ -8,8 +8,7 @@
 """
 # Also see: https://github.com/darcymason/pydicom/issues/319.
 import os
-import dicom
-from biovida.support_tools.support_tools import cln
+from biovida.support_tools.support_tools import cln, dicom
 
 
 def _extract_numeric(value):

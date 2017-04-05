@@ -8,7 +8,6 @@
 """
 import io
 import os
-import dicom
 import pickle
 import shutil
 import zipfile
@@ -32,6 +31,7 @@ from biovida.images.image_cache_mgmt import (_records_db_merge,
 
 # General Support Tools
 from biovida.support_tools.support_tools import (tqdm,
+                                                 dicom,
                                                  cln,
                                                  header,
                                                  only_numeric,
