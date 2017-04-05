@@ -372,7 +372,7 @@ def _pretty_print_image_delete(deleted_rows, verbose):
         to_print = deleted_rows_df[sorted(deleted_rows_df.columns, reverse=True)]
         if len(to_print):
             if IN_NOTEBOOK:
-                print(to_print)
+                return to_print
             else:
                 pandas_pprint(to_print, full_rows=True, suppress_index=True)
         else:
