@@ -18,7 +18,8 @@ from collections import defaultdict
 from biovida.support_tools.support_tools import (tqdm,
                                                  cln,
                                                  multimap,
-                                                 directory_existence_handler)
+                                                 directory_existence_handler,
+                                                 IN_NOTEBOOK)
 
 # Utilities
 from biovida.support_tools.utilities import (_tvt_dict_gen,
@@ -365,9 +366,14 @@ def _pretty_print_image_delete(deleted_rows, verbose):
     """
     if deleted_rows and verbose:
         print("\nIndices of Deleted Rows:\n")
-        to_print = pd.DataFrame.from_dict(deleted_rows, orient='index').T  # handles when values are of unequal length.
+        # Note: `.T` handles when values are of unequal length.
+        to_print = pd.DataFrame.from_dict(deleted_rows, orient='index').T
         if len(to_print):
-            pandas_pprint(to_print[sorted(to_print.columns, reverse=True)], full_rows=True, suppress_index=True)
+            if IN_NOTEBOOK:
+                return to_print[sorted(to_print.columns, reverse=True)]
+            else:
+                pandas_pprint(to_print[sorted(to_print.columns, reverse=True)],
+                              full_rows=True, suppress_index=True)
         else:
             print("\nNo Rows Deleted.")
 

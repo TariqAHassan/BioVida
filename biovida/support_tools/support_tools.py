@@ -17,8 +17,10 @@ from six.moves.html_parser import HTMLParser
 
 try:
     __IPYTHON__
+    IN_NOTEBOOK = True
     from tqdm import tqdm_notebook as tqdm
 except:
+    IN_NOTEBOOK = False
     from tqdm import tqdm
 
 unescape = HTMLParser().unescape

@@ -38,7 +38,8 @@ from biovida.support_tools.support_tools import (tqdm,
                                                  combine_dicts,
                                                  camel_to_snake_case,
                                                  data_frame_col_drop,
-                                                 list_to_bulletpoints)
+                                                 list_to_bulletpoints,
+                                                 IN_NOTEBOOK)
 
 # Import Printing Tools
 from biovida.support_tools.printing import pandas_pprint
@@ -1289,9 +1290,8 @@ class CancerImageInterface(object):
         # Cache Search
         self.current_query = summary_df.reset_index(drop=True)
 
-        if pretty_print:
-            current_query_print = self.current_query.copy(deep=True)
-            pandas_pprint(data=current_query_print, full_cols=True,
+        if pretty_print and not IN_NOTEBOOK:
+            pandas_pprint(data=self.current_query, full_cols=True,
                           col_align='left', column_width_limit=10000)
 
         # Warn the user if search criteria have not been applied.
@@ -1303,7 +1303,7 @@ class CancerImageInterface(object):
                  "If you still wish to proceed, consider adjusting `pull()`'s\n"
                  "`patient_limit` and `session_limit` parameters.")
 
-        if not pretty_print:
+        if not pretty_print or not IN_NOTEBOOK:
             return self.current_query
 
     def _pull_records(self, patient_limit, collections_limit):
