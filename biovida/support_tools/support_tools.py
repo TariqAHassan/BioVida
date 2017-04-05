@@ -25,7 +25,7 @@ try:
     __IPYTHON__
     IN_NOTEBOOK = True
     from tqdm import tqdm_notebook as tqdm
-except:
+except NameError:
     IN_NOTEBOOK = False
     from tqdm import tqdm
 
