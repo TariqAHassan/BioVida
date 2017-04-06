@@ -18,6 +18,7 @@ from PIL import Image
 from time import sleep
 from warnings import warn
 from datetime import datetime
+from math import log10, floor
 
 from biovida import __version_numeric__
 
@@ -30,10 +31,11 @@ from biovida.images.image_cache_mgmt import (_records_db_merge,
                                              _prune_rows_with_deleted_images)
 
 # General Support Tools
-from biovida.support_tools.support_tools import (tqdm,
+from biovida.support_tools.support_tools import (cln,
+                                                 tqdm,
                                                  dicom,
-                                                 cln,
                                                  header,
+                                                 items_null,
                                                  only_numeric,
                                                  combine_dicts,
                                                  camel_to_snake_case,
@@ -372,15 +374,18 @@ class _CancerImageArchiveRecords(object):
         """
         # convert 'F' --> 'female' and 'M' --> 'male'.
         patient_study_df['sex'] = patient_study_df['sex'].map(
-            lambda x: {'F': 'female', 'M': 'male'}.get(cln(str(x)).upper(), x), na_action='ignore')
+            lambda x: {'F': 'female', 'M': 'male'}.get(cln(str(x)).upper(), x),
+            na_action='ignore')
 
         # Convert entries in the 'age' Column to floats.
         patient_study_df['age'] = patient_study_df['age'].map(
-            lambda x: only_numeric(x) / 12.0 if 'M' in str(x).upper() else only_numeric(x), na_action='ignore')
+            lambda x: only_numeric(x) / 12.0 if 'M' in str(x).upper() else only_numeric(x),
+            na_action='ignore')
 
         # Remove unneeded line break marker
         for c in ('protocol_name', 'series_description'):
-            patient_study_df[c] = patient_study_df[c].map(lambda x: cln(x.replace("\/", " ")), na_action='ignore')
+            patient_study_df[c] = patient_study_df[c].map(lambda x: cln(x.replace("\/", " ")),
+                                                          na_action='ignore')
 
         # Add the full name for modality.
         patient_study_df['modality_full'] = patient_study_df['modality'].map(
@@ -390,9 +395,20 @@ class _CancerImageArchiveRecords(object):
         patient_study_df['body_part_examined'] = patient_study_df['body_part_examined'].map(
             lambda x: cln(x).lower() if isinstance(x, str) else x, na_action='ignore')
 
-        patient_study_df['series_date'] = pd.to_datetime(patient_study_df['series_date'], infer_datetime_format=True)
+        patient_study_df['series_date'] = pd.to_datetime(patient_study_df['series_date'],
+                                                         infer_datetime_format=True)
 
-        return patient_study_df.sort_values(by=['patient_id', 'session']).reset_index(drop=True)
+        def series_number_rescale(x):
+            if isinstance(x, (int, float)) and not items_null(x):
+                return x / 10 ** floor(log10(x))
+            else:
+                return x
+
+        patient_study_df['series_number_rescaled'] = patient_study_df['series_number'].map(
+            series_number_rescale, na_action='ignore')
+
+        sort_by = ['patient_id', 'session', 'series_number_rescaled']
+        return patient_study_df.fillna(np.NaN).sort_values(by=sort_by).reset_index(drop=True)
 
     def _get_condition_name(self, collection_series, overview_download_override):
         """
