@@ -1485,7 +1485,6 @@ class CancerImageInterface(object):
         
             ``[instance, original_name_in_source_file]__[patient_id_[Last 10 Digits of SeriesInstanceUID]].dcm``
         
-
         where:
 
         .. hlist::
