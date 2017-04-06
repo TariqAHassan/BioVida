@@ -175,7 +175,8 @@
 <span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="p">(</span><span class="n">tqdm</span><span class="p">,</span>
                                                  <span class="n">cln</span><span class="p">,</span>
                                                  <span class="n">multimap</span><span class="p">,</span>
-                                                 <span class="n">directory_existence_handler</span><span class="p">)</span>
+                                                 <span class="n">directory_existence_handler</span><span class="p">,</span>
+                                                 <span class="n">IN_NOTEBOOK</span><span class="p">)</span>
 
 <span class="c1"># Utilities</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.utilities</span> <span class="k">import</span> <span class="p">(</span><span class="n">_tvt_dict_gen</span><span class="p">,</span>
@@ -522,9 +523,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">deleted_rows</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Indices of Deleted Rows:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">to_print</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">deleted_rows</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># handles when values are of unequal length.</span>
+        <span class="c1"># Note: `.T` handles when values are of unequal length.</span>
+        <span class="n">deleted_rows_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">deleted_rows</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="c1"># Put `records_db` before of `cache_records_db` if both are present.</span>
+        <span class="n">to_print</span> <span class="o">=</span> <span class="n">deleted_rows_df</span><span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="n">deleted_rows_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_print</span><span class="p">):</span>
-            <span class="n">pandas_pprint</span><span class="p">(</span><span class="n">to_print</span><span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="n">to_print</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">full_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">suppress_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">IN_NOTEBOOK</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">to_print</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pandas_pprint</span><span class="p">(</span><span class="n">to_print</span><span class="p">,</span> <span class="n">full_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">suppress_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No Rows Deleted.&quot;</span><span class="p">)</span>
 
@@ -879,7 +886,7 @@
 <span class="sd">    :type allow_overwrite: ``bool``</span>
 <span class="sd">    :param verbose: see ``image_divvy()``.</span>
 <span class="sd">    :type verbose: ``bool``</span>
-<span class="sd">    :return: yeild of ``OpeniImageProcessing.output`` or ``_train_val_test_engine()``.</span>
+<span class="sd">    :return: yield of ``OpeniImageProcessing.output`` or ``_train_val_test_engine()``.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_val_test_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -1074,6 +1081,7 @@
 
 <span class="sd">    This function behaves the same if passed an instance of ``OpeniImageProcessing``</span>
 
+<span class="sd">    &gt;&gt;&gt; from biovida.images import OpeniImageProcessing</span>
 <span class="sd">    &gt;&gt;&gt; ip = OpeniImageProcessing(opi)</span>
 <span class="sd">    &gt;&gt;&gt; ip.auto()</span>
 <span class="sd">    &gt;&gt;&gt; ip.clean_image_dataframe()</span>
@@ -1126,10 +1134,9 @@
                                                    <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">divvy_rule_apply</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Applying Divvy Rule...&quot;</span><span class="p">)</span>
         <span class="n">divvy_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">data_frame</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">data_frame</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">data_frame</span><span class="p">),</span>
+                           <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Applying Divvy Rule&#39;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">verbose</span><span class="p">):</span>
             <span class="n">target</span> <span class="o">=</span> <span class="n">divvy_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>

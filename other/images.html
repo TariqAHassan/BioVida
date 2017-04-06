@@ -551,9 +551,14 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 <ul>
 <li><p class="first">When <code class="docutils literal"><span class="pre">save_png</span></code> is <code class="docutils literal"><span class="pre">True</span></code>, 3D DICOM images are saved as individual frames.</p>
 </li>
-<li><p class="first">Images file names in the cache adhere to the following format:</p>
+<li><p class="first">PNG file names in the cache adhere to the following format:</p>
 <blockquote>
 <div><p><code class="docutils literal"><span class="pre">[instance,</span> <span class="pre">pull_position]__[patient_id_[Last</span> <span class="pre">10</span> <span class="pre">Digits</span> <span class="pre">of</span> <span class="pre">SeriesInstanceUID]]__[Image</span> <span class="pre">Scale</span> <span class="pre">('default')].png</span></code></p>
+</div></blockquote>
+</li>
+<li><p class="first">DICOM file names in the cache adhere to the following format:</p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">[instance,</span> <span class="pre">original_name_in_source_file]__[patient_id_[Last</span> <span class="pre">10</span> <span class="pre">Digits</span> <span class="pre">of</span> <span class="pre">SeriesInstanceUID]].dcm</span></code></p>
 </div></blockquote>
 </li>
 </ul>
@@ -624,9 +629,9 @@ This parameter is not case sensitive. Defaults to <code class="docutils literal"
 <li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <code class="docutils literal"><span class="pre">records_db</span></code> or``cache_records_db``. Defaults to &#8216;records_db&#8217;.</li>
 <li><strong>model_location</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the location of the model for Convnet.
 If <cite>None</cite>, the default model will be used. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, download the &#8216;visual_image_problems_model&#8217; weights (and
-associated resources) regardless of whether or not these files are already cached.
-Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, download a new copy of the &#8216;visual_image_problems_model&#8217; weights (and
+associated resources) regardless of whether or not files with these names are
+already cached. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional details. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
@@ -645,7 +650,7 @@ contains a cache of all analyses run as new columns.</p>
 
 <dl class="method">
 <dt id="biovida.images.image_processing.OpeniImageProcessing.grayscale_analysis">
-<code class="descname">grayscale_analysis</code><span class="sig-paren">(</span><em>new_analysis=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#OpeniImageProcessing.grayscale_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing.grayscale_analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">grayscale_analysis</code><span class="sig-paren">(</span><em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/image_processing.html#OpeniImageProcessing.grayscale_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing.grayscale_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analyze the images to determine whether or not they are grayscale
 (uses the PIL image library).</p>
 <dl class="docutils">
@@ -661,7 +666,11 @@ of red, green and blue.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1145,7 +1154,7 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 
 <dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>list_of_images</em>, <em>status=True</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>list_of_images</em>, <em>desc=None</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate Predictions for a list of images.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1153,8 +1162,8 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>list_of_images</strong> (<code class="docutils literal"><span class="pre">list</span></code>) &#8211; a list of paths (strings) to images or <code class="docutils literal"><span class="pre">ndarrays</span></code>.</li>
+<li><strong>desc</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; description for <code class="docutils literal"><span class="pre">tqdm</span></code>.</li>
 <li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; True for a tqdm status bar; False for no status bar. Defaults to True.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if True, print updates. Defaults to False</li>
 </ul>
 </td>
 </tr>

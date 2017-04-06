@@ -831,25 +831,22 @@
         <span class="n">predictions</span> <span class="o">=</span> <span class="p">((</span><span class="n">data_classes_reversed</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">single_image_prediction</span><span class="p">))</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImageClassificationCNN.predict"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_images</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageClassificationCNN.predict"><a class="viewcode-back" href="../../../../other/images.html#biovida.images.models.image_classification.ImageClassificationCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_images</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Generate Predictions for a list of images.</span>
 
 <span class="sd">        :param list_of_images: a list of paths (strings) to images or ``ndarrays``.</span>
 <span class="sd">        :type list_of_images: ``list``</span>
+<span class="sd">        :param desc: description for ``tqdm``.</span>
+<span class="sd">        :type desc: ``str`` or ``None``</span>
 <span class="sd">        :param status: True for a tqdm status bar; False for no status bar. Defaults to True.</span>
 <span class="sd">        :type status: ``bool``</span>
-<span class="sd">        :param verbose: if True, print updates. Defaults to False</span>
-<span class="sd">        :type verbose: ``bool``</span>
 <span class="sd">        :return: a list of lists with tuples of the form (name, probability). Defaults to False.</span>
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Predictions cannot be made until a model is loaded or trained.&quot;</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">status_bar</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>  <span class="c1"># ToDo: Not working properly (see: https://github.com/bstriner/keras-tqdm)</span>
-            <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">status</span> <span class="k">else</span> <span class="n">x</span>
 
         <span class="n">is_ndarray</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_of_images</span><span class="p">]</span>
 
@@ -858,14 +855,12 @@
         <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">is_ndarray</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only some of the items in `list_of_images` we found to be `ndarrays`.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Preparing Images for Neural Network...&quot;</span><span class="p">)</span>
             <span class="n">images</span> <span class="o">=</span> <span class="n">load_and_scale_images</span><span class="p">(</span><span class="n">list_of_images</span><span class="o">=</span><span class="n">list_of_images</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">,</span>
-                                           <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">grayscale_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                           <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">grayscale_first</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                           <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Preparing Images&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Generating Predictions...&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_prediction_labels</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">status_bar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">images</span><span class="p">))]</span></div></div>
+        <span class="c1"># ToDo: tqdm not working properly (see: https://github.com/bstriner/keras-tqdm).</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_prediction_labels</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">images</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">status</span><span class="p">)]</span></div></div>
 </pre></div>
 
     </div>
