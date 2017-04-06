@@ -576,6 +576,28 @@ class _CancerImageArchiveImages(object):
         # Generate the list of paths to the dicoms
         return list(filter(None, map(file_path_full, z.filelist)))
 
+    @staticmethod
+    def _extract_instance_number(f):
+        """
+        
+        Extract the instance number from a DICOM file.
+        
+        :param f: a DICOM file
+        :param f: ``pydicom object``
+        :return: instance number
+        :rtype: ``str``
+        """
+        try:
+            instance_number = f.InstanceNumber
+        except:
+            return 'NA'
+
+        cleaned_instance_number = cln(str(instance_number))
+        if len(cleaned_instance_number) and cleaned_instance_number.isdigit():
+            return cleaned_instance_number
+        else:
+            return 'NA'
+
     def _dicom_to_standard_image(self, f, pull_position, series_uid, conversion, new_file_name):
         """
 
@@ -623,8 +645,7 @@ class _CancerImageArchiveImages(object):
 
         if pixel_arr.ndim == 2:
             # Define save name by combining the images instance in the set.
-            instance = cln(str(f.InstanceNumber)) if len(cln(str(f.InstanceNumber))) else '0'
-            path = save_path(instance)
+            path = save_path(self._extract_instance_number(f))
             Image.fromarray(pixel_arr).convert(conversion).save(path)
             all_save_paths.append(path)
         # If ``f`` is a 3D image (e.g., segmentation dicom files), save each layer as a separate file/image.
@@ -696,8 +717,6 @@ class _CancerImageArchiveImages(object):
         :param color: If ``True``, convert the image to RGB before saving. If ``False``, save as a grayscale image.
                       Defaults to ``False``
         :type color: ``bool``
-        :param save_png: see: ``pull_images()``.
-        :type save_png: ``str``
         """
         # Load the DICOM file into RAM
         f = dicom.read_file(path_to_dicom_file)
@@ -740,8 +759,11 @@ class _CancerImageArchiveImages(object):
         new_dicom_paths = list()
         for file in dicom_files:
             # Define a name for the new file by extracting the dicom file name and combining with `series_abbrev`.
+            instance_number = self._extract_instance_number(f=dicom.read_file(file))
             file_parsed = list(os.path.splitext(os.path.basename(file)))
-            new_dicom_file_name = "{0}__{1}{2}".format(file_parsed[0], series_abbrev, file_parsed[1])
+            new_dicom_file_name = "{0}_{1}__{2}{3}".format(
+                # ToDo: this is redundant. The file is read twice: once to move and once if converting to PNG.
+                instance_number, file_parsed[0], series_abbrev, file_parsed[1])
 
             new_location = os.path.join(self._created_image_dirs['dicoms'], new_dicom_file_name)
             new_dicom_paths.append(new_location)
@@ -750,7 +772,16 @@ class _CancerImageArchiveImages(object):
                 os.remove(new_location)
             shutil.move(file, new_location)
 
-        self.real_time_update_db.set_value(index, 'cached_dicom_images_path', tuple(new_dicom_paths))
+        def sort_func(i):
+            """Sort `new_dicom_paths` by instance_number."""
+            try:
+                instance_number = os.path.basename(i).split("_")[0]
+                return float(instance_number)
+            except:
+                return len(new_dicom_paths)  # `len` is O(1)
+
+        sorted_paths = tuple(sorted(new_dicom_paths, key=sort_func))
+        self.real_time_update_db.set_value(index, 'cached_dicom_images_path', sorted_paths)
 
     def _cache_check(self, series_abbrev, n_images_min, save_png, save_dicom):
         """
