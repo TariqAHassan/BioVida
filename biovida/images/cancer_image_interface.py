@@ -1477,9 +1477,14 @@ class CancerImageInterface(object):
 
         - When ``save_png`` is ``True``, 3D DICOM images are saved as individual frames.
 
-        - Images file names in the cache adhere to the following format:
+        - PNG file names in the cache adhere to the following format:
 
             ``[instance, pull_position]__[patient_id_[Last 10 Digits of SeriesInstanceUID]]__[Image Scale ('default')].png``
+
+        - DICOM file names in the cache adhere to the following format:
+        
+            ``[instance, original_name_in_source_file]__[patient_id_[Last 10 Digits of SeriesInstanceUID]].dcm``
+        
 
         where:
 
