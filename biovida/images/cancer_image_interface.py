@@ -1463,8 +1463,8 @@ class CancerImageInterface(object):
              session_limit=1,
              collections_limit=None,
              allowed_modalities=None,
-             save_png=False,
              save_dicom=True,
+             save_png=False,
              new_records_pull=True):
         """
 
@@ -1514,10 +1514,10 @@ class CancerImageInterface(object):
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
                                    This parameter is not case sensitive. Defaults to ``None``.
         :type allowed_modalities: ``list`` or ``tuple``
-        :param save_png: if ``True``, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to ``False``.
-        :type save_png: ``bool``
         :param save_dicom: if ``True``, save the DICOM images provided by The Cancer Imaging Archive 'as is'. Defaults to ``True``.
         :type save_dicom: ``bool``
+        :param save_png: if ``True``, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to ``False``.
+        :type save_png: ``bool``
         :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.
         :type new_records_pull: ``bool``
         :return: a DataFrame with the record information.
