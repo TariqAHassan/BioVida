@@ -399,7 +399,7 @@ class _CancerImageArchiveRecords(object):
                                                          infer_datetime_format=True)
 
         def series_number_rescale(x):
-            if isinstance(x, (int, float)) and not items_null(x):
+            if isinstance(x, (int, float)) and not items_null(x) and x > 0:
                 return x / 10 ** floor(log10(x))
             else:
                 return x
