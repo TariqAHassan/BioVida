@@ -311,7 +311,7 @@ _image_instance_image_columns = {
     'OpeniInterface': ('cached_images_path',),
     'OpeniImageProcessing': ('cached_images_path',),
     'unify_against_images': ('cached_images_path',),
-    'CancerImageInterface': ('cached_images_path', 'cached_dicom_images_path')
+    'CancerImageInterface': ('cached_dicom_images_path', 'cached_images_path')
 }
 
 
