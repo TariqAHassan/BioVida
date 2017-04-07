@@ -172,15 +172,17 @@ def _list_divide(l, tvt, random_state):
     return _train_val_test_dict_sort(divided_dict)
 
 
-def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
+def _file_paths_dict_to_ndarrays(dictionary, dimensions, stack, verbose=True):
     """
 
     Converts values (list of file paths) of a ``dictionary`` to ``ndarray``s.
 
     :param dictionary: a nested dictionary, where values for the inner nest are iterables of file paths.
     :type dictionary: ``dict``
-    :param dimensions: dimensions of ``dictionary``. ``1`` for an unnested dictionary, ``2`` for a nested dictionary.
+    :param dimensions: dimensions of ``dictionary``. ``1`` for an un-nested dictionary, ``2`` for a nested dictionary.
     :type dimensions: ``int``
+    :param stack: if ``True``, stack 3D volumes and time-series images.
+    :type stack: ``bool``
     :param verbose: if ``True``, print additional information and a conversion status bar.
     :type verbose: ``bool``
     :return: the values for the inner nest as replaced with ``ndarrays``.
@@ -199,22 +201,35 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, verbose=True):
     else:
         status_inner = status_outer = identity_func
 
-    def nd_load(path):
-        if any(path.lower().endswith(i) for i in ('.dicom', '.dcm', '.dcm30')):
-            try:
-                return dicom.read_file(path).pixel_array
-            except:
-                warn("\nCould not load the following "
-                     "image as an ndarray:\n{0}".format(path))
-                return None
-        else:
-            return imread(path)
+    def is_dicom(path):
+        return any(path.lower().endswith(d) for d in ('.dicom', '.dcm', '.dcm30'))
+
+    def load_dicom(path):
+        try:
+            return dicom.read_file(path).pixel_array
+        except:
+            warn("\nCould not load the following "
+                 "image as an ndarray:\n{0}".format(path))
+            return None
 
     def drop_none(l):
         return [i for i in l if i is not None]
 
+    def load_as_ndarrays(paths):
+        n_dicom = [p for p in paths if is_dicom(p)]
+        if not len(n_dicom):
+            return np.array([imread(p) for p in paths])
+        elif len(n_dicom) == len(paths):
+            dicoms = drop_none([load_dicom(p) for p in paths])
+            if stack and len(dicoms) > 1 and len({d.shape for d in dicoms}) == 1:
+                return np.stack(dicoms)
+            else:
+                return np.array(dicoms)
+        else:
+            raise TypeError("Mixture of DICOM and non-DICOM files provided.")
+
     def values_to_ndarrays(d):
-        return {k2: np.array(drop_none([nd_load(i) for i in v2])) for k2, v2 in status_inner(d.items())}
+        return {k2: load_as_ndarrays(v2) for k2, v2 in status_inner(d.items())}
 
     if dimensions == 1:
         return values_to_ndarrays(dictionary)
@@ -306,8 +321,9 @@ def train_val_test(data,
                    validation,
                    test,
                    target_dir=None,
-                   action='copy',
+                   action='copy',  # ToDo: change to 'ndarray'.
                    delete_source=False,
+                   stack=True,
                    random_state=None,
                    verbose=True):
     """
@@ -361,6 +377,8 @@ def train_val_test(data,
                                 e.g., if ``data`` and ``target_dir`` are the same and ``delete_source=True``.
 
     :type delete_source: ``bool``
+    :param stack: if ``True``, stack 3D volumes and time-series images when ``action='ndarray'``. Defaults to ``True``.
+    :type stack: ``bool``
     :param random_state: set a seed for random shuffling. Similar to ``sklearn.model_selection.train_test_split``.
                          Defaults to ``None``.
     :type random_state: ``None`` or ``int``
@@ -504,7 +522,7 @@ def train_val_test(data,
     if action in ('copy', 'move'):
         to_return = output_dict
     elif action == 'ndarray':
-        to_return = _file_paths_dict_to_ndarrays(output_dict, dimensions=2, verbose=verbose)
+        to_return = _file_paths_dict_to_ndarrays(output_dict, dimensions=2, stack=stack, verbose=verbose)
 
     if verbose:
         _print_output_dict_structure(output_dict)

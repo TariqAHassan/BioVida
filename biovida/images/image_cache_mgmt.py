@@ -768,6 +768,7 @@ def image_divvy(instance,
                 create_dirs=True,
                 allow_overwrite=True,
                 image_column=None,
+                stack=True,
                 verbose=True):
     """
 
@@ -821,6 +822,8 @@ def image_divvy(instance,
     :type allow_overwrite: ``bool``
     :param image_column: the column to use when copying images. If ``None``, use ``'cached_images_path'``. Defaults to ``None``.
     :type image_column: ``str``
+    :param stack: if ``True``, stack 3D volumes and time-series images when ``action='ndarray'``. Defaults to ``True``.
+    :type stack: ``bool``
     :param verbose: if ``True`` print additional details. Defaults to ``True``.
     :type verbose: ``bool``
     :return:
@@ -992,6 +995,6 @@ def image_divvy(instance,
         return _image_divvy_train_val_test_wrapper(action=action, verbose=verbose, divvy_info=divvy_info,
                                                    train_val_test_dict=train_val_test_dict)
     elif isinstance(divvy_info, dict) and action == 'ndarray':
-        return _file_paths_dict_to_ndarrays(divvy_info, dimensions=1, verbose=verbose)
+        return _file_paths_dict_to_ndarrays(divvy_info, dimensions=1, stack=stack, verbose=verbose)
     elif isinstance(divvy_info, dict) and action == 'copy':
         return divvy_info
