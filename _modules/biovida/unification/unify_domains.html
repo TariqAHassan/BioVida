@@ -172,24 +172,24 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
 
 
-<div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../API.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="p">,</span>
+<div class="viewcode-block" id="unify_against_images"><a class="viewcode-back" href="../../../other/unification.html#biovida.unification.unify_domains.unify_against_images">[docs]</a><span class="k">def</span> <span class="nf">unify_against_images</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span>
                          <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span>
                          <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                          <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)</span>
+<span class="sd">    Tool to unify image instances (namely ``OpeniInterface`` and/or ``CancerImageInterface``)</span>
 <span class="sd">    with Diagnostic and Genomic Data.</span>
 
-<span class="sd">    :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``, or some</span>
+<span class="sd">    :param instances: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``, or some</span>
 <span class="sd">                           combination inside an iterable.</span>
-<span class="sd">    :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``.</span>
+<span class="sd">    :type instances: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``.</span>
 <span class="sd">    :param db_to_extract: the database to use. Must be one of: &#39;records_db&#39;, &#39;cache_records_db&#39; or &#39;image_dataframe&#39;.</span>
 <span class="sd">                          Defaults to &#39;records_db&#39;.</span>
 
 <span class="sd">                    .. note::</span>
 
-<span class="sd">                        If an instance of ``OpeniImageProcessing`` is passed to ``interfaces``, the ``image_dataframe``</span>
+<span class="sd">                        If an instance of ``OpeniImageProcessing`` is passed to ``instances``, the ``image_dataframe``</span>
 <span class="sd">                        attribute will be extracted regardless of the value passed to this argument.</span>
 
 <span class="sd">    :type db_to_extract: ``str``</span>
@@ -203,7 +203,7 @@
 <span class="sd">                        large databases, such as those this function integrates, is very computationally expensive.</span>
 <span class="sd">    </span>
 <span class="sd">    :type fuzzy_threshold: ``int``, ``bool``, ``None``</span>
-<span class="sd">    :return: a dataframe which unifies image interfaces with  genomic and diagnostics data.</span>
+<span class="sd">    :return: a dataframe which unifies image instances with genomic and diagnostics data.</span>
 <span class="sd">    :rtype: ``Pandas DataFrame``</span>
 
 
@@ -263,7 +263,7 @@
 <span class="sd">    # --- Search and Pull ---</span>
 <span class="sd">    &gt;&gt;&gt; udf2 = unify_against_images([opi, cii])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">images_unify</span><span class="p">(</span><span class="n">interfaces</span><span class="o">=</span><span class="n">interfaces</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="n">db_to_extract</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">images_unify</span><span class="p">(</span><span class="n">instances</span><span class="o">=</span><span class="n">instances</span><span class="p">,</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="n">db_to_extract</span><span class="p">,</span>
                         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">fuzzy_threshold</span><span class="o">=</span><span class="n">fuzzy_threshold</span><span class="p">)</span></div>
 </pre></div>
 

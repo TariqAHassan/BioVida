@@ -228,7 +228,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_address</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="n">header</span><span class="p">(</span><span class="s2">&quot;The DisGeNET README has been downloaded to:</span><span class="se">\n\n</span><span class="s2"> </span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-               <span class="s2">&quot;Please take the time to review this document.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_address</span><span class="p">))</span>
+               <span class="s2">&quot;Please take the time to review this document.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_address</span><span class="p">),</span> <span class="n">flank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="DisgenetInterface"><a class="viewcode-back" href="../../../source/biovida.html#biovida.genomics.disgenet_interface.DisgenetInterface">[docs]</a><span class="k">class</span> <span class="nc">DisgenetInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>

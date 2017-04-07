@@ -329,15 +329,17 @@
     <span class="k">return</span> <span class="n">_train_val_test_dict_sort</span><span class="p">(</span><span class="n">divided_dict</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">stack</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Converts values (list of file paths) of a ``dictionary`` to ``ndarray``s.</span>
 
 <span class="sd">    :param dictionary: a nested dictionary, where values for the inner nest are iterables of file paths.</span>
 <span class="sd">    :type dictionary: ``dict``</span>
-<span class="sd">    :param dimensions: dimensions of ``dictionary``. ``1`` for an unnested dictionary, ``2`` for a nested dictionary.</span>
+<span class="sd">    :param dimensions: dimensions of ``dictionary``. ``1`` for an un-nested dictionary, ``2`` for a nested dictionary.</span>
 <span class="sd">    :type dimensions: ``int``</span>
+<span class="sd">    :param stack: if ``True``, stack 3D volumes and time-series images.</span>
+<span class="sd">    :type stack: ``bool``</span>
 <span class="sd">    :param verbose: if ``True``, print additional information and a conversion status bar.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :return: the values for the inner nest as replaced with ``ndarrays``.</span>
@@ -356,22 +358,35 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">status_inner</span> <span class="o">=</span> <span class="n">status_outer</span> <span class="o">=</span> <span class="n">identity_func</span>
 
-    <span class="k">def</span> <span class="nf">nd_load</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;.dicom&#39;</span><span class="p">,</span> <span class="s1">&#39;.dcm&#39;</span><span class="p">,</span> <span class="s1">&#39;.dcm30&#39;</span><span class="p">)):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">dicom</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">pixel_array</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Could not load the following &quot;</span>
-                     <span class="s2">&quot;image as an ndarray:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-                <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">is_dicom</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;.dicom&#39;</span><span class="p">,</span> <span class="s1">&#39;.dcm&#39;</span><span class="p">,</span> <span class="s1">&#39;.dcm30&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">load_dicom</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dicom</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">pixel_array</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Could not load the following &quot;</span>
+                 <span class="s2">&quot;image as an ndarray:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">drop_none</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
 
+    <span class="k">def</span> <span class="nf">load_as_ndarrays</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
+        <span class="n">n_dicom</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span> <span class="k">if</span> <span class="n">is_dicom</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_dicom</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">imread</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_dicom</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
+            <span class="n">dicoms</span> <span class="o">=</span> <span class="n">drop_none</span><span class="p">([</span><span class="n">load_dicom</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">stack</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicoms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">({</span><span class="n">d</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dicoms</span><span class="p">})</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">dicoms</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dicoms</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Mixture of DICOM and non-DICOM files provided.&quot;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">values_to_ndarrays</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">k2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">drop_none</span><span class="p">([</span><span class="n">nd_load</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">]))</span> <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">status_inner</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k2</span><span class="p">:</span> <span class="n">load_as_ndarrays</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span> <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">status_inner</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
 
     <span class="k">if</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">values_to_ndarrays</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
@@ -463,8 +478,9 @@
                    <span class="n">validation</span><span class="p">,</span>
                    <span class="n">test</span><span class="p">,</span>
                    <span class="n">target_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span>  <span class="c1"># ToDo: change to &#39;ndarray&#39;.</span>
                    <span class="n">delete_source</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">stack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -518,6 +534,8 @@
 <span class="sd">                                e.g., if ``data`` and ``target_dir`` are the same and ``delete_source=True``.</span>
 
 <span class="sd">    :type delete_source: ``bool``</span>
+<span class="sd">    :param stack: if ``True``, stack 3D volumes and time-series images when ``action=&#39;ndarray&#39;``. Defaults to ``True``.</span>
+<span class="sd">    :type stack: ``bool``</span>
 <span class="sd">    :param random_state: set a seed for random shuffling. Similar to ``sklearn.model_selection.train_test_split``.</span>
 <span class="sd">                         Defaults to ``None``.</span>
 <span class="sd">    :type random_state: ``None`` or ``int``</span>
@@ -661,7 +679,7 @@
     <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">):</span>
         <span class="n">to_return</span> <span class="o">=</span> <span class="n">output_dict</span>
     <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
-        <span class="n">to_return</span> <span class="o">=</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">to_return</span> <span class="o">=</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="n">stack</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="n">_print_output_dict_structure</span><span class="p">(</span><span class="n">output_dict</span><span class="p">)</span>

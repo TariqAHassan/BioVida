@@ -602,7 +602,7 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 
 <dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>save_png=True</em>, <em>save_dicom=False</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>save_png=False</em>, <em>save_dicom=True</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <p>Notes:</p>
 <ul>
@@ -652,8 +652,8 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 See: <code class="docutils literal"><span class="pre">CancerImageInterface(YOUR_API_KEY_HERE).dicom_modality_abbrevs</span></code> (use the keys).
 Note: &#8216;MRI&#8217;, &#8216;PET&#8217;, &#8216;CT&#8217; and &#8216;X-Ray&#8217; can also be used.
 This parameter is not case sensitive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>save_dicom</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the DICOM images provided by The Cancer Imaging Archive &#8216;as is&#8217;. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>save_dicom</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the DICOM images provided by The Cancer Imaging Archive &#8216;as is&#8217;. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</li>
 </ul>
 </td>
@@ -1701,15 +1701,15 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <h3>Unifying Across Domains<a class="headerlink" href="#unifying-across-domains" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
-<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>interfaces</em>, <em>db_to_extract='records_db'</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tool to unify image interfaces (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
+<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>instances</em>, <em>db_to_extract='records_db'</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tool to unify image instances (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
 with Diagnostic and Genomic Data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>interfaces</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>.) &#8211; any one of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, or some
+<li><strong>instances</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>.) &#8211; any one of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, or some
 combination inside an iterable.</li>
 <li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <dl class="docutils">
 <dt>the database to use. Must be one of: &#8216;records_db&#8217;, &#8216;cache_records_db&#8217; or &#8216;image_dataframe&#8217;.</dt>
@@ -1717,7 +1717,7 @@ combination inside an iterable.</li>
 </dl>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If an instance of <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> is passed to <code class="docutils literal"><span class="pre">interfaces</span></code>, the <code class="docutils literal"><span class="pre">image_dataframe</span></code>
+<p class="last">If an instance of <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> is passed to <code class="docutils literal"><span class="pre">instances</span></code>, the <code class="docutils literal"><span class="pre">image_dataframe</span></code>
 attribute will be extracted regardless of the value passed to this argument.</p>
 </div>
 </li>
@@ -1732,7 +1732,7 @@ large databases, such as those this function integrates, is very computationally
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dataframe which unifies image interfaces with  genomic and diagnostics data.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dataframe which unifies image instances with genomic and diagnostics data.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
@@ -1873,7 +1873,7 @@ Any images associated with this row will also be destroyed.</p>
 
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_divvy">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>action='ndarray'</em>, <em>db_to_extract='records_db'</em>, <em>train_val_test_dict=None</em>, <em>create_dirs=True</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>action='ndarray'</em>, <em>db_to_extract='records_db'</em>, <em>train_val_test_dict=None</em>, <em>create_dirs=True</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em>, <em>stack=True</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grouping Cached Images.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -1923,6 +1923,7 @@ The corresponding value provided <em>must</em> be a boolean. If no such key key 
 <li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>image_column</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the column to use when copying images. If <code class="docutils literal"><span class="pre">None</span></code>, use <code class="docutils literal"><span class="pre">'cached_images_path'</span></code>. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>stack</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, stack 3D volumes and time-series images when <code class="docutils literal"><span class="pre">action='ndarray'</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> print additional details. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
@@ -2080,7 +2081,7 @@ performance metrics (e.g., accuracy) when assessing fitted models.</p>
 <h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.support_tools.utilities.train_val_test">
-<code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action='copy'</em>, <em>delete_source=False</em>, <em>random_state=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action='copy'</em>, <em>delete_source=False</em>, <em>stack=True</em>, <em>random_state=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split <code class="docutils literal"><span class="pre">data</span></code> into any combination of the following: <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code> and/or <code class="docutils literal"><span class="pre">test</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2126,6 +2127,7 @@ reinstated to allow the <code class="docutils literal"><span class="pre">cache_r
 e.g., if <code class="docutils literal"><span class="pre">data</span></code> and <code class="docutils literal"><span class="pre">target_dir</span></code> are the same and <code class="docutils literal"><span class="pre">delete_source=True</span></code>.</p>
 </div>
 </li>
+<li><strong>stack</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, stack 3D volumes and time-series images when <code class="docutils literal"><span class="pre">action='ndarray'</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>random_state</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">int</span></code>) &#8211; set a seed for random shuffling. Similar to <code class="docutils literal"><span class="pre">sklearn.model_selection.train_test_split</span></code>.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the resultant structure. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>

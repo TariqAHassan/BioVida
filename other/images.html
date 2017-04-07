@@ -545,7 +545,7 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 
 <dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>save_png=True</em>, <em>save_dicom=False</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>save_png=False</em>, <em>save_dicom=True</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <p>Notes:</p>
 <ul>
@@ -595,8 +595,8 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 See: <code class="docutils literal"><span class="pre">CancerImageInterface(YOUR_API_KEY_HERE).dicom_modality_abbrevs</span></code> (use the keys).
 Note: &#8216;MRI&#8217;, &#8216;PET&#8217;, &#8216;CT&#8217; and &#8216;X-Ray&#8217; can also be used.
 This parameter is not case sensitive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>save_dicom</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the DICOM images provided by The Cancer Imaging Archive &#8216;as is&#8217;. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>save_dicom</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the DICOM images provided by The Cancer Imaging Archive &#8216;as is&#8217;. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 <li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</li>
 </ul>
 </td>

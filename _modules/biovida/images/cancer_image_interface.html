@@ -556,7 +556,7 @@
                                                          <span class="n">infer_datetime_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">series_number_rescale</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">floor</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">x</span>
@@ -1566,7 +1566,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pull_success</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Data could not be harvested for any of the requested collections.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">download_failures</span><span class="p">):</span>
-            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">The following collections failed to download:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The following collections failed to download:</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">download_failures</span><span class="p">)))</span>
 
         <span class="c1"># Combine all record frames</span>
@@ -1623,8 +1623,8 @@
              <span class="n">session_limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
              <span class="n">collections_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">allowed_modalities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">save_png</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-             <span class="n">save_dicom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">save_png</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">save_dicom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
              <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1674,9 +1674,9 @@
 <span class="sd">                                   Note: &#39;MRI&#39;, &#39;PET&#39;, &#39;CT&#39; and &#39;X-Ray&#39; can also be used.</span>
 <span class="sd">                                   This parameter is not case sensitive. Defaults to ``None``.</span>
 <span class="sd">        :type allowed_modalities: ``list`` or ``tuple``</span>
-<span class="sd">        :param save_png: if ``True``, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to ``True``.</span>
+<span class="sd">        :param save_png: if ``True``, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to ``False``.</span>
 <span class="sd">        :type save_png: ``bool``</span>
-<span class="sd">        :param save_dicom: if ``True``, save the DICOM images provided by The Cancer Imaging Archive &#39;as is&#39;. Defaults to ``False``.</span>
+<span class="sd">        :param save_dicom: if ``True``, save the DICOM images provided by The Cancer Imaging Archive &#39;as is&#39;. Defaults to ``True``.</span>
 <span class="sd">        :type save_dicom: ``bool``</span>
 <span class="sd">        :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.</span>
 <span class="sd">        :type new_records_pull: ``bool``</span>

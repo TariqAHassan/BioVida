@@ -176,6 +176,7 @@
                                                  <span class="n">cln</span><span class="p">,</span>
                                                  <span class="n">multimap</span><span class="p">,</span>
                                                  <span class="n">directory_existence_handler</span><span class="p">,</span>
+                                                 <span class="n">ipython_display</span><span class="p">,</span>
                                                  <span class="n">IN_NOTEBOOK</span><span class="p">)</span>
 
 <span class="c1"># Utilities</span>
@@ -468,7 +469,7 @@
     <span class="s1">&#39;OpeniInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
     <span class="s1">&#39;OpeniImageProcessing&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
     <span class="s1">&#39;unify_against_images&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,),</span>
-    <span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">)</span>
+    <span class="s1">&#39;CancerImageInterface&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">)</span>
 <span class="p">}</span>
 
 
@@ -529,7 +530,7 @@
         <span class="n">to_print</span> <span class="o">=</span> <span class="n">deleted_rows_df</span><span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="n">deleted_rows_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_print</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">IN_NOTEBOOK</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">to_print</span>
+                <span class="n">ipython_display</span><span class="p">(</span><span class="n">to_print</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">pandas_pprint</span><span class="p">(</span><span class="n">to_print</span><span class="p">,</span> <span class="n">full_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">suppress_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -586,7 +587,7 @@
     <span class="n">index_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">_double_check_with_user</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleting...&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deleting...&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cln</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
@@ -925,6 +926,7 @@
                 <span class="n">create_dirs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">image_column</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">stack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -978,6 +980,8 @@
 <span class="sd">    :type allow_overwrite: ``bool``</span>
 <span class="sd">    :param image_column: the column to use when copying images. If ``None``, use ``&#39;cached_images_path&#39;``. Defaults to ``None``.</span>
 <span class="sd">    :type image_column: ``str``</span>
+<span class="sd">    :param stack: if ``True``, stack 3D volumes and time-series images when ``action=&#39;ndarray&#39;``. Defaults to ``True``.</span>
+<span class="sd">    :type stack: ``bool``</span>
 <span class="sd">    :param verbose: if ``True`` print additional details. Defaults to ``True``.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :return:</span>
@@ -1149,7 +1153,7 @@
         <span class="k">return</span> <span class="n">_image_divvy_train_val_test_wrapper</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">divvy_info</span><span class="o">=</span><span class="n">divvy_info</span><span class="p">,</span>
                                                    <span class="n">train_val_test_dict</span><span class="o">=</span><span class="n">train_val_test_dict</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="n">stack</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">divvy_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;copy&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">divvy_info</span></div>
 </pre></div>
