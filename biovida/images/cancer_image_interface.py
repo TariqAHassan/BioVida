@@ -524,6 +524,7 @@ class _CancerImageArchiveImages(object):
                                                                   ('tcia', 'databases')],
                                                             verbose=verbose)
 
+        self.verbose = verbose
         self.API_KEY = api_key
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
         self.ROOT_URL = root_url
@@ -886,7 +887,7 @@ class _CancerImageArchiveImages(object):
         else:
             return False
 
-    def _pull_images_engine(self, save_dicom, allowed_modalities, save_png, verbose):
+    def _pull_images_engine(self, save_dicom, allowed_modalities, save_png):
         """
 
         Tool to coordinate the above machinery for pulling and downloading images (or locating them in the cache).
@@ -897,11 +898,9 @@ class _CancerImageArchiveImages(object):
         :param save_png: ``bool``
         :param allowed_modalities: see: ``pull_images()``
         :type allowed_modalities: ``list``, ``tuple`` or ``None``
-        :param verbose: if ``True`` print additional details.
-        :type verbose: ``bool``
         """
         for index, row in tqdm(self.records_db_images.iterrows(), total=len(self.records_db_images),
-                               desc='Obtaining Images', disable=not verbose):
+                               desc='Obtaining Images', disable=not self.verbose):
             # Check if the image should be harvested (or loaded from the cache).
             valid_image_modality = self._valid_modality(allowed_modalities, row['modality'], row['modality_full'])
 
@@ -940,7 +939,7 @@ class _CancerImageArchiveImages(object):
                 converted_image_count = len(sl_summary) if isinstance(sl_summary, (list, tuple)) else None
                 self.real_time_update_db.set_value(index, 'image_count_converted_cache', converted_image_count)
 
-    def pull_images(self, records_db, session_limit, save_png, save_dicom, allowed_modalities, verbose):
+    def pull_images(self, records_db, session_limit, save_png, save_dicom, allowed_modalities):
         """
 
         Pull Images from the Cancer Imaging Archive.
@@ -959,8 +958,6 @@ class _CancerImageArchiveImages(object):
                                    Note: 'MRI', 'PET', 'CT' and 'X-Ray' can also be used.
                                    This parameter is not case sensitive.
         :type allowed_modalities: ``list``, ``tuple`` or ``None``
-        :param verbose: if ``True`` print additional details.
-        :type verbose: ``bool``
         :return: a dataframe with information about the images cached by this method.
         :rtype: ``Pandas DataFrame``
         """
@@ -974,7 +971,7 @@ class _CancerImageArchiveImages(object):
             os.makedirs(self.temp_directory_path)
 
         settings_path = os.path.join(self.temp_directory_path, "image_pull_settings.p")
-        pickle.dump({k: v for k, v in locals().items() if k not in ('self', 'settings_path', 'verbose')},
+        pickle.dump({k: v for k, v in locals().items() if k not in ('self', 'settings_path')},
                     open(settings_path, "wb"))
 
         if isinstance(session_limit, int):
@@ -989,7 +986,7 @@ class _CancerImageArchiveImages(object):
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index)
 
         self._pull_images_engine(save_dicom=save_dicom, allowed_modalities=allowed_modalities,
-                                 save_png=save_png, verbose=verbose)
+                                 save_png=save_png)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
         return _record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
@@ -1540,8 +1537,7 @@ class CancerImageInterface(object):
                                                        session_limit=session_limit,
                                                        save_png=save_png,
                                                        save_dicom=save_dicom,
-                                                       allowed_modalities=allowed_modalities,
-                                                       verbose=self._verbose)
+                                                       allowed_modalities=allowed_modalities)
 
             # Add the new records_db datafame with the existing `cache_records_db`.
             self._tcia_cache_records_db_handler()
