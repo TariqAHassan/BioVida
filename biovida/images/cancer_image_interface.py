@@ -1409,7 +1409,7 @@ class CancerImageInterface(object):
         if len(download_failures) == len(self.pull_success):
             raise IndexError("Data could not be harvested for any of the requested collections.")
         elif len(download_failures):
-            warn("\n\nThe following collections failed to download:\n{0}".format(
+            warn("\nThe following collections failed to download:\n{0}".format(
                 list_to_bulletpoints(download_failures)))
 
         # Combine all record frames

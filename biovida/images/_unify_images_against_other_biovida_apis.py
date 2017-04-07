@@ -428,7 +428,8 @@ class _DiseaseOntologyIntegration(object):
             print("\nIntegrating Disease Ontology Data...")
 
         # Extract disease information using the Disease Ontology database
-        disease_ontology_data = [self._find_disease_info(i, fuzzy_threshold) for i in data_frame['disease']]
+        disease_ontology_data = [self._find_disease_info(i, fuzzy_threshold)
+                                 for i in tqdm(data_frame['disease'], desc='Disease Info.', disable=not self.verbose)]
 
         # Convert `disease_ontology_data` to a dataframe
         disease_ontology_addition = pd.DataFrame(disease_ontology_data)
@@ -630,7 +631,7 @@ class _DiseaseSymptomsIntegration(object):
                                                    fuzzy_threshold=fuzzy_threshold,
                                                    new_column_name='known_associated_symptoms',
                                                    verbose=self.verbose,
-                                                   desc='Integrating Symptoms')
+                                                   desc='Symptoms')
 
         # Find 'known_associated_symptoms' which individual patients presented with by scanning the abstract
         updated_data_frame['mentioned_symptoms'] = self._mentioned_symptoms(updated_data_frame)
@@ -700,7 +701,7 @@ class _DisgenetIntegration(object):
                                      fuzzy_threshold=fuzzy_threshold,
                                      new_column_name='known_associated_genes',
                                      verbose=self.verbose,
-                                     desc='Integrating DisGeNET')
+                                     desc='DisGeNET')
 
 
 # ----------------------------------------------------------------------------------------------------------
