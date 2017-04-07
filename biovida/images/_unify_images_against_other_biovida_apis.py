@@ -180,10 +180,10 @@ class _ImagesInterfaceIntegration(object):
                 'CancerImageInterface': self._cancer_image_prep,
                 'OpeniImageProcessing': self._image_processing_prep}
 
-    def integration(self, interfaces, db_to_extract):
+    def integration(self, instances, db_to_extract):
         """
 
-        Standardize interfaces.
+        Standardize instances.
 
         This method yields a single dataframe with the following columns:
 
@@ -202,22 +202,22 @@ class _ImagesInterfaceIntegration(object):
 
          *NOTE: this column will be dropped after passing through ``_DiseaseSymptomsIntegration().integration()``.
 
-        :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``, or some
+        :param instances: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``, or some
                            combination inside an iterable.
-        :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``.
+        :type instances: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``.
         :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
         :type db_to_extract: ``str``
-        :return: standardize interfaces
+        :return: standardize instances
         :rtype: ``Pandas DataFrame``
         """
-        interfaces_types = [type(i).__name__ for i in interfaces]
-        if 'OpeniImageProcessing' in interfaces_types:
+        instances_types = [type(i).__name__ for i in instances]
+        if 'OpeniImageProcessing' in instances_types:
             self._additional_columns += possible_openi_image_processing_cols
-        if 'CancerImageInterface' in interfaces_types:
+        if 'CancerImageInterface' in instances_types:
             self._additional_columns += ['source_images_path']
 
         frames = list()
-        for class_instance in interfaces:
+        for class_instance in instances:
             interface_name = type(class_instance).__name__
             func = self._prep_class_dict[interface_name]
             if interface_name == 'OpeniImageProcessing':
@@ -706,13 +706,13 @@ class _DisgenetIntegration(object):
 # ----------------------------------------------------------------------------------------------------------
 
 
-def images_unify(interfaces, db_to_extract='records_db', verbose=True, fuzzy_threshold=False):
+def images_unify(instances, db_to_extract='records_db', verbose=True, fuzzy_threshold=False):
     """
 
-    Unify Interfaces in the ``images`` subpackage against other BioVida APIs.
+    Unify Instances in the ``images`` subpackage against other BioVida APIs.
 
-    :param interfaces: See: ``biovida.unify_domains.unify_against_images()``
-    :param interfaces: `list``, ``tuple``, ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``
+    :param instances: See: ``biovida.unify_domains.unify_against_images()``
+    :param instances: `list``, ``tuple``, ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``
     :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db'.
                           Defaults to 'records_db'.
     :type db_to_extract: ``str``
@@ -723,7 +723,7 @@ def images_unify(interfaces, db_to_extract='records_db', verbose=True, fuzzy_thr
     :return: See: ``biovida.unify_domains.unify_against_images()``
     :rtype: ``Pandas DataFrame``
     """
-    interfaces = [interfaces] if not isinstance(interfaces, (list, tuple)) else interfaces
+    instances = [instances] if not isinstance(instances, (list, tuple)) else instances
 
     # Catch ``fuzzy_threshold=True`` and set to a reasonably high default.
     if fuzzy_threshold is True:
@@ -734,13 +734,13 @@ def images_unify(interfaces, db_to_extract='records_db', verbose=True, fuzzy_thr
     # genetic data, another has Symptoms data. Thus, in rare
     # cases, this may cause data to be downloaded unnecessarily.
     cache_path = None  # default
-    for i in interfaces:
+    for i in instances:
         if hasattr(i, '_cache_path'):
             cache_path = getattr(i, '_cache_path')
             break
 
     # Combine Instances
-    combined_df = _ImagesInterfaceIntegration().integration(interfaces=interfaces, db_to_extract=db_to_extract)
+    combined_df = _ImagesInterfaceIntegration().integration(instances=instances, db_to_extract=db_to_extract)
 
     # Disease Ontology
     combined_df = _DiseaseOntologyIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
