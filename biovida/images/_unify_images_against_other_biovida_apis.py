@@ -424,12 +424,9 @@ class _DiseaseOntologyIntegration(object):
         if fuzzy_threshold is True:
             raise ValueError("`fuzzy_threshold` cannot be `True`. Please provide a specific integer on ``(0, 100]``.")
 
-        if self.verbose:
-            print("\nIntegrating Disease Ontology Data...")
-
         # Extract disease information using the Disease Ontology database
         disease_ontology_data = [self._find_disease_info(i, fuzzy_threshold)
-                                 for i in tqdm(data_frame['disease'], desc='Disease Info.', disable=not self.verbose)]
+                                 for i in tqdm(data_frame['disease'], desc='Disease Data', disable=not self.verbose)]
 
         # Convert `disease_ontology_data` to a dataframe
         disease_ontology_addition = pd.DataFrame(disease_ontology_data)
@@ -610,7 +607,7 @@ class _DiseaseSymptomsIntegration(object):
 
         return [match_symptoms(row) for _, row in tqdm(data_frame.iterrows(),
                                                        total=len(data_frame),
-                                                       desc='Identify Symptoms',
+                                                       desc='Matching Symptoms',
                                                        disable=not self.verbose)]
 
     def integration(self, data_frame, fuzzy_threshold=False):
@@ -701,7 +698,7 @@ class _DisgenetIntegration(object):
                                      fuzzy_threshold=fuzzy_threshold,
                                      new_column_name='known_associated_genes',
                                      verbose=self.verbose,
-                                     desc='DisGeNET')
+                                     desc='Genomic')
 
 
 # ----------------------------------------------------------------------------------------------------------
