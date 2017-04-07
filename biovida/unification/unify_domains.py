@@ -15,24 +15,24 @@ from biovida.images._unify_images_against_other_biovida_apis import images_unify
 # ----------------------------------------------------------------------------------------------------------
 
 
-def unify_against_images(interfaces,
+def unify_against_images(instances,
                          db_to_extract='records_db',
                          verbose=True,
                          fuzzy_threshold=False):
     """
 
-    Tool to unify image interfaces (namely ``OpeniInterface`` and/or ``CancerImageInterface``)
+    Tool to unify image instances (namely ``OpeniInterface`` and/or ``CancerImageInterface``)
     with Diagnostic and Genomic Data.
 
-    :param interfaces: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``, or some
+    :param instances: any one of ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``, or some
                            combination inside an iterable.
-    :type interfaces: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``.
+    :type instances: ``list``, ``tuple``, ``OpeniInterface``, ``CancerImageInterface`` or ``OpeniImageProcessing``.
     :param db_to_extract: the database to use. Must be one of: 'records_db', 'cache_records_db' or 'image_dataframe'.
                           Defaults to 'records_db'.
 
                     .. note::
 
-                        If an instance of ``OpeniImageProcessing`` is passed to ``interfaces``, the ``image_dataframe``
+                        If an instance of ``OpeniImageProcessing`` is passed to ``instances``, the ``image_dataframe``
                         attribute will be extracted regardless of the value passed to this argument.
 
     :type db_to_extract: ``str``
@@ -46,7 +46,7 @@ def unify_against_images(interfaces,
                         large databases, such as those this function integrates, is very computationally expensive.
     
     :type fuzzy_threshold: ``int``, ``bool``, ``None``
-    :return: a dataframe which unifies image interfaces with  genomic and diagnostics data.
+    :return: a dataframe which unifies image instances with genomic and diagnostics data.
     :rtype: ``Pandas DataFrame``
 
 
@@ -106,5 +106,5 @@ def unify_against_images(interfaces,
     # --- Search and Pull ---
     >>> udf2 = unify_against_images([opi, cii])
     """
-    return images_unify(interfaces=interfaces, db_to_extract=db_to_extract,
+    return images_unify(instances=instances, db_to_extract=db_to_extract,
                         verbose=verbose, fuzzy_threshold=fuzzy_threshold)
