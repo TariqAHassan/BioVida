@@ -24,9 +24,11 @@ except ImportError:
 try:
     __IPYTHON__
     IN_NOTEBOOK = True
+    from IPython.display import ipython_display
     from tqdm import tqdm_notebook as tqdm
 except NameError:
     IN_NOTEBOOK = False
+    ipython_display = None
     from tqdm import tqdm
 
 

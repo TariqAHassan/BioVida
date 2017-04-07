@@ -19,6 +19,7 @@ from biovida.support_tools.support_tools import (tqdm,
                                                  cln,
                                                  multimap,
                                                  directory_existence_handler,
+                                                 ipython_display,
                                                  IN_NOTEBOOK)
 
 # Utilities
@@ -372,7 +373,7 @@ def _pretty_print_image_delete(deleted_rows, verbose):
         to_print = deleted_rows_df[sorted(deleted_rows_df.columns, reverse=True)]
         if len(to_print):
             if IN_NOTEBOOK:
-                return to_print
+                ipython_display(to_print)
             else:
                 pandas_pprint(to_print, full_rows=True, suppress_index=True)
         else:
