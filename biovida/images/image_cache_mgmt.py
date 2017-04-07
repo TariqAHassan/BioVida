@@ -429,7 +429,7 @@ def image_delete(instance, delete_rule, verbose=True):
     index_dict = dict()
     _double_check_with_user()
     if verbose:
-        print("Deleting...")
+        print("\nDeleting...")
 
     if isinstance(delete_rule, str):
         if cln(delete_rule).lower() == 'all':
