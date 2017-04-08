@@ -55,25 +55,6 @@ _disgenet_delimited_databases = {
 # ---------------------------------------------------------------------------------------------
 
 
-def _disgenet_readme(created_gene_dirs):
-    """
-
-    Writes the DisGeNET README to disk.
-
-    :param created_gene_dirs: the dictionary of directories returned by ``_package_cache_creator()``
-    :type created_gene_dirs: ``dict``
-    """
-    save_address = os.path.join(created_gene_dirs['disgenet'], 'DisGeNET_README.txt')
-
-    if not os.path.isfile(save_address):
-        readme_url = 'http://www.disgenet.org/ds/DisGeNET/results/readme.txt'
-        r = requests.get(readme_url, stream=True)
-        with open(save_address, 'wb') as f:
-            f.write(r.content)
-        header("The DisGeNET README has been downloaded to:\n\n {0}\n\n"
-               "Please take the time to review this document.".format(save_address), flank=False)
-
-
 class DisgenetInterface(object):
     """
 
@@ -85,6 +66,25 @@ class DisgenetInterface(object):
     :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.
     :type verbose: ``bool``
     """
+
+    @staticmethod
+    def _disgenet_readme(created_gene_dirs):
+        """
+
+        Writes the DisGeNET README to disk.
+
+        :param created_gene_dirs: the dictionary of directories returned by ``_package_cache_creator()``
+        :type created_gene_dirs: ``dict``
+        """
+        save_address = os.path.join(created_gene_dirs['disgenet'], 'DisGeNET_README.txt')
+
+        if not os.path.isfile(save_address):
+            readme_url = 'http://www.disgenet.org/ds/DisGeNET/results/readme.txt'
+            r = requests.get(readme_url, stream=True)
+            with open(save_address, 'wb') as f:
+                f.write(r.content)
+            header("The DisGeNET README has been downloaded to:\n\n {0}\n\n"
+                   "Please take the time to review this document.".format(save_address), flank=False)
 
     def __init__(self, cache_path=None, verbose=True):
         """
@@ -99,7 +99,7 @@ class DisgenetInterface(object):
         self.root_path, self._created_gene_dirs = ppc
 
         # Check if a readme exists.
-        _disgenet_readme(self._created_gene_dirs)
+        self._disgenet_readme(self._created_gene_dirs)
 
         # Containers for the most recently requested database.
         self.current_database = None
@@ -201,17 +201,17 @@ class DisgenetInterface(object):
             if self._verbose:
                 header("Downloading DisGeNET Database... ", flank=False)
             # Harvest
-            df = pd.read_csv(db_url, sep='\t', header=_disgenet_delimited_databases[database]['header'],
-                             compression='gzip')
+            data_frame = pd.read_csv(db_url, sep='\t', header=_disgenet_delimited_databases[database]['header'],
+                                     compression='gzip')
             # Clean and Save
-            self._df_clean(df).to_pickle(save_address)
+            self._df_clean(data_frame).to_pickle(save_address)
         else:
-            df = pd.read_pickle(save_address)
+            data_frame = pd.read_pickle(save_address)
 
         # Cache the database
-        self.current_database = df
+        self.current_database = data_frame
         self.current_database_name = database
         self.current_database_full_name = _disgenet_delimited_databases[database]['full_name']
         self.current_database_description = _disgenet_delimited_databases[database]['description']
 
-        return df
+        return data_frame
