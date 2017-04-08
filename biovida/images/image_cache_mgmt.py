@@ -355,6 +355,31 @@ def _double_check_with_user():
         raise ValueError("Action Canceled. 'y' must be entered to proceed.")
 
 
+def _most_recent_pull_time(instance):
+    """
+    
+    Extract the time of the most recent 
+    data pull from ``instance``.
+    
+    :param instance: see ``image_delete()``
+    :type instance: see ``image_delete()``
+    :return: see description.
+    :rtype: ``bool``
+    """
+    if instance.__class__.__name__ == 'OpeniImageProcessing':
+        records_db = instance.instance.records_db
+    else:
+        records_db = instance.records_db
+
+    if isinstance(records_db, pd.DataFrame):
+        pull_time = records_db['pull_time'].iloc[0]
+    else:
+        raise TypeError("`only_recent=True` is invalid. The `records_db` "
+                        "associated with `instance` is not a DataFrame.")
+
+    return pull_time
+
+
 def _pretty_print_image_delete(deleted_rows, verbose):
     """
 
@@ -380,7 +405,7 @@ def _pretty_print_image_delete(deleted_rows, verbose):
             print("\nNo Rows Deleted.")
 
 
-def image_delete(instance, delete_rule, verbose=True):
+def image_delete(instance, delete_rule, only_recent=False, verbose=True):
     """
 
     Delete images from the cache.
@@ -389,11 +414,13 @@ def image_delete(instance, delete_rule, verbose=True):
 
         The effects of this function can only be undone by downloading the deleted data again.
 
-    :param instance: an instance of ``OpeniInterface`` or ``CancerImageInterface``.
-    :type instance: ``OpeniInterface`` or ``CancerImageInterface``
+    :param instance: an instance of ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``.
+    :type instance: ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``
     :param delete_rule: must be one of: ``'all'`` (delete *all* data) or a ``function`` which (1) accepts a single
                         parameter (argument) and (2) returns ``True`` when the data is to be deleted.
     :type delete_rule: ``str`` or ``function``
+    :param only_recent: if ``True``, only apply ``delete_rule`` to data obtained in the most recent pull. Defaults to ``False``.
+    :type only_recent: ``bool``
     :param verbose: if ``True``, print additional information.
     :type verbose: ``bool``
     :return: a dictionary of the indices which were dropped. Example: ``{'records_db': [58, 59], 'cache_records_db': [158, 159]}``.
@@ -436,16 +463,23 @@ def image_delete(instance, delete_rule, verbose=True):
         if cln(delete_rule).lower() == 'all':
             delete_all = True
         else:
-            raise ValueError("`delete_rule` must be 'all' or a `function`.")
+            raise ValueError("`delete_rule` must be 'all' or of type 'function'.")
     else:
         delete_all = False
 
     image_columns = _image_instance_image_columns[instance.__class__.__name__]
+    last_pull_time = _most_recent_pull_time(instance) if only_recent else None
 
     def delete_rule_wrapper(row, enact):
         """Wrap delete_rule to ensure the output is a boolean."""
-        do_delete = delete_rule(row) if callable(delete_rule) else False
-        if delete_all or (isinstance(do_delete, bool) and do_delete is True):
+        if callable(delete_rule):
+            if only_recent:
+                func_delete = delete_rule(row) and row['pull_time'] == last_pull_time
+            else:
+                func_delete = delete_rule(row)
+        else:
+            func_delete = False
+        if delete_all or (isinstance(func_delete, bool) and func_delete is True):
             if enact:
                 for c in image_columns:
                     _robust_delete(row[c])
