@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from time import sleep
+from copy import deepcopy
 from warnings import warn
 from datetime import datetime
 from math import log10, floor
@@ -119,13 +120,14 @@ class _CancerImageArchiveOverview(object):
 
         return summary_df
 
-    def _all_studies_cache_mngt(self, download_override):
+    def _obtain_tcia_overview(self, download_override=False):
         """
 
         Obtain and Manage a copy the table which summarizes the the Cancer Imaging Archive
         on the organization's homepage.
 
         :param download_override: If ``True``, override any existing database currently cached and download a new one.
+                                  Defaults to ``False``.
         :type download_override: ``bool``
         :return: summary table hosted on the home page of the Cancer Imaging Archive.
         :rtype: ``Pandas DataFrame``
@@ -208,17 +210,17 @@ class _CancerImageArchiveRecords(object):
     :type api_key: ``str``
     :param dicom_modality_abbrevs: an instance of ``CancerImageArchiveParams().dicom_modality_abbreviations('dict')``
     :type dicom_modality_abbrevs: ``dict``
-    :param cancer_image_archive_overview: an instance of ``_CancerImageArchiveOverview()``
-    :type cancer_image_archive_overview: ``class``
+    :param tcia_overview_df: yield of ``_CancerImageArchiveOverview()._obtain_tcia_overview()``
+    :type tcia_overview_df: ``Pandas DataFrames``
     :param root_url: the root URL for the Cancer Imaging Archive's API.
     :type root_url: ``str``
     """
 
-    def __init__(self, api_key, dicom_modality_abbrevs, cancer_image_archive_overview, root_url):
+    def __init__(self, api_key, dicom_modality_abbrevs, tcia_overview_df, root_url):
         self.ROOT_URL = root_url
         self.records_df = None
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
-        self._Overview = cancer_image_archive_overview
+        self._tcia_overview_df = tcia_overview_df
         self.API_KEY = api_key
         self._url_sep = '+'
 
@@ -262,9 +264,8 @@ class _CancerImageArchiveRecords(object):
             self._url_sep = '+'  # reset
             if study_df.shape[0] == 0:
                 raise IndexError("The '{0}' collection/study data has no length.\n"
-                                 "The separator being used to replace spaces in the URL may be incorrect. An attempt\n"
-                                 "was made with the following separators: '+' and '-'. Alternatively, this problem\n"
-                                 "could be caused by a problem with the Cancer Imaging Archive API.\n".format(study))
+                                 "This is likely the result of a problem with the "
+                                 "Cancer Imaging Archive REST API's.\n".format(study))
         return study_df
 
     @staticmethod
@@ -400,7 +401,7 @@ class _CancerImageArchiveRecords(object):
 
         def series_number_rescale(x):
             if isinstance(x, (int, float)) and not items_null(x) and x > 0:
-                return x / 10 ** floor(log10(x))
+                return x / 10**floor(log10(x))
             else:
                 return x
 
@@ -410,7 +411,7 @@ class _CancerImageArchiveRecords(object):
         sort_by = ['patient_id', 'session', 'series_number_rescaled']
         return patient_study_df.fillna(np.NaN).sort_values(by=sort_by).reset_index(drop=True)
 
-    def _get_condition_name(self, collection_series, overview_download_override):
+    def _get_condition_name(self, collection_series):
         """
 
         This method gets the name of the condition studied for a given collection (study).
@@ -418,9 +419,6 @@ class _CancerImageArchiveRecords(object):
 
         :param collection_series: a series of the study name, e.g., ('MY-STUDY', 'MY-STUDY', 'MY-STUDY', ...).
         :type collection_series: ``Pandas Series``
-        :param overview_download_override: see ``_CancerImageArchiveOverview()_all_studies_cache_mngt()``'s
-                                           ``download_override`` param.
-        :type overview_download_override: ``bool``
         :return: the name of disease studied in a given collection (lower case).
         :rtype: ``str``
         """
@@ -428,12 +426,15 @@ class _CancerImageArchiveRecords(object):
         if len(unique_studies) == 1:
             collection = unique_studies[0]
         else:
-            raise AttributeError("`{0}` studies found in `records`. Expected one.".format(str(len(unique_studies))))
-        summary_df = self._Overview._all_studies_cache_mngt(download_override=overview_download_override)
-        condition_name = summary_df[summary_df['collection'] == collection]['cancer_type'].iloc[0]
+            raise AttributeError("`{0}` studies found in `records`. "
+                                 "Expected one.".format(str(len(unique_studies))))
+
+        condition_name = self._tcia_overview_df[
+            self._tcia_overview_df['collection'] == collection]['cancer_type'].iloc[0]
+
         return condition_name.lower() if isinstance(condition_name, str) else condition_name
 
-    def records_pull(self, study, search_dict, pull_time, patient_limit, verbose, overview_download_override=False):
+    def records_pull(self, study, search_dict, pull_time, patient_limit, verbose):
         """
 
         Extract record of all images for all patients in a given study.
@@ -445,12 +446,9 @@ class _CancerImageArchiveRecords(object):
         :type search_dict: ``dict``
         :param pull_time: the time the query was launched.
         :type pull_time: ``datetime``
-        :param overview_download_override: see ``_CancerImageArchiveOverview()_all_studies_cache_mngt()``'s
-                                           ``download_override`` param.
-        :type overview_download_override: ``bool``
         :param patient_limit: limit on the number of patients to extract.
-                             Patient IDs are sorted prior to this limit being imposed.
-                             If ``None``, no `patient_limit` will be imposed.
+                              Patient IDs are sorted prior to this limit being imposed.
+                              If ``None``, no `patient_limit` will be imposed.
         :type patient_limit: ``int`` or ``None``
         :param verbose: if ``True`` print additional information. Defaults to ``False``.
         :type verbose: ``bool``
@@ -479,8 +477,7 @@ class _CancerImageArchiveRecords(object):
 
         patient_study_df['article_type'] = ['case_report'] * patient_study_df.shape[0]
         patient_study_df['study_name'] = study
-        patient_study_df['cancer_type'] = self._get_condition_name(patient_study_df['collection'],
-                                                                   overview_download_override)
+        patient_study_df['cancer_type'] = self._get_condition_name(patient_study_df['collection'])
 
         # Add the Search query which created the current results and the time the search was launched.
         patient_study_df['query'] = [search_dict] * patient_study_df.shape[0]
@@ -619,7 +616,7 @@ class _CancerImageArchiveImages(object):
         :type series_uid: ``str``
         :param conversion: the color scale conversion to use, e.g., 'LA' or 'RGB'.
         :type conversion: ``str``
-        :param new_file_name: see ``_save_dicom_as_image``'s ``save_name`` parameter.
+        :param new_file_name: see ``_convert_and_save_dicom``'s ``save_name`` parameter.
         :type new_file_name: ``str``
         :return: tuple of the form: ``(a list of paths to saved images, boolean denoting success)``
         :rtype: ``tuple``
@@ -693,13 +690,13 @@ class _CancerImageArchiveImages(object):
 
         return len(replacement) if return_replacement_len and isinstance(replacement, (list, tuple)) else None
 
-    def _save_dicom_as_image(self,
-                             path_to_dicom_file,
-                             index,
-                             pull_position,
-                             series_uid,
-                             save_name,
-                             color=False):
+    def _convert_and_save_dicom(self,
+                                path_to_dicom_file,
+                                index,
+                                pull_position,
+                                series_uid,
+                                save_name,
+                                color=False):
         """
 
         Save a dicom image as a more common file format.
@@ -924,9 +921,9 @@ class _CancerImageArchiveImages(object):
 
                 if save_png:
                     for e, f in enumerate(dicom_files, start=1):
-                        self._save_dicom_as_image(path_to_dicom_file=f, index=index, pull_position=e,
-                                                  series_uid=row['series_instance_uid'],
-                                                  save_name=series_abbrev)
+                        self._convert_and_save_dicom(path_to_dicom_file=f, index=index, pull_position=e,
+                                                     series_uid=row['series_instance_uid'],
+                                                     save_name=series_abbrev)
 
                 if save_dicom:
                     self._move_dicoms(dicom_files=dicom_files, series_abbrev=series_abbrev, index=index)
@@ -935,7 +932,8 @@ class _CancerImageArchiveImages(object):
             else:
                 self._update_and_set_list(index, 'cached_dicom_images_path', dsl_summary)
                 self._update_and_set_list(index, 'cached_images_path', sl_summary)
-                self.real_time_update_db.set_value(index, 'error_free_conversion', cache_complete)
+                if save_png:  # otherwise, leave as None/NaN
+                    self.real_time_update_db.set_value(index, 'error_free_conversion', cache_complete)
                 converted_image_count = len(sl_summary) if isinstance(sl_summary, (list, tuple)) else None
                 self.real_time_update_db.set_value(index, 'image_count_converted_cache', converted_image_count)
 
@@ -1146,9 +1144,11 @@ class CancerImageInterface(object):
                                                      verbose=verbose,
                                                      cache_path=cache_path)
 
+        self._tcia_overview_df = self._Overview._obtain_tcia_overview()
+
         self._Records = _CancerImageArchiveRecords(api_key=api_key,
                                                    dicom_modality_abbrevs=self.dicom_modality_abbrevs,
-                                                   cancer_image_archive_overview=self._Overview,
+                                                   tcia_overview_df=deepcopy(self._tcia_overview_df),
                                                    root_url=root_url)
 
         self._Images = _CancerImageArchiveImages(api_key=api_key,
@@ -1218,6 +1218,11 @@ class CancerImageInterface(object):
     def cache_records_db_short(self):
         """Return `cache_records_db` with nonessential columns removed."""
         return data_frame_col_drop(self.cache_records_db, nonessential_cancer_image_columns, 'cache_records_db')
+    
+    def update_collections(self):
+        """Refresh the list of collections provided by the Cancer Imaging Archive."""
+        self._tcia_overview_df = self._Overview._obtain_tcia_overview(download_override=True)
+        self._Records._tcia_overview_df = deepcopy(self._tcia_overview_df)
 
     @staticmethod
     def _collection_filter(summary_df, collection, cancer_type, location):
@@ -1225,7 +1230,7 @@ class CancerImageInterface(object):
 
         Limits `summary_df` to individual collections.
 
-        :param summary_df: the yield of ``_CancerImageArchiveOverview()._all_studies_cache_mngt()``
+        :param summary_df: the yield of ``_CancerImageArchiveOverview()._obtain_tcia_overview()``
         :type summary_df: ``Pandas DataFrame``
         :param collection: a collection (study), or iterable (e.g., list) of collections,
                            hosted by the Cancer Imaging Archive. Defaults to ``None``.
@@ -1316,27 +1321,30 @@ class CancerImageInterface(object):
               ...                          ...                                  ...               ...         ...
 
         """
-        # Create the search dict.
         self._search_dict_gen(collection, cancer_type, location, modality)
 
-        # Load the Summary Table
-        summary_df = self._Overview._all_studies_cache_mngt(download_override)
+        if download_override:
+            self.update_collections()
+        summary_df = deepcopy(self._tcia_overview_df)
 
-        # Filter by `collection`
         if collection is not None:
-            summary_df = self._collection_filter(summary_df, collection, cancer_type, location)
+            summary_df = self._collection_filter(summary_df,
+                                                 collection=collection,
+                                                 cancer_type=cancer_type,
+                                                 location=location)
         else:
-            # Apply Filters
-            summary_df = self._Overview._studies_filter(summary_df, cancer_type, location, modality)
+            summary_df = self._Overview._studies_filter(summary_df,
+                                                        cancer_type=cancer_type,
+                                                        location=location,
+                                                        modality=modality)
             if summary_df.shape[0] == 0:
                 raise NoResultsFound("Try Broadening the Search Criteria.")
 
-        # Cache Search
         self.current_query = summary_df.reset_index(drop=True)
 
         if pretty_print and not IN_NOTEBOOK:
             pandas_pprint(data=self.current_query, full_cols=True,
-                          col_align='left', column_width_limit=10000)
+                          col_align='left', column_width_limit=750)
 
         # Warn the user if search criteria have not been applied.
         if all([collection is None, cancer_type is None, location is None, modality is None]):
