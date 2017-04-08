@@ -453,7 +453,7 @@
 <span class="sd">        MedPix logo in the images.</span>
 
 <span class="sd">        :param robust_match_template_wrapper: wrapper generated inside of ``logo_analysis()``</span>
-<span class="sd">        :type robust_match_template_wrapper: ``function``</span>
+<span class="sd">        :type robust_match_template_wrapper: ``func``</span>
 <span class="sd">        :param output_params: tuple of the form:</span>
 
 <span class="sd">                        ``(match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])``</span>
@@ -940,7 +940,7 @@
 <span class="sd">        Check for error that would cause ``save()`` to fail.</span>
 
 <span class="sd">        :param output_rule: see ``output()``</span>
-<span class="sd">        :type output_rule: ``str`` or ``function``</span>
+<span class="sd">        :type output_rule: ``str`` or ``func``</span>
 <span class="sd">        :param action: see ``output``</span>
 <span class="sd">        :type action: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1010,7 +1010,7 @@
 <span class="sd">            - if a ``function``: it must (1) accept a single parameter (argument) and (2) return system path(s)</span>
 <span class="sd">              [see example below].</span>
 
-<span class="sd">        :type output_rule: ``str`` or ``function``</span>
+<span class="sd">        :type output_rule: ``str`` or ``func``</span>
 <span class="sd">        :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist.</span>
 <span class="sd">                            Defaults to ``False``.</span>
 <span class="sd">        :type create_dirs: ``bool``</span>

@@ -602,7 +602,7 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 
 <dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>save_png=False</em>, <em>save_dicom=True</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>patient_limit=3</em>, <em>session_limit=1</em>, <em>collections_limit=None</em>, <em>allowed_modalities=None</em>, <em>save_dicom=True</em>, <em>save_png=False</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <p>Notes:</p>
 <ul>
@@ -652,8 +652,8 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 See: <code class="docutils literal"><span class="pre">CancerImageInterface(YOUR_API_KEY_HERE).dicom_modality_abbrevs</span></code> (use the keys).
 Note: &#8216;MRI&#8217;, &#8216;PET&#8217;, &#8216;CT&#8217; and &#8216;X-Ray&#8217; can also be used.
 This parameter is not case sensitive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>save_dicom</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the DICOM images provided by The Cancer Imaging Archive &#8216;as is&#8217;. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</li>
 </ul>
 </td>
@@ -953,7 +953,7 @@ a &#8216;cleaned_image&#8217; populated by PIL image to be saved to disk.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>output_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; <ul>
+<li><strong>output_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) &#8211; <ul>
 <li>if a <code class="docutils literal"><span class="pre">str</span></code>: the directory to save the images.</li>
 <li>if a <code class="docutils literal"><span class="pre">function</span></code>: it must (1) accept a single parameter (argument) and (2) return system path(s)
 [see example below].</li>
@@ -1816,20 +1816,28 @@ column is an account of a given patient&#8217;s symptoms <em>if</em> the data is
 <h3>Image Cache Management<a class="headerlink" href="#image-cache-management" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_delete">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>instance</em>, <em>delete_rule</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete images from the cache.</p>
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_delete</code><span class="sig-paren">(</span><em>instance</em>, <em>delete_rule</em>, <em>only_recent=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete rows, and associated images, from <code class="docutils literal"><span class="pre">records_db</span></code> and <code class="docutils literal"><span class="pre">cache_records_db</span></code>
+DataFrames associated with <code class="docutils literal"><span class="pre">instance</span></code>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">The effects of this function can only be undone by downloading the deleted data again.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The default behavior for this function is to delete <em>all</em> rows (and associated image(s))
+that <code class="docutils literal"><span class="pre">delete_rule</span></code> authorizes. To limit deletion to the most recent data pull,
+<code class="docutils literal"><span class="pre">only_recent</span></code> must be set to <code class="docutils literal"><span class="pre">True</span></code>.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
-<li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be one of: <code class="docutils literal"><span class="pre">'all'</span></code> (delete <em>all</em> data) or a <code class="docutils literal"><span class="pre">function</span></code> which (1) accepts a single
+<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
+<li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) &#8211; must be one of: <code class="docutils literal"><span class="pre">'all'</span></code> (delete <em>all</em> data) or a <code class="docutils literal"><span class="pre">function</span></code> which (1) accepts a single
 parameter (argument) and (2) returns <code class="docutils literal"><span class="pre">True</span></code> when the data is to be deleted.</li>
+<li><strong>only_recent</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, only apply <code class="docutils literal"><span class="pre">delete_rule</span></code> to data obtained in the most recent pull. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 <li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional information.</li>
 </ul>
 </td>
@@ -1888,7 +1896,7 @@ image cropping will not be applied.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) &#8211; the yield of the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code> or an instance of
 <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
-<li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">function</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
+<li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
 system path(s) [see example below].</li>
 <li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: <code class="docutils literal"><span class="pre">'copy'</span></code>, <code class="docutils literal"><span class="pre">'ndarray'</span></code>.</p>
 <ul>

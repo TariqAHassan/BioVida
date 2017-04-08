@@ -212,25 +212,6 @@
 <span class="c1"># ---------------------------------------------------------------------------------------------</span>
 
 
-<span class="k">def</span> <span class="nf">_disgenet_readme</span><span class="p">(</span><span class="n">created_gene_dirs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">    Writes the DisGeNET README to disk.</span>
-
-<span class="sd">    :param created_gene_dirs: the dictionary of directories returned by ``_package_cache_creator()``</span>
-<span class="sd">    :type created_gene_dirs: ``dict``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">save_address</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">created_gene_dirs</span><span class="p">[</span><span class="s1">&#39;disgenet&#39;</span><span class="p">],</span> <span class="s1">&#39;DisGeNET_README.txt&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">save_address</span><span class="p">):</span>
-        <span class="n">readme_url</span> <span class="o">=</span> <span class="s1">&#39;http://www.disgenet.org/ds/DisGeNET/results/readme.txt&#39;</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">readme_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_address</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-        <span class="n">header</span><span class="p">(</span><span class="s2">&quot;The DisGeNET README has been downloaded to:</span><span class="se">\n\n</span><span class="s2"> </span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-               <span class="s2">&quot;Please take the time to review this document.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_address</span><span class="p">),</span> <span class="n">flank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="DisgenetInterface"><a class="viewcode-back" href="../../../source/biovida.html#biovida.genomics.disgenet_interface.DisgenetInterface">[docs]</a><span class="k">class</span> <span class="nc">DisgenetInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -242,6 +223,25 @@
 <span class="sd">    :param verbose: If ``True``, print notice when downloading database. Defaults to ``True``.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_disgenet_readme</span><span class="p">(</span><span class="n">created_gene_dirs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Writes the DisGeNET README to disk.</span>
+
+<span class="sd">        :param created_gene_dirs: the dictionary of directories returned by ``_package_cache_creator()``</span>
+<span class="sd">        :type created_gene_dirs: ``dict``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_address</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">created_gene_dirs</span><span class="p">[</span><span class="s1">&#39;disgenet&#39;</span><span class="p">],</span> <span class="s1">&#39;DisGeNET_README.txt&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">save_address</span><span class="p">):</span>
+            <span class="n">readme_url</span> <span class="o">=</span> <span class="s1">&#39;http://www.disgenet.org/ds/DisGeNET/results/readme.txt&#39;</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">readme_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_address</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">header</span><span class="p">(</span><span class="s2">&quot;The DisGeNET README has been downloaded to:</span><span class="se">\n\n</span><span class="s2"> </span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                   <span class="s2">&quot;Please take the time to review this document.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_address</span><span class="p">),</span> <span class="n">flank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -256,7 +256,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_gene_dirs</span> <span class="o">=</span> <span class="n">ppc</span>
 
         <span class="c1"># Check if a readme exists.</span>
-        <span class="n">_disgenet_readme</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_gene_dirs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_disgenet_readme</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_gene_dirs</span><span class="p">)</span>
 
         <span class="c1"># Containers for the most recently requested database.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_database</span> <span class="o">=</span> <span class="kc">None</span>
@@ -264,7 +264,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">current_database_full_name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_database_description</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_disgenet_delimited_databases_key_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_disgenet_delimited_databases_key_error</span><span class="p">(</span><span class="n">database</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Raises an error when an reference is made to a database not in `_disgenet_delimited_databases.keys()`.</span>
@@ -295,7 +296,8 @@
         <span class="k">if</span> <span class="n">database</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_disgenet_delimited_databases</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">elif</span> <span class="n">database</span> <span class="ow">in</span> <span class="n">_disgenet_delimited_databases</span><span class="p">:</span>
-            <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;full_name&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">]}</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;full_name&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">]}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_disgenet_delimited_databases_key_error</span><span class="p">(</span><span class="n">database</span><span class="p">)</span>
 
@@ -308,19 +310,21 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">info</span></div>
 
-    <span class="k">def</span> <span class="nf">_df_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_df_clean</span><span class="p">(</span><span class="n">data_frame</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Clean the dataframe generated by ``pull()``</span>
 
 <span class="sd">        :param data_frame:</span>
 <span class="sd">        :type data_frame: ``Pandas DataFrame``</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :return: see description.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Lower to make easier to match in the future</span>
         <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;diseaseName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;diseaseName&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Rename Columns</span>
         <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">data_frame</span>
@@ -343,35 +347,28 @@
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_disgenet_delimited_databases_key_error</span><span class="p">(</span><span class="n">database</span><span class="p">)</span>
-
-        <span class="c1"># Download Location</span>
         <span class="n">db_url</span> <span class="o">=</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
-
-        <span class="c1"># Save Name</span>
         <span class="n">save_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-
-        <span class="c1"># Save address</span>
         <span class="n">save_address</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_gene_dirs</span><span class="p">[</span><span class="s1">&#39;disgenet&#39;</span><span class="p">],</span> <span class="n">save_name</span><span class="p">)</span>
 
-        <span class="c1"># Download or simply load from cache</span>
         <span class="k">if</span> <span class="n">download_override</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">save_address</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                 <span class="n">header</span><span class="p">(</span><span class="s2">&quot;Downloading DisGeNET Database... &quot;</span><span class="p">,</span> <span class="n">flank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="c1"># Harvest</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;header&#39;</span><span class="p">],</span>
-                             <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">)</span>
-            <span class="c1"># Clean and Save</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_df_clean</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">save_address</span><span class="p">)</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span>
+                                     <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span>
+                                     <span class="n">header</span><span class="o">=</span><span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;header&#39;</span><span class="p">],</span>
+                                     <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_df_clean</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">save_address</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">save_address</span><span class="p">)</span>
+            <span class="n">data_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">save_address</span><span class="p">)</span>
 
         <span class="c1"># Cache the database</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_database</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_database</span> <span class="o">=</span> <span class="n">data_frame</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_database_name</span> <span class="o">=</span> <span class="n">database</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_database_full_name</span> <span class="o">=</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;full_name&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_database_description</span> <span class="o">=</span> <span class="n">_disgenet_delimited_databases</span><span class="p">[</span><span class="n">database</span><span class="p">][</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">df</span></div></div>
+        <span class="k">return</span> <span class="n">data_frame</span></div></div>
 </pre></div>
 
     </div>

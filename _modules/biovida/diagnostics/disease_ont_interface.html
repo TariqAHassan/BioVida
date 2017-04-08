@@ -193,7 +193,9 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="c1"># Cache creation</span>
-        <span class="n">pcc</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;diagnostics&#39;</span><span class="p">,</span> <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;disease_ontology&#39;</span><span class="p">],</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span>
+        <span class="n">pcc</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;diagnostics&#39;</span><span class="p">,</span>
+                                    <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;disease_ontology&#39;</span><span class="p">],</span>
+                                    <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_disease_ont_dirs</span> <span class="o">=</span> <span class="n">pcc</span>
 
         <span class="c1"># The database itself</span>
@@ -225,12 +227,12 @@
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Note: this method automatically replaces the underscores in the definition quotes.</span>
-        <span class="c1"># this seems to be valid currently as this shortcut seems to invariably produce the same</span>
+        <span class="c1"># This seems to be valid currently as this shortcut seems to invariably produce the same</span>
         <span class="c1"># result as would be obtained by following the list of mappings at the top of the .obo</span>
         <span class="c1"># database file. *This could change*.</span>
         <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;def&quot;</span><span class="p">,</span> <span class="n">definition</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;def_urls&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)]</span>
-    
+
         <span class="c1"># Separate the quote from the list of URLS</span>
         <span class="n">parsed_definition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quote_value_parse</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
     
@@ -393,7 +395,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Homogenize columns with lists</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns_with_lists</span><span class="p">:</span>
-            <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+            <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span>
+                                              <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
     
         <span class="c1"># Lower columns to make it easier to match in the future</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;synonym&#39;</span><span class="p">,</span> <span class="s1">&#39;subset&#39;</span><span class="p">,</span> <span class="s1">&#39;is_a&#39;</span><span class="p">):</span>
@@ -401,8 +404,8 @@
     
         <span class="c1"># Convert &#39;true&#39; in the &#39;is_obsolete&#39; column to an actual python boolean ``True``.</span>
         <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;is_obsolete&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;is_obsolete&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span>
-        <span class="p">)</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span>
+            <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
     
         <span class="k">return</span> <span class="n">data_frame</span>
 

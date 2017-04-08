@@ -681,6 +681,7 @@
                                                                   <span class="p">(</span><span class="s1">&#39;tcia&#39;</span><span class="p">,</span> <span class="s1">&#39;databases&#39;</span><span class="p">)],</span>
                                                             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">API_KEY</span> <span class="o">=</span> <span class="n">api_key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dicom_modality_abbrevs</span> <span class="o">=</span> <span class="n">dicom_modality_abbrevs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ROOT_URL</span> <span class="o">=</span> <span class="n">root_url</span>
@@ -1043,7 +1044,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_pull_images_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">save_png</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_pull_images_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">save_png</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Tool to coordinate the above machinery for pulling and downloading images (or locating them in the cache).</span>
@@ -1054,11 +1055,9 @@
 <span class="sd">        :param save_png: ``bool``</span>
 <span class="sd">        :param allowed_modalities: see: ``pull_images()``</span>
 <span class="sd">        :type allowed_modalities: ``list``, ``tuple`` or ``None``</span>
-<span class="sd">        :param verbose: if ``True`` print additional details.</span>
-<span class="sd">        :type verbose: ``bool``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">),</span>
-                               <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Obtaining Images&#39;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">verbose</span><span class="p">):</span>
+                               <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Obtaining Images&#39;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
             <span class="c1"># Check if the image should be harvested (or loaded from the cache).</span>
             <span class="n">valid_image_modality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_modality</span><span class="p">(</span><span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;modality&#39;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;modality_full&#39;</span><span class="p">])</span>
 
@@ -1097,7 +1096,7 @@
                 <span class="n">converted_image_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sl_summary</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sl_summary</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;image_count_converted_cache&#39;</span><span class="p">,</span> <span class="n">converted_image_count</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">pull_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_db</span><span class="p">,</span> <span class="n">session_limit</span><span class="p">,</span> <span class="n">save_png</span><span class="p">,</span> <span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">pull_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records_db</span><span class="p">,</span> <span class="n">session_limit</span><span class="p">,</span> <span class="n">save_png</span><span class="p">,</span> <span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Pull Images from the Cancer Imaging Archive.</span>
@@ -1116,8 +1115,6 @@
 <span class="sd">                                   Note: &#39;MRI&#39;, &#39;PET&#39;, &#39;CT&#39; and &#39;X-Ray&#39; can also be used.</span>
 <span class="sd">                                   This parameter is not case sensitive.</span>
 <span class="sd">        :type allowed_modalities: ``list``, ``tuple`` or ``None``</span>
-<span class="sd">        :param verbose: if ``True`` print additional details.</span>
-<span class="sd">        :type verbose: ``bool``</span>
 <span class="sd">        :return: a dataframe with information about the images cached by this method.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1131,7 +1128,7 @@
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">)</span>
 
         <span class="n">settings_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_directory_path</span><span class="p">,</span> <span class="s2">&quot;image_pull_settings.p&quot;</span><span class="p">)</span>
-        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;settings_path&#39;</span><span class="p">,</span> <span class="s1">&#39;verbose&#39;</span><span class="p">)},</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;settings_path&#39;</span><span class="p">)},</span>
                     <span class="nb">open</span><span class="p">(</span><span class="n">settings_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session_limit</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
@@ -1146,7 +1143,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_real_time_update_db</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_images_engine</span><span class="p">(</span><span class="n">save_dicom</span><span class="o">=</span><span class="n">save_dicom</span><span class="p">,</span> <span class="n">allowed_modalities</span><span class="o">=</span><span class="n">allowed_modalities</span><span class="p">,</span>
-                                 <span class="n">save_png</span><span class="o">=</span><span class="n">save_png</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+                                 <span class="n">save_png</span><span class="o">=</span><span class="n">save_png</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="kc">None</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">})</span>
 
         <span class="k">return</span> <span class="n">_record_update_dbs_joiner</span><span class="p">(</span><span class="n">records_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">records_db_images</span><span class="p">,</span> <span class="n">update_db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="p">)</span>
@@ -1623,8 +1620,8 @@
              <span class="n">session_limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
              <span class="n">collections_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">allowed_modalities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">save_png</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
              <span class="n">save_dicom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">save_png</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
              <span class="n">new_records_pull</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1674,10 +1671,10 @@
 <span class="sd">                                   Note: &#39;MRI&#39;, &#39;PET&#39;, &#39;CT&#39; and &#39;X-Ray&#39; can also be used.</span>
 <span class="sd">                                   This parameter is not case sensitive. Defaults to ``None``.</span>
 <span class="sd">        :type allowed_modalities: ``list`` or ``tuple``</span>
-<span class="sd">        :param save_png: if ``True``, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to ``False``.</span>
-<span class="sd">        :type save_png: ``bool``</span>
 <span class="sd">        :param save_dicom: if ``True``, save the DICOM images provided by The Cancer Imaging Archive &#39;as is&#39;. Defaults to ``True``.</span>
 <span class="sd">        :type save_dicom: ``bool``</span>
+<span class="sd">        :param save_png: if ``True``, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to ``False``.</span>
+<span class="sd">        :type save_png: ``bool``</span>
 <span class="sd">        :param new_records_pull: if ``True``, download the data for the current search. If ``False``, use ``INSTANCE.records_db``.</span>
 <span class="sd">        :type new_records_pull: ``bool``</span>
 <span class="sd">        :return: a DataFrame with the record information.</span>
@@ -1697,8 +1694,7 @@
                                                        <span class="n">session_limit</span><span class="o">=</span><span class="n">session_limit</span><span class="p">,</span>
                                                        <span class="n">save_png</span><span class="o">=</span><span class="n">save_png</span><span class="p">,</span>
                                                        <span class="n">save_dicom</span><span class="o">=</span><span class="n">save_dicom</span><span class="p">,</span>
-                                                       <span class="n">allowed_modalities</span><span class="o">=</span><span class="n">allowed_modalities</span><span class="p">,</span>
-                                                       <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">)</span>
+                                                       <span class="n">allowed_modalities</span><span class="o">=</span><span class="n">allowed_modalities</span><span class="p">)</span>
 
             <span class="c1"># Add the new records_db datafame with the existing `cache_records_db`.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_cache_records_db_handler</span><span class="p">()</span>

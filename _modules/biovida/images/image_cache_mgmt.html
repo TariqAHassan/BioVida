@@ -325,13 +325,13 @@
 <span class="sd">    :type columns_with_dicts: ``list``, ``tuple`` or ``None``</span>
 <span class="sd">    :param duplicates: A function to handle dropping duplicates. This function should accept a dataframe</span>
 <span class="sd">                      (and *only* a dataframe) and return a dataframe.</span>
-<span class="sd">    :type duplicates: ``function``</span>
+<span class="sd">    :type duplicates: ``func``</span>
 <span class="sd">    :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,</span>
 <span class="sd">                                  in fact, present in the cache. If not, remove it from the database to be saved.</span>
-<span class="sd">    :type rows_to_conserve_func: ``function``</span>
+<span class="sd">    :type rows_to_conserve_func: ``func``</span>
 <span class="sd">    :param pre_return_func: a function to apply to the dataframe before it is returned. This function should accept a</span>
 <span class="sd">                            dataframe (and *only* a dataframe) and return a dataframe.</span>
-<span class="sd">    :type pre_return_func: ``None`` or ``function``</span>
+<span class="sd">    :type pre_return_func: ``None`` or ``func``</span>
 <span class="sd">    :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted</span>
 <span class="sd">                                           prior to dropping. Defaults to ``None``.</span>
 <span class="sd">    :type columns_with_iterables_to_sort: ``list`` or ``tuple``</span>
@@ -512,6 +512,31 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Action Canceled. &#39;y&#39; must be entered to proceed.&quot;</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_most_recent_pull_time</span><span class="p">(</span><span class="n">instance</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Extract the time of the most recent </span>
+<span class="sd">    data pull from ``instance``.</span>
+<span class="sd">    </span>
+<span class="sd">    :param instance: see ``image_delete()``</span>
+<span class="sd">    :type instance: see ``image_delete()``</span>
+<span class="sd">    :return: see description.</span>
+<span class="sd">    :rtype: ``bool``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;OpeniImageProcessing&#39;</span><span class="p">:</span>
+        <span class="n">records_db</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">records_db</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">records_db</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">pull_time</span> <span class="o">=</span> <span class="n">records_db</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`only_recent=True` is invalid. The `records_db` &quot;</span>
+                        <span class="s2">&quot;associated with `instance` is not a DataFrame.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pull_time</span>
+
+
 <span class="k">def</span> <span class="nf">_pretty_print_image_delete</span><span class="p">(</span><span class="n">deleted_rows</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -537,20 +562,83 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No Rows Deleted.&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="image_delete"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.image_delete">[docs]</a><span class="k">def</span> <span class="nf">image_delete</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">delete_rule</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_delete_rule_wrapper_gen</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">delete_rule</span><span class="p">,</span> <span class="n">only_recent</span><span class="p">,</span> <span class="n">image_columns</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Generate ``delete_rule_wrapper()``.</span>
+<span class="sd">    </span>
+<span class="sd">    :param instance: see ``image_delete()``</span>
+<span class="sd">    :type instance: ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``</span>
+<span class="sd">    :param delete_rule: see ``image_delete()``</span>
+<span class="sd">    :type delete_rule: ``str`` or ``func``</span>
+<span class="sd">    :param only_recent: see ``image_delete()``</span>
+<span class="sd">    :type only_recent: ``bool``</span>
+<span class="sd">    :param image_columns: as evolved in ``image_delete()``</span>
+<span class="sd">    :type image_columns: ``tuple``</span>
+<span class="sd">    :return: a function which wraps ``delete_rule`` in such a way that a</span>
+<span class="sd">             boolean is always the output. </span>
+<span class="sd">    :rtype: ``func``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cln</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="n">delete_all</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`delete_rule` must be &#39;all&#39; or of type &#39;function&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">delete_all</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">last_pull_time</span> <span class="o">=</span> <span class="n">_most_recent_pull_time</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span> <span class="k">if</span> <span class="n">only_recent</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">delete_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">enact</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrap delete_rule to ensure the output,</span>
+<span class="sd">         whether or not to delete, is a boolean.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">only_recent</span><span class="p">:</span>
+                <span class="n">func_delete</span> <span class="o">=</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">last_pull_time</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">func_delete</span> <span class="o">=</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func_delete</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">only_recent</span><span class="p">:</span>
+            <span class="n">blanket_delete</span> <span class="o">=</span> <span class="n">delete_all</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;pull_time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">last_pull_time</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">blanket_delete</span> <span class="o">=</span> <span class="n">delete_all</span>
+
+        <span class="k">if</span> <span class="n">blanket_delete</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">func_delete</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">func_delete</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">enact</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">image_columns</span><span class="p">:</span>
+                    <span class="n">_robust_delete</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># drop row from the dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>   <span class="c1"># keep row in the dataframe</span>
+
+    <span class="k">return</span> <span class="n">delete_rule_wrapper</span>
+
+
+<div class="viewcode-block" id="image_delete"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.image_cache_mgmt.image_delete">[docs]</a><span class="k">def</span> <span class="nf">image_delete</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">delete_rule</span><span class="p">,</span> <span class="n">only_recent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Delete images from the cache.</span>
+<span class="sd">    Delete rows, and associated images, from ``records_db`` and ``cache_records_db``</span>
+<span class="sd">    DataFrames associated with ``instance``.</span>
 
 <span class="sd">    .. warning::</span>
 
 <span class="sd">        The effects of this function can only be undone by downloading the deleted data again.</span>
+<span class="sd">        </span>
+<span class="sd">    .. warning::</span>
+<span class="sd">    </span>
+<span class="sd">        The default behavior for this function is to delete *all* rows (and associated image(s))</span>
+<span class="sd">        that ``delete_rule`` authorizes. To limit deletion to the most recent data pull,</span>
+<span class="sd">        ``only_recent`` must be set to ``True``.</span>
 
-<span class="sd">    :param instance: an instance of ``OpeniInterface`` or ``CancerImageInterface``.</span>
-<span class="sd">    :type instance: ``OpeniInterface`` or ``CancerImageInterface``</span>
+<span class="sd">    :param instance: an instance of ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``.</span>
+<span class="sd">    :type instance: ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``</span>
 <span class="sd">    :param delete_rule: must be one of: ``&#39;all&#39;`` (delete *all* data) or a ``function`` which (1) accepts a single</span>
 <span class="sd">                        parameter (argument) and (2) returns ``True`` when the data is to be deleted.</span>
-<span class="sd">    :type delete_rule: ``str`` or ``function``</span>
+<span class="sd">    :type delete_rule: ``str`` or ``func``</span>
+<span class="sd">    :param only_recent: if ``True``, only apply ``delete_rule`` to data obtained in the most recent pull. Defaults to ``False``.</span>
+<span class="sd">    :type only_recent: ``bool``</span>
 <span class="sd">    :param verbose: if ``True``, print additional information.</span>
 <span class="sd">    :type verbose: ``bool``</span>
 <span class="sd">    :return: a dictionary of the indices which were dropped. Example: ``{&#39;records_db&#39;: [58, 59], &#39;cache_records_db&#39;: [158, 159]}``.</span>
@@ -586,29 +674,13 @@
     <span class="c1"># ToDo: refactor. This function is very cumbersome.</span>
     <span class="n">index_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">_double_check_with_user</span><span class="p">()</span>
+
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deleting...&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">cln</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
-            <span class="n">delete_all</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`delete_rule` must be &#39;all&#39; or a `function`.&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">delete_all</span> <span class="o">=</span> <span class="kc">False</span>
-
     <span class="n">image_columns</span> <span class="o">=</span> <span class="n">_image_instance_image_columns</span><span class="p">[</span><span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">delete_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">enact</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Wrap delete_rule to ensure the output is a boolean.&quot;&quot;&quot;</span>
-        <span class="n">do_delete</span> <span class="o">=</span> <span class="n">delete_rule</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">delete_rule</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">delete_all</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">do_delete</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">do_delete</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">enact</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">image_columns</span><span class="p">:</span>
-                    <span class="n">_robust_delete</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># drop row from the dataframe</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>   <span class="c1"># keep row in the dataframe</span>
+    <span class="n">delete_rule_wrapper</span> <span class="o">=</span> <span class="n">_delete_rule_wrapper_gen</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">delete_rule</span><span class="o">=</span><span class="n">delete_rule</span><span class="p">,</span>
+                                                   <span class="n">only_recent</span><span class="o">=</span><span class="n">only_recent</span><span class="p">,</span> <span class="n">image_columns</span><span class="o">=</span><span class="n">image_columns</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">index_dict_update</span><span class="p">(</span><span class="n">data_frame_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="s1">&#39;before&#39;</span><span class="p">:</span>
@@ -634,7 +706,6 @@
                 <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
             <span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">[</span><span class="n">to_conserve</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">index_dict_update</span><span class="p">(</span><span class="s1">&#39;records_db&#39;</span><span class="p">,</span> <span class="s1">&#39;after&#39;</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">records_db</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">index_dict_update</span><span class="p">(</span><span class="s1">&#39;cache_records_db&#39;</span><span class="p">,</span> <span class="s1">&#39;before&#39;</span><span class="p">,</span> <span class="n">data_frame</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">)</span>
             <span class="n">instance</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">_load_prune_cache_records_db</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -671,7 +742,7 @@
 <span class="sd">    Check for possible errors for ``image_divvy()``.</span>
 
 <span class="sd">    :param divvy_rule: see ``image_divvy()``.</span>
-<span class="sd">    :type divvy_rule: ``str`` or ``function``</span>
+<span class="sd">    :type divvy_rule: ``str`` or ``func``</span>
 <span class="sd">    :param train_val_test_dict: see ``image_divvy()``.</span>
 <span class="sd">    :type action: ``str``</span>
 <span class="sd">    :param train_val_test_dict: see ``image_divvy()``.</span>
@@ -762,7 +833,7 @@
 <span class="sd">    Wrap the ``divvy_rule`` passed to ``image_divvy()``.</span>
 
 <span class="sd">    :param divvy_rule: see ``image_divvy()``.</span>
-<span class="sd">    :type divvy_rule: ``str`` or ``function``</span>
+<span class="sd">    :type divvy_rule: ``str`` or ``func``</span>
 <span class="sd">    :param action: see ``image_divvy()``.</span>
 <span class="sd">    :type action: ``str``</span>
 <span class="sd">    :param train_val_test_dict:  see ``image_divvy()``.</span>
@@ -774,7 +845,7 @@
 <span class="sd">    :param allow_overwrite: see ``image_divvy()``.</span>
 <span class="sd">    :type allow_overwrite: ``bool``</span>
 <span class="sd">    :return: a function which wraps the function passed to ``divvy_rule()``.</span>
-<span class="sd">    :rtype: ``function``</span>
+<span class="sd">    :rtype: ``func``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">copy_rule_wrapper</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">copy_to</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">copy_to</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
@@ -876,7 +947,7 @@
 <span class="sd">    :param instance: see ``image_divvy()``.</span>
 <span class="sd">    :type instance: ``OpeniImageProcessing``</span>
 <span class="sd">    :param divvy_rule:  see ``image_divvy()``.</span>
-<span class="sd">    :type divvy_rule: ``str`` or ``function``</span>
+<span class="sd">    :type divvy_rule: ``str`` or ``func``</span>
 <span class="sd">    :param action:  see ``image_divvy()``.</span>
 <span class="sd">    :type action: ``str``</span>
 <span class="sd">    :param train_val_test_dict: see ``image_divvy()``.</span>
@@ -943,7 +1014,7 @@
 <span class="sd">    :type instance: ``OpeniInterface``, ``OpeniImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``</span>
 <span class="sd">    :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return</span>
 <span class="sd">                       system path(s) [see example below].</span>
-<span class="sd">    :type divvy_rule: ``str`` or ``function``</span>
+<span class="sd">    :type divvy_rule: ``str`` or ``func``</span>
 <span class="sd">    :param action: one of: ``&#39;copy&#39;``, ``&#39;ndarray&#39;``.</span>
 
 <span class="sd">                    - if ``&#39;copy&#39;``: copy from files from the cache to (i) the location prescribed by ``divvy_rule``,</span>
