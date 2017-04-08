@@ -443,7 +443,12 @@ def _delete_rule_wrapper_gen(instance, delete_rule, only_recent, image_columns):
         else:
             func_delete = False
 
-        if delete_all or (isinstance(func_delete, bool) and func_delete is True):
+        if only_recent:
+            blanket_delete = delete_all and row['pull_time'] == last_pull_time
+        else:
+            blanket_delete = delete_all
+
+        if blanket_delete or (isinstance(func_delete, bool) and func_delete is True):
             if enact:
                 for c in image_columns:
                     _robust_delete(row[c])
@@ -457,11 +462,18 @@ def _delete_rule_wrapper_gen(instance, delete_rule, only_recent, image_columns):
 def image_delete(instance, delete_rule, only_recent=False, verbose=True):
     """
 
-    Delete images from the cache.
+    Delete rows, and associated images, from ``records_db`` and ``cache_records_db``
+    DataFrames associated with ``instance``.
 
     .. warning::
 
         The effects of this function can only be undone by downloading the deleted data again.
+        
+    .. warning::
+    
+        The default behavior for this function is to delete *all* rows (and associated image(s))
+        that ``delete_rule`` authorizes. To limit deletion to the most recent data pull,
+        ``only_recent`` must be set to ``True``.
 
     :param instance: an instance of ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``.
     :type instance: ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``
