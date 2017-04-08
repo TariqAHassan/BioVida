@@ -70,12 +70,12 @@ class DiseaseOntInterface(object):
         :rtype: ``list``
         """
         # Note: this method automatically replaces the underscores in the definition quotes.
-        # this seems to be valid currently as this shortcut seems to invariably produce the same
+        # This seems to be valid currently as this shortcut seems to invariably produce the same
         # result as would be obtained by following the list of mappings at the top of the .obo
         # database file. *This could change*.
         if definition.count("\"") != 2 or definition.count("[") != 1 or definition.count("]") != 1:
             return [("def", definition), ("def_urls", np.NaN)]
-    
+
         # Separate the quote from the list of URLS
         parsed_definition = self._quote_value_parse(definition)
     
