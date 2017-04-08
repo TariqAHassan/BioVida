@@ -163,7 +163,6 @@ class DisgenetInterface(object):
         data_frame['diseaseName'] = data_frame['diseaseName'].map(
             lambda x: x.lower() if isinstance(x, str) else x, na_action='ignore')
 
-        # Rename Columns
         data_frame.columns = list(map(camel_to_snake_case, data_frame.columns))
 
         return data_frame
@@ -186,24 +185,15 @@ class DisgenetInterface(object):
         :rtype: ``Pandas DataFrame``
         """
         self._disgenet_delimited_databases_key_error(database)
-
-        # Download Location
         db_url = _disgenet_delimited_databases[database]['url']
-
-        # Save Name
         save_name = "{0}.p".format(db_url.split("/")[-1].split(".")[0])
-
-        # Save address
         save_address = os.path.join(self._created_gene_dirs['disgenet'], save_name)
 
-        # Download or simply load from cache
         if download_override or not os.path.isfile(save_address):
             if self._verbose:
                 header("Downloading DisGeNET Database... ", flank=False)
-            # Harvest
             data_frame = pd.read_csv(db_url, sep='\t', header=_disgenet_delimited_databases[database]['header'],
                                      compression='gzip')
-            # Clean and Save
             self._df_clean(data_frame).to_pickle(save_address)
         else:
             data_frame = pd.read_pickle(save_address)
