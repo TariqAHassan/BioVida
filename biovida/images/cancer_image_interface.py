@@ -384,9 +384,9 @@ class _CancerImageArchiveRecords(object):
             na_action='ignore')
 
         # Remove unneeded line break marker
-        for c in ('protocol_name', 'series_description'):
-            patient_study_df[c] = patient_study_df[c].map(lambda x: cln(x.replace("\/", " ")),
-                                                          na_action='ignore')
+        for c in ('protocol_name', 'series_description', 'manufacturer_model_name'):
+            patient_study_df[c] = patient_study_df[c].map(
+                lambda x: cln(x.replace("\/", " ")) if isinstance(x, str) else x, na_action='ignore')
 
         # Add the full name for modality.
         patient_study_df['modality_full'] = patient_study_df['modality'].map(
@@ -394,7 +394,9 @@ class _CancerImageArchiveRecords(object):
 
         # Lower and clean 'body_part_examined' column
         patient_study_df['body_part_examined'] = patient_study_df['body_part_examined'].map(
-            lambda x: cln(x).lower() if isinstance(x, str) else x, na_action='ignore')
+            # ToDo: generalize the special case used here to handle 'headneck'.
+            lambda x: cln(x).lower().replace("headneck", "head, neck") if isinstance(x, str) else x,
+            na_action='ignore')
 
         patient_study_df['series_date'] = pd.to_datetime(patient_study_df['series_date'],
                                                          infer_datetime_format=True)
