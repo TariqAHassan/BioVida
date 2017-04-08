@@ -107,7 +107,8 @@ class DisgenetInterface(object):
         self.current_database_full_name = None
         self.current_database_description = None
 
-    def _disgenet_delimited_databases_key_error(self, database):
+    @staticmethod
+    def _disgenet_delimited_databases_key_error(database):
         """
 
         Raises an error when an reference is made to a database not in `_disgenet_delimited_databases.keys()`.
@@ -138,7 +139,8 @@ class DisgenetInterface(object):
         if database is None:
             info = list(_disgenet_delimited_databases.keys())
         elif database in _disgenet_delimited_databases:
-            info = {k: v for k, v in _disgenet_delimited_databases[database].items() if k in ['full_name', 'description']}
+            info = {k: v for k, v in _disgenet_delimited_databases[database].items()
+                    if k in ['full_name', 'description']}
         else:
             self._disgenet_delimited_databases_key_error(database)
 
@@ -195,7 +197,9 @@ class DisgenetInterface(object):
         if download_override or not os.path.isfile(save_address):
             if self._verbose:
                 header("Downloading DisGeNET Database... ", flank=False)
-            data_frame = pd.read_csv(db_url, sep='\t', header=_disgenet_delimited_databases[database]['header'],
+            data_frame = pd.read_csv(db_url,
+                                     sep='\t',
+                                     header=_disgenet_delimited_databases[database]['header'],
                                      compression='gzip')
             self._df_clean(data_frame).to_pickle(save_address)
         else:
