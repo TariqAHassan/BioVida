@@ -405,6 +405,55 @@ def _pretty_print_image_delete(deleted_rows, verbose):
             print("\nNo Rows Deleted.")
 
 
+def _delete_rule_wrapper_gen(instance, delete_rule, only_recent, image_columns):
+    """
+    
+    Generate ``delete_rule_wrapper()``.
+    
+    :param instance: see ``image_delete()``
+    :type instance: ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``
+    :param delete_rule: see ``image_delete()``
+    :type delete_rule: ``str`` or ``func``
+    :param only_recent: see ``image_delete()``
+    :type only_recent: ``bool``
+    :param image_columns: as evolved in ``image_delete()``
+    :type image_columns: ``tuple``
+    :return: a function which wraps ``delete_rule`` in such a way that a
+             boolean is always the output. 
+    :rtype: ``func``
+    """
+    if isinstance(delete_rule, str):
+        if cln(delete_rule).lower() == 'all':
+            delete_all = True
+        else:
+            raise ValueError("`delete_rule` must be 'all' or of type 'function'.")
+    else:
+        delete_all = False
+
+    last_pull_time = _most_recent_pull_time(instance) if only_recent else None
+
+    def delete_rule_wrapper(row, enact):
+        """Wrap delete_rule to ensure the output,
+         whether or not to delete, is a boolean."""
+        if callable(delete_rule):
+            if only_recent:
+                func_delete = delete_rule(row) and row['pull_time'] == last_pull_time
+            else:
+                func_delete = delete_rule(row)
+        else:
+            func_delete = False
+
+        if delete_all or (isinstance(func_delete, bool) and func_delete is True):
+            if enact:
+                for c in image_columns:
+                    _robust_delete(row[c])
+            return False  # drop row from the dataframe
+        else:
+            return True   # keep row in the dataframe
+
+    return delete_rule_wrapper
+
+
 def image_delete(instance, delete_rule, only_recent=False, verbose=True):
     """
 
@@ -418,7 +467,7 @@ def image_delete(instance, delete_rule, only_recent=False, verbose=True):
     :type instance: ``OpeniInterface``, ``OpeniImageProcessing`` or ``CancerImageInterface``
     :param delete_rule: must be one of: ``'all'`` (delete *all* data) or a ``function`` which (1) accepts a single
                         parameter (argument) and (2) returns ``True`` when the data is to be deleted.
-    :type delete_rule: ``str`` or ``function``
+    :type delete_rule: ``str`` or ``func``
     :param only_recent: if ``True``, only apply ``delete_rule`` to data obtained in the most recent pull. Defaults to ``False``.
     :type only_recent: ``bool``
     :param verbose: if ``True``, print additional information.
@@ -456,36 +505,13 @@ def image_delete(instance, delete_rule, only_recent=False, verbose=True):
     # ToDo: refactor. This function is very cumbersome.
     index_dict = dict()
     _double_check_with_user()
+
     if verbose:
         print("\nDeleting...")
 
-    if isinstance(delete_rule, str):
-        if cln(delete_rule).lower() == 'all':
-            delete_all = True
-        else:
-            raise ValueError("`delete_rule` must be 'all' or of type 'function'.")
-    else:
-        delete_all = False
-
     image_columns = _image_instance_image_columns[instance.__class__.__name__]
-    last_pull_time = _most_recent_pull_time(instance) if only_recent else None
-
-    def delete_rule_wrapper(row, enact):
-        """Wrap delete_rule to ensure the output is a boolean."""
-        if callable(delete_rule):
-            if only_recent:
-                func_delete = delete_rule(row) and row['pull_time'] == last_pull_time
-            else:
-                func_delete = delete_rule(row)
-        else:
-            func_delete = False
-        if delete_all or (isinstance(func_delete, bool) and func_delete is True):
-            if enact:
-                for c in image_columns:
-                    _robust_delete(row[c])
-            return False  # drop row from the dataframe
-        else:
-            return True   # keep row in the dataframe
+    delete_rule_wrapper = _delete_rule_wrapper_gen(instance=instance, delete_rule=delete_rule,
+                                                   only_recent=only_recent, image_columns=image_columns)
 
     def index_dict_update(data_frame_name, stage, data_frame):
         if stage == 'before':
@@ -511,7 +537,6 @@ def image_delete(instance, delete_rule, only_recent=False, verbose=True):
                 lambda x: os.path.isfile(x) if isinstance(x, str) else False)
             instance.instance.records_db = instance.instance.records_db[to_conserve].reset_index(drop=True)
             index_dict_update('records_db', 'after', data_frame=instance.instance.records_db)
-
         if isinstance(instance.instance.cache_records_db, pd.DataFrame):
             index_dict_update('cache_records_db', 'before', data_frame=instance.instance.cache_records_db)
             instance.instance._load_prune_cache_records_db(load=False)
@@ -639,7 +664,7 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
     Wrap the ``divvy_rule`` passed to ``image_divvy()``.
 
     :param divvy_rule: see ``image_divvy()``.
-    :type divvy_rule: ``str`` or ``function``
+    :type divvy_rule: ``str`` or ``func``
     :param action: see ``image_divvy()``.
     :type action: ``str``
     :param train_val_test_dict:  see ``image_divvy()``.
