@@ -168,13 +168,13 @@ def _records_db_merge(interface_name,
     :type columns_with_dicts: ``list``, ``tuple`` or ``None``
     :param duplicates: A function to handle dropping duplicates. This function should accept a dataframe
                       (and *only* a dataframe) and return a dataframe.
-    :type duplicates: ``function``
+    :type duplicates: ``func``
     :param rows_to_conserve_func: function to generate a list of booleans which denote whether or not the image is,
                                   in fact, present in the cache. If not, remove it from the database to be saved.
-    :type rows_to_conserve_func: ``function``
+    :type rows_to_conserve_func: ``func``
     :param pre_return_func: a function to apply to the dataframe before it is returned. This function should accept a
                             dataframe (and *only* a dataframe) and return a dataframe.
-    :type pre_return_func: ``None`` or ``function``
+    :type pre_return_func: ``None`` or ``func``
     :param columns_with_iterables_to_sort: columns which themselves contain lists or tuples which should be sorted
                                            prior to dropping. Defaults to ``None``.
     :type columns_with_iterables_to_sort: ``list`` or ``tuple``
@@ -585,7 +585,7 @@ def _image_divvy_error_checking(divvy_rule, action, train_val_test_dict):
     Check for possible errors for ``image_divvy()``.
 
     :param divvy_rule: see ``image_divvy()``.
-    :type divvy_rule: ``str`` or ``function``
+    :type divvy_rule: ``str`` or ``func``
     :param train_val_test_dict: see ``image_divvy()``.
     :type action: ``str``
     :param train_val_test_dict: see ``image_divvy()``.
@@ -688,7 +688,7 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
     :param allow_overwrite: see ``image_divvy()``.
     :type allow_overwrite: ``bool``
     :return: a function which wraps the function passed to ``divvy_rule()``.
-    :rtype: ``function``
+    :rtype: ``func``
     """
     def copy_rule_wrapper(row, copy_to):
         if isinstance(copy_to, (str, tuple, list)):
@@ -790,7 +790,7 @@ def _divvy_openi_image_processing(instance,
     :param instance: see ``image_divvy()``.
     :type instance: ``OpeniImageProcessing``
     :param divvy_rule:  see ``image_divvy()``.
-    :type divvy_rule: ``str`` or ``function``
+    :type divvy_rule: ``str`` or ``func``
     :param action:  see ``image_divvy()``.
     :type action: ``str``
     :param train_val_test_dict: see ``image_divvy()``.
@@ -857,7 +857,7 @@ def image_divvy(instance,
     :type instance: ``OpeniInterface``, ``OpeniImageProcessing``, ``CancerImageInterface`` or ``Pandas DataFrame``
     :param divvy_rule: must be a `function`` which (1) accepts a single parameter (argument) and (2) return
                        system path(s) [see example below].
-    :type divvy_rule: ``str`` or ``function``
+    :type divvy_rule: ``str`` or ``func``
     :param action: one of: ``'copy'``, ``'ndarray'``.
 
                     - if ``'copy'``: copy from files from the cache to (i) the location prescribed by ``divvy_rule``,

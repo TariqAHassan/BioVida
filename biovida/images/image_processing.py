@@ -296,7 +296,7 @@ class OpeniImageProcessing(object):
         MedPix logo in the images.
 
         :param robust_match_template_wrapper: wrapper generated inside of ``logo_analysis()``
-        :type robust_match_template_wrapper: ``function``
+        :type robust_match_template_wrapper: ``func``
         :param output_params: tuple of the form:
 
                         ``(match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])``
@@ -783,7 +783,7 @@ class OpeniImageProcessing(object):
         Check for error that would cause ``save()`` to fail.
 
         :param output_rule: see ``output()``
-        :type output_rule: ``str`` or ``function``
+        :type output_rule: ``str`` or ``func``
         :param action: see ``output``
         :type action: ``str``
         """
@@ -853,7 +853,7 @@ class OpeniImageProcessing(object):
             - if a ``function``: it must (1) accept a single parameter (argument) and (2) return system path(s)
               [see example below].
 
-        :type output_rule: ``str`` or ``function``
+        :type output_rule: ``str`` or ``func``
         :param create_dirs: if ``True``, create directories returned by ``divvy_rule`` if they do not exist.
                             Defaults to ``False``.
         :type create_dirs: ``bool``

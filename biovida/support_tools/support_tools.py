@@ -381,7 +381,7 @@ def multimap(data_frame, columns, func):
     :param columns: a 'list' of columns.
     :type columns: ``list`` or ``tuple``
     :param func: some function.
-    :type func: ``function``
+    :type func: ``func``
     :return: ``data_frame`` with ``func`` mapped over all ``columns``.
     :rtype: ``Pandas DataFrame``
     """
