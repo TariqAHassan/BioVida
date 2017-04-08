@@ -36,7 +36,9 @@ class DiseaseOntInterface(object):
     def __init__(self, cache_path=None, verbose=True):
         self._verbose = verbose
         # Cache creation
-        pcc = package_cache_creator(sub_dir='diagnostics', to_create=['disease_ontology'], cache_path=cache_path)
+        pcc = package_cache_creator(sub_dir='diagnostics',
+                                    to_create=['disease_ontology'],
+                                    cache_path=cache_path)
         self.root_path, self._created_disease_ont_dirs = pcc
 
         # The database itself
@@ -236,7 +238,8 @@ class DiseaseOntInterface(object):
         """
         # Homogenize columns with lists
         for c in columns_with_lists:
-            data_frame[c] = data_frame[c].map(lambda x: "; ".join(x) if isinstance(x, list) else x, na_action='ignore')
+            data_frame[c] = data_frame[c].map(lambda x: "; ".join(x) if isinstance(x, list) else x,
+                                              na_action='ignore')
     
         # Lower columns to make it easier to match in the future
         for c in ('name', 'synonym', 'subset', 'is_a'):
@@ -244,8 +247,8 @@ class DiseaseOntInterface(object):
     
         # Convert 'true' in the 'is_obsolete' column to an actual python boolean ``True``.
         data_frame['is_obsolete'] = data_frame['is_obsolete'].map(
-            lambda x: True if not items_null(x) and str(x).lower().strip() == 'true' else x, na_action='ignore'
-        )
+            lambda x: True if not items_null(x) and str(x).lower().strip() == 'true' else x,
+            na_action='ignore')
     
         return data_frame
 
