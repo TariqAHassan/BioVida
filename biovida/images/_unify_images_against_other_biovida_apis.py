@@ -276,7 +276,6 @@ class _DiseaseOntologyIntegration(object):
         :return: see method description.
         :rtype: ``tuple``
         """
-        # Init
         ont_name_dict, ont_disease_synonym_dict = dict(), dict()
         ont_name_dict_nest_keys = ('disease_family', 'disease_synonym', 'disease_definition')
 

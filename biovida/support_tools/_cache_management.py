@@ -48,15 +48,12 @@ def _sub_directory_creator(root_path, to_create):
     :param to_create:
     :return:
     """
-    # Init
-    trunc_path = None
     created_dirs = dict()
 
     # Create sub directories
     for sub_dir in to_create:
         # Check if the directory exists
         if not os.path.isdir(os.path.join(root_path, sub_dir)):
-            # Create sub_dir
             os.makedirs(os.path.join(root_path, sub_dir))
             # Record sub_dir's full path
             created_dirs[(sub_dir, True)] = (os.sep).join(os.path.join(root_path, sub_dir).split(os.sep)[-2:])
@@ -103,14 +100,14 @@ def _directory_creator(cache_path=None, verbose=True):
     created_dirs = list()
 
     # Clean `cache_path`
-    if cache_path is not None and cache_path != None:
-        cache_path_clean = (cache_path.strip() if not cache_path.endswith("/") else cache_path.strip()[:-1])
+    if cache_path is not None and cache_path is not None:
+        cache_path_clean = (cache_path.strip() if not cache_path.endswith(os.sep) else cache_path.strip()[:-1])
     else:
         cache_path_clean = cache_path
 
     # Set the base path to the home directory if `cache_path_clean` does not exist
     if isinstance(cache_path_clean, str) and not os.path.isdir(cache_path_clean):
-        raise FileNotFoundError("[Errno 2] No such file or directory: '%s'." % (cache_path_clean))
+        raise FileNotFoundError("[Errno 2] No such file or directory: '{0}'.".format(cache_path_clean))
     elif not (isinstance(cache_path_clean, str) and os.path.isdir(cache_path_clean)):
         base_path = os.path.expanduser("~")
     else:
@@ -151,9 +148,7 @@ def _add_to_create_nest(nest, record_dict, verbose):
     created = list()
     if isinstance(nest, (list, tuple)):
         for (to_create_dir, new_nested_dir) in nest:
-            # Name the directory
             new_dir_name = os.path.join(record_dict[to_create_dir], new_nested_dir)
-            # Create the diectory
             if not os.path.exists(new_dir_name):
                 os.makedirs(new_dir_name)
                 created.append(new_dir_name)
