@@ -21,7 +21,7 @@ from biovida.diagnostics import DiseaseSymptomsInterface
 doi = DiseaseOntInterface(verbose=False)
 dsi = DiseaseSymptomsInterface(verbose=False)
 
-data_path = os_join(str(os.getcwd()).split("/tests")[0], "tests/diagnostics/data")
+data_path = "tests/diagnostics/data"
 obo_file = open(os_join(data_path, "obo_file.txt"), "r").read()
 
 
