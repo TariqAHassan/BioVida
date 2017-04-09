@@ -94,9 +94,8 @@ class DiseaseSymptomsInterface(object):
         :rtype: ``Pandas DataFrame``
         """
         if not os.path.isfile(save_path) or download_override:
-            # Download and Clean
-            to_return = cleaner_func(pd.read_csv(url, sep="\t", header=0, index_col=0).reset_index(drop=True))
-            # Save
+            to_return = pd.read_csv(url, sep="\t", header=0, index_col=0).reset_index(drop=True)
+            to_return = cleaner_func(to_return)
             to_return.to_pickle(save_path)
         else:
             to_return = pd.read_pickle(save_path)
@@ -192,7 +191,7 @@ class DiseaseSymptomsInterface(object):
 
         return self.rephetio_ml_db
 
-    def _combine(self, download_override):
+    def _combine(self, download_override, **kwargs):
         """
 
         Combine `Rephetio Medline` and `Human Symptoms Disease Network` databases.
@@ -202,9 +201,15 @@ class DiseaseSymptomsInterface(object):
         :return: a combined dataframe with the following columns: 'common_disease_name' and 'common_symptom_term'.
         :rtype: ``Pandas DataFrame``
         """
-        # Load Both Databases
-        hsdn = self.hsdn_pull(download_override).copy(deep=True)
-        rephetio = self.rephetio_ml_pull(download_override).copy(deep=True)
+        if 'hsdn' in kwargs:
+            hsdn = kwargs.get('hsdn')
+        else:
+            hsdn = self.hsdn_pull(download_override).copy(deep=True)
+
+        if 'rephetio' in kwargs:
+            rephetio = kwargs.get('rephetio')
+        else:
+            rephetio = self.rephetio_ml_pull(download_override).copy(deep=True)
 
         # Rename `rephetio` columns to s.t. they match with `hsdn`.
         rephetio = rephetio.rename(columns={'doid_name': 'common_disease_name'})
@@ -212,11 +217,9 @@ class DiseaseSymptomsInterface(object):
         if self._verbose:
             header("Combining Databases... ", flank=False)
 
-        # Combine
         concat_on_cols = ['common_disease_name', 'common_symptom_term']
         combined_db = pd.concat([hsdn[concat_on_cols], rephetio[concat_on_cols]], ignore_index=True)
 
-        # Return
         return combined_db.drop_duplicates().reset_index(drop=True)
 
     def pull(self, download_override=False):
