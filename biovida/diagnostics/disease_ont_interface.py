@@ -229,7 +229,7 @@ class DiseaseOntInterface(object):
 
         - converts the 'true' string in the 'is_obsolete' column to an actual python boolean ``True``.
     
-        :param data_frame: the dataframe evolved in the ``DiseaseOntInterface()._harvest()`` method.
+        :param data_frame: the dataframe evolved in the ``DiseaseOntInterface()._harvest_engine()`` method.
         :type data_frame: ``Pandas DataFrame``
         :param columns_with_lists: a 'list' of columns in the dataframe which contain lists.
         :type columns_with_lists: ``iterable``
@@ -267,7 +267,7 @@ class DiseaseOntInterface(object):
         except:
             warn("\nCould not extract the date on which the Disease Ontology database was generated.")
 
-    def _harvest(self, disease_ontology_db_url):
+    def _harvest_engine(self, disease_ontology_db_url, **kwargs):
         """
 
         This method Harvests and orchestrates and conversion of the Disease Ontology Database
@@ -276,8 +276,11 @@ class DiseaseOntInterface(object):
         :param disease_ontology_db_url: see: ``DiseaseOntInterface().pull()``.
         :type disease_ontology_db_url: ``str``
         """
-        # Open the file and discard [Typedef] information at the end of the file.
-        obo_file = requests.get(disease_ontology_db_url, stream=True).text.split("[Typedef]")[0]
+        if 'obo_file' in kwargs:
+            obo_file = kwargs.get('obo_file')
+        else:
+            # Open the file and discard [Typedef] information at the end of the file.
+            obo_file = requests.get(disease_ontology_db_url, stream=True).text.split("[Typedef]")[0]
     
         # Parse the file by splitting on [Term].
         parsed_by_term = obo_file.split("[Term]\n")
@@ -327,7 +330,7 @@ class DiseaseOntInterface(object):
         if not os.path.isfile(db_path) or download_override:
             if self._verbose:
                 header("Downloading Disease Ontology Database... ")
-            self._harvest(disease_ontology_db_url)
+            self._harvest_engine(disease_ontology_db_url)
             self.disease_db.to_pickle(db_path)
             pickle.dump(self.db_date, open(support_path, "wb"))
         elif 'dataframe' not in str(type(self.disease_db)).lower():
