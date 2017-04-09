@@ -65,7 +65,7 @@ class DiseaseSymptomsInterfaceTests(unittest.TestCase):
         hsdn_file_path = os_join(data_path, "hsdn.tsv")
         hsdn_df = dsi._harvest(url=hsdn_file_path,
                                cleaner_func=dsi._hsdn_df_cleaner,
-                               save_path='hsdn.csv',
+                               save_path='temp_file.csv',
                                download_override=False)
         return hsdn_df
 
@@ -81,7 +81,7 @@ class DiseaseSymptomsInterfaceTests(unittest.TestCase):
         rephetio_ml_path = os_join(data_path, "rephetio_ml.tsv")
         rephetio_ml_df = dsi._harvest(url=rephetio_ml_path,
                                       cleaner_func=dsi._hsdn_df_cleaner,
-                                      save_path='hsdn.csv',
+                                      save_path='temp_file.csv',
                                       download_override=False)
         return rephetio_ml_df
 
@@ -98,4 +98,13 @@ class DiseaseSymptomsInterfaceTests(unittest.TestCase):
         self.assertEqual(isinstance(combine_df, pd.DataFrame), True)
 
 
-unittest.main()
+unittest.main(exit=False)
+
+
+# Clean up if not on Travis-CI
+# (where it will be deleted regardless)
+if "/home/travis/" not in os.getcwd():
+    os.remove(os_join(os.getcwd(), "temp_file.csv"))
+
+
+sys.exit()
