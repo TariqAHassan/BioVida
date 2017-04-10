@@ -38,7 +38,8 @@ class DiseaseOntInterface(object):
         # Cache creation
         pcc = package_cache_creator(sub_dir='diagnostics',
                                     to_create=['disease_ontology'],
-                                    cache_path=cache_path)
+                                    cache_path=cache_path,
+                                    verbose=verbose)
         self.root_path, self._created_disease_ont_dirs = pcc
 
         # The database itself

@@ -38,7 +38,8 @@ class CancerImageArchiveParams(object):
         
         # Define a location to save the data
         _, self._created_image_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
-                                                            to_create=['tcia'], nest=[('tcia', 'databases')])
+                                                            to_create=['tcia'], nest=[('tcia', 'databases')],
+                                                            verbose=verbose)
     
     def _roll_strs_forward(self, l):
         """

@@ -40,7 +40,10 @@ class DiseaseSymptomsInterface(object):
     def __init__(self, cache_path=None, verbose=True):
         self._verbose = verbose
         # Cache creation
-        pcc = package_cache_creator(sub_dir='diagnostics', to_create=['disease_symptoms'], cache_path=cache_path)
+        pcc = package_cache_creator(sub_dir='diagnostics',
+                                    to_create=['disease_symptoms'],
+                                    cache_path=cache_path,
+                                    verbose=verbose)
         self.root_path, self._created_disease_ont_dirs = pcc
 
         # URLs to the databases

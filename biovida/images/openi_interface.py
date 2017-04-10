@@ -990,6 +990,7 @@ class OpeniInterface(object):
                                                             to_create=['openi'],
                                                             nest=[('openi', 'aux'), ('openi', 'raw'),
                                                                   ('openi', 'databases')],
+                                                            verbose=verbose,
                                                             requires_medpix_logo=True)
 
         self._ROOT_PATH = self._created_image_dirs['ROOT_PATH']

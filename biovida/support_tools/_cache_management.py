@@ -16,7 +16,8 @@ from biovida.support_tools.support_tools import combine_dicts, list_to_bulletpoi
 
 
 def _medpix_logo_download(save_path,
-                          image_web_address='https://openi.nlm.nih.gov/imgs/512/341/1544/MPX1544_synpic54565.png'):
+                          verbose,
+                          image_web_address='https://openi.nlm.nih.gov/imgs/512/341/1544/MPX1544_synpic54565.png',):
     """
 
     Download and save the MedPix logo from a representative image.
@@ -24,6 +25,8 @@ def _medpix_logo_download(save_path,
 
     :param image_web_address: the location of the image which contains the MedPix Logo
     :type image_web_address: ``str``
+    :param verbose: notify user of directory that have been created. Defaults to True.
+    :type verbose: ``bool``
     :return: a dictionary of the form {'medpix_logo': PATH TO THE LOGO}.
     :rtype: ``dict``
     """
@@ -35,8 +38,9 @@ def _medpix_logo_download(save_path,
         # Crop and Save
         image_cropped = image.crop((406, 6, 502, 27))
         image_cropped.save(full_save_path)
-        print("\nThe MedPix Logo, required for processing Open-i images, has been downloaded to:\n\n {0}\n".format(
-            list_to_bulletpoints([full_save_path])))
+        if verbose:
+            print("\nThe MedPix Logo, required for processing images from Open-i, "
+                  "has been downloaded to:\n\n{0}\n".format(list_to_bulletpoints([full_save_path])))
 
     return {'medpix_logo': full_save_path}
 
@@ -91,7 +95,7 @@ def _directory_creator(cache_path=None, verbose=True):
     :param cache_path: path to create to create the `BioVida` cache.
                        If ``None``, the home directory will be used. Defaults to None.
     :type cache_path: ``str`` or ``None``
-    :param verbose: Notify user of directory that have been created. Defaults to True.
+    :param verbose: notify user of directory that have been created. Defaults to True.
     :type verbose: ``bool``
     :return: the root path (i.e., path the cache itself).
     :rtype: ``str``
@@ -221,7 +225,7 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
     if sub_dir == 'images' and requires_medpix_logo:
         if 'aux' not in record_dict_nest.keys():
             raise ValueError("`nest` (or `to_create`) must contain 'aux' if `requires_medpix_logo` is `True`.")
-        medpix_logo_location = _medpix_logo_download(record_dict_nest['aux'])
+        medpix_logo_location = _medpix_logo_download(record_dict_nest['aux'], verbose=verbose)
         # Add the path to the logo to `record_dict_nest`
         record_dict_nest = combine_dicts(record_dict_nest, medpix_logo_location)
 

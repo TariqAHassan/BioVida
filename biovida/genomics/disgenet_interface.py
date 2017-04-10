@@ -95,7 +95,10 @@ class DisgenetInterface(object):
         self._verbose = verbose
 
         # Cache Creation
-        ppc = package_cache_creator(sub_dir='genomics', cache_path=cache_path, to_create=['disgenet'])
+        ppc = package_cache_creator(sub_dir='genomics',
+                                    cache_path=cache_path,
+                                    to_create=['disgenet'],
+                                    verbose=verbose)
         self.root_path, self._created_gene_dirs = ppc
 
         # Check if a readme exists.

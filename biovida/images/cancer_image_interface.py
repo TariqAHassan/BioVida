@@ -84,7 +84,8 @@ class _CancerImageArchiveOverview(object):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
         _, self._created_image_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
-                                                            to_create=['tcia'], nest=[('tcia', 'databases')])
+                                                            to_create=['tcia'], nest=[('tcia', 'databases')],
+                                                            verbose=verbose)
 
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
 
