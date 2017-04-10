@@ -17,6 +17,9 @@ It is hoped that by automating the tedious data munging that is typically involv
 in this process, more people will become interested in applying machine learning
 to biomedical images and, in turn, advancing insights into human disease.
 
+In a nod to recursion, BioVida tries to accomplish some of this automation
+with machine learning itself, using tools like convolutional neural networks.
+
 ## Installation
 
 Python Package Index:
@@ -70,9 +73,8 @@ cdf = cii.pull()
 Both ``CancerImageInterface`` and ``OpeniInterface`` cache images for later use.
 When data is 'pulled', a ``records_db`` is generated, which is a dataframe
 of all text data associated with the images. They are provided as class attributes, e.g.,
- ``CancerImageInterface().records_db``. The ``cache_records_db`` dataframe
-provides an account of all images currently cached.
-
+ ``cii.records_db``. While ``records_db`` only stores data from the most recent data pull,
+``cache_records_db`` dataframes provides an account of all image data currently cached.
 
 #### Splitting Images
 
@@ -121,13 +123,7 @@ idf = ip.auto()
 ip.clean_image_dataframe()
 ```
 
-These cleaned images can easily be save as follows:
-
-```python
-ip.save("/save/directory")
-```
-
-It is also easy to split these images into training and test sets.
+It is easy to split these images into training and test sets.
 
 ```python
 from biovida.images import image_divvy
@@ -208,7 +204,7 @@ Left side of DataFrame: Image Data Alone
 | 2 |  case_report |     1    |      ...      | Computed Tomography (CT): angiography |  45 | female | bile duct cancer | ... |
 
 
-Right side of DataFrame: External Information
+Right side of DataFrame: Added Information
 
 
 |        disease_family        |    disease_synonym    | disease_definition | known_associated_symptoms | mentioned_symptoms | known_associated_genes  |
