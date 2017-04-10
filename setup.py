@@ -15,7 +15,7 @@ setup(
     author='Tariq A. Hassan',
     author_email='laterallattice@gmail.com',
     description=('Automated BioMedical Information Curation for Machine Learning Applications.'),
-    long_description=read('README.md'),
+    long_description=read('docs/README.rst'),
     license='BSD',
     keywords='machine-learning, biomedical-informatics, data-science, bioinformatics, imaging-informatics',
     url='https://github.com/TariqAHassan/BioVida.git',
