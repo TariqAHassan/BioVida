@@ -29,7 +29,7 @@ Latest Build:
 $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
-Requires Python 3.3+
+Requires Python 3.4+
 
 ## Images: Stable
 
