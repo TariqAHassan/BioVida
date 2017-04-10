@@ -25,7 +25,6 @@ setup(
                                     "tests.*",
                                     "tests")
                            ),
-    data_files=[('', ['LICENSE.md'])],
     install_requires=['bs4', 'h5py', 'keras', 'lxml', 'numpy', 'pandas', 'Pillow',
                       'pydicom', 'requests', 'scikit-image', 'scipy', 'theano', 'tqdm'],
     classifiers=['Development Status :: 3 - Alpha',
