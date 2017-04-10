@@ -93,7 +93,8 @@ def _dict_to_tot(d):
         return d
 
     def values_to_tuples(d):
-        return {k: tuple(v) if isinstance(v, list) else v for k, v in d.items()}
+        return {k: tuple(sorted(v)) if isinstance(v, (list, tuple)) else v for k, v in d.items()}
+
     return tuple(sorted(values_to_tuples(d).items(), key=lambda x: x[0]))
 
 
