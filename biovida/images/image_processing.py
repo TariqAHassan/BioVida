@@ -77,7 +77,7 @@ class OpeniImageProcessing(object):
         if not os.path.isdir(resources_path):
             os.makedirs(resources_path)
 
-        base_url = 'https://raw.githubusercontent.com/TariqAHassan/BioVida/master/biovida/images/resources/'
+        base_url = 'https://raw.githubusercontent.com/TariqAHassan/BioVida/master/data/model_resources/'
 
         required_resources = ["trained_open_i_modality_types.json",
                               "visual_image_problems_model.h5",

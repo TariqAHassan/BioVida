@@ -20,5 +20,5 @@ trained_open_i_modality_types = (
 
 
 # Note: this write command is only compatible with Python 3.
-with open('./biovida/images/resources/trained_open_i_modality_types.json', 'w') as f:
+with open('./data/model_resources/trained_open_i_modality_types.json', 'w') as f:
     json.dump(trained_open_i_modality_types, f, ensure_ascii=False)
