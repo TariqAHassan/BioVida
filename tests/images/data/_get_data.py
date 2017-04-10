@@ -15,7 +15,6 @@ from biovida.images.openi_interface import _OpeniRecords
 
 opi = OpeniInterface(verbose=True)
 opi.search()
-opi.current_search_url
 
 
 oir = _OpeniRecords(root_url='https://openi.nlm.nih.gov',
