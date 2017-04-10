@@ -11,18 +11,21 @@
 </p>
 
 BioVida is a library designed to make it easy to gain access to 
-existing biomedical data sets as well as build brand new, custom-made ones.
-While primarily focused on image data, it is also possible to gain access to
-external medical diagnostics and genomics resources.
+existing data sets of biomedical images as well as build brand new, custom-made ones.
 
-It is hoped that by vastly reducing, if not eliminating, the need for tedious 
-data munging, machine learning experts can focus on modeling itself.
-In turn, enabling them to advance new insights into human disease.
+It is hoped that by automating the tedious data munging that is typically involved
+in this process, more people will become interested in a applying machine learning
+to biomedical images and, in turn, advancing insights into human disease.
 
 In a nod to recursion, this library tries to accomplish some of this automation
 with machine learning itself, using tools like convolutional neural networks.
 
 ## Installation
+
+Python Package Index:
+```bash
+$ pip install biovida
+```
 
 Latest Build:
 ```bash
@@ -142,7 +145,8 @@ tt = image_divvy(ip, my_divvy_rule, action='ndarray', train_val_test_dict={'trai
 
 ## Genomic Data
 
-BioVida provides a simple interface for obtaining genomic data.
+While primarily focused on images, BioVida also provides a simple interface for
+obtaining related information, such genomic data.
 
 ```python
 # 1. Import the Interface for DisGeNET.org
