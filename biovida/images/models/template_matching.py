@@ -186,7 +186,7 @@ def _matching_engine(base, pattern, base_resizes, base_image_cropping, end_searc
         # Rescale the image
         scaled_cropped_base = imresize(cropped_base, scale, interp='lanczos')
 
-        # ToDo: try/except this should not be needed.
+        # ToDo: this try/except should not be needed.
         try:
             template_match_analysis = match_template(image=scaled_cropped_base, template=pattern)
 
