@@ -24,6 +24,8 @@ Latest Build:
 
     $ pip install git+git://github.com/TariqAHassan/BioVida@master
 
+Note: if you are using python on macOS or linux with Python 3, you may wish to use ``pip3 install`` instead.
+
 --------------
 
 Dependencies
@@ -39,10 +41,11 @@ BioVida requires: `beautiful soup <https://www.crummy.com/software/BeautifulSoup
 `pydicom <https://github.com/darcymason/pydicom>`__,
 `requests <http://docs.python-requests.org/en/master/>`__,
 `scikit-image <http://scikit-image.org>`__,
-`scipy <https://www.scipy.org>`__ and
+`scipy <https://www.scipy.org>`__,
+`theano <http://deeplearning.net/software/theano/>`__ and
 `tqdm <https://github.com/tqdm/tqdm>`__.
 
-The BioVida installer will automatically install all of these packages.
+The installer will automatically install all of these packages.
 
 **Notes**:
 
@@ -51,4 +54,3 @@ The BioVida installer will automatically install all of these packages.
 2. To use ``scipy`` on macOS (formerly OSX) you will need ``gcc``, which can be obtained with ``homebrew`` via.
    ``$ brew install gcc``. If you do not have ``homebrew`` installed, it can be installed by following the instructions
    provided `here <https://brew.sh>`__.
-
