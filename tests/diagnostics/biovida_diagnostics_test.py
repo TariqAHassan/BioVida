@@ -6,6 +6,7 @@
 """
 import os
 import sys
+import pickle
 import unittest
 import pandas as pd
 from os.path import join as os_join
@@ -22,7 +23,6 @@ doi = DiseaseOntInterface(verbose=False)
 dsi = DiseaseSymptomsInterface(verbose=False)
 
 data_path = os_join(str(os.getcwd()).split("/tests")[0], "tests/diagnostics/data")
-obo_file = open(os_join(data_path, "obo_file.txt"), "r").read()
 
 
 class DiseaseOntInterfaceTests(unittest.TestCase):
@@ -31,14 +31,21 @@ class DiseaseOntInterfaceTests(unittest.TestCase):
     Unit Tests for the DiseaseOntInterface Class.
     
     """
+    def __init__(self, *args, **kwargs):
+        # see: http://stackoverflow.com/a/17353262/4898004.
+        super(DiseaseOntInterfaceTests, self).__init__(*args, **kwargs)
+
+        with open(os_join(data_path, "obo_file.p"), "rb") as f:
+            self.obo_file = pickle.load(f)
+
     def test_parse(self):
         """Test the the data harvesting/processing engine generates a DataFrame."""
-        doi._harvest_engine(disease_ontology_db_url='', obo_file=obo_file)
+        doi._harvest_engine(disease_ontology_db_url='', obo_file=self.obo_file)
         self.assertEqual(isinstance(doi.disease_db, pd.DataFrame), True)
 
     def test_correct_dims_db(self):
         """Test that the dimensions of ``doi.disease_db`` are correct."""
-        doi._harvest_engine(disease_ontology_db_url='', obo_file=obo_file)
+        doi._harvest_engine(disease_ontology_db_url='', obo_file=self.obo_file)
 
         # Columns
         required_cols = ['alt_id', 'comment', 'created_by', 'creation_date', 'def',
@@ -49,7 +56,7 @@ class DiseaseOntInterfaceTests(unittest.TestCase):
         self.assertEqual(n_missing_columns == 0, True)
 
         # Rows
-        n_terms = obo_file.count("[Term]")
+        n_terms = self.obo_file.count("[Term]")
         self.assertEqual(doi.disease_db.shape[0] == n_terms, True)
 
 
@@ -61,50 +68,51 @@ class DiseaseSymptomsInterfaceTests(unittest.TestCase):
     """
 
     @staticmethod
-    def _get_hsdn_df():
-        hsdn_file_path = os_join(data_path, "hsdn.tsv")
-        hsdn_df = dsi._harvest(url=hsdn_file_path,
-                               cleaner_func=dsi._hsdn_df_cleaner,
-                               save_path='temp_file.csv',
-                               download_override=False)
-        return hsdn_df
+    def _pickle_to_tsv_to_df(file_name, cleaner_func):
+        
+        with open(os_join(data_path, "{0}.p".format(file_name)), "rb") as f:
+            hsdn_file = pickle.load(f)
+        
+        tsv_file = os_join(data_path, "{0}.tsv".format(file_name))
+        
+        with open(tsv_file, "w") as f:
+            f.write(hsdn_file)
+        
+        df = dsi._harvest(url=tsv_file, cleaner_func=cleaner_func,
+                          save_path='temp_file.csv', download_override=False)
+
+        return df
 
     def test_parse_hsdn(self):
         """Test ``dsi._harvest()`` for hsdn.
         Note: partially replicates ``dsi.hsdn_pull``"""
-        hsdn_df = self._get_hsdn_df()
+        hsdn_df = self._pickle_to_tsv_to_df('hsdn', cleaner_func=dsi._hsdn_df_cleaner)
         self.assertEqual(isinstance(hsdn_df, pd.DataFrame), True)
         self.assertEqual(hsdn_df.shape[0] > 0, True)
 
-    @staticmethod
-    def _get_rephetio_ml_df():
-        rephetio_ml_path = os_join(data_path, "rephetio_ml.tsv")
-        rephetio_ml_df = dsi._harvest(url=rephetio_ml_path,
-                                      cleaner_func=dsi._hsdn_df_cleaner,
-                                      save_path='temp_file.csv',
-                                      download_override=False)
-        return rephetio_ml_df
-
     def test_parse_rephetio_ml(self):
-        rephetio_ml_df = self._get_rephetio_ml_df()
+        """Test ``dsi._harvest()`` for rephetio_ml.
+        Note: partially replicates ``dsi.rephetio_ml_pull``"""
+        rephetio_ml_df = self._pickle_to_tsv_to_df('rephetio_ml', cleaner_func=dsi._rephetio_ml_df_cleaner)
         self.assertEqual(isinstance(rephetio_ml_df, pd.DataFrame), True)
         self.assertEqual(rephetio_ml_df.shape[0] > 0, True)
 
     def test_do_combine(self):
         """Test ``dsi._combine``."""
-        combine_df = dsi._combine(download_override=False,
-                                  hsdn=self._get_hsdn_df(),
-                                  rephetio=self._get_rephetio_ml_df())
-        self.assertEqual(isinstance(combine_df, pd.DataFrame), True)
+        hsdn_df = self._pickle_to_tsv_to_df('hsdn', cleaner_func=dsi._hsdn_df_cleaner)
+        rephetio_ml_df = self._pickle_to_tsv_to_df('rephetio_ml', cleaner_func=dsi._rephetio_ml_df_cleaner)
+
+        combined_df = dsi._combine(download_override=False, hsdn=hsdn_df, rephetio=rephetio_ml_df)
+        self.assertEqual(isinstance(combined_df, pd.DataFrame), True)
 
 
 unittest.main(exit=False)
 
 
-# Clean up if not on Travis-CI
-# (where it will be deleted regardless)
+# Note: clean up is redundant on Travis-CI
 if "/home/travis/" not in os.getcwd():
-    os.remove(os_join(os.getcwd(), "temp_file.csv"))
+    for f in ('hsdn', 'rephetio_ml'):
+        os.remove(os_join(os.getcwd(), "data/{0}.tsv".format(f)))
 
 
 sys.exit()
