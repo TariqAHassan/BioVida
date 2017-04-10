@@ -610,7 +610,8 @@ class ImageClassificationCNN(object):
         :type path: ``str``
         """
         load_location = "{0}_support.p".format(path[:-3])
-        data = pickle.load(open(load_location, "rb"))
+        with open(load_location, "rb") as f:
+            data = pickle.load(f)
 
         self._data_path = data[0]
         self.image_shape = data[1]

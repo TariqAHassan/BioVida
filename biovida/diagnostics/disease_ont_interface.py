@@ -334,7 +334,8 @@ class DiseaseOntInterface(object):
             self.disease_db.to_pickle(db_path)
             pickle.dump(self.db_date, open(support_path, "wb"))
         elif 'dataframe' not in str(type(self.disease_db)).lower():
-            self.db_date = pickle.load(open(support_path, "rb"))
+            with open(support_path, "rb") as f:
+                self.db_date = pickle.load(f)
             self.disease_db = pd.read_pickle(db_path)
 
         return self.disease_db

@@ -1065,7 +1065,8 @@ class CancerImageInterface(object):
             temp_dir = self._Images.temp_directory_path
             latent_pickles = [os.path.join(temp_dir, i) for i in os.listdir(temp_dir) if i.endswith(".p")]
             if len(latent_pickles):
-                settings_dict = pickle.load(open(latent_pickles[0], "rb"))
+                with open(latent_pickles[0], "rb") as f:
+                    settings_dict = pickle.load(f)
                 settings_dict_for_pull = {k: v for k, v in settings_dict.items() if k not in ['records_db']}
                 settings_dict_for_pull['new_records_pull'] = False  # adding this separately in `pull` breaks in python2
 
