@@ -29,6 +29,8 @@ Latest Build:
 $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
+Requires Python 3.3+
+
 ## Images: Stable
 
 In just a few lines of code, you can gain access to biomedical databases
