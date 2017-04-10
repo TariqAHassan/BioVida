@@ -37,7 +37,11 @@ Requires Python 3.4+
 ## Images: Stable
 
 In just a few lines of code, you can gain access to biomedical databases
-which store tens of millions of images.
+which store tens of millions of images. 
+
+*Please note that you are bound to adhere to the copyright and other 
+usage restrictions under which this data is provided to you by its creators.*
+
 
 #### Open-i BioMedical Image Search Engine
 ```python
