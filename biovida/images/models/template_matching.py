@@ -68,7 +68,7 @@ def _cropper(base, v_prop, h_prop):
     # Crop to the left
     hcrop_base = base[:, int(base.shape[1] * h_prop):]
 
-    # Crop with respect to height and return
+    # Crop with respect to height
     return hcrop_base[:int(base.shape[0] * v_prop)]
 
 
@@ -140,10 +140,7 @@ def _min_base_rescale(base, pattern, base_resizes, round_to=3):
     # Pick the limiting axis in the base (largest)
     size_floor = max(pattern.shape)
 
-    # Compute the smallest scalar
     min_scalar_for_base = float(np.around(size_floor / smallest_base_axis, round_to))
-
-    # Convert `base_resizes` into a list
     base_resizes = list(base_resizes)
 
     # Move the rescale into valid range, if needed
@@ -189,22 +186,16 @@ def _matching_engine(base, pattern, base_resizes, base_image_cropping, end_searc
         # Rescale the image
         scaled_cropped_base = imresize(cropped_base, scale, interp='lanczos')
 
-        # ToDo: this should not be needed.
+        # ToDo: try/except this should not be needed.
         try:
-            # Run the template matching algorithm
             template_match_analysis = match_template(image=scaled_cropped_base, template=pattern)
 
-            # Get the top left corner of the match and the match quality
             top_left, match_quality = _best_guess_location(template_match_analysis, scaling=scale)
             top_left_adj = top_left + np.array([base_h_crop, 0])
 
-            # Work out the bottom right
             bottom_right = top_left_adj + np.floor(np.array(pattern.shape)[::-1] / scale)
-
-            # Record
             match_dict[scale] = (list(top_left_adj), list(bottom_right), match_quality)
 
-            # Test if the match was sufficiently strong
             if isinstance(end_search_threshold, (int, float)):
                 if match_quality >= end_search_threshold:
                     break
@@ -299,22 +290,14 @@ def robust_match_template(pattern_image,
 
     :rtype: ``dict``
     """
-    # Load the pattern images
     pattern = _robust_match_template_loading(pattern_image, "pattern_image")
-
-    # Load the base
     base = _robust_match_template_loading(base_image, "base_image")
 
-    # Search for matches
     match_dict = _matching_engine(base, pattern, base_resizes, base_image_cropping, end_search_threshold)
 
     if len(list(match_dict.keys())):
-        # Extract the best match
         best_match = max(list(match_dict.values()), key=lambda x: x[2])
-
-        # Compute the bounding box
         bounding_box = _corners_calc(best_match[0], best_match[1])
-
         match_quality = best_match[2]
     else:
         bounding_box = None
