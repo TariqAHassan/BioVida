@@ -225,7 +225,7 @@
     <span class="c1"># Crop to the left</span>
     <span class="n">hcrop_base</span> <span class="o">=</span> <span class="n">base</span><span class="p">[:,</span> <span class="nb">int</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">h_prop</span><span class="p">):]</span>
 
-    <span class="c1"># Crop with respect to height and return</span>
+    <span class="c1"># Crop with respect to height</span>
     <span class="k">return</span> <span class="n">hcrop_base</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">v_prop</span><span class="p">)]</span>
 
 
@@ -297,10 +297,7 @@
     <span class="c1"># Pick the limiting axis in the base (largest)</span>
     <span class="n">size_floor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
-    <span class="c1"># Compute the smallest scalar</span>
     <span class="n">min_scalar_for_base</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">size_floor</span> <span class="o">/</span> <span class="n">smallest_base_axis</span><span class="p">,</span> <span class="n">round_to</span><span class="p">))</span>
-
-    <span class="c1"># Convert `base_resizes` into a list</span>
     <span class="n">base_resizes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">base_resizes</span><span class="p">)</span>
 
     <span class="c1"># Move the rescale into valid range, if needed</span>
@@ -346,22 +343,16 @@
         <span class="c1"># Rescale the image</span>
         <span class="n">scaled_cropped_base</span> <span class="o">=</span> <span class="n">imresize</span><span class="p">(</span><span class="n">cropped_base</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="s1">&#39;lanczos&#39;</span><span class="p">)</span>
 
-        <span class="c1"># ToDo: this should not be needed.</span>
+        <span class="c1"># ToDo: this try/except should not be needed.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Run the template matching algorithm</span>
             <span class="n">template_match_analysis</span> <span class="o">=</span> <span class="n">match_template</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">scaled_cropped_base</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">pattern</span><span class="p">)</span>
 
-            <span class="c1"># Get the top left corner of the match and the match quality</span>
             <span class="n">top_left</span><span class="p">,</span> <span class="n">match_quality</span> <span class="o">=</span> <span class="n">_best_guess_location</span><span class="p">(</span><span class="n">template_match_analysis</span><span class="p">,</span> <span class="n">scaling</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
             <span class="n">top_left_adj</span> <span class="o">=</span> <span class="n">top_left</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">base_h_crop</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
-            <span class="c1"># Work out the bottom right</span>
             <span class="n">bottom_right</span> <span class="o">=</span> <span class="n">top_left_adj</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">shape</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span>
-
-            <span class="c1"># Record</span>
             <span class="n">match_dict</span><span class="p">[</span><span class="n">scale</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">top_left_adj</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">bottom_right</span><span class="p">),</span> <span class="n">match_quality</span><span class="p">)</span>
 
-            <span class="c1"># Test if the match was sufficiently strong</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end_search_threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="n">match_quality</span> <span class="o">&gt;=</span> <span class="n">end_search_threshold</span><span class="p">:</span>
                     <span class="k">break</span>
@@ -456,22 +447,14 @@
 
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Load the pattern images</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="n">_robust_match_template_loading</span><span class="p">(</span><span class="n">pattern_image</span><span class="p">,</span> <span class="s2">&quot;pattern_image&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Load the base</span>
     <span class="n">base</span> <span class="o">=</span> <span class="n">_robust_match_template_loading</span><span class="p">(</span><span class="n">base_image</span><span class="p">,</span> <span class="s2">&quot;base_image&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Search for matches</span>
     <span class="n">match_dict</span> <span class="o">=</span> <span class="n">_matching_engine</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">base_image_cropping</span><span class="p">,</span> <span class="n">end_search_threshold</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">match_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
-        <span class="c1"># Extract the best match</span>
         <span class="n">best_match</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">match_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-
-        <span class="c1"># Compute the bounding box</span>
         <span class="n">bounding_box</span> <span class="o">=</span> <span class="n">_corners_calc</span><span class="p">(</span><span class="n">best_match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">best_match</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
         <span class="n">match_quality</span> <span class="o">=</span> <span class="n">best_match</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">bounding_box</span> <span class="o">=</span> <span class="kc">None</span>

@@ -252,7 +252,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
 
         <span class="c1"># Cache Creation</span>
-        <span class="n">ppc</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;genomics&#39;</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span> <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;disgenet&#39;</span><span class="p">])</span>
+        <span class="n">ppc</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;genomics&#39;</span><span class="p">,</span>
+                                    <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
+                                    <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;disgenet&#39;</span><span class="p">],</span>
+                                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_gene_dirs</span> <span class="o">=</span> <span class="n">ppc</span>
 
         <span class="c1"># Check if a readme exists.</span>

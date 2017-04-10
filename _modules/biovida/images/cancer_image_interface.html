@@ -173,6 +173,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">log10</span><span class="p">,</span> <span class="n">floor</span>
@@ -240,7 +241,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_homepage</span> <span class="o">=</span> <span class="n">tcia_homepage</span>
         <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_image_dirs</span> <span class="o">=</span> <span class="n">package_cache_creator</span><span class="p">(</span><span class="n">sub_dir</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
-                                                            <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tcia&#39;</span><span class="p">],</span> <span class="n">nest</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;tcia&#39;</span><span class="p">,</span> <span class="s1">&#39;databases&#39;</span><span class="p">)])</span>
+                                                            <span class="n">to_create</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tcia&#39;</span><span class="p">],</span> <span class="n">nest</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;tcia&#39;</span><span class="p">,</span> <span class="s1">&#39;databases&#39;</span><span class="p">)],</span>
+                                                            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dicom_modality_abbrevs</span> <span class="o">=</span> <span class="n">dicom_modality_abbrevs</span>
 
@@ -276,13 +278,14 @@
 
         <span class="k">return</span> <span class="n">summary_df</span>
 
-    <span class="k">def</span> <span class="nf">_all_studies_cache_mngt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_override</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_obtain_tcia_overview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Obtain and Manage a copy the table which summarizes the the Cancer Imaging Archive</span>
 <span class="sd">        on the organization&#39;s homepage.</span>
 
 <span class="sd">        :param download_override: If ``True``, override any existing database currently cached and download a new one.</span>
+<span class="sd">                                  Defaults to ``False``.</span>
 <span class="sd">        :type download_override: ``bool``</span>
 <span class="sd">        :return: summary table hosted on the home page of the Cancer Imaging Archive.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
@@ -365,17 +368,17 @@
 <span class="sd">    :type api_key: ``str``</span>
 <span class="sd">    :param dicom_modality_abbrevs: an instance of ``CancerImageArchiveParams().dicom_modality_abbreviations(&#39;dict&#39;)``</span>
 <span class="sd">    :type dicom_modality_abbrevs: ``dict``</span>
-<span class="sd">    :param cancer_image_archive_overview: an instance of ``_CancerImageArchiveOverview()``</span>
-<span class="sd">    :type cancer_image_archive_overview: ``class``</span>
+<span class="sd">    :param tcia_overview_df: yield of ``_CancerImageArchiveOverview()._obtain_tcia_overview()``</span>
+<span class="sd">    :type tcia_overview_df: ``Pandas DataFrames``</span>
 <span class="sd">    :param root_url: the root URL for the Cancer Imaging Archive&#39;s API.</span>
 <span class="sd">    :type root_url: ``str``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">dicom_modality_abbrevs</span><span class="p">,</span> <span class="n">cancer_image_archive_overview</span><span class="p">,</span> <span class="n">root_url</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">dicom_modality_abbrevs</span><span class="p">,</span> <span class="n">tcia_overview_df</span><span class="p">,</span> <span class="n">root_url</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ROOT_URL</span> <span class="o">=</span> <span class="n">root_url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records_df</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dicom_modality_abbrevs</span> <span class="o">=</span> <span class="n">dicom_modality_abbrevs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_Overview</span> <span class="o">=</span> <span class="n">cancer_image_archive_overview</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_overview_df</span> <span class="o">=</span> <span class="n">tcia_overview_df</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">API_KEY</span> <span class="o">=</span> <span class="n">api_key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_url_sep</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span>
 
@@ -419,9 +422,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_url_sep</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span>  <span class="c1"># reset</span>
             <span class="k">if</span> <span class="n">study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;The &#39;</span><span class="si">{0}</span><span class="s2">&#39; collection/study data has no length.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                                 <span class="s2">&quot;The separator being used to replace spaces in the URL may be incorrect. An attempt</span><span class="se">\n</span><span class="s2">&quot;</span>
-                                 <span class="s2">&quot;was made with the following separators: &#39;+&#39; and &#39;-&#39;. Alternatively, this problem</span><span class="se">\n</span><span class="s2">&quot;</span>
-                                 <span class="s2">&quot;could be caused by a problem with the Cancer Imaging Archive API.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">study</span><span class="p">))</span>
+                                 <span class="s2">&quot;This is likely the result of a problem with the &quot;</span>
+                                 <span class="s2">&quot;Cancer Imaging Archive REST API&#39;s.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">study</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">study_df</span>
 
     <span class="nd">@staticmethod</span>
@@ -540,9 +542,9 @@
             <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
         <span class="c1"># Remove unneeded line break marker</span>
-        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;protocol_name&#39;</span><span class="p">,</span> <span class="s1">&#39;series_description&#39;</span><span class="p">):</span>
-            <span class="n">patient_study_df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">patient_study_df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;\/&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)),</span>
-                                                          <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;protocol_name&#39;</span><span class="p">,</span> <span class="s1">&#39;series_description&#39;</span><span class="p">,</span> <span class="s1">&#39;manufacturer_model_name&#39;</span><span class="p">):</span>
+            <span class="n">patient_study_df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">patient_study_df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;\/&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">))</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
         <span class="c1"># Add the full name for modality.</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;modality_full&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;modality&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
@@ -550,14 +552,16 @@
 
         <span class="c1"># Lower and clean &#39;body_part_examined&#39; column</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;body_part_examined&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;body_part_examined&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+            <span class="c1"># ToDo: generalize the special case used here to handle &#39;headneck&#39;.</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;headneck&quot;</span><span class="p">,</span> <span class="s2">&quot;head, neck&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span>
+            <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;series_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;series_date&#39;</span><span class="p">],</span>
                                                          <span class="n">infer_datetime_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">series_number_rescale</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">floor</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">10</span><span class="o">**</span><span class="n">floor</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">x</span>
 
@@ -567,7 +571,7 @@
         <span class="n">sort_by</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s1">&#39;session&#39;</span><span class="p">,</span> <span class="s1">&#39;series_number_rescaled&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">sort_by</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_condition_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection_series</span><span class="p">,</span> <span class="n">overview_download_override</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_condition_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection_series</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        This method gets the name of the condition studied for a given collection (study).</span>
@@ -575,9 +579,6 @@
 
 <span class="sd">        :param collection_series: a series of the study name, e.g., (&#39;MY-STUDY&#39;, &#39;MY-STUDY&#39;, &#39;MY-STUDY&#39;, ...).</span>
 <span class="sd">        :type collection_series: ``Pandas Series``</span>
-<span class="sd">        :param overview_download_override: see ``_CancerImageArchiveOverview()_all_studies_cache_mngt()``&#39;s</span>
-<span class="sd">                                           ``download_override`` param.</span>
-<span class="sd">        :type overview_download_override: ``bool``</span>
 <span class="sd">        :return: the name of disease studied in a given collection (lower case).</span>
 <span class="sd">        :rtype: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -585,12 +586,15 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_studies</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">collection</span> <span class="o">=</span> <span class="n">unique_studies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;`</span><span class="si">{0}</span><span class="s2">` studies found in `records`. Expected one.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_studies</span><span class="p">))))</span>
-        <span class="n">summary_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Overview</span><span class="o">.</span><span class="n">_all_studies_cache_mngt</span><span class="p">(</span><span class="n">download_override</span><span class="o">=</span><span class="n">overview_download_override</span><span class="p">)</span>
-        <span class="n">condition_name</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">collection</span><span class="p">][</span><span class="s1">&#39;cancer_type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;`</span><span class="si">{0}</span><span class="s2">` studies found in `records`. &quot;</span>
+                                 <span class="s2">&quot;Expected one.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_studies</span><span class="p">))))</span>
+
+        <span class="n">condition_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_overview_df</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_overview_df</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">collection</span><span class="p">][</span><span class="s1">&#39;cancer_type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
         <span class="k">return</span> <span class="n">condition_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">condition_name</span>
 
-    <span class="k">def</span> <span class="nf">records_pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study</span><span class="p">,</span> <span class="n">search_dict</span><span class="p">,</span> <span class="n">pull_time</span><span class="p">,</span> <span class="n">patient_limit</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">overview_download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">records_pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study</span><span class="p">,</span> <span class="n">search_dict</span><span class="p">,</span> <span class="n">pull_time</span><span class="p">,</span> <span class="n">patient_limit</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Extract record of all images for all patients in a given study.</span>
@@ -602,12 +606,9 @@
 <span class="sd">        :type search_dict: ``dict``</span>
 <span class="sd">        :param pull_time: the time the query was launched.</span>
 <span class="sd">        :type pull_time: ``datetime``</span>
-<span class="sd">        :param overview_download_override: see ``_CancerImageArchiveOverview()_all_studies_cache_mngt()``&#39;s</span>
-<span class="sd">                                           ``download_override`` param.</span>
-<span class="sd">        :type overview_download_override: ``bool``</span>
 <span class="sd">        :param patient_limit: limit on the number of patients to extract.</span>
-<span class="sd">                             Patient IDs are sorted prior to this limit being imposed.</span>
-<span class="sd">                             If ``None``, no `patient_limit` will be imposed.</span>
+<span class="sd">                              Patient IDs are sorted prior to this limit being imposed.</span>
+<span class="sd">                              If ``None``, no `patient_limit` will be imposed.</span>
 <span class="sd">        :type patient_limit: ``int`` or ``None``</span>
 <span class="sd">        :param verbose: if ``True`` print additional information. Defaults to ``False``.</span>
 <span class="sd">        :type verbose: ``bool``</span>
@@ -636,8 +637,7 @@
 
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;article_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;case_report&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;study_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">study</span>
-        <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;cancer_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_condition_name</span><span class="p">(</span><span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">],</span>
-                                                                   <span class="n">overview_download_override</span><span class="p">)</span>
+        <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;cancer_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_condition_name</span><span class="p">(</span><span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;collection&#39;</span><span class="p">])</span>
 
         <span class="c1"># Add the Search query which created the current results and the time the search was launched.</span>
         <span class="n">patient_study_df</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">search_dict</span><span class="p">]</span> <span class="o">*</span> <span class="n">patient_study_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -776,7 +776,7 @@
 <span class="sd">        :type series_uid: ``str``</span>
 <span class="sd">        :param conversion: the color scale conversion to use, e.g., &#39;LA&#39; or &#39;RGB&#39;.</span>
 <span class="sd">        :type conversion: ``str``</span>
-<span class="sd">        :param new_file_name: see ``_save_dicom_as_image``&#39;s ``save_name`` parameter.</span>
+<span class="sd">        :param new_file_name: see ``_convert_and_save_dicom``&#39;s ``save_name`` parameter.</span>
 <span class="sd">        :type new_file_name: ``str``</span>
 <span class="sd">        :return: tuple of the form: ``(a list of paths to saved images, boolean denoting success)``</span>
 <span class="sd">        :rtype: ``tuple``</span>
@@ -850,13 +850,13 @@
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">replacement</span><span class="p">)</span> <span class="k">if</span> <span class="n">return_replacement_len</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">replacement</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_save_dicom_as_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                             <span class="n">path_to_dicom_file</span><span class="p">,</span>
-                             <span class="n">index</span><span class="p">,</span>
-                             <span class="n">pull_position</span><span class="p">,</span>
-                             <span class="n">series_uid</span><span class="p">,</span>
-                             <span class="n">save_name</span><span class="p">,</span>
-                             <span class="n">color</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_convert_and_save_dicom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                <span class="n">path_to_dicom_file</span><span class="p">,</span>
+                                <span class="n">index</span><span class="p">,</span>
+                                <span class="n">pull_position</span><span class="p">,</span>
+                                <span class="n">series_uid</span><span class="p">,</span>
+                                <span class="n">save_name</span><span class="p">,</span>
+                                <span class="n">color</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Save a dicom image as a more common file format.</span>
@@ -1081,9 +1081,9 @@
 
                 <span class="k">if</span> <span class="n">save_png</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_save_dicom_as_image</span><span class="p">(</span><span class="n">path_to_dicom_file</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_position</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
-                                                  <span class="n">series_uid</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;series_instance_uid&#39;</span><span class="p">],</span>
-                                                  <span class="n">save_name</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_convert_and_save_dicom</span><span class="p">(</span><span class="n">path_to_dicom_file</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">pull_position</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
+                                                     <span class="n">series_uid</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;series_instance_uid&#39;</span><span class="p">],</span>
+                                                     <span class="n">save_name</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">save_dicom</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_move_dicoms</span><span class="p">(</span><span class="n">dicom_files</span><span class="o">=</span><span class="n">dicom_files</span><span class="p">,</span> <span class="n">series_abbrev</span><span class="o">=</span><span class="n">series_abbrev</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
@@ -1092,7 +1092,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_and_set_list</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_dicom_images_path&#39;</span><span class="p">,</span> <span class="n">dsl_summary</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_and_set_list</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;cached_images_path&#39;</span><span class="p">,</span> <span class="n">sl_summary</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;error_free_conversion&#39;</span><span class="p">,</span> <span class="n">cache_complete</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">save_png</span><span class="p">:</span>  <span class="c1"># otherwise, leave as None/NaN</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;error_free_conversion&#39;</span><span class="p">,</span> <span class="n">cache_complete</span><span class="p">)</span>
                 <span class="n">converted_image_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sl_summary</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sl_summary</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">real_time_update_db</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;image_count_converted_cache&#39;</span><span class="p">,</span> <span class="n">converted_image_count</span><span class="p">)</span>
 
@@ -1222,7 +1223,8 @@
             <span class="n">temp_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span><span class="o">.</span><span class="n">temp_directory_path</span>
             <span class="n">latent_pickles</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.p&quot;</span><span class="p">)]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">):</span>
-                <span class="n">settings_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">latent_pickles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">settings_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
                 <span class="n">settings_dict_for_pull</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">settings_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;records_db&#39;</span><span class="p">]}</span>
                 <span class="n">settings_dict_for_pull</span><span class="p">[</span><span class="s1">&#39;new_records_pull&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># adding this separately in `pull` breaks in python2</span>
 
@@ -1303,9 +1305,11 @@
                                                      <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
                                                      <span class="n">cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_overview_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Overview</span><span class="o">.</span><span class="n">_obtain_tcia_overview</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_Records</span> <span class="o">=</span> <span class="n">_CancerImageArchiveRecords</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
                                                    <span class="n">dicom_modality_abbrevs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dicom_modality_abbrevs</span><span class="p">,</span>
-                                                   <span class="n">cancer_image_archive_overview</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_Overview</span><span class="p">,</span>
+                                                   <span class="n">tcia_overview_df</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tcia_overview_df</span><span class="p">),</span>
                                                    <span class="n">root_url</span><span class="o">=</span><span class="n">root_url</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_Images</span> <span class="o">=</span> <span class="n">_CancerImageArchiveImages</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
@@ -1375,6 +1379,11 @@
     <span class="k">def</span> <span class="nf">cache_records_db_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return `cache_records_db` with nonessential columns removed.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">data_frame_col_drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_records_db</span><span class="p">,</span> <span class="n">nonessential_cancer_image_columns</span><span class="p">,</span> <span class="s1">&#39;cache_records_db&#39;</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="CancerImageInterface.update_collections"><a class="viewcode-back" href="../../../source/biovida.html#biovida.images.cancer_image_interface.CancerImageInterface.update_collections">[docs]</a>    <span class="k">def</span> <span class="nf">update_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Refresh the list of collections provided by the Cancer Imaging Archive.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tcia_overview_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Overview</span><span class="o">.</span><span class="n">_obtain_tcia_overview</span><span class="p">(</span><span class="n">download_override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Records</span><span class="o">.</span><span class="n">_tcia_overview_df</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tcia_overview_df</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_collection_filter</span><span class="p">(</span><span class="n">summary_df</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">cancer_type</span><span class="p">,</span> <span class="n">location</span><span class="p">):</span>
@@ -1382,7 +1391,7 @@
 
 <span class="sd">        Limits `summary_df` to individual collections.</span>
 
-<span class="sd">        :param summary_df: the yield of ``_CancerImageArchiveOverview()._all_studies_cache_mngt()``</span>
+<span class="sd">        :param summary_df: the yield of ``_CancerImageArchiveOverview()._obtain_tcia_overview()``</span>
 <span class="sd">        :type summary_df: ``Pandas DataFrame``</span>
 <span class="sd">        :param collection: a collection (study), or iterable (e.g., list) of collections,</span>
 <span class="sd">                           hosted by the Cancer Imaging Archive. Defaults to ``None``.</span>
@@ -1473,27 +1482,30 @@
 <span class="sd">              ...                          ...                                  ...               ...         ...</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Create the search dict.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_search_dict_gen</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">cancer_type</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">modality</span><span class="p">)</span>
 
-        <span class="c1"># Load the Summary Table</span>
-        <span class="n">summary_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Overview</span><span class="o">.</span><span class="n">_all_studies_cache_mngt</span><span class="p">(</span><span class="n">download_override</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">download_override</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_collections</span><span class="p">()</span>
+        <span class="n">summary_df</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tcia_overview_df</span><span class="p">)</span>
 
-        <span class="c1"># Filter by `collection`</span>
         <span class="k">if</span> <span class="n">collection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">summary_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection_filter</span><span class="p">(</span><span class="n">summary_df</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">cancer_type</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+            <span class="n">summary_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection_filter</span><span class="p">(</span><span class="n">summary_df</span><span class="p">,</span>
+                                                 <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
+                                                 <span class="n">cancer_type</span><span class="o">=</span><span class="n">cancer_type</span><span class="p">,</span>
+                                                 <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Apply Filters</span>
-            <span class="n">summary_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Overview</span><span class="o">.</span><span class="n">_studies_filter</span><span class="p">(</span><span class="n">summary_df</span><span class="p">,</span> <span class="n">cancer_type</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">modality</span><span class="p">)</span>
+            <span class="n">summary_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Overview</span><span class="o">.</span><span class="n">_studies_filter</span><span class="p">(</span><span class="n">summary_df</span><span class="p">,</span>
+                                                        <span class="n">cancer_type</span><span class="o">=</span><span class="n">cancer_type</span><span class="p">,</span>
+                                                        <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                                                        <span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">NoResultsFound</span><span class="p">(</span><span class="s2">&quot;Try Broadening the Search Criteria.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Cache Search</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_query</span> <span class="o">=</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">pretty_print</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">IN_NOTEBOOK</span><span class="p">:</span>
             <span class="n">pandas_pprint</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_query</span><span class="p">,</span> <span class="n">full_cols</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                          <span class="n">col_align</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">column_width_limit</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+                          <span class="n">col_align</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">column_width_limit</span><span class="o">=</span><span class="mi">750</span><span class="p">)</span>
 
         <span class="c1"># Warn the user if search criteria have not been applied.</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">collection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cancer_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">modality</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]):</span>

@@ -304,7 +304,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_train_gen</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_val_gen</span><span class="p">()</span>
 
-        <span class="c1"># Update</span>
         <span class="n">train_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_generator</span><span class="o">.</span><span class="n">class_indices</span>
         <span class="n">val_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_generator</span><span class="o">.</span><span class="n">class_indices</span>
 
@@ -650,10 +649,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data_stream</span><span class="p">()</span>
 
-        <span class="c1"># Get the number of classes</span>
         <span class="n">classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_classes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-        <span class="c1"># Define the Model</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">model_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_to_use</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
@@ -671,7 +668,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">optimizer_to_pass</span> <span class="o">=</span> <span class="n">optimizer</span>
 
-        <span class="c1"># Compilation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer_to_pass</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">metrics</span><span class="p">))</span></div>
 
     <span class="k">def</span> <span class="nf">_model_existence_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_format</span><span class="p">,</span> <span class="n">second_format</span><span class="p">,</span> <span class="n">additional</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
@@ -707,7 +703,6 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`epochs` must be an integer.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Define callbacks</span>
         <span class="n">early_stop</span> <span class="o">=</span> <span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="n">min_delta</span><span class="o">=</span><span class="n">min_delta</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="n">patience</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit_generator</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_generator</span><span class="p">,</span>
@@ -772,7 +767,8 @@
 <span class="sd">        :type path: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">load_location</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_support.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">load_location</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">load_location</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_path</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -811,10 +807,7 @@
         <span class="k">if</span> <span class="n">default_model_load</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">convnet</span><span class="p">()</span>
 
-        <span class="c1"># Load the supporting data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_support_load_data</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
-        <span class="c1"># Load the Model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_prediction_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">single_image_prediction</span><span class="p">):</span>

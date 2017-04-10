@@ -461,7 +461,7 @@
     <span class="n">image</span> <span class="o">=</span> <span class="n">_zero_var_axis_elements_remove</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
 
     <span class="c1"># Average the remaining values</span>
-    <span class="c1"># ToDo: it&#39;s not not clear if _array_cleaner() helps much...after all, the vector has already been averaged.</span>
+    <span class="c1"># ToDo: it&#39;s not not clear if ``_array_cleaner()`` helps much...after all, the vector has already been averaged.</span>
     <span class="n">averaged_axis_values</span> <span class="o">=</span> <span class="n">_array_cleaner</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">_largest_median_inflection</span><span class="p">(</span><span class="n">averaged_axis_values</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="p">)</span></div>
 
@@ -530,18 +530,15 @@
 
     <span class="n">lower_image_array</span> <span class="o">=</span> <span class="n">image_array</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">cut_off</span><span class="p">:</span><span class="n">flr</span><span class="p">]</span>
 
-    <span class="c1"># Run an edge analysis</span>
     <span class="n">lower_bar_candidates</span> <span class="o">=</span> <span class="n">edge_detection</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">lower_image_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_largest_override</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-
-    <span class="c1"># Apply Threshold</span>
     <span class="n">thresholded_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">cut_off</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lower_bar_candidates</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">signal_strength_threshold</span><span class="p">]))</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">thresholded_values</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="c1"># Return the averaged guess</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">thresholded_values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">mean_thresholded_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">thresholded_values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">mean_thresholded_values</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="lower_bar_analysis"><a class="viewcode-back" href="../../../../source/biovida.html#biovida.images.models.border_detection.lower_bar_analysis">[docs]</a><span class="k">def</span> <span class="nf">lower_bar_analysis</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">lower_bar_search_space</span><span class="p">,</span> <span class="n">signal_strength_threshold</span><span class="p">,</span> <span class="n">lower_bar_second_pass</span><span class="p">):</span>
@@ -561,7 +558,7 @@
 <span class="sd">                                      for an area required to be considered a &#39;lower bar&#39;.</span>
 <span class="sd">                                      This is measured as a absolute value of the difference between</span>
 <span class="sd">                                      a location and the median signal strength of the average image.</span>
-<span class="sd">    :type signal_strength_threshold: ``int``</span>
+<span class="sd">    :type signal_strength_threshold: ``int`` or ``float``</span>
 <span class="sd">    :param lower_bar_second_pass: if ``True`` perform a second pass on the lower bar.</span>
 <span class="sd">    :type lower_bar_second_pass: ``bool``</span>
 <span class="sd">    :return: the location of the start of the lower bar (i.e., edge).</span>
@@ -596,10 +593,8 @@
 <span class="sd">        _____________________________</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Run a first pass</span>
     <span class="n">first_pass_rslt</span> <span class="o">=</span> <span class="n">_lower_bar_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">lower_bar_search_space</span><span class="p">,</span> <span class="n">signal_strength_threshold</span><span class="p">)</span>
     
-    <span class="c1"># Run a second pass</span>
     <span class="k">if</span> <span class="n">lower_bar_second_pass</span><span class="p">:</span>
         <span class="n">second_pass_rslt</span> <span class="o">=</span> <span class="n">_lower_bar_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span>
                                                 <span class="n">lower_bar_search_space</span><span class="p">,</span>
@@ -698,18 +693,14 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`image_array` must be either a path to an image or the image as a 2D ndarray.&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Initialize the return dict</span>
     <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="s1">&#39;vborder&#39;</span><span class="p">,</span> <span class="s1">&#39;hborder&#39;</span><span class="p">,</span> <span class="s1">&#39;hbar&#39;</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
 
-    <span class="c1"># Get Values for columns</span>
     <span class="n">v_edge_candidates</span> <span class="o">=</span> <span class="n">edge_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="c1"># Run Analysis</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;vborder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_weigh_evidence</span><span class="p">(</span><span class="n">v_edge_candidates</span><span class="p">,</span>
                                    <span class="n">image_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>      <span class="c1"># Note: we have (rows, columns) = (height, width).</span>
                                    <span class="n">signal_strength_threshold</span><span class="p">,</span>
                                    <span class="n">min_border_separation</span><span class="p">)</span>
 
-    <span class="c1"># Get Values for rows</span>
     <span class="n">h_border_candidates</span> <span class="o">=</span> <span class="n">edge_detection</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Run Analysis. This excludes final element in `h_border_candidates` as including a third element</span>
@@ -719,10 +710,11 @@
                                    <span class="n">signal_strength_threshold</span><span class="p">,</span>
                                    <span class="n">min_border_separation</span><span class="p">)</span>
 
-    <span class="c1"># Look for lower bar</span>
-    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;hbar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lower_bar_analysis</span><span class="p">(</span><span class="n">image_array</span><span class="p">,</span> <span class="n">lower_bar_search_space</span><span class="p">,</span> <span class="n">signal_strength_threshold</span><span class="p">,</span> <span class="n">lower_bar_second_pass</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;hbar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lower_bar_analysis</span><span class="p">(</span><span class="n">image_array</span><span class="o">=</span><span class="n">image_array</span><span class="p">,</span>
+                                   <span class="n">lower_bar_search_space</span><span class="o">=</span><span class="n">lower_bar_search_space</span><span class="p">,</span>
+                                   <span class="n">signal_strength_threshold</span><span class="o">=</span><span class="n">signal_strength_threshold</span><span class="p">,</span>
+                                   <span class="n">lower_bar_second_pass</span><span class="o">=</span><span class="n">lower_bar_second_pass</span><span class="p">)</span>
 
-    <span class="c1"># Return the analysis</span>
     <span class="k">if</span> <span class="n">report_signal_strength</span><span class="p">:</span>  <span class="c1"># ToDo: not working for &#39;hbar&#39;.</span>
         <span class="k">return</span> <span class="n">d</span>
     <span class="k">else</span><span class="p">:</span>

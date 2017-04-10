@@ -532,6 +532,12 @@ must first check that the studies you have selected are not subject to such rest
 </dd></dl>
 
 <dl class="method">
+<dt id="biovida.images.cancer_image_interface.CancerImageInterface.update_collections">
+<code class="descname">update_collections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.update_collections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.update_collections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refresh the list of collections provided by the Cancer Imaging Archive.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.search">
 <code class="descname">search</code><span class="sig-paren">(</span><em>collection=None</em>, <em>cancer_type=None</em>, <em>location=None</em>, <em>modality=None</em>, <em>download_override=False</em>, <em>pretty_print=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to Search for studies on the Cancer Imaging Archive.</p>
@@ -1349,7 +1355,7 @@ The first pass with truncate the first line; the second pass will truncate the l
 <li><strong>image_array</strong> (<code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code>) &#8211; an image represented as a matrix.</li>
 <li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the proportion of the image
 to search for a lower bar (e.g., 0.90).</li>
-<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; a value between 0 and 1 specify the signal strength required
+<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the signal strength required
 for an area required to be considered a &#8216;lower bar&#8217;.
 This is measured as a absolute value of the difference between
 a location and the median signal strength of the average image.</li>
