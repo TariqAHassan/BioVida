@@ -103,7 +103,7 @@ is likely to contain a large number of images
 unrelated to the search query and/or are unsuitable for machine learning.
 
 The *experimental* ``OpeniImageProcessing`` class can be used to completely
-automate this data cleaning process, which is partly powered by a Convolutional Neural Networks.
+automate this data cleaning process, which is partly powered by a Convolutional Neural Network.
 
 ```python
 # 1. Import Image Processing Tools
