@@ -19,6 +19,7 @@ setup(
     license='BSD',
     keywords='machine-learning, biomedical-informatics, data-science, bioinformatics, imaging-informatics',
     url='https://github.com/TariqAHassan/BioVida.git',
+    download_url='https://github.com/TariqAHassan/BioVida/archive/v0.1.0.tar.gz',
     packages=find_packages(exclude=("data.*",
                                     "data",
                                     "tests.*",
