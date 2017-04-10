@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name='biovida',
-    version='0.1.0',
+    version='0.1.1',
     author='Tariq A. Hassan',
     author_email='laterallattice@gmail.com',
     description=('Automated BioMedical Information Curation for Machine Learning Applications.'),
