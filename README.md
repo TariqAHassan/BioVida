@@ -14,7 +14,7 @@ BioVida is a library designed to make it easy to gain access to
 existing data sets of biomedical images as well as build brand new, custom-made ones.
 
 It is hoped that by automating the tedious data munging that is typically involved
-in this process, more people will become interested in a applying machine learning
+in this process, more people will become interested in applying machine learning
 to biomedical images and, in turn, advancing insights into human disease.
 
 In a nod to recursion, this library tries to accomplish some of this automation
