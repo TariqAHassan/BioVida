@@ -849,7 +849,6 @@ class _OpeniImages(object):
         pickle.dump({k: v for k, v in locals().items() if k not in ('self', 'settings_path')},
                     open(settings_path, "wb"))
 
-        # Instantiate `self.real_time_update_db`
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index)
 
         if image_size not in ('grid150', 'large', 'thumb', 'thumb_large'):
@@ -861,7 +860,6 @@ class _OpeniImages(object):
                                             self.records_db_images[image_column],
                                             self.records_db_images['image_problems_from_text']]))
 
-        # Harvest
         self._pull_images_engine(harvesting_information=harvesting_information,
                                  images_sleep_time=images_sleep_time,
                                  image_size=image_size,
