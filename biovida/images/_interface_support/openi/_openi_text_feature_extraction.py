@@ -466,6 +466,9 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
     # ToDO: this function is very computationally expensive and rather ineffective. Replace.
     generic = ('syndrome', 'disease')
 
+    if isinstance(problems, str) and cln(problems).lower() in ('normal', 'none'):
+        return 'normal'
+
     possible_diseases = list()
     for source in (image_caption, image_mention, problems, title, background, abstract):
         if isinstance(source, str) and len(source):
@@ -473,8 +476,6 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
             for d in list_of_diseases:
                 if d in source_clean:
                     possible_diseases.append([source_clean.find(d), d])
-            # if len(possible_diseases):  # break to prevent a later source contradicting an earlier one.
-            #     break
 
     no_substrings = _remove_substrings(possible_diseases)
     to_return = list(set([i[1] for i in no_substrings if i[1] not in generic]))
@@ -483,8 +484,11 @@ def _disease_guess(problems, title, background, abstract, image_caption, image_m
         return "; ".join(sorted(to_return))
     # Try to fall back to `problems`.
     elif not len(to_return) and isinstance(problems, str):
-        parsed_problems = cln(problems).split(";")
-        return "; ".join(sorted(parsed_problems)).lower()
+        filtered_problems = [p for p in problems.split(";") if p in list_of_diseases]
+        if len(filtered_problems):
+            return "; ".join(sorted(filtered_problems))
+        else:
+            return None
     else:
         return None
 

@@ -18,7 +18,7 @@ from biovida.support_tools.support_tools import cln, unescape, remove_html_bulle
 from biovida.images._image_tools import NoResultsFound
 
 # General Support Tools
-from biovida.support_tools.support_tools import tqdm, camel_to_snake_case
+from biovida.support_tools.support_tools import tqdm, camel_to_snake_case, reverse_comma, order_set
 
 # Open-i API Parameters Information
 from biovida.images._interface_support.openi.openi_parameters import (openi_image_type_params,
@@ -54,6 +54,38 @@ def abstract_cleaner(abstract):
     soup = BeautifulSoup(remove_html_bullet_points(abstract).replace("<b>", ". "), 'lxml')
     cleaned = soup.text.replace(" ; ", " ").replace("..", ".").replace(".;", ";").strip()
     return cleaned.strip(".") + "."
+
+
+# ----------------------------------------------------------------------------------------------------------
+# Problems Cleaning
+# ----------------------------------------------------------------------------------------------------------
+
+
+def problems_cleaner(problems):
+    """
+    
+    Clean strings in the 'problems'
+    column by:
+    
+    - removing duplicates
+    - reversing items with commas
+    
+    :param problems: an item from the 'problems' column
+    :return: cleaned ``problems``
+    :rtype: ``str``
+    
+    :Example:
+    
+    >>> problems_cleaner("Lung; Fractures, Bone")
+    ...
+    'lung; bone fractures'
+    
+    """
+    if not isinstance(problems, str):
+        return problems
+
+    cleaned = order_set(problems.lower().split(";"))
+    return "; ".join([reverse_comma(s=cln(i)) for i in cleaned])
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -311,6 +343,7 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
     data_frame = _df_add_missing_columns(data_frame)
 
     data_frame['article_type'] = data_frame['article_type'].map(article_type_lookup, na_action='ignore')
+    data_frame['problems'] = data_frame['problems'].map(problems_cleaner, na_action='ignore')
 
     if clinical_cases_only:
         data_frame = _apply_clinical_case_only(data_frame)

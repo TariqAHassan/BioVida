@@ -69,6 +69,24 @@ def dict_reverse(d):
     return {v: k for k, v in d.items()}
 
 
+def reverse_comma(s):
+    """
+    
+    Reverse a string with a comma.
+    
+    Note: ``s`` is expected to be passed through ``cln`` first.
+    
+    :param s: a string
+    :type s: ``str``
+    :return: reversed string
+    :rtype: ``str``
+    """
+    if isinstance(s, str) and s.count(",") == 1:
+        return " ".join(s.split(", ")[::-1])
+    else:
+        return s
+
+
 def order_set(l):
     """
 
