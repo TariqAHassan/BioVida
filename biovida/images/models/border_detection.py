@@ -304,7 +304,7 @@ def edge_detection(image, axis=0, n_largest_override=None):
     image = _zero_var_axis_elements_remove(image, axis)
 
     # Average the remaining values
-    # ToDo: it's not not clear if _array_cleaner() helps much...after all, the vector has already been averaged.
+    # ToDo: it's not not clear if ``_array_cleaner()`` helps much...after all, the vector has already been averaged.
     averaged_axis_values = _array_cleaner(np.mean(image, axis=axis))
     return _largest_median_inflection(averaged_axis_values, axis, n_largest_override)
 
@@ -373,18 +373,15 @@ def _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_th
 
     lower_image_array = image_array.copy()[cut_off:flr]
 
-    # Run an edge analysis
     lower_bar_candidates = edge_detection(image=lower_image_array, axis=1, n_largest_override=8)
-
-    # Apply Threshold
     thresholded_values = list(set([i[0] + cut_off for i in lower_bar_candidates if i[1] > signal_strength_threshold]))
 
     if not len(thresholded_values):
         return None
 
     # Return the averaged guess
-    m = np.mean(thresholded_values).astype(int)
-    return int(m)
+    mean_thresholded_values = np.mean(thresholded_values).astype(int)
+    return int(mean_thresholded_values)
 
 
 def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_threshold, lower_bar_second_pass):
@@ -404,7 +401,7 @@ def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_thre
                                       for an area required to be considered a 'lower bar'.
                                       This is measured as a absolute value of the difference between
                                       a location and the median signal strength of the average image.
-    :type signal_strength_threshold: ``int``
+    :type signal_strength_threshold: ``int`` or ``float``
     :param lower_bar_second_pass: if ``True`` perform a second pass on the lower bar.
     :type lower_bar_second_pass: ``bool``
     :return: the location of the start of the lower bar (i.e., edge).
@@ -439,10 +436,8 @@ def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_thre
         _____________________________
 
     """
-    # Run a first pass
     first_pass_rslt = _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
     
-    # Run a second pass
     if lower_bar_second_pass:
         second_pass_rslt = _lower_bar_detection(image_array,
                                                 lower_bar_search_space,
@@ -541,18 +536,14 @@ def border_detection(image,
     else:
         raise ValueError("`image_array` must be either a path to an image or the image as a 2D ndarray.")
 
-    # Initialize the return dict
     d = dict.fromkeys(['vborder', 'hborder', 'hbar'], None)
 
-    # Get Values for columns
     v_edge_candidates = edge_detection(image_array, axis=0)
-    # Run Analysis
     d['vborder'] = _weigh_evidence(v_edge_candidates,
                                    image_array.shape[1],      # Note: we have (rows, columns) = (height, width).
                                    signal_strength_threshold,
                                    min_border_separation)
 
-    # Get Values for rows
     h_border_candidates = edge_detection(image_array, axis=1)
 
     # Run Analysis. This excludes final element in `h_border_candidates` as including a third element
@@ -562,10 +553,11 @@ def border_detection(image,
                                    signal_strength_threshold,
                                    min_border_separation)
 
-    # Look for lower bar
-    d['hbar'] = lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_threshold, lower_bar_second_pass)
+    d['hbar'] = lower_bar_analysis(image_array=image_array,
+                                   lower_bar_search_space=lower_bar_search_space,
+                                   signal_strength_threshold=signal_strength_threshold,
+                                   lower_bar_second_pass=lower_bar_second_pass)
 
-    # Return the analysis
     if report_signal_strength:  # ToDo: not working for 'hbar'.
         return d
     else:
