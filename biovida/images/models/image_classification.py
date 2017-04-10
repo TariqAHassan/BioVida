@@ -147,7 +147,6 @@ class ImageClassificationCNN(object):
         self._train_gen()
         self._val_gen()
 
-        # Update
         train_classes = self._train_generator.class_indices
         val_classes = self._validation_generator.class_indices
 
@@ -493,10 +492,8 @@ class ImageClassificationCNN(object):
         if self._data_path is not None:
             self._data_stream()
 
-        # Get the number of classes
         classes = len(self.data_classes.keys())
 
-        # Define the Model
         try:
             model_method = getattr(self, model_to_use)
         except:
@@ -514,7 +511,6 @@ class ImageClassificationCNN(object):
         else:
             optimizer_to_pass = optimizer
 
-        # Compilation
         self.model.compile(loss=loss, optimizer=optimizer_to_pass, metrics=list(metrics))
 
     def _model_existence_check(self, first_format, second_format, additional=''):
@@ -550,7 +546,6 @@ class ImageClassificationCNN(object):
         if not isinstance(epochs, int):
             raise ValueError("`epochs` must be an integer.")
 
-        # Define callbacks
         early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=min_delta, patience=patience, verbose=1)
 
         self.model.fit_generator(generator=self._train_generator,
@@ -654,10 +649,7 @@ class ImageClassificationCNN(object):
         if default_model_load:
             self.convnet()
 
-        # Load the supporting data
         self._support_load_data(path)
-
-        # Load the Model
         self.model = load_model(path)
 
     def _prediction_labels(self, single_image_prediction):
