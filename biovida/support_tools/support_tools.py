@@ -2,17 +2,23 @@
 
 """
 
-    Support Tools used Across the BioVida API
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    General Support Tools
+    ~~~~~~~~~~~~~~~~~~~~~
 
 """
 import os
 import re
+import sys
 import numpy as np
 import pandas as pd
 from itertools import chain
-from six.moves.html_parser import HTMLParser
+
+
+if sys.version_info.major == 3 and sys.version_info.minor >= 4:
+    from html import unescape
+else:
+    from six.moves.html_parser import HTMLParser
+    unescape = HTMLParser().unescape
 
 
 try:
@@ -30,9 +36,6 @@ except NameError:
     IN_NOTEBOOK = False
     ipython_display = None
     from tqdm import tqdm
-
-
-unescape = HTMLParser().unescape
 
 
 _only_numeric_regex = re.compile(r'[^\d.]+')
