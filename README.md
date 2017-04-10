@@ -227,6 +227,9 @@ Right side of DataFrame: External Information
 
 For more information on how to contribute, see the [contributing] document.
 
+Bug reports and feature requests are always welcome and can be provided through the 
+[Issues] page.
+
 ## Resources
 
 The [resources] document provides an account of all data sources and
@@ -238,4 +241,5 @@ scholarly work used by BioVida.
 [Tutorials]: http://nbviewer.jupyter.org/github/tariqahassan/BioVida/tree/master/tutorials/
 [API Documentation]: https://tariqahassan.github.io/BioVida/API.html
 [Contributing]: https://github.com/TariqAHassan/BioVida/blob/master/CONTRIBUTING.md
+[Issues]: https://github.com/TariqAHassan/BioVida/issues
 [resources]: https://github.com/TariqAHassan/BioVida/blob/master/RESOURCES.md
