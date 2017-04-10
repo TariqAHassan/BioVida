@@ -37,7 +37,7 @@ class OpeniInterfaceTests(unittest.TestCase):
     """
 
     def test_cleaning_raw(self):
-        """"""
+        """Test Extracting Features From Raw Open-i Data & Cleaning it."""
         cleaned_df = openi_raw_extract_and_clean(raw_openi_data_df, clinical_cases_only=False,
                                                  verbose=False, cache_path=data_path)
 
