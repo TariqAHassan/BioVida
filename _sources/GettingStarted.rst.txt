@@ -18,6 +18,12 @@ The guide below provides a brief introduction to getting started with BioVida.
 Installation
 ------------
 
+Python Package Index:
+
+.. code:: bash
+
+    $ pip install biovida
+
 Latest Build:
 
 .. code:: bash
