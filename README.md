@@ -8,6 +8,9 @@
     <img src="https://api.travis-ci.org/TariqAHassan/BioVida.svg?branch=master"
          alt="build status">
   </a>
+  <a href="https://zenodo.org/badge/latestdoi/77529627">
+    <img src="https://zenodo.org/badge/77529627.svg" alt="DOI">
+  </a>
 </p>
 
 BioVida is a library designed to make it easy to gain access to 
