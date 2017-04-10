@@ -17,9 +17,6 @@ It is hoped that by automating the tedious data munging that is typically involv
 in this process, more people will become interested in applying machine learning
 to biomedical images and, in turn, advancing insights into human disease.
 
-In a nod to recursion, this library tries to accomplish some of this automation
-with machine learning itself, using tools like convolutional neural networks.
-
 ## Installation
 
 Python Package Index:
@@ -106,7 +103,7 @@ is likely to contain a large number of images
 unrelated to the search query and/or are unsuitable for machine learning.
 
 The *experimental* ``OpeniImageProcessing`` class can be used to completely
-automate this data cleaning process.
+automate this data cleaning process, which is partly powered by a Convolutional Neural Networks.
 
 ```python
 # 1. Import Image Processing Tools
