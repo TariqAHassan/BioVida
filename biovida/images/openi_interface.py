@@ -1104,7 +1104,7 @@ class OpeniInterface(object):
         :type image_type: ``str``, ``list``, ``tuple`` or ``None``
         :param rankby: see ``OpeniInterface().options('rankby')`` for valid values.
         :type rankby: ``str``, ``list``, ``tuple`` or ``None``
-        :param article_type: see ``OpeniInterface().options('article_type')`` for valid values. Defaults to 'case_report'.
+        :param article_type: see ``OpeniInterface().options('article_type')`` for valid values.
         :type article_type: ``str``, ``list``, ``tuple`` or ``None``
         :param subset: see ``OpeniInterface().options('subset')`` for valid values.
         :type subset: ``str``, ``list``, ``tuple`` or ``None``
