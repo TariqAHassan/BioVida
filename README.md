@@ -35,8 +35,7 @@ Latest Build:
 $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
-Note: currently the code is subjected to unit testing under Python 3.4+ only.
-However, Python 2.7 *should* still work.
+Note: Python 3.4+ is required.
 
 ## Images: Stable
 
@@ -116,8 +115,6 @@ unrelated to the search query and/or are unsuitable for machine learning.
 
 The *experimental* ``OpeniImageProcessing`` class can be used to completely
 automate this data cleaning process, which is partly powered by a Convolutional Neural Network.
-
-Note: this class currently requires Python 3.4+.
 
 ```python
 # 1. Import Image Processing Tools
