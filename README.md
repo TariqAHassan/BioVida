@@ -36,7 +36,7 @@ $ pip install git+git://github.com/TariqAHassan/BioVida@master
 ```
 
 Note: currently the code is subjected to unit testing under Python 3.4+ only.
-However, Python 2.7 *should* work as well.
+However, Python 2.7 *should* still work.
 
 ## Images: Stable
 
