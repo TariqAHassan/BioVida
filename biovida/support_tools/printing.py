@@ -7,10 +7,9 @@
 
 """
 import pandas as pd
-from copy import deepcopy
 
 # General Support Tools
-from biovida.support_tools.support_tools import cln, pstr, items_null
+from biovida.support_tools.support_tools import cln, pstr, items_null, remove_line_breaks
 
 # Suppress Pandas' SettingWithCopyWarning
 pd.options.mode.chained_assignment = None
@@ -50,32 +49,6 @@ def _value_padding(s, len_longest_key, print_mold):
     return s.replace("\n", "\n{0}".format(" " * padding))
 
 
-def _char_in_braces(full_s, char_position):
-    """
-
-    Checks if a given position in a string lies between braces.
-    Note: This is a rough solution, but more than sufficient. A robust solution would require a state machine.
-
-    :param full_s: a string.
-    :type full_s: ``str``
-    :param char_position: a position in the string.
-    :type char_position: ``int``
-    :return: ``True`` if yes, else ``False``
-    :rtype: bool
-    """
-    if not isinstance(full_s, str):
-        raise ValueError('`full_s` must be a string.')
-
-    if not isinstance(char_position, int):
-        raise ValueError('`char_position` must be an int.')
-
-    for pair in ('()', '[]', '{}'):
-        if pair[0] in full_s[:char_position] and pair[1] in full_s[char_position:]:
-            return True
-    else:
-        return False
-
-
 def _value_correction(s, len_longest_key, max_value_length, print_mold):
     """
 
@@ -91,10 +64,10 @@ def _value_correction(s, len_longest_key, max_value_length, print_mold):
         return s
 
     # Clean the input
-    s_cleaned = cln(s).replace("\n", " ")
+    s_cleaned = cln(remove_line_breaks(s)).replace("\n", " ")
 
     # Get the position of all spaces in the cleaned string -- spaces inside braces are excluded.
-    spaces = [i for i, c in enumerate(s_cleaned) if c == " " and not _char_in_braces(s_cleaned, i)]
+    spaces = [i for i, c in enumerate(s_cleaned) if c == " "]
 
     # Return if the string is shorter than the `max_value_length` or there are no space.
     if len(s_cleaned) < max_value_length or not len(spaces):
@@ -114,7 +87,7 @@ def _value_correction(s, len_longest_key, max_value_length, print_mold):
     return _value_padding(formatted_string, len_longest_key, print_mold)
 
 
-def dict_pprint(d, max_value_length=70):
+def dict_pprint(d, sort_keys=True, space_entries=True, max_value_length=70):
     """
 
     Pretty prints a dictionary with vertically aligned values.
@@ -123,10 +96,13 @@ def dict_pprint(d, max_value_length=70):
 
     :param d: a dictionary
     :type d: ``dict``
+    :param sort_keys: if ``True``, sort the keys in alphabetical order.
+    :type sort_keys: ``bool``
+    :param space_entries: if ``True``, insert a line break between entries.
+    :type space_entries: ``bool``
     :param max_value_length: max. number of characters in a string before a line break.
-                            This is a fuzzy threshold because the algorithm will only insert
-                            line breaks where there are already spaces and will not insert line breaks
-                            between braces.
+                             This is a fuzzy threshold because the algorithm will only insert
+                             line breaks where there are already spaces.
     :type max_value_length: ``int``
 
     :Example:
@@ -149,15 +125,27 @@ def dict_pprint(d, max_value_length=70):
     """
     print_mold = " - {0} "
 
+    def prep_dict(dictionary):
+        if sort_keys:
+            return sorted(dictionary.items(), key=lambda x: x[0])
+        else:
+            return dictionary.items()
+
     # Compute the length of the longest key
     len_longest_key = len(max(list(d.keys()), key=len))
 
-    new_dict = {_key_padding(k, len_longest_key): _value_correction(v, len_longest_key, max_value_length, print_mold)
-                for k, v in deepcopy(d).items()}
+    new_dict = dict()
+    for k, v in d.items():
+        key = _key_padding(k, len_longest_key=len_longest_key)
+        value = _value_correction(v, len_longest_key=len_longest_key,
+                                  max_value_length=max_value_length,
+                                  print_mold=print_mold)
+        new_dict[key] = value
 
-    # Print the dict
-    for k, v in new_dict.items():
+    for k, v in prep_dict(new_dict):
         print(print_mold.format(k), v)
+        if space_entries:
+            print("\n")
 
 
 # ----------------------------------------------------------------------------------------------------------
