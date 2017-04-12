@@ -244,8 +244,9 @@ class OpeniImageProcessing(object):
 
         Note:
               - this tool is very conservative (very small amounts of 'color' will yield `False`).
-              - the exception to the above rule is the *very rare* case of an image which even split
-                of red, green and blue.
+              - the exception to the above rule is the *very rare* case of an image which an even split
+                of red, green and blue. In such an instance this function may errounously conclude that
+                the image is grayscale.
 
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
