@@ -51,7 +51,7 @@ class OpeniInterfaceTests(unittest.TestCase):
         self.assertEqual(len(new_columns) >= 11, True)
 
         # - Checks that least all `expected_new_columns` columns are in `new_columns`,
-        #   However, this Will not fail if additional columns are added.
+        #   However, this will not fail if additional columns are added.
         self.assertEqual(all(e in new_columns for e in expected_new_columns), True)
 
         # Test for only floats
