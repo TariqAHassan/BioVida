@@ -321,7 +321,7 @@ def train_val_test(data,
                    validation,
                    test,
                    target_dir=None,
-                   action='copy',  # ToDo: change to 'ndarray'.
+                   action='ndarray',
                    delete_source=False,
                    stack=True,
                    random_state=None,
@@ -351,22 +351,27 @@ def train_val_test(data,
     :param test: the proportion images in ``data`` to allocate to ``test``. If ``False`` or ``None``,
                  no images will be allocated.
     :type test: ``int``, ``float``, ``bool`` or ``None``
-    :param target_dir: the location to output the images to (if ``action=True``). If ``None``, the output location will
-                       be ``data``. Defaults to ``None``.
+    :param target_dir: the location to output the images to (if action is 'copy' or 'move'). 
+                       If ``None``, the output location will be ``data``. Defaults to ``None``.
+                       
+        .. warning::
+        
+                ``target_dir`` must be a string if ``data`` is not. 
+        
     :type target_dir: ``str`` or ``None``
-    :param action: one of: 'copy', 'ndarray'.
+    :param action: one of: 'copy', 'move' or 'ndarray'.
 
-        - if ``'copy'``: copy from files from ``data`` to ``target_dir`` (default).
+        - if ``'copy'``: copy from files from ``data`` to ``target_dir``.
 
         - if ``'move'``: move from files from ``data`` to ``target_dir``.
 
-        - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays.
+        - if ``'ndarray'``: return a nested dictionary of ``ndarray`` ('numpy') arrays (default).
 
         .. warning::
 
                 **Using 'move' directly on files in a cache is not recommended**.
-                However, if this action is performed, the corresponding class must be
-                reinstated to allow the ``cache_records_db`` database to update.
+                However, if such an action is performed, the corresponding class
+                must be reinstated to allow the ``cache_records_db`` database to update.
 
     :type action: ``str``
     :param delete_source: if ``True`` delete the source subdirectories in ``data`` after copying is complete. Defaults to ``False``.
