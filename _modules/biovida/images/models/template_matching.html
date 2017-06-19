@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -261,7 +260,8 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">imread</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`</span><span class="si">{0}</span><span class="s2">` must either be a `ndarray` or a path to an image.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param_name</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;`</span><span class="si">{0}</span><span class="s2">` must either be a `ndarray` or a path to an image.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param_name</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">_min_base_rescale</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">round_to</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
@@ -450,7 +450,8 @@
     <span class="n">pattern</span> <span class="o">=</span> <span class="n">_robust_match_template_loading</span><span class="p">(</span><span class="n">pattern_image</span><span class="p">,</span> <span class="s2">&quot;pattern_image&quot;</span><span class="p">)</span>
     <span class="n">base</span> <span class="o">=</span> <span class="n">_robust_match_template_loading</span><span class="p">(</span><span class="n">base_image</span><span class="p">,</span> <span class="s2">&quot;base_image&quot;</span><span class="p">)</span>
 
-    <span class="n">match_dict</span> <span class="o">=</span> <span class="n">_matching_engine</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">base_image_cropping</span><span class="p">,</span> <span class="n">end_search_threshold</span><span class="p">)</span>
+    <span class="n">match_dict</span> <span class="o">=</span> <span class="n">_matching_engine</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">base_resizes</span><span class="p">,</span> <span class="n">base_image_cropping</span><span class="p">,</span>
+                                  <span class="n">end_search_threshold</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">match_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
         <span class="n">best_match</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">match_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
@@ -461,7 +462,8 @@
         <span class="n">match_quality</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Return the bounding box, match quality and the size of the base image</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bounding_box&quot;</span><span class="p">:</span> <span class="n">bounding_box</span><span class="p">,</span> <span class="s2">&quot;match_quality&quot;</span><span class="p">:</span> <span class="n">match_quality</span><span class="p">,</span> <span class="s2">&quot;base_image_shape&quot;</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]}</span></div>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bounding_box&quot;</span><span class="p">:</span> <span class="n">bounding_box</span><span class="p">,</span> <span class="s2">&quot;match_quality&quot;</span><span class="p">:</span> <span class="n">match_quality</span><span class="p">,</span>
+            <span class="s2">&quot;base_image_shape&quot;</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]}</span></div>
 
 
 <span class="k">def</span> <span class="nf">_box_show</span><span class="p">(</span><span class="n">base_image_path</span><span class="p">,</span> <span class="n">pattern_image_path</span><span class="p">):</span>
@@ -513,7 +515,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

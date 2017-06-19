@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -172,7 +171,7 @@
 <h2>Unifying Across Domains<a class="headerlink" href="#unifying-across-domains" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
-<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>instances</em>, <em>db_to_extract='records_db'</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>instances</em>, <em>db_to_extract=’records_db’</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tool to unify image instances (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
 with Diagnostic and Genomic Data.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -180,11 +179,11 @@ with Diagnostic and Genomic Data.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>instances</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>.) &#8211; any one of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, or some
+<li><strong>instances</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>.) – any one of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, or some
 combination inside an iterable.</li>
-<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <dl class="docutils">
-<dt>the database to use. Must be one of: &#8216;records_db&#8217;, &#8216;cache_records_db&#8217; or &#8216;image_dataframe&#8217;.</dt>
-<dd>Defaults to &#8216;records_db&#8217;.</dd>
+<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – <dl class="docutils">
+<dt>the database to use. Must be one of: ‘records_db’, ‘cache_records_db’ or ‘image_dataframe’.</dt>
+<dd>Defaults to ‘records_db’.</dd>
 </dl>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -192,8 +191,8 @@ combination inside an iterable.</li>
 attribute will be extracted regardless of the value passed to this argument.</p>
 </div>
 </li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>fuzzy_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">bool</span></code>, <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>an integer on <code class="docutils literal"><span class="pre">(0,</span> <span class="pre">100]</span></code>. If <code class="docutils literal"><span class="pre">True</span></code> a threshold of <cite>95</cite> will be used. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>fuzzy_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">bool</span></code>, <code class="docutils literal"><span class="pre">None</span></code>) – <p>an integer on <code class="docutils literal"><span class="pre">(0,</span> <span class="pre">100]</span></code>. If <code class="docutils literal"><span class="pre">True</span></code> a threshold of <cite>95</cite> will be used. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">While this parameter will likely increase the number of matches, fuzzy searching with
@@ -213,28 +212,28 @@ large databases, such as those this function integrates, is very computationally
 </table>
 <p>This function evolves a DataFrame with the following columns:</p>
 <table class="hlist"><tr><td><ul class="simple">
-<li>&#8216;age&#8217;</li>
-<li>&#8216;article_type&#8217;</li>
-<li>&#8216;disease&#8217;</li>
-<li>&#8216;image_caption&#8217;</li>
+<li>‘age’</li>
+<li>‘article_type’</li>
+<li>‘disease’</li>
+<li>‘image_caption’</li>
 </ul>
 </td><td><ul class="simple">
-<li>&#8216;image_id&#8217;</li>
-<li>&#8216;modality_best_guess&#8217;</li>
-<li>&#8216;pull_time&#8217;</li>
-<li>&#8216;query&#8217;</li>
+<li>‘image_id’</li>
+<li>‘modality_best_guess’</li>
+<li>‘pull_time’</li>
+<li>‘query’</li>
 </ul>
 </td><td><ul class="simple">
-<li>&#8216;sex&#8217;</li>
-<li>&#8216;source_api&#8217;</li>
-<li>&#8216;disease_family&#8217;</li>
-<li>&#8216;disease_synonym&#8217;</li>
+<li>‘sex’</li>
+<li>‘source_api’</li>
+<li>‘disease_family’</li>
+<li>‘disease_synonym’</li>
 </ul>
 </td><td><ul class="simple">
-<li>&#8216;disease_definition&#8217;</li>
-<li>&#8216;known_associated_symptoms&#8217;</li>
-<li>&#8216;mentioned_symptoms&#8217;</li>
-<li>&#8216;known_associated_genes&#8217;</li>
+<li>‘disease_definition’</li>
+<li>‘known_associated_symptoms’</li>
+<li>‘mentioned_symptoms’</li>
+<li>‘known_associated_genes’</li>
 </ul>
 </td></tr></table>
 <div class="admonition note">
@@ -252,8 +251,8 @@ a <code class="docutils literal"><span class="pre">'cached_dicom_images_path'</s
 <p class="last">The <code class="docutils literal"><span class="pre">'known_associated_symptoms'</span></code> and <code class="docutils literal"><span class="pre">'known_associated_genes'</span></code> columns denote symptoms and genes
 known to be associated with the disease the patient presented with. <strong>These columns are not an account
 of the symptomatology or genotype of the patients themselves</strong>. Conversely, the <code class="docutils literal"><span class="pre">'mentioned_symptoms'</span></code>
-column is an account of a given patient&#8217;s symptoms <em>if</em> the data is from a clinical case
-(i.e., <code class="docutils literal"><span class="pre">article_type</span></code> equals &#8216;case_report&#8217;).</p>
+column is an account of a given patient’s symptoms <em>if</em> the data is from a clinical case
+(i.e., <code class="docutils literal"><span class="pre">article_type</span></code> equals ‘case_report’).</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -295,7 +294,7 @@ column is an account of a given patient&#8217;s symptoms <em>if</em> the data is
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

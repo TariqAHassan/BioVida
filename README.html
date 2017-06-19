@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &#8212; BioVida 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.6/simplex/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          BioVida</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/TariqAHassan/BioVida">View on GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="GettingStarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GettingStarted.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GettingStarted.html#dependencies">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="API.html#module-biovida.images.openi_interface">Images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API.html#open-i-interface">Open-i Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API.html#cancer-imaging-archive-interface">Cancer Imaging Archive Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API.html#image-processing">Image Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API.html#image-classification">Image Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API.html#template-matching">Template Matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API.html#border-and-edge-detection">Border and Edge Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="API.html#module-biovida.genomics.disgenet_interface">Genomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API.html#disgenet-interface">DisGeNET Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="API.html#module-biovida.diagnostics.disease_ont_interface">Diagnostics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API.html#disease-ontology-interface">Disease Ontology Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API.html#disease-symptoms-interface">Disease-Symptoms Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="API.html#module-biovida.unification.unify_domains">Domain Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API.html#unifying-across-domains">Unifying Across Domains</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="API.html#module-biovida.images.image_cache_mgmt">Cache Manipulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API.html#image-cache-management">Image Cache Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="API.html#module-biovida.support_tools.utilities">Support Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API.html#utilities">Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API.html#printing-tools">Printing Tools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Current Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Installation</a></li>
+<li><a class="reference internal" href="#images-stable">Images: Stable</a><ul>
+<li><a class="reference internal" href="#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li><a class="reference internal" href="#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li><a class="reference internal" href="#splitting-images">Splitting Images</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#images-experimental">Images: Experimental</a><ul>
+<li><a class="reference internal" href="#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#genomic-data">Genomic Data</a></li>
+<li><a class="reference internal" href="#diagnostic-data">Diagnostic Data</a></li>
+<li><a class="reference internal" href="#unifying-information">Unifying Information</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#resources">Resources</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Installation</a></li>
+<li><a class="reference internal" href="#images-stable">Images: Stable</a><ul>
+<li><a class="reference internal" href="#open-i-biomedical-image-search-engine">Open-i BioMedical Image Search Engine</a></li>
+<li><a class="reference internal" href="#cancer-imaging-archive">Cancer Imaging Archive</a></li>
+<li><a class="reference internal" href="#splitting-images">Splitting Images</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#images-experimental">Images: Experimental</a><ul>
+<li><a class="reference internal" href="#automated-image-data-cleaning">Automated Image Data Cleaning</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#genomic-data">Genomic Data</a></li>
+<li><a class="reference internal" href="#diagnostic-data">Diagnostic Data</a></li>
+<li><a class="reference internal" href="#unifying-information">Unifying Information</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#resources">Resources</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <p>BioVida is a library designed to make it easy to gain access to existing
+data sets of biomedical images as well as build brand new, custom-made
+ones.</p>
+<p>It is hoped that by automating the tedious data munging that is
+typically involved in this process, more people will become interested
+in applying machine learning to biomedical images and, in turn,
+advancing insights into human disease.</p>
+<p>In a nod to recursion, BioVida tries to accomplish some of this
+automation with machine learning itself, using tools like convolutional
+neural networks.</p>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Python Package Index:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ pip install biovida
+</pre></div>
+</div>
+<p>Latest Build:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ pip install git+git://github.com/TariqAHassan/BioVida@master
+</pre></div>
+</div>
+<p>Requires Python 3.4+</p>
+</div>
+<div class="section" id="images-stable">
+<h1>Images: Stable<a class="headerlink" href="#images-stable" title="Permalink to this headline">¶</a></h1>
+<p>In just a few lines of code, you can gain access to biomedical databases
+which store tens of millions of images.</p>
+<p><em>Please note that you are bound to adhere to the copyright and other
+usage restrictions under which this data is provided to you by its
+creators.</em></p>
+<div class="section" id="open-i-biomedical-image-search-engine">
+<h2>Open-i BioMedical Image Search Engine<a class="headerlink" href="#open-i-biomedical-image-search-engine" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the Interface for the NIH&#39;s Open-i API.</span>
+<span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">OpeniInterface</span>
+
+<span class="c1"># 2. Create an Instance of the Tool</span>
+<span class="n">opi</span> <span class="o">=</span> <span class="n">OpeniInterface</span><span class="p">()</span>
+
+<span class="c1"># 3. Perform a search for x-rays and cts of lung cancer</span>
+<span class="n">opi</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s1">&#39;lung cancer&#39;</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x_ray&#39;</span><span class="p">,</span> <span class="s1">&#39;ct&#39;</span><span class="p">])</span>  <span class="c1"># Results Found: 9,220.</span>
+
+<span class="c1"># 4. Pull the data</span>
+<span class="n">search_df</span> <span class="o">=</span> <span class="n">opi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="cancer-imaging-archive">
+<h2>Cancer Imaging Archive<a class="headerlink" href="#cancer-imaging-archive" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the interface for the Cancer Imaging Archive</span>
+<span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">CancerImageInterface</span>
+
+<span class="c1"># 2. Create an Instance of the Tool</span>
+<span class="n">cii</span> <span class="o">=</span> <span class="n">CancerImageInterface</span><span class="p">(</span><span class="n">YOUR_API_KEY_HERE</span><span class="p">)</span>
+
+<span class="c1"># 3. Perform a search</span>
+<span class="n">cii</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cancer_type</span><span class="o">=</span><span class="s1">&#39;esophageal&#39;</span><span class="p">)</span>
+
+<span class="c1"># 4. Pull the data</span>
+<span class="n">cdf</span> <span class="o">=</span> <span class="n">cii</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Both <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> and <code class="docutils literal"><span class="pre">OpeniInterface</span></code> cache images for
+later use. When data is ‘pulled’, a <code class="docutils literal"><span class="pre">records_db</span></code> is generated, which
+is a dataframe of all text data associated with the images. They are
+provided as class attributes, e.g., <code class="docutils literal"><span class="pre">cii.records_db</span></code>. While
+<code class="docutils literal"><span class="pre">records_db</span></code> only stores data from the most recent data pull,
+<code class="docutils literal"><span class="pre">cache_records_db</span></code> dataframes provides an account of all image data
+currently cached.</p>
+</div>
+<div class="section" id="splitting-images">
+<h2>Splitting Images<a class="headerlink" href="#splitting-images" title="Permalink to this headline">¶</a></h2>
+<p>BioVida can divide cached images into train/validation/test.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">image_divvy</span>
+
+<span class="c1"># 1. Define a rule to &#39;divvy&#39; up images in the cache.</span>
+<span class="k">def</span> <span class="nf">my_divvy_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;x_ray&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;x_ray&#39;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ct&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;ct&#39;</span>
+
+<span class="c1"># 2. Define Proportions and Divide Data</span>
+<span class="n">tt</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">opi</span><span class="p">,</span> <span class="n">my_divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">})</span>
+
+<span class="c1"># 3. The resultant ndarrays can be unpacked as follows:</span>
+<span class="n">train_ct</span><span class="p">,</span> <span class="n">train_xray</span> <span class="o">=</span> <span class="n">tt</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tt</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;x_ray&#39;</span><span class="p">]</span>
+<span class="n">test_ct</span><span class="p">,</span> <span class="n">test_xray</span> <span class="o">=</span> <span class="n">tt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;ct&#39;</span><span class="p">],</span> <span class="n">tt</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;x_ray&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="images-experimental">
+<h1>Images: Experimental<a class="headerlink" href="#images-experimental" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="automated-image-data-cleaning">
+<h2>Automated Image Data Cleaning<a class="headerlink" href="#automated-image-data-cleaning" title="Permalink to this headline">¶</a></h2>
+<p>Unfortunately, the data pulled from Open-i above is likely to contain a
+large number of images unrelated to the search query and/or are
+unsuitable for machine learning.</p>
+<p>The <em>experimental</em> <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> class can be used to
+completely automate this data cleaning process, which is partly powered
+by a Convolutional Neural Network.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import Image Processing Tools</span>
+<span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">OpeniImageProcessing</span>
+
+<span class="c1"># 2. Instantiate the Tool using the OpeniInterface Instance</span>
+<span class="n">ip</span> <span class="o">=</span> <span class="n">OpeniImageProcessing</span><span class="p">(</span><span class="n">opi</span><span class="p">)</span>
+
+<span class="c1"># 3. Analyze the Images</span>
+<span class="n">idf</span> <span class="o">=</span> <span class="n">ip</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+
+<span class="c1"># 4. Use the Analysis to Clean Images</span>
+<span class="n">ip</span><span class="o">.</span><span class="n">clean_image_dataframe</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>It is easy to split these images into training and test sets.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">biovida.images</span> <span class="k">import</span> <span class="n">image_divvy</span>
+
+<span class="k">def</span> <span class="nf">my_divvy_rule</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;x_ray&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;x_ray&#39;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;image_modality_major&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ct&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;ct&#39;</span>
+
+<span class="n">tt</span> <span class="o">=</span> <span class="n">image_divvy</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">my_divvy_rule</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span> <span class="n">train_val_test_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">})</span>
+<span class="c1"># These ndarrays can be unpack as shown above.</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="genomic-data">
+<h1>Genomic Data<a class="headerlink" href="#genomic-data" title="Permalink to this headline">¶</a></h1>
+<p>While primarily focused on images, BioVida also provides a simple
+interface for obtaining related information, such genomic data.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the Interface for DisGeNET.org</span>
+<span class="kn">from</span> <span class="nn">biovida.genomics</span> <span class="k">import</span> <span class="n">DisgenetInterface</span>
+
+<span class="c1"># 2. Create an Instance of the Tool</span>
+<span class="n">dna</span> <span class="o">=</span> <span class="n">DisgenetInterface</span><span class="p">()</span>
+
+<span class="c1"># 3. Pull a Database</span>
+<span class="n">gdf</span> <span class="o">=</span> <span class="n">dna</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s1">&#39;curated&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="diagnostic-data">
+<h1>Diagnostic Data<a class="headerlink" href="#diagnostic-data" title="Permalink to this headline">¶</a></h1>
+<p>BioVida also makes it easy to obtain diagnostics data.</p>
+<p>Information on disease definitions, families and synonyms:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the Interface for DiseaseOntology.org</span>
+<span class="kn">from</span> <span class="nn">biovida.diagnostics</span> <span class="k">import</span> <span class="n">DiseaseOntInterface</span>
+
+<span class="c1"># 2. Create an Instance of the Tool</span>
+<span class="n">doi</span> <span class="o">=</span> <span class="n">DiseaseOntInterface</span><span class="p">()</span>
+
+<span class="c1"># 3. Pull the Database</span>
+<span class="n">ddf</span> <span class="o">=</span> <span class="n">doi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Information on symptoms associated with diseases:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># 1. Import the Interface for Disease-Symptoms Information</span>
+<span class="kn">from</span> <span class="nn">biovida.diagnostics</span> <span class="k">import</span> <span class="n">DiseaseSymptomsInterface</span>
+
+<span class="c1"># 2. Create an Instance of the Tool</span>
+<span class="n">dsi</span> <span class="o">=</span> <span class="n">DiseaseSymptomsInterface</span><span class="p">()</span>
+
+<span class="c1"># 3. Pull the Database</span>
+<span class="n">dsdf</span> <span class="o">=</span> <span class="n">dsi</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="unifying-information">
+<h1>Unifying Information<a class="headerlink" href="#unifying-information" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal"><span class="pre">unify_against_images</span></code> function integrates image data information
+against <code class="docutils literal"><span class="pre">DisgenetInterface</span></code>, <code class="docutils literal"><span class="pre">DiseaseOntInterface</span></code> and
+<code class="docutils literal"><span class="pre">DiseaseSymptomsInterface</span></code>.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">biovida.unification</span> <span class="k">import</span> <span class="n">unify_against_images</span>
+
+<span class="n">unify_against_images</span><span class="p">(</span><span class="n">interfaces</span><span class="o">=</span><span class="p">[</span><span class="n">cii</span><span class="p">,</span> <span class="n">opi</span><span class="p">],</span> <span class="n">db_to_extract</span><span class="o">=</span><span class="s1">&#39;cache_records_db&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Left side of DataFrame: Image Data Alone</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="5%" />
+<col width="12%" />
+<col width="9%" />
+<col width="13%" />
+<col width="28%" />
+<col width="6%" />
+<col width="8%" />
+<col width="14%" />
+<col width="6%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&#160;</th>
+<th class="head">article_type</th>
+<th class="head">image_id</th>
+<th class="head">image_ca
+ption</th>
+<th class="head">modality_best_guess</th>
+<th class="head">age</th>
+<th class="head">sex</th>
+<th class="head">disease</th>
+<th class="head">…</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>case_re
+port</td>
+<td>1</td>
+<td>…</td>
+<td>Magnetic Resonance
+Imaging (MRI)</td>
+<td>73</td>
+<td>male</td>
+<td>fibroma</td>
+<td>…</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>case_re
+port</td>
+<td>2</td>
+<td>…</td>
+<td>Magnetic Resonance
+Imaging (MRI)</td>
+<td>73</td>
+<td>male</td>
+<td>fibroma</td>
+<td>…</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>case_re
+port</td>
+<td>1</td>
+<td>…</td>
+<td>Computed Tomography
+(CT): angiography</td>
+<td>45</td>
+<td>femal
+e</td>
+<td>bile duct
+cancer</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<p>Right side of DataFrame: Added Information</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="16%" />
+<col width="15%" />
+<col width="18%" />
+<col width="15%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">disease_famil
+y</th>
+<th class="head">disease_sy
+nonym</th>
+<th class="head">disease_d
+efinition</th>
+<th class="head">known_associ
+ated_symptom
+s</th>
+<th class="head">mentioned_symptoms</th>
+<th class="head">known_assoc
+iated_genes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(cell type
+benign
+neoplasm,)</td>
+<td>nan</td>
+<td>nan</td>
+<td>(abdominal
+pain,…)</td>
+<td>(pain,)</td>
+<td>((ANTXR2,
+0.12), …)</td>
+</tr>
+<tr class="row-odd"><td>(cell type
+benign
+neoplasm,)</td>
+<td>nan</td>
+<td>nan</td>
+<td>(abdominal
+pain,…)</td>
+<td>(pain,)</td>
+<td>((ANTXR2,
+0.12), …)</td>
+</tr>
+<tr class="row-even"><td>(biliary tract
+cancer,)</td>
+<td>(bile duct
+tumor,…)</td>
+<td>A biliary
+tract…</td>
+<td>(abdominal
+obesity,..)</td>
+<td>(colic,)</td>
+<td>nan</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<div class="section" id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference external" href="https://tariqahassan.github.io/BioVida/GettingStarted.html">Getting
+Started</a></li>
+<li><a class="reference external" href="http://nbviewer.jupyter.org/github/tariqahassan/BioVida/tree/master/tutorials/">Tutorials</a></li>
+<li><a class="reference external" href="https://tariqahassan.github.io/BioVida/API.html">API
+Documentation</a></li>
+</ul>
+</div>
+<div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>For more information on how to contribute, see the
+<a class="reference external" href="https://github.com/TariqAHassan/BioVida/blob/master/CONTRIBUTING.md">contributing</a>
+document.</p>
+<p>Bug reports and feature requests are always welcome and can be provided
+through the <a class="reference external" href="https://github.com/TariqAHassan/BioVida/issues">Issues</a>
+page.</p>
+</div>
+<div class="section" id="resources">
+<h1>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h1>
+<p>The
+<a class="reference external" href="https://github.com/TariqAHassan/BioVida/blob/master/RESOURCES.md">resources</a>
+document provides an account of all data sources and scholarly work used
+by BioVida.</p>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Tariq A. Hassan.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

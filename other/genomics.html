@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -179,9 +178,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – location of the BioVida cache. If one does not exist in this location, one will created.
 Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -197,15 +196,15 @@ as well as additional information about the databases.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; A database to review. Must be one of: &#8216;all&#8217;, &#8216;curated&#8217;, &#8216;snp_disgenet&#8217; or <code class="docutils literal"><span class="pre">None</span></code>.
-If a specific database is given, the database&#8217;s full name and description will be provided.
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – A database to review. Must be one of: ‘all’, ‘curated’, ‘snp_disgenet’ or <code class="docutils literal"><span class="pre">None</span></code>.
+If a specific database is given, the database’s full name and description will be provided.
 If <code class="docutils literal"><span class="pre">None</span></code>, a list of databases which can be downloaded will be returned (or printed).
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; pretty print the information. Defaults to True.</li>
+<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – pretty print the information. Defaults to True.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a <code class="docutils literal"><span class="pre">list</span></code> if <cite>database</cite> is <code class="docutils literal"><span class="pre">None</span></code>, else a <code class="docutils literal"><span class="pre">dict</span></code> with the database&#8217;s full name and description.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a <code class="docutils literal"><span class="pre">list</span></code> if <cite>database</cite> is <code class="docutils literal"><span class="pre">None</span></code>, else a <code class="docutils literal"><span class="pre">dict</span></code> with the database’s full name and description.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">dict</span></code></p>
@@ -226,9 +225,9 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; A database to download. Must be one of: &#8216;all&#8217;, &#8216;curated&#8217;, &#8216;snp_disgenet&#8217; or <code class="docutils literal"><span class="pre">None</span></code>.
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – A database to download. Must be one of: ‘all’, ‘curated’, ‘snp_disgenet’ or <code class="docutils literal"><span class="pre">None</span></code>.
 See <code class="docutils literal"><span class="pre">options()</span></code> for more information.</li>
-<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
@@ -261,7 +260,7 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

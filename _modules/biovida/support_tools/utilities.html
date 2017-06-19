@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -182,7 +181,6 @@
                                                  <span class="n">InsufficientNumberOfFiles</span><span class="p">,</span>
                                                  <span class="n">directory_existence_handler</span><span class="p">)</span>
 
-
 <span class="n">_TVT_GROUPS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
 
 
@@ -203,7 +201,8 @@
 <span class="sd">    :return: see description.</span>
 <span class="sd">    :rtype: ``list``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">os_join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">to_block</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">os_join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">to_block</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_train_val_test_error_checking</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">allowed_actions</span><span class="p">):</span>
@@ -237,11 +236,12 @@
     <span class="n">min_number_of_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">group_files_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">group_files_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_number_of_files</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InsufficientNumberOfFiles</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The &#39;</span><span class="si">{0}</span><span class="s2">&#39; subdirectory/subgroup only contains </span><span class="si">{1}</span><span class="s2"> files,</span><span class="se">\n</span><span class="s2">&quot;</span>
-                                            <span class="s2">&quot;which is too few to distribute over </span><span class="si">{2}</span><span class="s2"> target locations.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                                            <span class="s2">&quot;Calculation: len([</span><span class="si">{3}</span><span class="s2">]) * len([</span><span class="si">{4}</span><span class="s2">]) = </span><span class="si">{2}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                            <span class="n">k</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">min_number_of_files</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
-                                            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group_files_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+            <span class="k">raise</span> <span class="n">InsufficientNumberOfFiles</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The &#39;</span><span class="si">{0}</span><span class="s2">&#39; subdirectory/subgroup only contains </span><span class="si">{1}</span><span class="s2"> files,</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;which is too few to distribute over </span><span class="si">{2}</span><span class="s2"> target locations.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Calculation: len([</span><span class="si">{3}</span><span class="s2">]) * len([</span><span class="si">{4}</span><span class="s2">]) = </span><span class="si">{2}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">k</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">min_number_of_files</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tvt</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                    <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group_files_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 
 
 <span class="k">def</span> <span class="nf">_existing_files_dict_gen</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">to_block</span><span class="p">):</span>
@@ -345,12 +345,14 @@
 <span class="sd">    :return: the values for the inner nest as replaced with ``ndarrays``.</span>
 <span class="sd">    :rtype: ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">identity_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">x</span>
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">desc_tqdm</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Generating ndarrays&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">status_inner</span><span class="p">,</span> <span class="n">status_outer</span> <span class="o">=</span> <span class="n">desc_tqdm</span><span class="p">,</span> <span class="n">identity_func</span>
         <span class="k">elif</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -402,7 +404,8 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;- &#39;</span><span class="si">{0}</span><span class="s2">&#39;:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
 
 
-<span class="k">def</span> <span class="nf">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">target_path</span><span class="p">,</span> <span class="n">random_state</span><span class="p">,</span> <span class="n">allowed_actions</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_train_val_test_engine</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">tvt</span><span class="p">,</span> <span class="n">group_files_dict</span><span class="p">,</span> <span class="n">target_path</span><span class="p">,</span> <span class="n">random_state</span><span class="p">,</span>
+                           <span class="n">allowed_actions</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Engine to power ``train_val_test()``.</span>
@@ -453,7 +456,8 @@
                 <span class="n">output_dict</span><span class="p">[</span><span class="n">k2</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_value</span>
             <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">,</span> <span class="s1">&#39;write_ndarray&#39;</span><span class="p">):</span>
                 <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Processing </span><span class="si">{0}</span><span class="s1"> (</span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os_basename</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">k2</span><span class="p">)</span>
-                <span class="n">target</span> <span class="o">=</span> <span class="n">directory_existence_handler</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">k</span><span class="p">)),</span> <span class="n">allow_creation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">directory_existence_handler</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">k</span><span class="p">)),</span>
+                                                     <span class="n">allow_creation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">):</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">verbose</span><span class="p">):</span>
                         <span class="n">shutil_func</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">os_join</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">os_basename</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
@@ -478,7 +482,7 @@
                    <span class="n">validation</span><span class="p">,</span>
                    <span class="n">test</span><span class="p">,</span>
                    <span class="n">target_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">action</span><span class="o">=</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span>  <span class="c1"># ToDo: change to &#39;ndarray&#39;.</span>
+                   <span class="n">action</span><span class="o">=</span><span class="s1">&#39;ndarray&#39;</span><span class="p">,</span>
                    <span class="n">delete_source</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">stack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -508,22 +512,27 @@
 <span class="sd">    :param test: the proportion images in ``data`` to allocate to ``test``. If ``False`` or ``None``,</span>
 <span class="sd">                 no images will be allocated.</span>
 <span class="sd">    :type test: ``int``, ``float``, ``bool`` or ``None``</span>
-<span class="sd">    :param target_dir: the location to output the images to (if ``action=True``). If ``None``, the output location will</span>
-<span class="sd">                       be ``data``. Defaults to ``None``.</span>
+<span class="sd">    :param target_dir: the location to output the images to (if action is &#39;copy&#39; or &#39;move&#39;). </span>
+<span class="sd">                       If ``None``, the output location will be ``data``. Defaults to ``None``.</span>
+<span class="sd">                       </span>
+<span class="sd">        .. warning::</span>
+<span class="sd">        </span>
+<span class="sd">                ``target_dir`` must be a string if ``data`` is not. </span>
+<span class="sd">        </span>
 <span class="sd">    :type target_dir: ``str`` or ``None``</span>
-<span class="sd">    :param action: one of: &#39;copy&#39;, &#39;ndarray&#39;.</span>
+<span class="sd">    :param action: one of: &#39;copy&#39;, &#39;move&#39; or &#39;ndarray&#39;.</span>
 
-<span class="sd">        - if ``&#39;copy&#39;``: copy from files from ``data`` to ``target_dir`` (default).</span>
+<span class="sd">        - if ``&#39;copy&#39;``: copy from files from ``data`` to ``target_dir``.</span>
 
 <span class="sd">        - if ``&#39;move&#39;``: move from files from ``data`` to ``target_dir``.</span>
 
-<span class="sd">        - if ``&#39;ndarray&#39;``: return a nested dictionary of ``ndarray`` (&#39;numpy&#39;) arrays.</span>
+<span class="sd">        - if ``&#39;ndarray&#39;``: return a nested dictionary of ``ndarray`` (&#39;numpy&#39;) arrays (default).</span>
 
 <span class="sd">        .. warning::</span>
 
 <span class="sd">                **Using &#39;move&#39; directly on files in a cache is not recommended**.</span>
-<span class="sd">                However, if this action is performed, the corresponding class must be</span>
-<span class="sd">                reinstated to allow the ``cache_records_db`` database to update.</span>
+<span class="sd">                However, if such an action is performed, the corresponding class</span>
+<span class="sd">                must be reinstated to allow the ``cache_records_db`` database to update.</span>
 
 <span class="sd">    :type action: ``str``</span>
 <span class="sd">    :param delete_source: if ``True`` delete the source subdirectories in ``data`` after copying is complete. Defaults to ``False``.</span>
@@ -654,7 +663,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">target_path</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">existing_dirs</span> <span class="o">=</span> <span class="n">_subdirectories_in_path</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">to_block</span><span class="o">=</span><span class="n">_TVT_GROUPS</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">existing_dirs</span> <span class="o">=</span> <span class="n">_subdirectories_in_path</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">to_block</span><span class="o">=</span><span class="n">_TVT_GROUPS</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>
+                                                                                      <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">tvt</span> <span class="o">=</span> <span class="n">_tvt_dict_gen</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delete_source</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
@@ -679,7 +689,8 @@
     <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">):</span>
         <span class="n">to_return</span> <span class="o">=</span> <span class="n">output_dict</span>
     <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;ndarray&#39;</span><span class="p">:</span>
-        <span class="n">to_return</span> <span class="o">=</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="n">stack</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">to_return</span> <span class="o">=</span> <span class="n">_file_paths_dict_to_ndarrays</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="n">stack</span><span class="p">,</span>
+                                                 <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="n">_print_output_dict_structure</span><span class="p">(</span><span class="n">output_dict</span><span class="p">)</span>
@@ -770,6 +781,7 @@
 <span class="sd">            └── mri_6.png</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">subclasses</span><span class="p">(</span><span class="n">tvt</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">os_join</span><span class="p">(</span><span class="n">tvt</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">tvt</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os_join</span><span class="p">(</span><span class="n">tvt</span><span class="p">,</span> <span class="n">c</span><span class="p">))]</span>
 
@@ -821,7 +833,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

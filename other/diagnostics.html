@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -181,9 +180,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – location of the BioVida cache. If one does not exist in this location, one will created.
 Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -191,22 +190,22 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 </table>
 <dl class="method">
 <dt id="biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>download_override=False</em>, <em>disease_ontology_db_url='http://purl.obolibrary.org/obo/doid.obo'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_ont_interface.html#DiseaseOntInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>download_override=False</em>, <em>disease_ontology_db_url=’http://purl.obolibrary.org/obo/doid.obo’</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/diagnostics/disease_ont_interface.html#DiseaseOntInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the Disease Ontology Database.</p>
 <p>Notes:</p>
 <ul class="simple">
 <li>if a database is already cached, it will be used instead of downloading (use <code class="docutils literal"><span class="pre">download_override</span></code> to override).</li>
-<li>multiple values are separated by semicolons followed by a space, i.e., &#8221;; &#8221;.</li>
+<li>multiple values are separated by semicolons followed by a space, i.e., “; “.</li>
 </ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>disease_ontology_db_url</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; URL to the disease ontology database in &#8216;.obo&#8217; format.
-Defaults to &#8216;<a class="reference external" href="http://purl.obolibrary.org/obo/doid.obo">http://purl.obolibrary.org/obo/doid.obo</a>&#8216;.</li>
+<li><strong>disease_ontology_db_url</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – URL to the disease ontology database in ‘.obo’ format.
+Defaults to ‘<a class="reference external" href="http://purl.obolibrary.org/obo/doid.obo">http://purl.obolibrary.org/obo/doid.obo</a>’.</li>
 </ul>
 </td>
 </tr>
@@ -244,9 +243,9 @@ Online Repository: <a class="reference external" href="https://github.com/dhimme
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – location of the BioVida cache. If one does not exist in this location, one will created.
 Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -260,7 +259,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the Human Symptoms Disease Network database as a DataFrame.</td>
 </tr>
@@ -278,7 +277,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the Rephetio Medline database as a DataFrame.</td>
 </tr>
@@ -296,9 +295,9 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a combined dataframe with the following columns: &#8216;common_disease_name&#8217; and &#8216;common_symptom_term&#8217;.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a combined dataframe with the following columns: ‘common_disease_name’ and ‘common_symptom_term’.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
 </tr>
@@ -324,7 +323,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

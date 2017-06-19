@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -172,7 +171,7 @@
 <h2>Printing Tools<a class="headerlink" href="#printing-tools" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="biovida.support_tools.printing.dict_pprint">
-<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">dict_pprint</code><span class="sig-paren">(</span><em>d</em>, <em>max_value_length=70</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/printing.html#dict_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.dict_pprint" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">dict_pprint</code><span class="sig-paren">(</span><em>d</em>, <em>sort_keys=True</em>, <em>space_entries=True</em>, <em>max_value_length=70</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/printing.html#dict_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.dict_pprint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty prints a dictionary with vertically aligned values.
 Dictionary values with strings longer than <cite>max_value_length</cite>
 are automatically broken and aligned with the line(s) above.</p>
@@ -181,11 +180,12 @@ are automatically broken and aligned with the line(s) above.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>d</strong> (<code class="docutils literal"><span class="pre">dict</span></code>) &#8211; a dictionary</li>
-<li><strong>max_value_length</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of characters in a string before a line break.
+<li><strong>d</strong> (<code class="docutils literal"><span class="pre">dict</span></code>) – a dictionary</li>
+<li><strong>sort_keys</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, sort the keys in alphabetical order.</li>
+<li><strong>space_entries</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, insert a line break between entries.</li>
+<li><strong>max_value_length</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – max. number of characters in a string before a line break.
 This is a fuzzy threshold because the algorithm will only insert
-line breaks where there are already spaces and will not insert line breaks
-between braces.</li>
+line breaks where there are already spaces.</li>
 </ul>
 </td>
 </tr>
@@ -213,21 +213,21 @@ between braces.</li>
 
 <dl class="function">
 <dt id="biovida.support_tools.printing.pandas_pprint">
-<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align='right'</em>, <em>header_align='center'</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>suppress_index=False</em>, <em>column_width_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align=’right’</em>, <em>header_align=’center’</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>suppress_index=False</em>, <em>column_width_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty Print a Pandas DataFrame or Series.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> (<code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code>) &#8211; a dataframe or series.</li>
-<li><strong>col_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; &#8216;left&#8217;, &#8216;right&#8217;, &#8216;center&#8217; or a dictionary of the form: <code class="docutils literal"><span class="pre">{'column_name':</span> <span class="pre">'alignment'}</span></code>,
+<li><strong>data</strong> (<code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code>) – a dataframe or series.</li>
+<li><strong>col_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) – ‘left’, ‘right’, ‘center’ or a dictionary of the form: <code class="docutils literal"><span class="pre">{'column_name':</span> <span class="pre">'alignment'}</span></code>,
 e.g., <code class="docutils literal"><span class="pre">{'my_column':</span> <span class="pre">'left',</span> <span class="pre">'my_column2':</span> <span class="pre">'right'}</span></code>.</li>
-<li><strong>header_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; alignment of headers. Must be one of: &#8216;left&#8217;, &#8216;right&#8217;, &#8216;center&#8217;.</li>
-<li><strong>full_rows</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all rows.</li>
-<li><strong>full_cols</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all columns.</li>
-<li><strong>suppress_index</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, suppress the index. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>column_width_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; change limit on how wide columns can be. If <code class="docutils literal"><span class="pre">None</span></code>, no change will be made.
+<li><strong>header_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) – alignment of headers. Must be one of: ‘left’, ‘right’, ‘center’.</li>
+<li><strong>full_rows</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – print all rows.</li>
+<li><strong>full_cols</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – print all columns.</li>
+<li><strong>suppress_index</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, suppress the index. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>column_width_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – change limit on how wide columns can be. If <code class="docutils literal"><span class="pre">None</span></code>, no change will be made.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 </ul>
 </td>
@@ -252,7 +252,7 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

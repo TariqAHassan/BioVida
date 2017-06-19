@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -176,7 +175,6 @@
 <span class="c1"># BioVida Printing Tools</span>
 <span class="kn">from</span> <span class="nn">biovida.support_tools.printing</span> <span class="k">import</span> <span class="n">dict_pprint</span>
 
-
 <span class="c1"># ---------------------------------------------------------------------------------------------</span>
 <span class="c1"># DisGeNET Reference Data</span>
 <span class="c1"># ---------------------------------------------------------------------------------------------</span>
@@ -241,7 +239,8 @@
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_address</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
             <span class="n">header</span><span class="p">(</span><span class="s2">&quot;The DisGeNET README has been downloaded to:</span><span class="se">\n\n</span><span class="s2"> </span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                   <span class="s2">&quot;Please take the time to review this document.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_address</span><span class="p">),</span> <span class="n">flank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                   <span class="s2">&quot;Please take the time to review this document.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_address</span><span class="p">),</span>
+                   <span class="n">flank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -277,8 +276,9 @@
 <span class="sd">        :type database: ``str``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">database</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_disgenet_delimited_databases</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is an invalid value for `database`.</span><span class="se">\n</span><span class="s2">`database` must be one of:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">database</span><span class="p">),</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">_disgenet_delimited_databases</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39; is an invalid value for `database`.</span><span class="se">\n</span><span class="s2">`database` must be one of:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">database</span><span class="p">),</span> <span class="n">list_to_bulletpoints</span><span class="p">(</span><span class="n">_disgenet_delimited_databases</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 
 <div class="viewcode-block" id="DisgenetInterface.options"><a class="viewcode-back" href="../../../source/biovida.html#biovida.genomics.disgenet_interface.DisgenetInterface.options">[docs]</a>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -386,7 +386,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

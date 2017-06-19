@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -164,10 +163,9 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 
 <span class="c1"># General Support Tools</span>
-<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span><span class="p">,</span> <span class="n">pstr</span><span class="p">,</span> <span class="n">items_null</span>
+<span class="kn">from</span> <span class="nn">biovida.support_tools.support_tools</span> <span class="k">import</span> <span class="n">cln</span><span class="p">,</span> <span class="n">pstr</span><span class="p">,</span> <span class="n">items_null</span><span class="p">,</span> <span class="n">remove_line_breaks</span>
 
 <span class="c1"># Suppress Pandas&#39; SettingWithCopyWarning</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
@@ -203,34 +201,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">s</span>
-    <span class="n">padding</span> <span class="o">=</span> <span class="n">len_longest_key</span> <span class="o">+</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">print_mold</span><span class="p">)</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span>  <span class="c1"># 2 = 1 space for the colon + 1 space added by `print()`.</span>
+    <span class="n">padding</span> <span class="o">=</span> <span class="n">len_longest_key</span> <span class="o">+</span> <span class="p">(</span>
+    <span class="nb">len</span><span class="p">(</span><span class="n">print_mold</span><span class="p">)</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span>  <span class="c1"># 2 = 1 space for the colon + 1 space added by `print()`.</span>
     <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">padding</span><span class="p">))</span>
-
-
-<span class="k">def</span> <span class="nf">_char_in_braces</span><span class="p">(</span><span class="n">full_s</span><span class="p">,</span> <span class="n">char_position</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">    Checks if a given position in a string lies between braces.</span>
-<span class="sd">    Note: This is a rough solution, but more than sufficient. A robust solution would require a state machine.</span>
-
-<span class="sd">    :param full_s: a string.</span>
-<span class="sd">    :type full_s: ``str``</span>
-<span class="sd">    :param char_position: a position in the string.</span>
-<span class="sd">    :type char_position: ``int``</span>
-<span class="sd">    :return: ``True`` if yes, else ``False``</span>
-<span class="sd">    :rtype: bool</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">full_s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`full_s` must be a string.&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">char_position</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`char_position` must be an int.&#39;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;()&#39;</span><span class="p">,</span> <span class="s1">&#39;[]&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">full_s</span><span class="p">[:</span><span class="n">char_position</span><span class="p">]</span> <span class="ow">and</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">full_s</span><span class="p">[</span><span class="n">char_position</span><span class="p">:]:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
 
 
 <span class="k">def</span> <span class="nf">_value_correction</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">len_longest_key</span><span class="p">,</span> <span class="n">max_value_length</span><span class="p">,</span> <span class="n">print_mold</span><span class="p">):</span>
@@ -248,10 +221,10 @@
         <span class="k">return</span> <span class="n">s</span>
 
     <span class="c1"># Clean the input</span>
-    <span class="n">s_cleaned</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">s_cleaned</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">remove_line_breaks</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
 
     <span class="c1"># Get the position of all spaces in the cleaned string -- spaces inside braces are excluded.</span>
-    <span class="n">spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s_cleaned</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_char_in_braces</span><span class="p">(</span><span class="n">s_cleaned</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span>
+    <span class="n">spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s_cleaned</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">]</span>
 
     <span class="c1"># Return if the string is shorter than the `max_value_length` or there are no space.</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_cleaned</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_value_length</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">spaces</span><span class="p">):</span>
@@ -264,14 +237,15 @@
     <span class="n">true_break_points</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">spaces</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">ideal</span><span class="p">))</span> <span class="k">for</span> <span class="n">ideal</span> <span class="ow">in</span> <span class="n">ideal_break_points</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">true_break_points</span><span class="p">):</span>
-        <span class="n">formatted_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">c</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">true_break_points</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s_cleaned</span><span class="p">)])</span>
+        <span class="n">formatted_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">c</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">true_break_points</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s_cleaned</span><span class="p">)])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">formatted_string</span> <span class="o">=</span> <span class="n">s_cleaned</span>
 
     <span class="k">return</span> <span class="n">_value_padding</span><span class="p">(</span><span class="n">formatted_string</span><span class="p">,</span> <span class="n">len_longest_key</span><span class="p">,</span> <span class="n">print_mold</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="dict_pprint"><a class="viewcode-back" href="../../../source/biovida.html#biovida.support_tools.printing.dict_pprint">[docs]</a><span class="k">def</span> <span class="nf">dict_pprint</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">max_value_length</span><span class="o">=</span><span class="mi">70</span><span class="p">):</span>
+<div class="viewcode-block" id="dict_pprint"><a class="viewcode-back" href="../../../source/biovida.html#biovida.support_tools.printing.dict_pprint">[docs]</a><span class="k">def</span> <span class="nf">dict_pprint</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">space_entries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_value_length</span><span class="o">=</span><span class="mi">70</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Pretty prints a dictionary with vertically aligned values.</span>
@@ -280,10 +254,13 @@
 
 <span class="sd">    :param d: a dictionary</span>
 <span class="sd">    :type d: ``dict``</span>
+<span class="sd">    :param sort_keys: if ``True``, sort the keys in alphabetical order.</span>
+<span class="sd">    :type sort_keys: ``bool``</span>
+<span class="sd">    :param space_entries: if ``True``, insert a line break between entries.</span>
+<span class="sd">    :type space_entries: ``bool``</span>
 <span class="sd">    :param max_value_length: max. number of characters in a string before a line break.</span>
-<span class="sd">                            This is a fuzzy threshold because the algorithm will only insert</span>
-<span class="sd">                            line breaks where there are already spaces and will not insert line breaks</span>
-<span class="sd">                            between braces.</span>
+<span class="sd">                             This is a fuzzy threshold because the algorithm will only insert</span>
+<span class="sd">                             line breaks where there are already spaces.</span>
 <span class="sd">    :type max_value_length: ``int``</span>
 
 <span class="sd">    :Example:</span>
@@ -306,15 +283,27 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">print_mold</span> <span class="o">=</span> <span class="s2">&quot; - </span><span class="si">{0}</span><span class="s2"> &quot;</span>
 
+    <span class="k">def</span> <span class="nf">prep_dict</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sort_keys</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+
     <span class="c1"># Compute the length of the longest key</span>
     <span class="n">len_longest_key</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">))</span>
 
-    <span class="n">new_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">_key_padding</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">len_longest_key</span><span class="p">):</span> <span class="n">_value_correction</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">len_longest_key</span><span class="p">,</span> <span class="n">max_value_length</span><span class="p">,</span> <span class="n">print_mold</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">new_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_key_padding</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">len_longest_key</span><span class="o">=</span><span class="n">len_longest_key</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">_value_correction</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">len_longest_key</span><span class="o">=</span><span class="n">len_longest_key</span><span class="p">,</span>
+                                  <span class="n">max_value_length</span><span class="o">=</span><span class="n">max_value_length</span><span class="p">,</span>
+                                  <span class="n">print_mold</span><span class="o">=</span><span class="n">print_mold</span><span class="p">)</span>
+        <span class="n">new_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="c1"># Print the dict</span>
-    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">new_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">print_mold</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span></div>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">prep_dict</span><span class="p">(</span><span class="n">new_dict</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">print_mold</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">space_entries</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
@@ -341,7 +330,7 @@
     <span class="k">if</span> <span class="n">justify</span> <span class="o">==</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pstr</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">pad</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">justify</span> <span class="o">==</span> <span class="s1">&#39;center&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pad</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="n">amount</span><span class="o">/</span><span class="mi">2</span><span class="p">)],</span> <span class="n">pstr</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">pad</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">amount</span><span class="o">/</span><span class="mi">2</span><span class="p">):])</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pad</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="n">amount</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)],</span> <span class="n">pstr</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">pad</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">amount</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">s</span>
 
@@ -380,7 +369,8 @@
 
     <span class="n">pandas_series_str</span> <span class="o">=</span> <span class="n">pandas_series</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">series_to_string</span><span class="p">)</span>
     <span class="n">longest_string</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">pandas_series_str</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;unicode&#39;</span><span class="p">)])</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">_padding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">longest_string</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">justify</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">else</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">pandas_series_str</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">_padding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">longest_string</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">justify</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">else</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span>
+            <span class="n">pandas_series_str</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_align_pandas</span><span class="p">(</span><span class="n">data_frame</span><span class="p">,</span> <span class="n">to_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">):</span>
@@ -514,7 +504,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

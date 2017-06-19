@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -38,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -215,7 +214,7 @@
 <span class="sd">        :rtype: ``list``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">cln</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">))))</span>
-    
+
     <span class="k">def</span> <span class="nf">_def_url_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">definition</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -231,18 +230,20 @@
         <span class="c1"># This seems to be valid currently as this shortcut seems to invariably produce the same</span>
         <span class="c1"># result as would be obtained by following the list of mappings at the top of the .obo</span>
         <span class="c1"># database file. *This could change*.</span>
-        <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span>
+                    <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">definition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;def&quot;</span><span class="p">,</span> <span class="n">definition</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;def_urls&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)]</span>
 
         <span class="c1"># Separate the quote from the list of URLS</span>
         <span class="n">parsed_definition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quote_value_parse</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
-    
+
         <span class="c1"># Extract the list of urls</span>
-        <span class="n">urls</span> <span class="o">=</span> <span class="n">parsed_definition</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;url:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
-    
+        <span class="n">urls</span> <span class="o">=</span> <span class="p">(</span><span class="n">parsed_definition</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;url:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span>
+                <span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">))</span>
+
         <span class="c1"># Remove escape for the colon in the urls</span>
         <span class="n">cleaned_urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;\:/&quot;</span><span class="p">,</span> <span class="s2">&quot;:/&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">]</span>
-    
+
         <span class="c1"># Return the quote and the urls as separate entities</span>
         <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;def&quot;</span><span class="p">,</span> <span class="n">parsed_definition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;def_urls&quot;</span><span class="p">,</span> <span class="n">cleaned_urls</span><span class="p">)]</span>
 
@@ -261,8 +262,9 @@
         <span class="k">if</span> <span class="s2">&quot; ! &quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">is_a</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">is_a</span>
         <span class="n">parse_input</span> <span class="o">=</span> <span class="n">cln</span><span class="p">(</span><span class="n">is_a</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; ! &quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;is_a&quot;</span><span class="p">,</span> <span class="n">parse_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="s2">&quot;is_a_doid&quot;</span><span class="p">,</span> <span class="n">parse_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;DOID:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))]</span>
-    
+        <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;is_a&quot;</span><span class="p">,</span> <span class="n">parse_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s2">&quot;is_a_doid&quot;</span><span class="p">,</span> <span class="n">parse_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;DOID:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))]</span>
+
     <span class="k">def</span> <span class="nf">_value_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -310,7 +312,7 @@
             <span class="k">return</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">parsed_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">additional_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()),</span> <span class="n">related_info</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span>
-    
+
     <span class="k">def</span> <span class="nf">_parsed_term_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed_term</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -349,9 +351,9 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">keys_with_lists</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kp</span><span class="p">)</span>
                         <span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="n">kp</span><span class="p">],</span> <span class="n">vp</span><span class="p">]</span>
-    
+
         <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="n">keys_with_lists</span>
-    
+
     <span class="k">def</span> <span class="nf">_do_term_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        </span>
@@ -368,10 +370,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Split the term on line breaks</span>
         <span class="n">split_term</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">cln</span><span class="p">(</span><span class="n">term</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
-    
+
         <span class="c1"># Split each element in `term` on the &quot;: &quot; pattern.</span>
         <span class="n">parsed_term</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;: &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">split_term</span><span class="p">]</span>
-    
+
         <span class="c1"># Convert to a dict and return</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed_term_to_dict</span><span class="p">(</span><span class="n">parsed_term</span><span class="p">)</span>
 
@@ -398,16 +400,16 @@
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns_with_lists</span><span class="p">:</span>
             <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span>
                                               <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-    
+
         <span class="c1"># Lower columns to make it easier to match in the future</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;synonym&#39;</span><span class="p">,</span> <span class="s1">&#39;subset&#39;</span><span class="p">,</span> <span class="s1">&#39;is_a&#39;</span><span class="p">):</span>
             <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-    
+
         <span class="c1"># Convert &#39;true&#39; in the &#39;is_obsolete&#39; column to an actual python boolean ``True``.</span>
         <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;is_obsolete&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="s1">&#39;is_obsolete&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">items_null</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span>
             <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-    
+
         <span class="k">return</span> <span class="n">data_frame</span>
 
     <span class="k">def</span> <span class="nf">_extract_date_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_parsed_by_term</span><span class="p">):</span>
@@ -420,10 +422,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">extracted_date</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;data-version: (.*)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">first_parsed_by_term</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">extracted_date_cleaned</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">extracted_date</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">extracted_date_cleaned</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">extracted_date</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">extracted_date_cleaned</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Could not extract the date on which the Disease Ontology database was generated.&quot;</span><span class="p">)</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Could not extract the date on which the Disease Ontology database was generated.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_harvest_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disease_ontology_db_url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -439,29 +443,30 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Open the file and discard [Typedef] information at the end of the file.</span>
             <span class="n">obo_file</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">disease_ontology_db_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[Typedef]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    
+
         <span class="c1"># Parse the file by splitting on [Term].</span>
         <span class="n">parsed_by_term</span> <span class="o">=</span> <span class="n">obo_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[Term]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-    
+
         <span class="c1"># Extract the date</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extract_date_version</span><span class="p">(</span><span class="n">parsed_by_term</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="c1"># Convert to a list of dicts</span>
         <span class="n">fully_parsed_terms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_do_term_parser</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">parsed_by_term</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
-    
+
         <span class="c1"># Extract the dicts</span>
         <span class="n">list_of_dicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fully_parsed_terms</span><span class="p">]</span>
-    
+
         <span class="c1"># Extract keys (future column names) which contain lists</span>
         <span class="n">keys_with_lists</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fully_parsed_terms</span><span class="p">))</span>
-    
+
         <span class="c1"># Compress `keys_with_lists` to uniques.</span>
         <span class="n">columns_with_lists</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">keys_with_lists</span><span class="p">))</span>
-    
+
         <span class="c1"># Convert to a DataFrame, Clean and Return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">disease_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_df_cleaner</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">list_of_dicts</span><span class="p">),</span> <span class="n">columns_with_lists</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DiseaseOntInterface.pull"><a class="viewcode-back" href="../../../source/biovida.html#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull">[docs]</a>    <span class="k">def</span> <span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">disease_ontology_db_url</span><span class="o">=</span><span class="s1">&#39;http://purl.obolibrary.org/obo/doid.obo&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="DiseaseOntInterface.pull"><a class="viewcode-back" href="../../../source/biovida.html#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull">[docs]</a>    <span class="k">def</span> <span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">disease_ontology_db_url</span><span class="o">=</span><span class="s1">&#39;http://purl.obolibrary.org/obo/doid.obo&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Pull (i.e., download) the Disease Ontology Database.</span>
@@ -481,7 +486,8 @@
 <span class="sd">        :return: the Disease Ontology database as a DataFrame.</span>
 <span class="sd">        :rtype: ``Pandas DataFrame``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_disease_ont_dirs</span><span class="p">[</span><span class="s1">&#39;disease_ontology&#39;</span><span class="p">],</span> <span class="s2">&quot;disease_ontology_db&quot;</span><span class="p">)</span>
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created_disease_ont_dirs</span><span class="p">[</span><span class="s1">&#39;disease_ontology&#39;</span><span class="p">],</span>
+                                 <span class="s2">&quot;disease_ontology_db&quot;</span><span class="p">)</span>
         <span class="n">db_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
         <span class="n">support_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_support.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
 
@@ -511,7 +517,7 @@
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>

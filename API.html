@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -39,7 +38,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -240,15 +239,15 @@
 <dl class="class">
 <dt id="biovida.images.openi_interface.OpeniInterface">
 <em class="property">class </em><code class="descclassname">biovida.images.openi_interface.</code><code class="descname">OpeniInterface</code><span class="sig-paren">(</span><em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/openi_interface.html#OpeniInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface" title="Permalink to this definition">¶</a></dt>
-<dd><p>Python Interface for the NIH&#8217;s <a class="reference external" href="https://openi.nlm.nih.gov">Open-i</a> API.</p>
+<dd><p>Python Interface for the NIH’s <a class="reference external" href="https://openi.nlm.nih.gov">Open-i</a> API.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; path to the location of the BioVida cache. If a cache does not exist in this location,
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – path to the location of the BioVida cache. If a cache does not exist in this location,
 one will created. Default to <code class="docutils literal"><span class="pre">None</span></code>, which will generate a cache in the home folder.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> print additional details.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> print additional details.</li>
 </ul>
 </td>
 </tr>
@@ -262,7 +261,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path ending with the &#8216;.p&#8217; file extension.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – a system path ending with the ‘.p’ file extension.</td>
 </tr>
 </tbody>
 </table>
@@ -276,7 +275,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) &#8211; a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) – a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
 </tr>
 </tbody>
 </table>
@@ -303,10 +302,10 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>search_parameter</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; one of: &#8216;image_type&#8217;, &#8216;rankby&#8217;, &#8216;article_type&#8217;, &#8216;subset&#8217;, &#8216;collection&#8217;, &#8216;fields&#8217;,
-&#8216;specialties&#8217;, &#8216;video&#8217; or <cite>exclusions</cite>. If <code class="docutils literal"><span class="pre">None</span></code>, print the parameters
+<li><strong>search_parameter</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – one of: ‘image_type’, ‘rankby’, ‘article_type’, ‘subset’, ‘collection’, ‘fields’,
+‘specialties’, ‘video’ or <cite>exclusions</cite>. If <code class="docutils literal"><span class="pre">None</span></code>, print the parameters
 of <code class="docutils literal"><span class="pre">search()</span></code>.</li>
-<li><strong>print_options</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the options, else return as a <code class="docutils literal"><span class="pre">list</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>print_options</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the options, else return as a <code class="docutils literal"><span class="pre">list</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -322,32 +321,32 @@ of <code class="docutils literal"><span class="pre">search()</span></code>.</li>
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>query=None, image_type=None, rankby=None, article_type=None, subset=None, collection=None, fields=None, specialties=None, video=None, exclusions=['graphics'], print_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/openi_interface.html#OpeniInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.search" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tool to generate a search term (URL) for the NIH&#8217;s Open-i API.
+<code class="descname">search</code><span class="sig-paren">(</span><em>query=None, image_type=None, rankby=None, article_type=None, subset=None, collection=None, fields=None, specialties=None, video=None, exclusions=[‘graphics’], print_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/openi_interface.html#OpeniInterface.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tool to generate a search term (URL) for the NIH’s Open-i API.
 The computed term is stored as a class attribute (<code class="docutils literal"><span class="pre">INSTANCE.current_search_url</span></code>)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>query</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a search term. <code class="docutils literal"><span class="pre">None</span></code> will be converted to an empty string.</li>
-<li><strong>image_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('image_type')</span></code> for valid values.</li>
-<li><strong>rankby</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('rankby')</span></code> for valid values.</li>
-<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values. Defaults to &#8216;case_report&#8217;.</li>
-<li><strong>subset</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('subset')</span></code> for valid values.</li>
-<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('collection')</span></code> for valid values.</li>
-<li><strong>fields</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('fields')</span></code> for valid values.</li>
-<li><strong>specialties</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('specialties')</span></code> for valid values.</li>
-<li><strong>video</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; see <code class="docutils literal"><span class="pre">OpeniInterface().options('video')</span></code> for valid values.</li>
-<li><strong>exclusions</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>one or both of: &#8216;graphics&#8217;, &#8216;multipanel&#8217;. Defaults to <code class="docutils literal"><span class="pre">['graphics']</span></code>.</p>
+<li><strong>query</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – a search term. <code class="docutils literal"><span class="pre">None</span></code> will be converted to an empty string.</li>
+<li><strong>image_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – see <code class="docutils literal"><span class="pre">OpeniInterface().options('image_type')</span></code> for valid values.</li>
+<li><strong>rankby</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – see <code class="docutils literal"><span class="pre">OpeniInterface().options('rankby')</span></code> for valid values.</li>
+<li><strong>article_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – see <code class="docutils literal"><span class="pre">OpeniInterface().options('article_type')</span></code> for valid values.</li>
+<li><strong>subset</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – see <code class="docutils literal"><span class="pre">OpeniInterface().options('subset')</span></code> for valid values.</li>
+<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – see <code class="docutils literal"><span class="pre">OpeniInterface().options('collection')</span></code> for valid values.</li>
+<li><strong>fields</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – see <code class="docutils literal"><span class="pre">OpeniInterface().options('fields')</span></code> for valid values.</li>
+<li><strong>specialties</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – see <code class="docutils literal"><span class="pre">OpeniInterface().options('specialties')</span></code> for valid values.</li>
+<li><strong>video</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – see <code class="docutils literal"><span class="pre">OpeniInterface().options('video')</span></code> for valid values.</li>
+<li><strong>exclusions</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – <p>one or both of: ‘graphics’, ‘multipanel’. Defaults to <code class="docutils literal"><span class="pre">['graphics']</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Excluding &#8216;multipanel&#8217; can result in images that <em>are</em> multipanel
-being returned from Open-i API. For this reason, including &#8216;multipanel&#8217;
+<p class="last">Excluding ‘multipanel’ can result in images that <em>are</em> multipanel
+being returned from Open-i API. For this reason, including ‘multipanel’
 is not currently recommended.</p>
 </div>
 </li>
-<li><strong>print_results</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the number of search results.</li>
+<li><strong>print_results</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, print the number of search results.</li>
 </ul>
 </td>
 </tr>
@@ -364,7 +363,7 @@ is not currently recommended.</p>
 
 <dl class="method">
 <dt id="biovida.images.openi_interface.OpeniInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>image_size='large'</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=100</em>, <em>clinical_cases_only=False</em>, <em>use_image_caption=False</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>image_size=’large’</em>, <em>records_sleep_time=(10</em>, <em>1.5)</em>, <em>images_sleep_time=(10</em>, <em>1.5)</em>, <em>download_limit=100</em>, <em>clinical_cases_only=False</em>, <em>use_image_caption=False</em>, <em>new_records_pull=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/openi_interface.html#OpeniInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.openi_interface.OpeniInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the current search.</p>
 <p>In addition to the columns provided by Open-i, this method will automatically generate the
 following columns by analyzing the pulled data:</p>
@@ -376,18 +375,18 @@ following columns by analyzing the pulled data:</p>
 <li><code class="docutils literal"><span class="pre">'parsed_abstract'</span></code></li>
 <li>duration of illness (<code class="docutils literal"><span class="pre">'illness_duration_years'</span></code>)</li>
 <li>the imaging modality (e.g., MRI) used, based on the text associated with the image (<code class="docutils literal"><span class="pre">'imaging_modality_from_text'</span></code>)</li>
-<li>the plane (&#8216;axial&#8217;, &#8216;coronal&#8217; or &#8216;sagittal&#8217;) of the image (<code class="docutils literal"><span class="pre">'image_plane'</span></code>)</li>
-<li>image problems (&#8216;arrows&#8217;, &#8216;asterisks&#8217; and &#8216;grids&#8217;) inferred from the image caption (<code class="docutils literal"><span class="pre">'image_problems_from_text'</span></code>)</li>
+<li>the plane (‘axial’, ‘coronal’ or ‘sagittal’) of the image (<code class="docutils literal"><span class="pre">'image_plane'</span></code>)</li>
+<li>image problems (‘arrows’, ‘asterisks’ and ‘grids’) inferred from the image caption (<code class="docutils literal"><span class="pre">'image_problems_from_text'</span></code>)</li>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The &#8216;parsed_abstract&#8217; column contains abstracts coerced into dictionaries where the subheadings of the abstract
+<p class="last">The ‘parsed_abstract’ column contains abstracts coerced into dictionaries where the subheadings of the abstract
 form the keys and their associated information form the values. For example, a <em>MedPix</em> image will typically yield
-a dictionary with the following keys: &#8216;history&#8217;, &#8216;finding&#8217;, &#8216;ddx&#8217; (differential diagnosis), &#8216;dxhow&#8217; and &#8216;exam&#8217;.</p>
+a dictionary with the following keys: ‘history’, ‘finding’, ‘ddx’ (differential diagnosis), ‘dxhow’ and ‘exam’.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last"><em>MedPix</em> images include a distinct &#8216;diagnosis&#8217; section. For images from other sources, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code>
+<p class="last"><em>MedPix</em> images include a distinct ‘diagnosis’ section. For images from other sources, the <code class="docutils literal"><span class="pre">'diagnosis'</span></code>
 column is obtained by analyzing the text associated with the image. This analysis could produce inaccuracies.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -395,8 +394,8 @@ column is obtained by analyzing the text associated with the image. This analysi
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>image_size</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <dl class="docutils">
-<dt>one of: &#8216;large&#8217;, &#8216;grid150&#8217;, &#8216;thumb&#8217;, &#8216;thumb_large&#8217; or <code class="docutils literal"><span class="pre">None</span></code>. Defaults to &#8216;large&#8217;.</dt>
+<li><strong>image_size</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – <dl class="docutils">
+<dt>one of: ‘large’, ‘grid150’, ‘thumb’, ‘thumb_large’ or <code class="docutils literal"><span class="pre">None</span></code>. Defaults to ‘large’.</dt>
 <dd>If <code class="docutils literal"><span class="pre">None</span></code>, no attempt will be made to download images.</dd>
 </dl>
 <div class="admonition warning">
@@ -405,17 +404,17 @@ column is obtained by analyzing the text associated with the image. This analysi
 most accurate with large images.</p>
 </div>
 </li>
-<li><strong>records_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
+<li><strong>records_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
 Note: noise is randomly added to the sleep time by sampling from a normal distribution
 (with mean = 0, sd = 0.75).</li>
-<li><strong>images_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
+<li><strong>images_sleep_time</strong> (<code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – tuple of the form: <code class="docutils literal"><span class="pre">(every</span> <span class="pre">x</span> <span class="pre">downloads,</span> <span class="pre">period</span> <span class="pre">of</span> <span class="pre">time</span> <span class="pre">[seconds])</span></code>. Defaults to <code class="docutils literal"><span class="pre">(10,</span> <span class="pre">1.5)</span></code>.
 Note: noise is randomly added to the sleep time by sampling from a normal distribution
 (with mean = 0, sd = 0.75).</li>
-<li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
+<li><strong>download_limit</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">int</span></code>) – max. number of results to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed
 (not recommended). Defaults to 100.</li>
-<li><strong>clinical_cases_only</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <dl class="docutils">
+<li><strong>clinical_cases_only</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – <dl class="docutils">
 <dt>if <code class="docutils literal"><span class="pre">True</span></code> require that the data harvested is of a clinical case. Specifically,</dt>
-<dd>this parameter requires that &#8216;article_type&#8217; is one of: &#8216;encounter&#8217;, &#8216;case_report&#8217;.
+<dd>this parameter requires that ‘article_type’ is one of: ‘encounter’, ‘case_report’.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</dd>
 </dl>
 <div class="admonition note">
@@ -424,10 +423,10 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 the <code class="docutils literal"><span class="pre">download_limit</span></code>.</p>
 </div>
 </li>
-<li><strong>use_image_caption</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> block downloading of an image if its caption suggests the presence
-of problematic image properties (e.g., &#8216;arrows&#8217;) likely to corrupt a dataset.
+<li><strong>use_image_caption</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> block downloading of an image if its caption suggests the presence
+of problematic image properties (e.g., ‘arrows’) likely to corrupt a dataset.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <p>if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</p>
+<li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – <p>if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Setting <code class="docutils literal"><span class="pre">new_records_pull=False</span></code> can be useful if one wishes to initially set <code class="docutils literal"><span class="pre">image_size=None</span></code>,
@@ -444,7 +443,7 @@ If <code class="docutils literal"><span class="pre">image_size</span></code> is 
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if <code class="docutils literal"><span class="pre">search()</span></code> has not been called.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> – if <code class="docutils literal"><span class="pre">search()</span></code> has not been called.</p>
 </td>
 </tr>
 </tbody>
@@ -459,21 +458,21 @@ If <code class="docutils literal"><span class="pre">image_size</span></code> is 
 <dl class="class">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface">
 <em class="property">class </em><code class="descclassname">biovida.images.cancer_image_interface.</code><code class="descname">CancerImageInterface</code><span class="sig-paren">(</span><em>api_key</em>, <em>cache_path=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface" title="Permalink to this definition">¶</a></dt>
-<dd><p>Python Interface for the <a class="reference external" href="http://www.cancerimagingarchive.net/">Cancer Imaging Archive</a>&#8216;s API.</p>
+<dd><p>Python Interface for the <a class="reference external" href="http://www.cancerimagingarchive.net/">Cancer Imaging Archive</a>’s API.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api_key</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>a key to the the Cancer Imaging Archive&#8217;s API.</p>
+<li><strong>api_key</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – <p>a key to the the Cancer Imaging Archive’s API.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">An API key can be obtained by following the instructions provided <a class="reference external" href="https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide/">here</a>.</p>
 </div>
 </li>
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; path to the location of the BioVida cache. If a cache does not exist in this location,
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – path to the location of the BioVida cache. If a cache does not exist in this location,
 one will created. Default to <code class="docutils literal"><span class="pre">None</span></code>, which will generate a cache in the home folder.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> print additional details</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> print additional details</li>
 </ul>
 </td>
 </tr>
@@ -482,7 +481,7 @@ one will created. Default to <code class="docutils literal"><span class="pre">No
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If you wish to use any data obtained from this resource for any form of publication,
-you must follow the citation guidelines provided by the study&#8217;s authors on the project&#8217;s
+you must follow the citation guidelines provided by the study’s authors on the project’s
 Cancer Imaging Archive repository page.</p>
 </div>
 <div class="admonition warning">
@@ -499,7 +498,7 @@ must first check that the studies you have selected are not subject to such rest
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; a system path ending with the &#8216;.p&#8217; file extension.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – a system path ending with the ‘.p’ file extension.</td>
 </tr>
 </tbody>
 </table>
@@ -513,7 +512,7 @@ must first check that the studies you have selected are not subject to such rest
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) &#8211; a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>records_db</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) – a system path or <code class="docutils literal"><span class="pre">records_db</span></code> itself.</td>
 </tr>
 </tbody>
 </table>
@@ -546,15 +545,15 @@ must first check that the studies you have selected are not subject to such rest
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a collection (study), or iterable (e.g., list) of collections,
+<li><strong>collection</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – a collection (study), or iterable (e.g., list) of collections,
 hosted by the Cancer Imaging Archive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>cancer_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a string or list/tuple of specifying cancer types. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>location</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; a string or list/tuple of specifying body locations. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>modality</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the type of imaging technology. See: <code class="docutils literal"><span class="pre">CancerImageInterface().dicom_modality_abbrevs</span></code> for
+<li><strong>cancer_type</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – a string or list/tuple of specifying cancer types. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>location</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – a string or list/tuple of specifying body locations. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>modality</strong> (<code class="docutils literal"><span class="pre">str</span></code>, <code class="docutils literal"><span class="pre">iterable</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – the type of imaging technology. See: <code class="docutils literal"><span class="pre">CancerImageInterface().dicom_modality_abbrevs</span></code> for
 valid values. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the search results. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, pretty print the search results. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -580,7 +579,7 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 
 <dl class="method">
 <dt id="biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data">
-<code class="descname">extract_dicom_data</code><span class="sig-paren">(</span><em>database='records_db'</em>, <em>make_hashable=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.extract_dicom_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">extract_dicom_data</code><span class="sig-paren">(</span><em>database=’records_db’</em>, <em>make_hashable=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/cancer_image_interface.html#CancerImageInterface.extract_dicom_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.cancer_image_interface.CancerImageInterface.extract_dicom_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract data from all dicom files referenced in <code class="docutils literal"><span class="pre">records_db</span></code> or <code class="docutils literal"><span class="pre">cache_records_db</span></code>.
 Note: this requires that <code class="docutils literal"><span class="pre">save_dicom</span></code> is <code class="docutils literal"><span class="pre">True</span></code> when <code class="docutils literal"><span class="pre">pull()</span></code> is called.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -588,9 +587,9 @@ Note: this requires that <code class="docutils literal"><span class="pre">save_d
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the name of the database to use. Must be one of: &#8216;records_db&#8217;, &#8216;cache_records_db&#8217;.
-Defaults to &#8216;records_db&#8217;.</li>
-<li><strong>make_hashable</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code> convert the data extracted to nested tuples.
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – the name of the database to use. Must be one of: ‘records_db’, ‘cache_records_db’.
+Defaults to ‘records_db’.</li>
+<li><strong>make_hashable</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code> convert the data extracted to nested tuples.
 If <code class="docutils literal"><span class="pre">False</span></code> generate nested dictionaries. Defaults to <code class="docutils literal"><span class="pre">False</span></code></li>
 </ul>
 </td>
@@ -627,8 +626,8 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 </ul>
 <p>where:</p>
 <table class="hlist"><tr><td><ul class="simple">
-<li>&#8216;instance&#8217; denotes the image&#8217;s position in the 3D image (if applicable and available)</li>
-<li>&#8216;pull_position&#8217; denotes the position of the image in the set returned for the given &#8216;SeriesInstanceUID&#8217; by the Cancer Imaging Archive.</li>
+<li>‘instance’ denotes the image’s position in the 3D image (if applicable and available)</li>
+<li>‘pull_position’ denotes the position of the image in the set returned for the given ‘SeriesInstanceUID’ by the Cancer Imaging Archive.</li>
 </ul>
 </td></tr></table>
 <table class="docutils field-list" frame="void" rules="none">
@@ -636,10 +635,10 @@ If <code class="docutils literal"><span class="pre">make_hashable</span></code> 
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>patient_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; limit on the number of patients to extract.
+<li><strong>patient_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – limit on the number of patients to extract.
 Patient IDs are sorted prior to this limit being imposed.
 If <code class="docutils literal"><span class="pre">None</span></code>, no patient_limit will be imposed. Defaults to <cite>3</cite>.</li>
-<li><strong>session_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; <dl class="docutils">
+<li><strong>session_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – <dl class="docutils">
 <dt>restrict image harvesting to the first <code class="docutils literal"><span class="pre">n</span></code> imaging sessions (days) for a given patient,</dt>
 <dd>where <code class="docutils literal"><span class="pre">n</span></code> is the value passed to this parameter. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be imposed.
 Defaults to <cite>1</cite>.</dd>
@@ -652,15 +651,15 @@ Latter sessions may be of patients following interventions, such as surgery, int
 non-baseline sessions (i.e., session number &gt; 1) contain signs of disease.</p>
 </div>
 </li>
-<li><strong>collections_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; limit the number of collections to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be applied.
+<li><strong>collections_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – limit the number of collections to download. If <code class="docutils literal"><span class="pre">None</span></code>, no limit will be applied.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>allowed_modalities</strong> (<code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; limit images downloaded to certain modalities.
+<li><strong>allowed_modalities</strong> (<code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) – limit images downloaded to certain modalities.
 See: <code class="docutils literal"><span class="pre">CancerImageInterface(YOUR_API_KEY_HERE).dicom_modality_abbrevs</span></code> (use the keys).
-Note: &#8216;MRI&#8217;, &#8216;PET&#8217;, &#8216;CT&#8217; and &#8216;X-Ray&#8217; can also be used.
+Note: ‘MRI’, ‘PET’, ‘CT’ and ‘X-Ray’ can also be used.
 This parameter is not case sensitive. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>save_dicom</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, save the DICOM images provided by The Cancer Imaging Archive &#8216;as is&#8217;. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</li>
+<li><strong>save_dicom</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, save the DICOM images provided by The Cancer Imaging Archive ‘as is’. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>save_png</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, convert the DICOM images provided by The Cancer Imaging Archive to PNGs. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>new_records_pull</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, download the data for the current search. If <code class="docutils literal"><span class="pre">False</span></code>, use <code class="docutils literal"><span class="pre">INSTANCE.records_db</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -681,25 +680,25 @@ This parameter is not case sensitive. Defaults to <code class="docutils literal"
 <h3>Image Processing<a class="headerlink" href="#image-processing" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="biovida.images.image_processing.OpeniImageProcessing">
-<em class="property">class </em><code class="descclassname">biovida.images.image_processing.</code><code class="descname">OpeniImageProcessing</code><span class="sig-paren">(</span><em>instance</em>, <em>db_to_extract='records_db'</em>, <em>model_location=None</em>, <em>download_override=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#OpeniImageProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">biovida.images.image_processing.</code><code class="descname">OpeniImageProcessing</code><span class="sig-paren">(</span><em>instance</em>, <em>db_to_extract=’records_db’</em>, <em>model_location=None</em>, <em>download_override=False</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#OpeniImageProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class is designed to allow easy analysis and cleaning of cached Open-i image data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpenInterface</span> <span class="pre">Class</span></code>) &#8211; an instance of the <code class="docutils literal"><span class="pre">biovida.images.openi_interface.OpenInterface()</span></code> class.</li>
-<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <code class="docutils literal"><span class="pre">records_db</span></code> or``cache_records_db``. Defaults to &#8216;records_db&#8217;.</li>
-<li><strong>model_location</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the location of the model for Convnet.
+<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpenInterface</span> <span class="pre">Class</span></code>) – an instance of the <code class="docutils literal"><span class="pre">biovida.images.openi_interface.OpenInterface()</span></code> class.</li>
+<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – <code class="docutils literal"><span class="pre">records_db</span></code> or“cache_records_db“. Defaults to ‘records_db’.</li>
+<li><strong>model_location</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – the location of the model for Convnet.
 If <cite>None</cite>, the default model will be used. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, download a new copy of the &#8216;visual_image_problems_model&#8217; weights (and
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, download a new copy of the ‘visual_image_problems_model’ weights (and
 associated resources) regardless of whether or not files with these names are
 already cached. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional details. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, print additional details. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><strong>image_dataframe</strong> &#8211; this is the dataframe that was passed when instantiating the class and
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><strong>image_dataframe</strong> – this is the dataframe that was passed when instantiating the class and
 contains a cache of all analyses run as new columns.</p>
 </td>
 </tr>
@@ -719,9 +718,10 @@ contains a cache of all analyses run as new columns.</p>
 <dl class="docutils">
 <dt>Note:</dt>
 <dd><ul class="first last simple">
-<li>this tool is very conservative (very small amounts of &#8216;color&#8217; will yield <cite>False</cite>).</li>
-<li>the exception to the above rule is the <em>very rare</em> case of an image which even split
-of red, green and blue.</li>
+<li>this tool is very conservative (very small amounts of ‘color’ will yield <cite>False</cite>).</li>
+<li>the exception to the above rule is the <em>very rare</em> case of an image which an even split
+of red, green and blue. In such an instance this function may errounously conclude that
+the image is grayscale.</li>
 </ul>
 </dd>
 </dl>
@@ -730,8 +730,8 @@ of red, green and blue.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -743,23 +743,23 @@ of red, green and blue.</li>
 <dt id="biovida.images.image_processing.OpeniImageProcessing.logo_analysis">
 <code class="descname">logo_analysis</code><span class="sig-paren">(</span><em>match_quality_threshold=0.25</em>, <em>xy_position_threshold=(0.3333333333333333</em>, <em>0.4)</em>, <em>base_resizes=(0.5</em>, <em>2.5</em>, <em>0.1)</em>, <em>end_search_threshold=0.875</em>, <em>base_image_cropping=(0.15</em>, <em>0.5)</em>, <em>new_analysis=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#OpeniImageProcessing.logo_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing.logo_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for the MedPix Logo. If located, with match quality above match_quality_threshold,
-populate the the &#8216;medpix_logo_bounding_box&#8217; of <code class="docutils literal"><span class="pre">image_dataframe</span></code> with its bounding box.</p>
+populate the the ‘medpix_logo_bounding_box’ of <code class="docutils literal"><span class="pre">image_dataframe</span></code> with its bounding box.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>match_quality_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the minimum match quality required to accept the match.
+<li><strong>match_quality_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – the minimum match quality required to accept the match.
 See: <code class="docutils literal"><span class="pre">skimage.feature.match_template()</span></code> for more information.</li>
-<li><strong>xy_position_threshold</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; tuple of the form: (x_greater_check, y_greater_check).
+<li><strong>xy_position_threshold</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) – tuple of the form: (x_greater_check, y_greater_check).
 For instance the default (<code class="docutils literal"><span class="pre">(1/3.0,</span> <span class="pre">1/2.5)</span></code>) requires that the
-x position of the logo is greater than 1/3 of the image&#8217;s width
-and less than 1/2.5 of the image&#8217;s height.</li>
-<li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
-<li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
-<li><strong>base_image_cropping</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code></li>
-<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+x position of the logo is greater than 1/3 of the image’s width
+and less than 1/2.5 of the image’s height.</li>
+<li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) – See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
+<li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code>.</li>
+<li><strong>base_image_cropping</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) – See: <code class="docutils literal"><span class="pre">biovida.images.models.template_matching.robust_match_template()</span></code></li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – rerun the analysis if it has already been computed.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -776,11 +776,11 @@ and less than 1/2.5 of the image&#8217;s height.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
-<li><strong>min_border_separation</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
-<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
-<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<li><strong>min_border_separation</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – see <code class="docutils literal"><span class="pre">biovida.images.models.border_detection()</span></code>.</li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -796,7 +796,7 @@ and less than 1/2.5 of the image&#8217;s height.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</td>
 </tr>
 </tbody>
 </table>
@@ -817,10 +817,10 @@ computes probabilities for the presence of problematic image properties or types
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
+<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
 the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -850,10 +850,10 @@ parameter values for class methods.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
+<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
 the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -864,22 +864,22 @@ the model has not explicitly been trained on. Defaults to <code class="docutils 
 <dl class="method">
 <dt id="biovida.images.image_processing.OpeniImageProcessing.auto_decision">
 <code class="descname">auto_decision</code><span class="sig-paren">(</span><em>valid_floor=0.8</em>, <em>problems_to_ignore=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#OpeniImageProcessing.auto_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing.auto_decision" title="Permalink to this definition">¶</a></dt>
-<dd><p>Automatically generate &#8216;invalid_image&#8217; column in the <cite>image_dataframe</cite>
+<dd><p>Automatically generate ‘invalid_image’ column in the <cite>image_dataframe</cite>
 column by deciding whether or not images are valid using default parameter values for class methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; <p>the smallest value needed for a &#8216;valid_image&#8217; to be considered valid. Defaults to <cite>0.8</cite>.</p>
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – <p>the smallest value needed for a ‘valid_image’ to be considered valid. Defaults to <cite>0.8</cite>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">For an image to be considered &#8216;valid&#8217;, the most likely categorization for the image must be
-&#8216;valid_image&#8217; and the probability that the model assigns when placing it in this category
+<p class="last">For an image to be considered ‘valid’, the most likely categorization for the image must be
+‘valid_image’ and the probability that the model assigns when placing it in this category
 must be great than or equal to <code class="docutils literal"><span class="pre">valid_floor</span></code>.</p>
 </div>
 </li>
-<li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
+<li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) – image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 </ul>
 </td>
@@ -897,13 +897,13 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; the smallest value needed for a &#8216;valid_image&#8217; to be considered valid. Defaults to <cite>0.8</cite>.</li>
-<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
+<li><strong>valid_floor</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – the smallest value needed for a ‘valid_image’ to be considered valid. Defaults to <cite>0.8</cite>.</li>
+<li><strong>limit_to_known_modalities</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, remove model predicts for image modalities
 the model has not explicitly been trained on. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
+<li><strong>problems_to_ignore</strong> (<code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">tuple</span></code>) – image problems to ignore. See <code class="docutils literal"><span class="pre">INSTANCE.known_image_problems</span></code> for valid values.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>new_analysis</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – rerun the analysis if it has already been computed. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -921,8 +921,8 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 <dl class="method">
 <dt id="biovida.images.image_processing.OpeniImageProcessing.clean_image_dataframe">
 <code class="descname">clean_image_dataframe</code><span class="sig-paren">(</span><em>crop_images=True</em>, <em>convert_to_rgb=False</em>, <em>status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#OpeniImageProcessing.clean_image_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing.clean_image_dataframe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Define a dataframe with rows of images found to be &#8216;valid&#8217;.
-These &#8216;valid&#8217; images are cleaned and stored as PIL images in a <code class="docutils literal"><span class="pre">'cleaned_image'</span></code> column.</p>
+<dd><p>Define a dataframe with rows of images found to be ‘valid’.
+These ‘valid’ images are cleaned and stored as PIL images in a <code class="docutils literal"><span class="pre">'cleaned_image'</span></code> column.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The DataFrame this method creates can be viewed with <code class="docutils literal"><span class="pre">INSTANCE.image_dataframe_cleaned</span></code>.</p>
@@ -932,15 +932,15 @@ These &#8216;valid&#8217; images are cleaned and stored as PIL images in a <code
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>crop_images</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; Crop the images using analyses results from <cite>border_analysis()</cite> and
+<li><strong>crop_images</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – Crop the images using analyses results from <cite>border_analysis()</cite> and
 <code class="docutils literal"><span class="pre">logo_analysis()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>convert_to_rgb</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, use the PIL library to convert the images to RGB. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>convert_to_rgb</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, use the PIL library to convert the images to RGB. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">self.image_dataframe</span></code> where the &#8216;invalid_image&#8217; column is <code class="docutils literal"><span class="pre">True</span></code>, with the addition of
-a &#8216;cleaned_image&#8217; populated by PIL image to be saved to disk.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">self.image_dataframe</span></code> where the ‘invalid_image’ column is <code class="docutils literal"><span class="pre">True</span></code>, with the addition of
+a ‘cleaned_image’ populated by PIL image to be saved to disk.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></p>
@@ -952,24 +952,24 @@ a &#8216;cleaned_image&#8217; populated by PIL image to be saved to disk.</p>
 
 <dl class="method">
 <dt id="biovida.images.image_processing.OpeniImageProcessing.output">
-<code class="descname">output</code><span class="sig-paren">(</span><em>output_rule</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>action='copy'</em>, <em>status=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#OpeniImageProcessing.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing.output" title="Permalink to this definition">¶</a></dt>
+<code class="descname">output</code><span class="sig-paren">(</span><em>output_rule</em>, <em>create_dirs=False</em>, <em>allow_overwrite=True</em>, <em>action=’copy’</em>, <em>status=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_processing.html#OpeniImageProcessing.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_processing.OpeniImageProcessing.output" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save processed images to disk.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>output_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) &#8211; <ul>
+<li><strong>output_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) – <ul>
 <li>if a <code class="docutils literal"><span class="pre">str</span></code>: the directory to save the images.</li>
 <li>if a <code class="docutils literal"><span class="pre">function</span></code>: it must (1) accept a single parameter (argument) and (2) return system path(s)
 [see example below].</li>
 </ul>
 </li>
-<li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist.
+<li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; one of &#8216;copy&#8217;, &#8216;ndarray&#8217;.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – one of ‘copy’, ‘ndarray’.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – display status bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1022,16 +1022,16 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; path to the directory with the subdirectories entitled &#8216;train&#8217; and &#8216;validation&#8217;.
+<li><strong>data_path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – path to the directory with the subdirectories entitled ‘train’ and ‘validation’.
 This directory <em>must</em> have this structure. Defaults to <code class="docutils literal"><span class="pre">None</span></code> (to be use when loading
 pre-computed weights).</li>
-<li><strong>image_shape</strong> (<code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">list</span></code>.) &#8211; the (height, width) to rescale the images to. Elements must be <code class="docutils literal"><span class="pre">ints</span></code>. Defaults to <code class="docutils literal"><span class="pre">(150,</span> <span class="pre">150)</span></code>.</li>
-<li><strong>rescale</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to 1/255.</li>
-<li><strong>shear_range</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to 0.1.</li>
-<li><strong>zoom_range</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to 0.35.</li>
-<li><strong>horizontal_flip</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>vertical_flip</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>batch_size</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; Samples to propagate through the model.
+<li><strong>image_shape</strong> (<code class="docutils literal"><span class="pre">tuple</span></code> or <code class="docutils literal"><span class="pre">list</span></code>.) – the (height, width) to rescale the images to. Elements must be <code class="docutils literal"><span class="pre">ints</span></code>. Defaults to <code class="docutils literal"><span class="pre">(150,</span> <span class="pre">150)</span></code>.</li>
+<li><strong>rescale</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to 1/255.</li>
+<li><strong>shear_range</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to 0.1.</li>
+<li><strong>zoom_range</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to 0.35.</li>
+<li><strong>horizontal_flip</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>vertical_flip</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – See: <code class="docutils literal"><span class="pre">keras.preprocessing.image.ImageDataGenerator()</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>batch_size</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – Samples to propagate through the model.
 See: <code class="docutils literal"><span class="pre">keras.preprocessing.ImageDataGenerator().flow_from_directory()</span></code>.
 Defaults to 4.</li>
 </ul>
@@ -1052,8 +1052,8 @@ Defaults to 4.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>classes</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; number of neuron in the output layer (which equals the number of classes).</li>
-<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to &#8216;sigmoid&#8217;.</li>
+<li><strong>classes</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – number of neuron in the output layer (which equals the number of classes).</li>
+<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to ‘sigmoid’.</li>
 </ul>
 </td>
 </tr>
@@ -1068,7 +1068,7 @@ Defaults to 4.</li>
 <p>Sources:</p>
 <ul class="simple">
 <li>Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer. 
-&#8216;SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and&lt; 0.5 MB model size.&#8217; arXiv preprint 
+‘SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and&lt; 0.5 MB model size.’ arXiv preprint 
 <a class="reference external" href="https://arxiv.org/abs/1602.07360">arXiv:1602.07360</a> (2016).</li>
 <li>Implementation adapted from: <a class="reference external" href="https://github.com/rcmalli/keras-squeezenet">github.com/rcmalli/keras-squeezenet</a></li>
 </ul>
@@ -1077,8 +1077,8 @@ Defaults to 4.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>classes</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; number of neuron in the output layer (which equals the number of classes).</li>
-<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to &#8216;sigmoid&#8217;.</li>
+<li><strong>classes</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – number of neuron in the output layer (which equals the number of classes).</li>
+<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to ‘sigmoid’.</li>
 </ul>
 </td>
 </tr>
@@ -1100,8 +1100,8 @@ K. Simonyan, A. Zisserman. <a class="reference external" href="https://arxiv.org
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>classes</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; number of neuron in the output layer (which equals the number of classes).</li>
-<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to &#8216;sigmoid&#8217;.</li>
+<li><strong>classes</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – number of neuron in the output layer (which equals the number of classes).</li>
+<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to ‘sigmoid’.</li>
 </ul>
 </td>
 </tr>
@@ -1111,28 +1111,28 @@ K. Simonyan, A. Zisserman. <a class="reference external" href="https://arxiv.org
 
 <dl class="method">
 <dt id="biovida.images.models.image_classification.ImageClassificationCNN.convnet">
-<code class="descname">convnet</code><span class="sig-paren">(</span><em>model_to_use='default'</em>, <em>loss='binary_crossentropy'</em>, <em>optimizer='default'</em>, <em>metrics=('accuracy'</em>, <em>)</em>, <em>output_layer_activation='sigmoid'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.convnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.convnet" title="Permalink to this definition">¶</a></dt>
+<code class="descname">convnet</code><span class="sig-paren">(</span><em>model_to_use=’default’</em>, <em>loss=’binary_crossentropy’</em>, <em>optimizer=’default’</em>, <em>metrics=(‘accuracy’</em>, <em>)</em>, <em>output_layer_activation=’sigmoid’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/models/image_classification.html#ImageClassificationCNN.convnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.models.image_classification.ImageClassificationCNN.convnet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define and Compile the Image Recognition Convolutional Neural Network.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>model_to_use</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: &#8216;default&#8217;, &#8216;squeezenet&#8217; or &#8216;vgg19&#8217;. Defaults to &#8216;default&#8217;.</p>
+<li><strong>model_to_use</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – <p>one of: ‘default’, ‘squeezenet’ or ‘vgg19’. Defaults to ‘default’.</p>
 <ul>
-<li>&#8216;default&#8217;: a relatively simple sequential model with two convolution layers.</li>
-<li>&#8216;squeezenet&#8217;: SqueezeNet model.</li>
-<li>&#8216;vgg19&#8217;: the VGG 19 model.</li>
+<li>’default’: a relatively simple sequential model with two convolution layers.</li>
+<li>’squeezenet’: SqueezeNet model.</li>
+<li>’vgg19’: the VGG 19 model.</li>
 </ul>
 </li>
-<li><strong>loss</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; Loss function. Defaults to &#8216;categorical_crossentropy&#8217;.
+<li><strong>loss</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – Loss function. Defaults to ‘categorical_crossentropy’.
 See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
-<li><strong>optimizer</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">keras.optimizers</span></code>) &#8211; Optimizer name. Defaults to &#8216;default&#8217;, which will use RMSprop with learning rate = <code class="docutils literal"><span class="pre">0.0001</span></code>.
+<li><strong>optimizer</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">keras.optimizers</span></code>) – Optimizer name. Defaults to ‘default’, which will use RMSprop with learning rate = <code class="docutils literal"><span class="pre">0.0001</span></code>.
 See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
-<li><strong>metrics</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; Metrics to evaluate. Defaults to (&#8216;accuracy&#8217;,).
+<li><strong>metrics</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) – Metrics to evaluate. Defaults to (‘accuracy’,).
 Note: if round braces are used, it MUST contain a comma (to make it a tuple).
 See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
-<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to &#8216;sigmoid&#8217;.</li>
+<li><strong>output_layer_activation</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – the activation function to use on the output layer. See: <a class="reference external" href="https://keras.io/activations/#available-activations">https://keras.io/activations/#available-activations</a>. Defaults to ‘sigmoid’.</li>
 </ul>
 </td>
 </tr>
@@ -1149,9 +1149,9 @@ See: <code class="docutils literal"><span class="pre">keras.models.Sequential()<
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>epochs</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; number of epochs. See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>. Defaults to 10.</li>
-<li><strong>min_delta</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; see <code class="docutils literal"><span class="pre">keras.callbacks.EarlyStopping()</span></code>.</li>
-<li><strong>patience</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; see <code class="docutils literal"><span class="pre">keras.callbacks.EarlyStopping()</span></code>.</li>
+<li><strong>epochs</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – number of epochs. See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>. Defaults to 10.</li>
+<li><strong>min_delta</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – see <code class="docutils literal"><span class="pre">keras.callbacks.EarlyStopping()</span></code>.</li>
+<li><strong>patience</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – see <code class="docutils literal"><span class="pre">keras.callbacks.EarlyStopping()</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1171,10 +1171,10 @@ See: <code class="docutils literal"><span class="pre">keras.models.Sequential()<
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>save_name</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; name of the file. Do not include the &#8216;.h5&#8217; extension as it
+<li><strong>save_name</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – name of the file. Do not include the ‘.h5’ extension as it
 will be added automatically.</li>
-<li><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; path to save the data to. See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
-<li><strong>overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; overwrite the existing copy of the data</li>
+<li><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – path to save the data to. See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
+<li><strong>overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – overwrite the existing copy of the data</li>
 </ul>
 </td>
 </tr>
@@ -1191,7 +1191,7 @@ will be added automatically.</li>
 <dd><p>Load a model from disk.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">This method expects an additional file ending in &#8220;_support.p&#8221;.
+<p class="last">This method expects an additional file ending in “_support.p”.
 For example: if <code class="docutils literal"><span class="pre">path='/your/path/my_model.h5'</span></code>, a file entitled
 <code class="docutils literal"><span class="pre">'/your/path/my_model_support.p'</span></code> is also expected.</p>
 </div>
@@ -1200,10 +1200,10 @@ For example: if <code class="docutils literal"><span class="pre">path='/your/pat
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; path to save the data to.See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
-<li><strong>override_existing</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If True and a model has already been instantiated, override this replace this model.
+<li><strong>path</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – path to save the data to.See: <code class="docutils literal"><span class="pre">keras.models.Sequential()</span></code>.</li>
+<li><strong>override_existing</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If True and a model has already been instantiated, override this replace this model.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>default_model_load</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; load the default model if <code class="docutils literal"><span class="pre">ImageClassificationCNN().convnet()</span></code> has not been called.
+<li><strong>default_model_load</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – load the default model if <code class="docutils literal"><span class="pre">ImageClassificationCNN().convnet()</span></code> has not been called.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
@@ -1224,9 +1224,9 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>list_of_images</strong> (<code class="docutils literal"><span class="pre">list</span></code>) &#8211; a list of paths (strings) to images or <code class="docutils literal"><span class="pre">ndarrays</span></code>.</li>
-<li><strong>desc</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; description for <code class="docutils literal"><span class="pre">tqdm</span></code>.</li>
-<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; True for a tqdm status bar; False for no status bar. Defaults to True.</li>
+<li><strong>list_of_images</strong> (<code class="docutils literal"><span class="pre">list</span></code>) – a list of paths (strings) to images or <code class="docutils literal"><span class="pre">ndarrays</span></code>.</li>
+<li><strong>desc</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – description for <code class="docutils literal"><span class="pre">tqdm</span></code>.</li>
+<li><strong>status</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – True for a tqdm status bar; False for no status bar. Defaults to True.</li>
 </ul>
 </td>
 </tr>
@@ -1262,25 +1262,25 @@ against variation in the size of the pattern in the base image.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pattern_image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; <p>the pattern image.</p>
+<li><strong>pattern_image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) – <p>the pattern image.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If a <cite>ndarray</cite> is passed to <cite>pattern_image</cite>, it <em>must</em> be preprocessed to be a 2D array,
 e.g., <code class="docutils literal"><span class="pre">scipy.misc.imread(pattern_image,</span> <span class="pre">flatten=True)</span></code></p>
 </div>
 </li>
-<li><strong>base_image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; <p>the base image in which to look for the <code class="docutils literal"><span class="pre">pattern_image</span></code>.</p>
+<li><strong>base_image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">ndarray</span></code>) – <p>the base image in which to look for the <code class="docutils literal"><span class="pre">pattern_image</span></code>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If a <cite>ndarray</cite> is passed to <cite>base_image</cite>, it <em>must</em> be preprocessed to be a 2D array,
 e.g., <code class="docutils literal"><span class="pre">scipy.misc.imread(base_image,</span> <span class="pre">flatten=True)</span></code></p>
 </div>
 </li>
-<li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) &#8211; the range over which to rescale the base image.Define as a tuple of the
+<li><strong>base_resizes</strong> (<code class="docutils literal"><span class="pre">tuple</span></code>) – the range over which to rescale the base image.Define as a tuple of the
 form <code class="docutils literal"><span class="pre">(start,</span> <span class="pre">end,</span> <span class="pre">step</span> <span class="pre">size)</span></code>. Defaults to <code class="docutils literal"><span class="pre">(0.5,</span> <span class="pre">2.0,</span> <span class="pre">0.1)</span></code>.</li>
-<li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code> or  <code class="docutils literal"><span class="pre">None</span></code>) &#8211; if a match of this quality is found, end the search. Set equal to <code class="docutils literal"><span class="pre">None</span></code> to disable.
+<li><strong>end_search_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code> or  <code class="docutils literal"><span class="pre">None</span></code>) – if a match of this quality is found, end the search. Set equal to <code class="docutils literal"><span class="pre">None</span></code> to disable.
 Defaults to 0.875.</li>
-<li><strong>base_image_cropping</strong> &#8211; the amount of the image to crop with respect to the x and y axis.
+<li><strong>base_image_cropping</strong> – the amount of the image to crop with respect to the x and y axis.
 form: <code class="docutils literal"><span class="pre">(height,</span> <span class="pre">width)</span></code>. Defaults to <code class="docutils literal"><span class="pre">(0.15,</span> <span class="pre">0.5)</span></code>.</li>
 </ul>
 </td>
@@ -1290,7 +1290,7 @@ form: <code class="docutils literal"><span class="pre">(height,</span> <span cla
 <p>Notes:</p>
 <ul class="simple">
 <li>Decreasing <code class="docutils literal"><span class="pre">height</span></code> will increase the amount of the lower part of the image removed.</li>
-<li>Increasing <code class="docutils literal"><span class="pre">width</span></code> will increase the amount of the image&#8217;s left half removed.</li>
+<li>Increasing <code class="docutils literal"><span class="pre">width</span></code> will increase the amount of the image’s left half removed.</li>
 <li>Cropping more of the base image reduces the probability that the algorithm getting confused.
 However, if the image is cropped too much, the target pattern itself could be removed.</li>
 </ul>
@@ -1323,9 +1323,9 @@ However, if the image is cropped too much, the target pattern itself could be re
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>image</strong> (<code class="docutils literal"><span class="pre">ndarray</span></code>) &#8211; an image represented as a matrix</li>
-<li><strong>axis</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; 0 for columns; 1 for rows.</li>
-<li><strong>n_largest_override</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; override the defaults for the number of inflections to report
+<li><strong>image</strong> (<code class="docutils literal"><span class="pre">ndarray</span></code>) – an image represented as a matrix</li>
+<li><strong>axis</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – 0 for columns; 1 for rows.</li>
+<li><strong>n_largest_override</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – override the defaults for the number of inflections to report
 when searching the image along a given axis.</li>
 </ul>
 </td>
@@ -1352,14 +1352,14 @@ The first pass with truncate the first line; the second pass will truncate the l
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>image_array</strong> (<code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code>) &#8211; an image represented as a matrix.</li>
-<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the proportion of the image
+<li><strong>image_array</strong> (<code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code>) – an image represented as a matrix.</li>
+<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – a value between 0 and 1 specify the proportion of the image
 to search for a lower bar (e.g., 0.90).</li>
-<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the signal strength required
-for an area required to be considered a &#8216;lower bar&#8217;.
+<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">float</span></code>) – a value between 0 and 1 specify the signal strength required
+for an area required to be considered a ‘lower bar’.
 This is measured as a absolute value of the difference between
 a location and the median signal strength of the average image.</li>
-<li><strong>lower_bar_second_pass</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> perform a second pass on the lower bar.</li>
+<li><strong>lower_bar_second_pass</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> perform a second pass on the lower bar.</li>
 </ul>
 </td>
 </tr>
@@ -1412,7 +1412,7 @@ This produces a signal (which can be visualized as a line graph). (b).</li>
 is used as the expected value.</li>
 <li>Candidates for border pairs (e.g., left and right borders) are then weighed based on three lines of evidence.
 Namely, their signal strength, how separated they are and their absolute distance
-from the image&#8217;s midline (about the corresponding axis). If a candidate fails to meet any of these criteria,
+from the image’s midline (about the corresponding axis). If a candidate fails to meet any of these criteria,
 it is rejected.</li>
 <li>The evidence for a lower bar concerns only its signal strength, though only an area of image below a given
 height is considered when trying to locate it. A double pass, the default, will try a second time to find
@@ -1432,27 +1432,27 @@ and returned as an integer. If no plausible borders could be found, <code class=
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code>) &#8211; <p>a path to an image or an image represented as a 2D ndarray.</p>
+<li><strong>image</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code>) – <p>a path to an image or an image represented as a 2D ndarray.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If a <code class="docutils literal"><span class="pre">ndarray</span></code> is passed, it should be the output of the
 <code class="docutils literal"><span class="pre">biovida.images.image_tools.load_image_rescale()</span></code> function.
-Without this preprocessing, this function&#8217;s stability is not assured.</p>
+Without this preprocessing, this function’s stability is not assured.</p>
 </div>
 </li>
-<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the signal strength required
-for an area required to be considered a &#8216;lower bar&#8217;.
+<li><strong>signal_strength_threshold</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – a value between 0 and 1 specify the signal strength required
+for an area required to be considered a ‘lower bar’.
 Internally, this is measured as a location deviation from
 the median signal strength of the average image.</li>
-<li><strong>min_border_separation</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 that determines the proportion of the axis
+<li><strong>min_border_separation</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – a value between 0 and 1 that determines the proportion of the axis
 that two edges must be separated for them to be considered borders.
 (i.e., <code class="docutils literal"><span class="pre">axis_size</span></code> * <code class="docutils literal"><span class="pre">min_border_separation</span></code>)</li>
-<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) &#8211; a value between 0 and 1 specify the proportion of the image
+<li><strong>lower_bar_search_space</strong> (<code class="docutils literal"><span class="pre">float</span></code>) – a value between 0 and 1 specify the proportion of the image
 to search for a lower bar (e.g., 0.90). Set to <code class="docutils literal"><span class="pre">None</span></code> to disable.</li>
-<li><strong>report_signal_strength</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> include the strength of the signal suggesting the existence of an edge.
+<li><strong>report_signal_strength</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> include the strength of the signal suggesting the existence of an edge.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>rescale_input_ndarray</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if True, rescale a <code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code> passed to <code class="docutils literal"><span class="pre">image</span></code>.</li>
-<li><strong>lower_bar_second_pass</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> perform a second pass on the lower bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>rescale_input_ndarray</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if True, rescale a <code class="docutils literal"><span class="pre">2D</span> <span class="pre">ndarray</span></code> passed to <code class="docutils literal"><span class="pre">image</span></code>.</li>
+<li><strong>lower_bar_second_pass</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> perform a second pass on the lower bar. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1462,9 +1462,9 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 </dd>
 </dl>
 <ul class="simple">
-<li>&#8216;vborder&#8217; gives the locations of vertical borders.</li>
-<li>&#8216;hborder&#8217; gives the locations of horizontal borders.</li>
-<li>&#8216;hbar&#8217; gives the location for the top of the horizontal bar at the bottom of the image.</li>
+<li>’vborder’ gives the locations of vertical borders.</li>
+<li>’hborder’ gives the locations of horizontal borders.</li>
+<li>’hbar’ gives the location for the top of the horizontal bar at the bottom of the image.</li>
 </ul>
 </p>
 </td>
@@ -1491,9 +1491,9 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – location of the BioVida cache. If one does not exist in this location, one will created.
 Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1509,15 +1509,15 @@ as well as additional information about the databases.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; A database to review. Must be one of: &#8216;all&#8217;, &#8216;curated&#8217;, &#8216;snp_disgenet&#8217; or <code class="docutils literal"><span class="pre">None</span></code>.
-If a specific database is given, the database&#8217;s full name and description will be provided.
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – A database to review. Must be one of: ‘all’, ‘curated’, ‘snp_disgenet’ or <code class="docutils literal"><span class="pre">None</span></code>.
+If a specific database is given, the database’s full name and description will be provided.
 If <code class="docutils literal"><span class="pre">None</span></code>, a list of databases which can be downloaded will be returned (or printed).
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; pretty print the information. Defaults to True.</li>
+<li><strong>pretty_print</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – pretty print the information. Defaults to True.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a <code class="docutils literal"><span class="pre">list</span></code> if <cite>database</cite> is <code class="docutils literal"><span class="pre">None</span></code>, else a <code class="docutils literal"><span class="pre">dict</span></code> with the database&#8217;s full name and description.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a <code class="docutils literal"><span class="pre">list</span></code> if <cite>database</cite> is <code class="docutils literal"><span class="pre">None</span></code>, else a <code class="docutils literal"><span class="pre">dict</span></code> with the database’s full name and description.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">list</span></code> or <code class="docutils literal"><span class="pre">dict</span></code></p>
@@ -1538,9 +1538,9 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; A database to download. Must be one of: &#8216;all&#8217;, &#8216;curated&#8217;, &#8216;snp_disgenet&#8217; or <code class="docutils literal"><span class="pre">None</span></code>.
+<li><strong>database</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – A database to download. Must be one of: ‘all’, ‘curated’, ‘snp_disgenet’ or <code class="docutils literal"><span class="pre">None</span></code>.
 See <code class="docutils literal"><span class="pre">options()</span></code> for more information.</li>
-<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
 </ul>
 </td>
@@ -1572,9 +1572,9 @@ Defaults to <code class="docutils literal"><span class="pre">False</span></code>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – location of the BioVida cache. If one does not exist in this location, one will created.
 Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1582,22 +1582,22 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 </table>
 <dl class="method">
 <dt id="biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull">
-<code class="descname">pull</code><span class="sig-paren">(</span><em>download_override=False</em>, <em>disease_ontology_db_url='http://purl.obolibrary.org/obo/doid.obo'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/diagnostics/disease_ont_interface.html#DiseaseOntInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull</code><span class="sig-paren">(</span><em>download_override=False</em>, <em>disease_ontology_db_url=’http://purl.obolibrary.org/obo/doid.obo’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/diagnostics/disease_ont_interface.html#DiseaseOntInterface.pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.diagnostics.disease_ont_interface.DiseaseOntInterface.pull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull (i.e., download) the Disease Ontology Database.</p>
 <p>Notes:</p>
 <ul class="simple">
 <li>if a database is already cached, it will be used instead of downloading (use <code class="docutils literal"><span class="pre">download_override</span></code> to override).</li>
-<li>multiple values are separated by semicolons followed by a space, i.e., &#8221;; &#8221;.</li>
+<li>multiple values are separated by semicolons followed by a space, i.e., “; “.</li>
 </ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
+<li><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.
 Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>disease_ontology_db_url</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; URL to the disease ontology database in &#8216;.obo&#8217; format.
-Defaults to &#8216;<a class="reference external" href="http://purl.obolibrary.org/obo/doid.obo">http://purl.obolibrary.org/obo/doid.obo</a>&#8216;.</li>
+<li><strong>disease_ontology_db_url</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – URL to the disease ontology database in ‘.obo’ format.
+Defaults to ‘<a class="reference external" href="http://purl.obolibrary.org/obo/doid.obo">http://purl.obolibrary.org/obo/doid.obo</a>’.</li>
 </ul>
 </td>
 </tr>
@@ -1635,9 +1635,9 @@ Online Repository: <a class="reference external" href="https://github.com/dhimme
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; location of the BioVida cache. If one does not exist in this location, one will created.
+<li><strong>cache_path</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – location of the BioVida cache. If one does not exist in this location, one will created.
 Default to <code class="docutils literal"><span class="pre">None</span></code> (which will generate a cache in the home folder).</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -1651,7 +1651,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the Human Symptoms Disease Network database as a DataFrame.</td>
 </tr>
@@ -1669,7 +1669,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the Rephetio Medline database as a DataFrame.</td>
 </tr>
@@ -1687,9 +1687,9 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>download_override</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, override any existing database currently cached and download a new one.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a combined dataframe with the following columns: &#8216;common_disease_name&#8217; and &#8216;common_symptom_term&#8217;.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a combined dataframe with the following columns: ‘common_disease_name’ and ‘common_symptom_term’.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code></td>
 </tr>
@@ -1707,7 +1707,7 @@ Default to <code class="docutils literal"><span class="pre">None</span></code> (
 <h3>Unifying Across Domains<a class="headerlink" href="#unifying-across-domains" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.unification.unify_domains.unify_against_images">
-<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>instances</em>, <em>db_to_extract='records_db'</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.unification.unify_domains.</code><code class="descname">unify_against_images</code><span class="sig-paren">(</span><em>instances</em>, <em>db_to_extract=’records_db’</em>, <em>verbose=True</em>, <em>fuzzy_threshold=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/unification/unify_domains.html#unify_against_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.unification.unify_domains.unify_against_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tool to unify image instances (namely <code class="docutils literal"><span class="pre">OpeniInterface</span></code> and/or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>)
 with Diagnostic and Genomic Data.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1715,11 +1715,11 @@ with Diagnostic and Genomic Data.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>instances</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>.) &#8211; any one of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, or some
+<li><strong>instances</strong> (<code class="docutils literal"><span class="pre">list</span></code>, <code class="docutils literal"><span class="pre">tuple</span></code>, <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>.) – any one of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, or some
 combination inside an iterable.</li>
-<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <dl class="docutils">
-<dt>the database to use. Must be one of: &#8216;records_db&#8217;, &#8216;cache_records_db&#8217; or &#8216;image_dataframe&#8217;.</dt>
-<dd>Defaults to &#8216;records_db&#8217;.</dd>
+<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – <dl class="docutils">
+<dt>the database to use. Must be one of: ‘records_db’, ‘cache_records_db’ or ‘image_dataframe’.</dt>
+<dd>Defaults to ‘records_db’.</dd>
 </dl>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1727,8 +1727,8 @@ combination inside an iterable.</li>
 attribute will be extracted regardless of the value passed to this argument.</p>
 </div>
 </li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>fuzzy_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">bool</span></code>, <code class="docutils literal"><span class="pre">None</span></code>) &#8211; <p>an integer on <code class="docutils literal"><span class="pre">(0,</span> <span class="pre">100]</span></code>. If <code class="docutils literal"><span class="pre">True</span></code> a threshold of <cite>95</cite> will be used. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – If <code class="docutils literal"><span class="pre">True</span></code>, print notice when downloading database. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>fuzzy_threshold</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">bool</span></code>, <code class="docutils literal"><span class="pre">None</span></code>) – <p>an integer on <code class="docutils literal"><span class="pre">(0,</span> <span class="pre">100]</span></code>. If <code class="docutils literal"><span class="pre">True</span></code> a threshold of <cite>95</cite> will be used. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">While this parameter will likely increase the number of matches, fuzzy searching with
@@ -1748,28 +1748,28 @@ large databases, such as those this function integrates, is very computationally
 </table>
 <p>This function evolves a DataFrame with the following columns:</p>
 <table class="hlist"><tr><td><ul class="simple">
-<li>&#8216;age&#8217;</li>
-<li>&#8216;article_type&#8217;</li>
-<li>&#8216;disease&#8217;</li>
-<li>&#8216;image_caption&#8217;</li>
+<li>‘age’</li>
+<li>‘article_type’</li>
+<li>‘disease’</li>
+<li>‘image_caption’</li>
 </ul>
 </td><td><ul class="simple">
-<li>&#8216;image_id&#8217;</li>
-<li>&#8216;modality_best_guess&#8217;</li>
-<li>&#8216;pull_time&#8217;</li>
-<li>&#8216;query&#8217;</li>
+<li>‘image_id’</li>
+<li>‘modality_best_guess’</li>
+<li>‘pull_time’</li>
+<li>‘query’</li>
 </ul>
 </td><td><ul class="simple">
-<li>&#8216;sex&#8217;</li>
-<li>&#8216;source_api&#8217;</li>
-<li>&#8216;disease_family&#8217;</li>
-<li>&#8216;disease_synonym&#8217;</li>
+<li>‘sex’</li>
+<li>‘source_api’</li>
+<li>‘disease_family’</li>
+<li>‘disease_synonym’</li>
 </ul>
 </td><td><ul class="simple">
-<li>&#8216;disease_definition&#8217;</li>
-<li>&#8216;known_associated_symptoms&#8217;</li>
-<li>&#8216;mentioned_symptoms&#8217;</li>
-<li>&#8216;known_associated_genes&#8217;</li>
+<li>‘disease_definition’</li>
+<li>‘known_associated_symptoms’</li>
+<li>‘mentioned_symptoms’</li>
+<li>‘known_associated_genes’</li>
 </ul>
 </td></tr></table>
 <div class="admonition note">
@@ -1787,8 +1787,8 @@ a <code class="docutils literal"><span class="pre">'cached_dicom_images_path'</s
 <p class="last">The <code class="docutils literal"><span class="pre">'known_associated_symptoms'</span></code> and <code class="docutils literal"><span class="pre">'known_associated_genes'</span></code> columns denote symptoms and genes
 known to be associated with the disease the patient presented with. <strong>These columns are not an account
 of the symptomatology or genotype of the patients themselves</strong>. Conversely, the <code class="docutils literal"><span class="pre">'mentioned_symptoms'</span></code>
-column is an account of a given patient&#8217;s symptoms <em>if</em> the data is from a clinical case
-(i.e., <code class="docutils literal"><span class="pre">article_type</span></code> equals &#8216;case_report&#8217;).</p>
+column is an account of a given patient’s symptoms <em>if</em> the data is from a clinical case
+(i.e., <code class="docutils literal"><span class="pre">article_type</span></code> equals ‘case_report’).</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1840,11 +1840,11 @@ that <code class="docutils literal"><span class="pre">delete_rule</span></code> 
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) &#8211; an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
-<li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) &#8211; must be one of: <code class="docutils literal"><span class="pre">'all'</span></code> (delete <em>all</em> data) or a <code class="docutils literal"><span class="pre">function</span></code> which (1) accepts a single
+<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>) – an instance of <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
+<li><strong>delete_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) – must be one of: <code class="docutils literal"><span class="pre">'all'</span></code> (delete <em>all</em> data) or a <code class="docutils literal"><span class="pre">function</span></code> which (1) accepts a single
 parameter (argument) and (2) returns <code class="docutils literal"><span class="pre">True</span></code> when the data is to be deleted.</li>
-<li><strong>only_recent</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, only apply <code class="docutils literal"><span class="pre">delete_rule</span></code> to data obtained in the most recent pull. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print additional information.</li>
+<li><strong>only_recent</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, only apply <code class="docutils literal"><span class="pre">delete_rule</span></code> to data obtained in the most recent pull. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, print additional information.</li>
 </ul>
 </td>
 </tr>
@@ -1875,7 +1875,7 @@ parameter (argument) and (2) returns <code class="docutils literal"><span class=
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">In this example, any rows in the <code class="docutils literal"><span class="pre">records_db</span></code> and <code class="docutils literal"><span class="pre">cache_records_db</span></code>
-for which the &#8216;abstract&#8217; column contains the string &#8216;Oompa Loompas&#8217; will be deleted.
+for which the ‘abstract’ column contains the string ‘Oompa Loompas’ will be deleted.
 Any images associated with this row will also be destroyed.</p>
 </div>
 <div class="admonition warning">
@@ -1887,7 +1887,7 @@ Any images associated with this row will also be destroyed.</p>
 
 <dl class="function">
 <dt id="biovida.images.image_cache_mgmt.image_divvy">
-<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>action='ndarray'</em>, <em>db_to_extract='records_db'</em>, <em>train_val_test_dict=None</em>, <em>create_dirs=True</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em>, <em>stack=True</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.images.image_cache_mgmt.</code><code class="descname">image_divvy</code><span class="sig-paren">(</span><em>instance</em>, <em>divvy_rule</em>, <em>action=’ndarray’</em>, <em>db_to_extract=’records_db’</em>, <em>train_val_test_dict=None</em>, <em>create_dirs=True</em>, <em>allow_overwrite=True</em>, <em>image_column=None</em>, <em>stack=True</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/images/image_cache_mgmt.html#image_divvy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.images.image_cache_mgmt.image_divvy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grouping Cached Images.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -1900,29 +1900,29 @@ image cropping will not be applied.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) &#8211; the yield of the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code> or an instance of
+<li><strong>instance</strong> (<code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code>, <code class="docutils literal"><span class="pre">CancerImageInterface</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code>) – the yield of the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code> or an instance of
 <code class="docutils literal"><span class="pre">OpeniInterface</span></code>, <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> or <code class="docutils literal"><span class="pre">CancerImageInterface</span></code>.</li>
-<li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) &#8211; must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
+<li><strong>divvy_rule</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">func</span></code>) – must be a <cite>function`</cite> which (1) accepts a single parameter (argument) and (2) return
 system path(s) [see example below].</li>
-<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: <code class="docutils literal"><span class="pre">'copy'</span></code>, <code class="docutils literal"><span class="pre">'ndarray'</span></code>.</p>
+<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – <p>one of: <code class="docutils literal"><span class="pre">'copy'</span></code>, <code class="docutils literal"><span class="pre">'ndarray'</span></code>.</p>
 <ul>
 <li>if <code class="docutils literal"><span class="pre">'copy'</span></code>: copy from files from the cache to (i) the location prescribed by <code class="docutils literal"><span class="pre">divvy_rule</span></code>,
-when <code class="docutils literal"><span class="pre">train_val_test_dict=None</span></code>, else (ii) the &#8216;target_location&#8217; key in <code class="docutils literal"><span class="pre">train_val_test_dict</span></code>.</li>
-<li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays (default).</li>
+when <code class="docutils literal"><span class="pre">train_val_test_dict=None</span></code>, else (ii) the ‘target_location’ key in <code class="docutils literal"><span class="pre">train_val_test_dict</span></code>.</li>
+<li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (‘numpy’) arrays (default).</li>
 </ul>
 </li>
-<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>the database to use. Must be one of:</p>
+<li><strong>db_to_extract</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – <p>the database to use. Must be one of:</p>
 <ul>
-<li>&#8216;records_db&#8217;: the dataframe resulting from the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code> (default).</li>
-<li>&#8216;cache_records_db&#8217;: the cache dataframe for <code class="docutils literal"><span class="pre">instance</span></code>.</li>
-<li>&#8216;unify_against_images&#8217;: the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code>.</li>
+<li>’records_db’: the dataframe resulting from the most recent <code class="docutils literal"><span class="pre">search()</span></code> &amp; <code class="docutils literal"><span class="pre">pull()</span></code> (default).</li>
+<li>’cache_records_db’: the cache dataframe for <code class="docutils literal"><span class="pre">instance</span></code>.</li>
+<li>’unify_against_images’: the yield of <code class="docutils literal"><span class="pre">biovida.unification.unify_against_images()</span></code>.</li>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">If an instance of <code class="docutils literal"><span class="pre">OpeniImageProcessing</span></code> is passed, the dataframe will be extracted automatically.</p>
 </div>
 </li>
-<li><strong>train_val_test_dict</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; <p>a dictionary denoting the proportions for any of: <code class="docutils literal"><span class="pre">'train'</span></code>, <code class="docutils literal"><span class="pre">'validation'</span></code> and/or <code class="docutils literal"><span class="pre">'test'</span></code>.</p>
+<li><strong>train_val_test_dict</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) – <p>a dictionary denoting the proportions for any of: <code class="docutils literal"><span class="pre">'train'</span></code>, <code class="docutils literal"><span class="pre">'validation'</span></code> and/or <code class="docutils literal"><span class="pre">'test'</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <ul class="last">
@@ -1934,11 +1934,11 @@ The corresponding value provided <em>must</em> be a boolean. If no such key key 
 </ul>
 </div>
 </li>
-<li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>image_column</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the column to use when copying images. If <code class="docutils literal"><span class="pre">None</span></code>, use <code class="docutils literal"><span class="pre">'cached_images_path'</span></code>. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>stack</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, stack 3D volumes and time-series images when <code class="docutils literal"><span class="pre">action='ndarray'</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> print additional details. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>create_dirs</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, create directories returned by <code class="docutils literal"><span class="pre">divvy_rule</span></code> if they do not exist. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>allow_overwrite</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> allow existing images to be overwritten. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>image_column</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – the column to use when copying images. If <code class="docutils literal"><span class="pre">None</span></code>, use <code class="docutils literal"><span class="pre">'cached_images_path'</span></code>. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>stack</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, stack 3D volumes and time-series images when <code class="docutils literal"><span class="pre">action='ndarray'</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> print additional details. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -2095,63 +2095,70 @@ performance metrics (e.g., accuracy) when assessing fitted models.</p>
 <h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.support_tools.utilities.train_val_test">
-<code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action='copy'</em>, <em>delete_source=False</em>, <em>stack=True</em>, <em>random_state=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.utilities.</code><code class="descname">train_val_test</code><span class="sig-paren">(</span><em>data</em>, <em>train</em>, <em>validation</em>, <em>test</em>, <em>target_dir=None</em>, <em>action=’ndarray’</em>, <em>delete_source=False</em>, <em>stack=True</em>, <em>random_state=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/utilities.html#train_val_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.utilities.train_val_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split <code class="docutils literal"><span class="pre">data</span></code> into any combination of the following: <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code> and/or <code class="docutils literal"><span class="pre">test</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<code class="docutils literal"><span class="pre">dict</span></code> or <code class="docutils literal"><span class="pre">str</span></code>) &#8211; <ul>
+<li><strong>data</strong> (<code class="docutils literal"><span class="pre">dict</span></code> or <code class="docutils literal"><span class="pre">str</span></code>) – <ul>
 <li>a dictionary of the form: <code class="docutils literal"><span class="pre">{group_name:</span> <span class="pre">[file_path,</span> <span class="pre">file_path,</span> <span class="pre">...],</span> <span class="pre">...}</span></code>.</li>
 <li>the directory containing the data. This directory should contain subdirectories (the categories)
 populated with the files.</li>
 </ul>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">If a directory is passed, subdirectories therein entitled &#8216;train&#8217;, &#8216;validation&#8217; and &#8216;test&#8217;
+<p class="last">If a directory is passed, subdirectories therein entitled ‘train’, ‘validation’ and ‘test’
 will be ignored.</p>
 </div>
 </li>
-<li><strong>train</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data</span></code> to allocate to <code class="docutils literal"><span class="pre">train</span></code>. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
+<li><strong>train</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – the proportion images in <code class="docutils literal"><span class="pre">data</span></code> to allocate to <code class="docutils literal"><span class="pre">train</span></code>. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
 no images will be allocated.</li>
-<li><strong>validation</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data</span></code> to allocate to <code class="docutils literal"><span class="pre">validation</span></code>. If <code class="docutils literal"><span class="pre">False</span></code>
+<li><strong>validation</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – the proportion images in <code class="docutils literal"><span class="pre">data</span></code> to allocate to <code class="docutils literal"><span class="pre">validation</span></code>. If <code class="docutils literal"><span class="pre">False</span></code>
 or <code class="docutils literal"><span class="pre">None</span></code>, no images will be allocated.</li>
-<li><strong>test</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the proportion images in <code class="docutils literal"><span class="pre">data</span></code> to allocate to <code class="docutils literal"><span class="pre">test</span></code>. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
+<li><strong>test</strong> (<code class="docutils literal"><span class="pre">int</span></code>, <code class="docutils literal"><span class="pre">float</span></code>, <code class="docutils literal"><span class="pre">bool</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – the proportion images in <code class="docutils literal"><span class="pre">data</span></code> to allocate to <code class="docutils literal"><span class="pre">test</span></code>. If <code class="docutils literal"><span class="pre">False</span></code> or <code class="docutils literal"><span class="pre">None</span></code>,
 no images will be allocated.</li>
-<li><strong>target_dir</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; the location to output the images to (if <code class="docutils literal"><span class="pre">action=True</span></code>). If <code class="docutils literal"><span class="pre">None</span></code>, the output location will
-be <code class="docutils literal"><span class="pre">data</span></code>. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; <p>one of: &#8216;copy&#8217;, &#8216;ndarray&#8217;.</p>
+<li><strong>target_dir</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – <dl class="docutils">
+<dt>the location to output the images to (if action is ‘copy’ or ‘move’). </dt>
+<dd>If <code class="docutils literal"><span class="pre">None</span></code>, the output location will be <code class="docutils literal"><span class="pre">data</span></code>. Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><code class="docutils literal"><span class="pre">target_dir</span></code> must be a string if <code class="docutils literal"><span class="pre">data</span></code> is not.</p>
+</div>
+</li>
+<li><strong>action</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – <p>one of: ‘copy’, ‘move’ or ‘ndarray’.</p>
 <ul>
-<li>if <code class="docutils literal"><span class="pre">'copy'</span></code>: copy from files from <code class="docutils literal"><span class="pre">data</span></code> to <code class="docutils literal"><span class="pre">target_dir</span></code> (default).</li>
+<li>if <code class="docutils literal"><span class="pre">'copy'</span></code>: copy from files from <code class="docutils literal"><span class="pre">data</span></code> to <code class="docutils literal"><span class="pre">target_dir</span></code>.</li>
 <li>if <code class="docutils literal"><span class="pre">'move'</span></code>: move from files from <code class="docutils literal"><span class="pre">data</span></code> to <code class="docutils literal"><span class="pre">target_dir</span></code>.</li>
-<li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (&#8216;numpy&#8217;) arrays.</li>
+<li>if <code class="docutils literal"><span class="pre">'ndarray'</span></code>: return a nested dictionary of <code class="docutils literal"><span class="pre">ndarray</span></code> (‘numpy’) arrays (default).</li>
 </ul>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last"><strong>Using &#8216;move&#8217; directly on files in a cache is not recommended</strong>.
-However, if this action is performed, the corresponding class must be
-reinstated to allow the <code class="docutils literal"><span class="pre">cache_records_db</span></code> database to update.</p>
+<p class="last"><strong>Using ‘move’ directly on files in a cache is not recommended</strong>.
+However, if such an action is performed, the corresponding class
+must be reinstated to allow the <code class="docutils literal"><span class="pre">cache_records_db</span></code> database to update.</p>
 </div>
 </li>
-<li><strong>delete_source</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; <p>if <code class="docutils literal"><span class="pre">True</span></code> delete the source subdirectories in <code class="docutils literal"><span class="pre">data</span></code> after copying is complete. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
+<li><strong>delete_source</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – <p>if <code class="docutils literal"><span class="pre">True</span></code> delete the source subdirectories in <code class="docutils literal"><span class="pre">data</span></code> after copying is complete. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">This can be useful for transforming a directory &#8216;in-place&#8217;,
+<p class="last">This can be useful for transforming a directory ‘in-place’,
 e.g., if <code class="docutils literal"><span class="pre">data</span></code> and <code class="docutils literal"><span class="pre">target_dir</span></code> are the same and <code class="docutils literal"><span class="pre">delete_source=True</span></code>.</p>
 </div>
 </li>
-<li><strong>stack</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, stack 3D volumes and time-series images when <code class="docutils literal"><span class="pre">action='ndarray'</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>random_state</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">int</span></code>) &#8211; set a seed for random shuffling. Similar to <code class="docutils literal"><span class="pre">sklearn.model_selection.train_test_split</span></code>.
+<li><strong>stack</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, stack 3D volumes and time-series images when <code class="docutils literal"><span class="pre">action='ndarray'</span></code>. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>random_state</strong> (<code class="docutils literal"><span class="pre">None</span></code> or <code class="docutils literal"><span class="pre">int</span></code>) – set a seed for random shuffling. Similar to <code class="docutils literal"><span class="pre">sklearn.model_selection.train_test_split</span></code>.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the resultant structure. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, print the resultant structure. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>a dictionary of the form: <code class="docutils literal"><span class="pre">{one</span> <span class="pre">of</span> <span class="pre">'train',</span> <span class="pre">'validation'</span> <span class="pre">or</span> <span class="pre">'test':</span> <span class="pre">{subdirectory</span> <span class="pre">in</span> <span class="pre">`data`:</span> <span class="pre">[file_path,</span> <span class="pre">file_path,</span> <span class="pre">...],</span> <span class="pre">...},</span> <span class="pre">...}</span></code>.</p>
 <ul class="simple">
 <li>if <code class="docutils literal"><span class="pre">action='copy'</span></code>: the dictionary returned will be exactly as shown above.</li>
-<li>if <code class="docutils literal"><span class="pre">action='ndarray'</span></code>: &#8216;file_path&#8217; will be replaced with the image as a <code class="docutils literal"><span class="pre">ndarray</span></code> and the list will be
+<li>if <code class="docutils literal"><span class="pre">action='ndarray'</span></code>: ‘file_path’ will be replaced with the image as a <code class="docutils literal"><span class="pre">ndarray</span></code> and the list will be
 <code class="docutils literal"><span class="pre">ndarray``s,</span> <span class="pre">i.e.,</span> <span class="pre">``array([Image</span> <span class="pre">Matrix,</span> <span class="pre">Image</span> <span class="pre">Matrix,</span> <span class="pre">...])</span></code>.</li>
 </ul>
 </p>
@@ -2160,7 +2167,7 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="docutils literal"><span class="pre">dict</span></code></p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if the combination of <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code>, <code class="docutils literal"><span class="pre">test</span></code> which which were passed
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> – if the combination of <code class="docutils literal"><span class="pre">train</span></code>, <code class="docutils literal"><span class="pre">validation</span></code>, <code class="docutils literal"><span class="pre">test</span></code> which which were passed
 numeric values (i.e., <code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">float</span></code>) do not sum to 1.</p>
 </td>
 </tr>
@@ -2269,10 +2276,10 @@ down, in favor of <cite>validation</cite> obtaining the final file. In this inst
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<code class="docutils literal"><span class="pre">str</span></code>) &#8211; the path to the directory created by <code class="docutils literal"><span class="pre">train_val_test</span></code>.</li>
-<li><strong>delete_source</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code> delete the empty train/validation/test directories in <code class="docutils literal"><span class="pre">data</span></code> after the move is
+<li><strong>data</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – the path to the directory created by <code class="docutils literal"><span class="pre">train_val_test</span></code>.</li>
+<li><strong>delete_source</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code> delete the empty train/validation/test directories in <code class="docutils literal"><span class="pre">data</span></code> after the move is
 complete. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
-<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, print the resultant structure. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
+<li><strong>verbose</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, print the resultant structure. Defaults to <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -2351,7 +2358,7 @@ complete. Defaults to <code class="docutils literal"><span class="pre">True</spa
 <h3>Printing Tools<a class="headerlink" href="#printing-tools" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="biovida.support_tools.printing.dict_pprint">
-<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">dict_pprint</code><span class="sig-paren">(</span><em>d</em>, <em>max_value_length=70</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/printing.html#dict_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.dict_pprint" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">dict_pprint</code><span class="sig-paren">(</span><em>d</em>, <em>sort_keys=True</em>, <em>space_entries=True</em>, <em>max_value_length=70</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/printing.html#dict_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.dict_pprint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty prints a dictionary with vertically aligned values.
 Dictionary values with strings longer than <cite>max_value_length</cite>
 are automatically broken and aligned with the line(s) above.</p>
@@ -2360,11 +2367,12 @@ are automatically broken and aligned with the line(s) above.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>d</strong> (<code class="docutils literal"><span class="pre">dict</span></code>) &#8211; a dictionary</li>
-<li><strong>max_value_length</strong> (<code class="docutils literal"><span class="pre">int</span></code>) &#8211; max. number of characters in a string before a line break.
+<li><strong>d</strong> (<code class="docutils literal"><span class="pre">dict</span></code>) – a dictionary</li>
+<li><strong>sort_keys</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, sort the keys in alphabetical order.</li>
+<li><strong>space_entries</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, insert a line break between entries.</li>
+<li><strong>max_value_length</strong> (<code class="docutils literal"><span class="pre">int</span></code>) – max. number of characters in a string before a line break.
 This is a fuzzy threshold because the algorithm will only insert
-line breaks where there are already spaces and will not insert line breaks
-between braces.</li>
+line breaks where there are already spaces.</li>
 </ul>
 </td>
 </tr>
@@ -2392,21 +2400,21 @@ between braces.</li>
 
 <dl class="function">
 <dt id="biovida.support_tools.printing.pandas_pprint">
-<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align='right'</em>, <em>header_align='center'</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>suppress_index=False</em>, <em>column_width_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">biovida.support_tools.printing.</code><code class="descname">pandas_pprint</code><span class="sig-paren">(</span><em>data</em>, <em>col_align=’right’</em>, <em>header_align=’center’</em>, <em>full_rows=False</em>, <em>full_cols=False</em>, <em>suppress_index=False</em>, <em>column_width_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/biovida/support_tools/printing.html#pandas_pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biovida.support_tools.printing.pandas_pprint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty Print a Pandas DataFrame or Series.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> (<code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code>) &#8211; a dataframe or series.</li>
-<li><strong>col_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; &#8216;left&#8217;, &#8216;right&#8217;, &#8216;center&#8217; or a dictionary of the form: <code class="docutils literal"><span class="pre">{'column_name':</span> <span class="pre">'alignment'}</span></code>,
+<li><strong>data</strong> (<code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">DataFrame</span></code> or <code class="docutils literal"><span class="pre">Pandas</span> <span class="pre">Series</span></code>) – a dataframe or series.</li>
+<li><strong>col_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) – ‘left’, ‘right’, ‘center’ or a dictionary of the form: <code class="docutils literal"><span class="pre">{'column_name':</span> <span class="pre">'alignment'}</span></code>,
 e.g., <code class="docutils literal"><span class="pre">{'my_column':</span> <span class="pre">'left',</span> <span class="pre">'my_column2':</span> <span class="pre">'right'}</span></code>.</li>
-<li><strong>header_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) &#8211; alignment of headers. Must be one of: &#8216;left&#8217;, &#8216;right&#8217;, &#8216;center&#8217;.</li>
-<li><strong>full_rows</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all rows.</li>
-<li><strong>full_cols</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; print all columns.</li>
-<li><strong>suppress_index</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) &#8211; if <code class="docutils literal"><span class="pre">True</span></code>, suppress the index. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
-<li><strong>column_width_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) &#8211; change limit on how wide columns can be. If <code class="docutils literal"><span class="pre">None</span></code>, no change will be made.
+<li><strong>header_align</strong> (<code class="docutils literal"><span class="pre">str</span></code> or <code class="docutils literal"><span class="pre">dict</span></code>) – alignment of headers. Must be one of: ‘left’, ‘right’, ‘center’.</li>
+<li><strong>full_rows</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – print all rows.</li>
+<li><strong>full_cols</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – print all columns.</li>
+<li><strong>suppress_index</strong> (<code class="docutils literal"><span class="pre">bool</span></code>) – if <code class="docutils literal"><span class="pre">True</span></code>, suppress the index. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>column_width_limit</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <code class="docutils literal"><span class="pre">None</span></code>) – change limit on how wide columns can be. If <code class="docutils literal"><span class="pre">None</span></code>, no change will be made.
 Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</li>
 </ul>
 </td>
@@ -2432,7 +2440,7 @@ Defaults to <code class="docutils literal"><span class="pre">None</span></code>.
     </p>
     <p>
         &copy; Copyright 2017, Tariq A. Hassan.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.<br/>
     </p>
   </div>
 </footer>
