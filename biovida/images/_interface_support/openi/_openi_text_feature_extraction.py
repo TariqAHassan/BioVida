@@ -29,7 +29,6 @@ from biovida.images._interface_support.openi._openi_imaging_modality_information
                                                                                          contradictions,
                                                                                          modality_specific_subtypes)
 
-
 CLINICAL_ARTICLE_TYPES = ('encounter', 'case_report', 'radiology_report')
 
 
@@ -129,11 +128,13 @@ def _patient_sex_extract(image_summary_info):
     :return: the sex of the patient.
     :rtype: ``str`` or ``None``
     """
-    counts_dict_f = {t: image_summary_info.count(t) for t in ['female', 'woman', 'girl', ' she ', ' f ']}
+    counts_dict_f = {t: image_summary_info.count(t) for t in
+                     ['female', 'woman', 'girl', ' she ', ' f ']}
     counts_dict_m = {t: image_summary_info.count(t) for t in ['male', 'man', 'boy', ' he ', ' m ']}
 
     # Block Conflicting Information
-    if sum(counts_dict_f.values()) > 0 and sum([v for k, v in counts_dict_m.items() if k not in ['male', 'man']]) > 0:
+    if sum(counts_dict_f.values()) > 0 and sum(
+            [v for k, v in counts_dict_m.items() if k not in ['male', 'man']]) > 0:
         return None
 
     # Check for sex information
@@ -232,7 +233,8 @@ def _patient_age_guess_abstract_clean(abstract):
     history_block = ("year history", " year history", "-year history")
 
     # Flatten list comp.
-    hist_matches = filter_unnest([re.findall(r'\d*\.?\d+' + drop, abstract_int) for drop in history_block])
+    hist_matches = filter_unnest(
+        [re.findall(r'\d*\.?\d+' + drop, abstract_int) for drop in history_block])
 
     if len(hist_matches):
         return cln(" ".join([abstract_int.replace(r, "") for r in hist_matches]))
@@ -257,14 +259,17 @@ def _age_marker_match(image_summary_info):
     # Note: given " y", it is not clear how much help something like " yo" is, given the former
     # will already catch it.
     age_markers = (" y", "yo ", " yo ", "y.o.", "y/o", "year", "-year", " -year", " ans ",
-                   "month old", " month old", "-month old", "months old", " months old", "-months old")
+                   "month old", " month old", "-month old", "months old", " months old",
+                   "-months old")
 
     # Clean the input text
-    cleaned_input = _patient_age_guess_abstract_clean(image_summary_info).replace(" - ", "-").lower()
+    cleaned_input = _patient_age_guess_abstract_clean(image_summary_info).replace(" - ",
+                                                                                  "-").lower()
 
     # Check abstract
     if len(cleaned_input):
-        rslts = filter_unnest([re.findall(r'\d*\.\d+' + b + '|\d+' + b, cleaned_input) for b in age_markers])
+        rslts = filter_unnest(
+            [re.findall(r'\d*\.\d+' + b + '|\d+' + b, cleaned_input) for b in age_markers])
         return rslts if len(rslts) else None
     else:
         return None
@@ -334,7 +339,8 @@ def _ethnicity_guess_engine(image_summary_info):
     for k, v in long_form_ethnicities.items():
         for j in v:
             if j in image_summary_info_cln.lower():
-                if not ('caucasian' in e_matches and j == 'asian'):  # 'asian' is a substring in 'caucasian'.
+                if not (
+                        'caucasian' in e_matches and j == 'asian'):  # 'asian' is a substring in 'caucasian'.
                     e_matches.add(k)
 
     # Define short form of references to ethnicity. ToDo: use regex to anchor text.
@@ -419,7 +425,8 @@ def _remove_substrings(list_of_terms):
         return rslt
 
 
-def _disease_guess(problems, title, background, abstract, image_caption, image_mention, list_of_diseases):
+def _disease_guess(problems, title, background, abstract, image_caption, image_mention,
+                   list_of_diseases):
     """
 
     Search `problems`, `title`, `abstract`, `image_caption` and `image_mention` for diseases in `list_of_diseases`
@@ -512,7 +519,8 @@ def _illness_duration_guess_engine(image_summary_info):
     cleaned_source = cln(image_summary_info.replace("-", " "), extent=1)
 
     match_terms = [('month history of', 'm'), ('year history of', 'y')]
-    hist_matches = [(re.findall(r"\d*\.?\d+ (?=" + t + ")", cleaned_source), u) for (t, u) in match_terms]
+    hist_matches = [(re.findall(r"\d*\.?\d+ (?=" + t + ")", cleaned_source), u) for (t, u) in
+                    match_terms]
 
     def time_adj(mt):
         if len(mt[0]) == 1:
@@ -727,7 +735,8 @@ def _extract_enumerations(input_str):
             candidate += i
         elif i in markers_right:
             if len(candidate) and len(candidate) <= 2 and all(i.isalnum() for i in candidate):
-                if sum(1 for c in candidate if c.isdigit()) <= 2 and sum(1 for c in candidate if c.isalpha()) <= 3:
+                if sum(1 for c in candidate if c.isdigit()) <= 2 and sum(
+                        1 for c in candidate if c.isalpha()) <= 3:
                     enumerations.append(candidate)
             candidate = ''
 
@@ -744,13 +753,15 @@ def _enumerations_test(l):
     :return: whether or not ``l`` is an enumeration.
     :rtype: ``bool``
     """
+
     def alnum_check(char):
         """
         Check if `char` is plausibly part of an enumeration when
         it may be part of a 'mixed' sequence, e.g., `['1', '2', '2a']`."""
         if len(char) == 1 and char.isdigit() or char.isalpha():
             return True
-        elif len(char) == 2 and sum(1 for i in char if i.isdigit()) == 1 and sum(1 for i in char if i.isalpha()) == 1:
+        elif len(char) == 2 and sum(1 for i in char if i.isdigit()) == 1 and sum(
+                1 for i in char if i.isalpha()) == 1:
             return True
         else:
             return False
@@ -790,7 +801,9 @@ def _enumerations_guess(image_caption, enumerations_grid_threshold):
     :rtype: ``bool``
     """
     # Clean the input
-    image_caption_reduced_confusion = multi_replace(image_caption, ['i.e.,', 'i.e.', 'e.g.,', 'e.g.', 'e.x.,', 'e.x.'])
+    image_caption_reduced_confusion = multi_replace(image_caption,
+                                                    ['i.e.,', 'i.e.', 'e.g.,', 'e.g.', 'e.x.,',
+                                                     'e.x.'])
     image_caption_clean_lower = cln(image_caption_reduced_confusion, extent=2).lower()
 
     # Check for markers of enumeration like '(a-e)', '(a,e)', '(b and c)'.
@@ -801,7 +814,8 @@ def _enumerations_guess(image_caption, enumerations_grid_threshold):
     else:
         # Fall back to standard enumerations
         enums = _extract_enumerations(input_str=image_caption_reduced_confusion)
-        if isinstance(enums, list) and _enumerations_test(enums) and len(enums) >= enumerations_grid_threshold:
+        if isinstance(enums, list) and _enumerations_test(enums) and len(
+                enums) >= enumerations_grid_threshold:
             return True
         else:
             return False
@@ -877,7 +891,8 @@ def _problematic_image_features(image_caption, image_caption_unique, enumeration
     """
     # Note: if ``image_caption_unique`` is not true, then the caption likely do not refer to the
     # current image, but with multiple images for the given 'uid'.
-    if not image_caption_unique or not isinstance(image_caption, str) or not len(cln(image_caption, extent=2)):
+    if not image_caption_unique or not isinstance(image_caption, str) or not len(
+            cln(image_caption, extent=2)):
         return None
 
     features = []
@@ -887,7 +902,7 @@ def _problematic_image_features(image_caption, image_caption_unique, enumeration
 
     if _enumerations_guess(image_caption, enumerations_grid_threshold):
         features.append('grids')
-    
+
     return tuple(sorted(features)) if len(features) else None
 
 
@@ -945,14 +960,17 @@ def feature_extract(x, list_of_diseases, image_caption_unique):
     """
     # Note: it may be useful to use 'unescape' here, e.g., unescape(x[c])...but no reason to support doing so currently.
     # However, if this were to occur, 'abstract' would need to be excluded in the service of ``_abstract_parser()``.
-    cols_to_unpack = ('abstract', 'problems', 'title', 'image_caption', 'image_mention', 'article_type')
-    abstract, problems, title, image_caption, image_mention, article_type = [x[c] for c in cols_to_unpack]
+    cols_to_unpack = (
+    'abstract', 'problems', 'title', 'image_caption', 'image_mention', 'article_type')
+    abstract, problems, title, image_caption, image_mention, article_type = [x[c] for c in
+                                                                             cols_to_unpack]
 
     d = {'parsed_abstract': _abstract_parser(abstract)}
     background = _background_extract(d)
 
     # Extract diagnosis -- will typically only work for MedPix images
-    d['diagnosis'] = d['parsed_abstract'].get('diagnosis', None) if isinstance(d['parsed_abstract'], dict) else None
+    d['diagnosis'] = d['parsed_abstract'].get('diagnosis', None) if isinstance(d['parsed_abstract'],
+                                                                               dict) else None
 
     # Fall back
     if d['diagnosis'] is None:
@@ -966,11 +984,13 @@ def feature_extract(x, list_of_diseases, image_caption_unique):
     if isinstance(d['diagnosis'], str):
         d['diagnosis'] = d['diagnosis'].lower()
 
-    pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess), ('illness_duration_years', _illness_duration_guess)]
+    pairs = [('age', _patient_age_guess), ('sex', _patient_sex_guess),
+             ('illness_duration_years', _illness_duration_guess)]
     for (k, func) in pairs:
         d[k] = func(background, abstract, image_caption, image_mention)
 
-    d['imaging_modality_from_text'] = _imaging_modality_guess(abstract, image_caption, image_mention)
+    d['imaging_modality_from_text'] = _imaging_modality_guess(abstract, image_caption,
+                                                              image_mention)
     d['image_plane'] = _image_plane_guess(image_caption)
     d['image_problems_from_text'] = _problematic_image_features(image_caption, image_caption_unique)
     d['ethnicity'], eth_sex = _ethnicity_guess(background, abstract, image_caption, image_mention)

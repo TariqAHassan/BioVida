@@ -69,7 +69,8 @@ def _openi_image_relation_map(data_frame):
             return np.NaN
 
     # Apply `relate()`
-    df['shared_image_ref'] = [related(image, index) for image, index in zip(df['img_large'], df.index)]
+    df['shared_image_ref'] = [related(image, index) for image, index in
+                              zip(df['img_large'], df.index)]
 
     return df
 
@@ -117,7 +118,8 @@ def _record_update_dbs_joiner(records_db, update_db):
         for c in update_db.columns:
             joined_db[c] = update_db[c]
 
-    return joined_db.fillna(np.NaN).dropna(subset=list(update_db.columns), how='all').reset_index(drop=True)
+    return joined_db.fillna(np.NaN).dropna(subset=list(update_db.columns), how='all').reset_index(
+        drop=True)
 
 
 def _relationship_mapper(data_frame, interface_name):
@@ -256,7 +258,8 @@ def _df_pruner(cache_records_db, columns):
         cache_records_db[c] = cache_records_db[c].map(_files_existence_checker)
 
     # Mark rows to remove
-    indices_to_drop = cache_records_db[columns].apply(lambda x: not all(x[i] is None for i in columns), axis=1)
+    indices_to_drop = cache_records_db[columns].apply(
+        lambda x: not all(x[i] is None for i in columns), axis=1)
 
     # Drop and reset the index
     return cache_records_db[indices_to_drop].fillna(np.NaN).reset_index(drop=True)
@@ -332,6 +335,7 @@ def _robust_delete(to_delete):
                      ``list`` or ``tuple``, no action will be taken.
     :type to_delete: ``str``, ``list``  or ``tuple``
     """
+
     def delete_file(td):
         if os.path.isfile(td):
             os.remove(td)
@@ -455,7 +459,7 @@ def _delete_rule_wrapper_gen(instance, delete_rule, only_recent, image_columns):
                     _robust_delete(row[c])
             return False  # drop row from the dataframe
         else:
-            return True   # keep row in the dataframe
+            return True  # keep row in the dataframe
 
     return delete_rule_wrapper
 
@@ -524,7 +528,8 @@ def image_delete(instance, delete_rule, only_recent=False, verbose=True):
 
     image_columns = _image_instance_image_columns[instance.__class__.__name__]
     delete_rule_wrapper = _delete_rule_wrapper_gen(instance=instance, delete_rule=delete_rule,
-                                                   only_recent=only_recent, image_columns=image_columns)
+                                                   only_recent=only_recent,
+                                                   image_columns=image_columns)
 
     def index_dict_update(data_frame_name, stage, data_frame):
         if stage == 'before':
@@ -535,25 +540,31 @@ def image_delete(instance, delete_rule, only_recent=False, verbose=True):
     def non_cache_db(data_frame_name, data_frame, enact):
         """Handle `records_db` and `image_dataframe`."""
         index_dict_update(data_frame_name, stage='before', data_frame=data_frame)
-        to_conserve = data_frame.apply(lambda r: delete_rule_wrapper(r, enact=enact), axis=1).tolist()
+        to_conserve = data_frame.apply(lambda r: delete_rule_wrapper(r, enact=enact),
+                                       axis=1).tolist()
         data_frame = data_frame[to_conserve].reset_index(drop=True)
         index_dict_update(data_frame_name, stage='after', data_frame=data_frame)
         return data_frame, to_conserve
 
     if instance.__class__.__name__ == 'OpeniImageProcessing':
-        instance.image_dataframe, to_conserve = non_cache_db('image_dataframe', instance.image_dataframe, enact=True)
+        instance.image_dataframe, to_conserve = non_cache_db('image_dataframe',
+                                                             instance.image_dataframe, enact=True)
         if instance.db_to_extract == 'records_db':
-            instance.instance.records_db = instance.instance.records_db[to_conserve].reset_index(drop=True)
+            instance.instance.records_db = instance.instance.records_db[to_conserve].reset_index(
+                drop=True)
         elif isinstance(instance.instance.records_db, pd.DataFrame):
             index_dict_update('records_db', 'before', data_frame=instance.instance.records_db)
             to_conserve = instance.instance.records_db[image_columns[0]].map(
                 lambda x: os.path.isfile(x) if isinstance(x, str) else False)
-            instance.instance.records_db = instance.instance.records_db[to_conserve].reset_index(drop=True)
+            instance.instance.records_db = instance.instance.records_db[to_conserve].reset_index(
+                drop=True)
             index_dict_update('records_db', 'after', data_frame=instance.instance.records_db)
         if isinstance(instance.instance.cache_records_db, pd.DataFrame):
-            index_dict_update('cache_records_db', 'before', data_frame=instance.instance.cache_records_db)
+            index_dict_update('cache_records_db', 'before',
+                              data_frame=instance.instance.cache_records_db)
             instance.instance._load_prune_cache_records_db(load=False)
-            index_dict_update('cache_records_db', 'after', data_frame=instance.instance.cache_records_db)
+            index_dict_update('cache_records_db', 'after',
+                              data_frame=instance.instance.cache_records_db)
         else:
             raise TypeError("`cache_record_db` is not a DataFrame.")
     else:
@@ -561,9 +572,11 @@ def image_delete(instance, delete_rule, only_recent=False, verbose=True):
             instance.records_db, _ = non_cache_db('records_db', instance.records_db, enact=False)
         if isinstance(instance.cache_records_db, pd.DataFrame):
             index_dict_update('cache_records_db', 'before', data_frame=instance.cache_records_db)
-            _ = instance.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True), axis=1)
+            _ = instance.cache_records_db.apply(lambda r: delete_rule_wrapper(r, enact=True),
+                                                axis=1)
             instance._load_prune_cache_records_db(load=False)
-            instance.cache_records_db = _relationship_mapper(instance.cache_records_db, instance.__class__.__name__)
+            instance.cache_records_db = _relationship_mapper(instance.cache_records_db,
+                                                             instance.__class__.__name__)
             instance._save_cache_records_db()
             index_dict_update('cache_records_db', 'after', data_frame=instance.cache_records_db)
         else:
@@ -671,7 +684,8 @@ def _divvy_column_selector(instance, image_column, data_frame):
         raise KeyError("'{0}' is not a valid image column.".format(image_column))
 
 
-def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to_use, create_dirs, allow_overwrite):
+def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to_use, create_dirs,
+                              allow_overwrite):
     """
 
     Wrap the ``divvy_rule`` passed to ``image_divvy()``.
@@ -691,6 +705,7 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
     :return: a function which wraps the function passed to ``divvy_rule()``.
     :rtype: ``func``
     """
+
     def copy_rule_wrapper(row, copy_to):
         if isinstance(copy_to, (str, tuple, list)):
             all_copy_targets = [copy_to] if isinstance(copy_to, str) else copy_to
@@ -716,7 +731,8 @@ def _image_divvy_wrappers_gen(divvy_rule, action, train_val_test_dict, column_to
         if action == 'copy' and not isinstance(train_val_test_dict, dict):
             copy_rule_wrapper(row, group)
         if isinstance(row[column_to_use], (str, tuple, list)):
-            cache_info = [row[column_to_use]] if isinstance(row[column_to_use], str) else list(row[column_to_use])
+            cache_info = [row[column_to_use]] if isinstance(row[column_to_use], str) else list(
+                row[column_to_use])
             if isinstance(group, str):
                 return [[os.path.basename(group), cache_info]]
             elif isinstance(group, (list, tuple)):
@@ -826,7 +842,8 @@ def _divvy_openi_image_processing(instance,
                                              tvt=_tvt_dict_gen(train_val_test_dict),
                                              group_files_dict=divvy_info,
                                              target_path=target_path,
-                                             random_state=train_val_test_dict.get('random_state', None),
+                                             random_state=train_val_test_dict.get('random_state',
+                                                                                  None),
                                              allowed_actions=('write_ndarray', None),
                                              verbose=verbose)
 
@@ -1033,7 +1050,8 @@ def image_divvy(instance,
     if type(instance).__name__ == 'OpeniImageProcessing':
         return _divvy_openi_image_processing(instance=instance, divvy_rule=divvy_rule,
                                              action=action, train_val_test_dict=train_val_test_dict,
-                                             create_dirs=create_dirs, allow_overwrite=allow_overwrite,
+                                             create_dirs=create_dirs,
+                                             allow_overwrite=allow_overwrite,
                                              verbose=verbose)
     elif db_to_extract == 'unify_against_images':
         data_frame = instance
@@ -1045,11 +1063,13 @@ def image_divvy(instance,
                         "Got an object of type: '{0}'."
                         "`db_to_extract` may be invalid".format(type(data_frame).__name__))
 
-    column_to_use = _divvy_column_selector(instance, image_column=image_column, data_frame=data_frame)
+    column_to_use = _divvy_column_selector(instance, image_column=image_column,
+                                           data_frame=data_frame)
 
     divvy_rule_wrapper = _image_divvy_wrappers_gen(divvy_rule=divvy_rule, action=action,
                                                    train_val_test_dict=train_val_test_dict,
-                                                   column_to_use=column_to_use, create_dirs=create_dirs,
+                                                   column_to_use=column_to_use,
+                                                   create_dirs=create_dirs,
                                                    allow_overwrite=allow_overwrite)
 
     def divvy_rule_apply():
@@ -1065,7 +1085,8 @@ def image_divvy(instance,
     divvy_info = divvy_rule_apply()
 
     if isinstance(divvy_info, dict) and isinstance(train_val_test_dict, dict):
-        return _image_divvy_train_val_test_wrapper(action=action, verbose=verbose, divvy_info=divvy_info,
+        return _image_divvy_train_val_test_wrapper(action=action, verbose=verbose,
+                                                   divvy_info=divvy_info,
                                                    train_val_test_dict=train_val_test_dict)
     elif isinstance(divvy_info, dict) and action == 'ndarray':
         return _file_paths_dict_to_ndarrays(divvy_info, dimensions=1, stack=stack, verbose=verbose)

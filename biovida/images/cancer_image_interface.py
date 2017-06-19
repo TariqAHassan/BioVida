@@ -53,8 +53,10 @@ from biovida.support_tools._cache_management import package_cache_creator
 # Interface Support tools
 from biovida.images._interface_support.shared import save_records_db
 from biovida.images._interface_support.dicom_data_to_dict import dicom_to_dict
-from biovida.images._interface_support.cancer_image.cancer_image_parameters import CancerImageArchiveParams
-from biovida.images._interface_support.cancer_image.cancer_image_support_tools import nonessential_cancer_image_columns
+from biovida.images._interface_support.cancer_image.cancer_image_parameters import \
+    CancerImageArchiveParams
+from biovida.images._interface_support.cancer_image.cancer_image_support_tools import \
+    nonessential_cancer_image_columns
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -75,6 +77,7 @@ class _CancerImageArchiveOverview(object):
     :param tcia_homepage: URL to the the Cancer Imaging Archive's homepage.
     :type tcia_homepage: ``str``
     """
+
     # ToDo: add link to the TCIA page for a given collection/study (use BeautifulSoup).
     def __init__(self,
                  dicom_modality_abbrevs,
@@ -84,7 +87,8 @@ class _CancerImageArchiveOverview(object):
         self._verbose = verbose
         self._tcia_homepage = tcia_homepage
         _, self._created_image_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
-                                                            to_create=['tcia'], nest=[('tcia', 'databases')],
+                                                            to_create=['tcia'],
+                                                            nest=[('tcia', 'databases')],
                                                             verbose=verbose)
 
         self.dicom_modality_abbrevs = dicom_modality_abbrevs
@@ -106,7 +110,8 @@ class _CancerImageArchiveOverview(object):
         summary_df = summary_df[summary_df['status'].str.strip().str.lower() != 'coming soon']
         summary_df = summary_df[~summary_df['location'].str.lower().str.contains('phantom')]
         summary_df = summary_df[~summary_df['collection'].str.lower().str.contains('mouse|phantom')]
-        summary_df = summary_df[summary_df['access'].str.strip().str.lower() == 'public'].reset_index(drop=True)
+        summary_df = summary_df[
+            summary_df['access'].str.strip().str.lower() == 'public'].reset_index(drop=True)
 
         # Add Full Name for Modalities
         summary_df['modalities_full'] = summary_df['modalities'].map(
@@ -191,8 +196,10 @@ class _CancerImageArchiveOverview(object):
 
         # Filter by `modality`.
         if isinstance(modality, (str, list, tuple)):
-            modality = [modality.lower()] if isinstance(modality, str) else list(map(lambda x: x.lower(), modality))
-            summary_df = summary_df[summary_df.apply(lambda x: modality_filter(x, modality), axis=1)]
+            modality = [modality.lower()] if isinstance(modality, str) else list(
+                map(lambda x: x.lower(), modality))
+            summary_df = summary_df[
+                summary_df.apply(lambda x: modality_filter(x, modality), axis=1)]
 
         return summary_df
 
@@ -305,10 +312,12 @@ class _CancerImageArchiveRecords(object):
             lambda x: self._date_index_map(x['study_date'].tolist())).to_dict()
 
         # Apply stages
-        study_df['session'] = study_df.apply(lambda x: stages[x['patient_id']][x['study_date']], axis=1)
+        study_df['session'] = study_df.apply(lambda x: stages[x['patient_id']][x['study_date']],
+                                             axis=1)
 
         # Define columns to extract from `study_df`
-        valuable_cols = ('patient_id', 'study_instance_uid', 'session', 'patient_sex', 'patient_age', 'study_date')
+        valuable_cols = (
+        'patient_id', 'study_instance_uid', 'session', 'patient_sex', 'patient_age', 'study_date')
 
         # Convert to a nested dictionary
         patient_dict = dict()
@@ -387,7 +396,8 @@ class _CancerImageArchiveRecords(object):
         # Remove unneeded line break marker
         for c in ('protocol_name', 'series_description', 'manufacturer_model_name'):
             patient_study_df[c] = patient_study_df[c].map(
-                lambda x: cln(x.replace("\/", " ")) if isinstance(x, str) else x, na_action='ignore')
+                lambda x: cln(x.replace("\/", " ")) if isinstance(x, str) else x,
+                na_action='ignore')
 
         # Add the full name for modality.
         patient_study_df['modality_full'] = patient_study_df['modality'].map(
@@ -404,7 +414,7 @@ class _CancerImageArchiveRecords(object):
 
         def series_number_rescale(x):
             if isinstance(x, (int, float)) and not items_null(x) and x > 0:
-                return x / 10**floor(log10(x))
+                return x / 10 ** floor(log10(x))
             else:
                 return x
 
@@ -464,16 +474,20 @@ class _CancerImageArchiveRecords(object):
         if not isinstance(patient_limit, int) and patient_limit is not None:
             raise ValueError('`patient_limit` must be an integer or `None`.')
         elif isinstance(patient_limit, int) and patient_limit < 1:
-            raise ValueError('If `patient_limit` is an integer it must be greater than or equal to 1.')
+            raise ValueError(
+                'If `patient_limit` is an integer it must be greater than or equal to 1.')
 
         # Define number of patients to extract
         s_patients = sorted(study_dict.keys())
-        patients_to_obtain = s_patients[:patient_limit] if isinstance(patient_limit, int) else s_patients
+        patients_to_obtain = s_patients[:patient_limit] if isinstance(patient_limit,
+                                                                      int) else s_patients
 
         # Evolve a dataframe ('frame') for the baseline images of all patients
         frames = list()
-        for patient in tqdm(patients_to_obtain, desc="'{0}' Records".format(study), disable=not verbose):
-            frames.append(self._patient_image_summary(patient, study=study, patient_dict=study_dict[patient]))
+        for patient in tqdm(patients_to_obtain, desc="'{0}' Records".format(study),
+                            disable=not verbose):
+            frames.append(
+                self._patient_image_summary(patient, study=study, patient_dict=study_dict[patient]))
 
         # Concatenate baselines frame for each patient
         patient_study_df = pd.concat(frames, ignore_index=True)
@@ -482,7 +496,8 @@ class _CancerImageArchiveRecords(object):
         patient_study_df['study_name'] = study
         patient_study_df['cancer_type'] = self._get_condition_name(patient_study_df['collection'])
 
-        # Add the Search query which created the current results and the time the search was launched.
+        # Add the Search query which created the current
+        # results and the time the search was launched.
         patient_study_df['query'] = [search_dict] * patient_study_df.shape[0]
         patient_study_df['pull_time'] = [pull_time] * patient_study_df.shape[0]
 
@@ -520,7 +535,8 @@ class _CancerImageArchiveImages(object):
         _, self._created_image_dirs = package_cache_creator(sub_dir='images',
                                                             cache_path=cache_path,
                                                             to_create=['tcia'],
-                                                            nest=[('tcia', 'raw'), ('tcia', 'dicoms'),
+                                                            nest=[('tcia', 'raw'),
+                                                                  ('tcia', 'dicoms'),
                                                                   ('tcia', 'databases')],
                                                             verbose=verbose)
 
@@ -544,7 +560,8 @@ class _CancerImageArchiveImages(object):
         :param db_index: the index of the ``real_time_update_db`` dataframe (should be from ``records_db``).
         :type db_index: ``Pandas Series``
         """
-        real_time_update_columns = ['cached_dicom_images_path', 'cached_images_path', 'error_free_conversion',
+        real_time_update_columns = ['cached_dicom_images_path', 'cached_images_path',
+                                    'error_free_conversion',
                                     'allowed_modality', 'image_count_converted_cache']
 
         self.real_time_update_db = pd.DataFrame(
@@ -656,8 +673,10 @@ class _CancerImageArchiveImages(object):
                 Image.fromarray(pixel_arr[layer:layer + 1][0]).convert(conversion).save(path)
                 all_save_paths.append(path)
         else:
-            warn("\nProblem converting an image for\nthe following series_instance_uid:\n\n{0}\n\nCannot "
-                 "stabilize {1} dimensional arrays.\nImages must be 2D or 3D.".format(series_uid, pixel_arr.ndim))
+            warn(
+                "\nProblem converting an image for\nthe following series_instance_uid:\n\n{0}\n\nCannot "
+                "stabilize {1} dimensional arrays.\nImages must be 2D or 3D.".format(series_uid,
+                                                                                     pixel_arr.ndim))
             return [], False
 
         return all_save_paths, True
@@ -691,7 +710,8 @@ class _CancerImageArchiveImages(object):
 
         self.real_time_update_db.set_value(index, column, replacement)
 
-        return len(replacement) if return_replacement_len and isinstance(replacement, (list, tuple)) else None
+        return len(replacement) if return_replacement_len and isinstance(replacement,
+                                                                         (list, tuple)) else None
 
     def _convert_and_save_dicom(self,
                                 path_to_dicom_file,
@@ -733,15 +753,18 @@ class _CancerImageArchiveImages(object):
 
         # Convert the image into a PIL object and save to disk.
         all_save_paths, success = self._dicom_to_standard_image(f=f, pull_position=pull_position,
-                                                                series_uid=series_uid, conversion=conversion,
+                                                                series_uid=series_uid,
+                                                                conversion=conversion,
                                                                 new_file_name=new_file_name)
 
         # Update Record
-        cfp_len = self._update_and_set_list(index, 'cached_images_path', all_save_paths, return_replacement_len=True)
+        cfp_len = self._update_and_set_list(index, 'cached_images_path', all_save_paths,
+                                            return_replacement_len=True)
         self.real_time_update_db.set_value(index, 'image_count_converted_cache', cfp_len)
 
         # Add record of whether or not the dicom file could be converted to a standard image type
-        if self.real_time_update_db.get_value(index, 'error_free_conversion') != False:  # Block False being replaced.
+        # Block False being replaced.
+        if self.real_time_update_db.get_value(index, 'error_free_conversion') != False:
             self.real_time_update_db.set_value(index, 'error_free_conversion', success)
 
     def _move_dicoms(self, dicom_files, series_abbrev, index):
@@ -759,7 +782,8 @@ class _CancerImageArchiveImages(object):
         """
         new_dicom_paths = list()
         for file in dicom_files:
-            # Define a name for the new file by extracting the dicom file name and combining with `series_abbrev`.
+            # Define a name for the new file by extracting the dicom
+            # file name and combining with `series_abbrev`.
             instance_number = self._extract_instance_number(f=dicom.read_file(file))
             file_parsed = list(os.path.splitext(os.path.basename(file)))
             new_dicom_file_name = "{0}_{1}__{2}{3}".format(
@@ -811,12 +835,14 @@ class _CancerImageArchiveImages(object):
 
         :rtype: ``tuple``
         """
-        # Check that `self._created_image_dirs['raw']` has files which contain the string `series_abbrev`.
+        # Check that `self._created_image_dirs['raw']` has files
+        # which contain the string `series_abbrev`.
         converted_loc_summary = tuple(sorted([os.path.join(self._created_image_dirs['raw'], f)
                                               for f in os.listdir(self._created_image_dirs['raw'])
                                               if series_abbrev in f]))
 
-        # Check that `self._created_image_dirs['dicoms'])` has files which contain the string `series_abbrev`.
+        # Check that `self._created_image_dirs['dicoms'])` has
+        # files which contain the string `series_abbrev`.
         dicoms_sl_summary = tuple(sorted([os.path.join(self._created_image_dirs['dicoms'], f)
                                           for f in os.listdir(self._created_image_dirs['dicoms'])
                                           if series_abbrev in f]))
@@ -882,7 +908,8 @@ class _CancerImageArchiveImages(object):
             allowed_modalities = [allowed_modalities]
 
         # Check if any item in `allowed_modalities` is a sublist in `modality` or `modality_full`.
-        if any([cln(l).lower() in cln(i).lower() for l in allowed_modalities for i in (modality, modality_full)]):
+        if any([cln(l).lower() in cln(i).lower() for l in allowed_modalities for i in
+                (modality, modality_full)]):
             return True
         else:
             return False
@@ -902,17 +929,22 @@ class _CancerImageArchiveImages(object):
         for index, row in tqdm(self.records_db_images.iterrows(), total=len(self.records_db_images),
                                desc='Obtaining Images', disable=not self.verbose):
             # Check if the image should be harvested (or loaded from the cache).
-            valid_image_modality = self._valid_modality(allowed_modalities, row['modality'], row['modality_full'])
+            valid_image_modality = self._valid_modality(allowed_modalities, row['modality'],
+                                                        row['modality_full'])
 
-            # Add whether or not the image was of the modality (or modalities) requested by the user.
+            # Add whether or not the image was of the modality (or modalities)
+            # requested by the user.
             self.real_time_update_db.set_value(index, 'allowed_modality', valid_image_modality)
 
-            # Compose central part of the file name from 'patient_id' and the last ten digits of 'series_instance_uid'
-            series_abbrev = "{0}_{1}".format(row['patient_id'], str(row['series_instance_uid'])[-10:])
+            # Compose central part of the file name from 'patient_id' and the
+            # last ten digits of 'series_instance_uid'
+            series_abbrev = "{0}_{1}".format(row['patient_id'],
+                                             str(row['series_instance_uid'])[-10:])
 
             # Analyze the cache to determine whether or not downloading the images is needed
             cache_complete, sl_summary, dsl_summary = self._cache_check(series_abbrev=series_abbrev,
-                                                                        n_images_min=row['image_count'],
+                                                                        n_images_min=row[
+                                                                            'image_count'],
                                                                         save_png=save_png,
                                                                         save_dicom=save_dicom)
 
@@ -920,25 +952,31 @@ class _CancerImageArchiveImages(object):
                 temporary_folder = self._create_temp_dicom_dir()
 
                 # Download the images into a temporary folder.
-                dicom_files = self._download_zip(row['series_instance_uid'], temporary_folder=temporary_folder)
+                dicom_files = self._download_zip(row['series_instance_uid'],
+                                                 temporary_folder=temporary_folder)
 
                 if save_png:
                     for e, f in enumerate(dicom_files, start=1):
-                        self._convert_and_save_dicom(path_to_dicom_file=f, index=index, pull_position=e,
+                        self._convert_and_save_dicom(path_to_dicom_file=f, index=index,
+                                                     pull_position=e,
                                                      series_uid=row['series_instance_uid'],
                                                      save_name=series_abbrev)
 
                 if save_dicom:
-                    self._move_dicoms(dicom_files=dicom_files, series_abbrev=series_abbrev, index=index)
+                    self._move_dicoms(dicom_files=dicom_files, series_abbrev=series_abbrev,
+                                      index=index)
 
                 shutil.rmtree(temporary_folder, ignore_errors=True)
             else:
                 self._update_and_set_list(index, 'cached_dicom_images_path', dsl_summary)
                 self._update_and_set_list(index, 'cached_images_path', sl_summary)
                 if save_png:  # otherwise, leave as None/NaN
-                    self.real_time_update_db.set_value(index, 'error_free_conversion', cache_complete)
-                converted_image_count = len(sl_summary) if isinstance(sl_summary, (list, tuple)) else None
-                self.real_time_update_db.set_value(index, 'image_count_converted_cache', converted_image_count)
+                    self.real_time_update_db.set_value(index, 'error_free_conversion',
+                                                       cache_complete)
+                converted_image_count = len(sl_summary) if isinstance(sl_summary,
+                                                                      (list, tuple)) else None
+                self.real_time_update_db.set_value(index, 'image_count_converted_cache',
+                                                   converted_image_count)
 
     def pull_images(self, records_db, session_limit, save_png, save_dicom, allowed_modalities):
         """
@@ -979,7 +1017,8 @@ class _CancerImageArchiveImages(object):
             if session_limit < 1:
                 raise ValueError("`session_limit` must be greater than or equal to 1.")
             self.records_db_images = records_db[records_db['session'].map(
-                lambda x: float(x) <= session_limit if pd.notnull(x) else False)].reset_index(drop=True).copy(deep=True)
+                lambda x: float(x) <= session_limit if pd.notnull(x) else False)].reset_index(
+                drop=True).copy(deep=True)
         else:
             self.records_db_images = records_db.reset_index(drop=True).copy(deep=True)
 
@@ -990,7 +1029,8 @@ class _CancerImageArchiveImages(object):
                                  save_png=save_png)
         self.real_time_update_db = self.real_time_update_db.replace({None: np.NaN})
 
-        return _record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
+        return _record_update_dbs_joiner(records_db=self.records_db_images,
+                                         update_db=self.real_time_update_db)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -1046,14 +1086,16 @@ class CancerImageInterface(object):
         :param load: if ``True`` load the ``cache_records_db`` dataframe in from disk.
         :type load: ``bool``
         """
-        cache_records_db = pd.read_pickle(self._cache_records_db_save_path) if load else self.cache_records_db
+        cache_records_db = pd.read_pickle(
+            self._cache_records_db_save_path) if load else self.cache_records_db
         self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
                                                                 columns=['cached_images_path',
                                                                          'cached_dicom_images_path'],
                                                                 save_path=self._cache_records_db_save_path)
 
         # Recompute the image_count_converted_cache column following the pruning procedure.
-        self.cache_records_db['image_count_converted_cache'] = self.cache_records_db['cached_images_path'].map(
+        self.cache_records_db['image_count_converted_cache'] = self.cache_records_db[
+            'cached_images_path'].map(
             lambda x: len(x) if isinstance(x, (list, tuple)) else np.NaN)
 
     def _latent_temp_dir(self):
@@ -1064,12 +1106,15 @@ class CancerImageInterface(object):
         """
         if os.path.isdir(self._Images.temp_directory_path):
             temp_dir = self._Images.temp_directory_path
-            latent_pickles = [os.path.join(temp_dir, i) for i in os.listdir(temp_dir) if i.endswith(".p")]
+            latent_pickles = [os.path.join(temp_dir, i) for i in os.listdir(temp_dir) if
+                              i.endswith(".p")]
             if len(latent_pickles):
                 with open(latent_pickles[0], "rb") as f:
                     settings_dict = pickle.load(f)
-                settings_dict_for_pull = {k: v for k, v in settings_dict.items() if k not in ['records_db']}
-                settings_dict_for_pull['new_records_pull'] = False  # adding this separately in `pull` breaks in python2
+                settings_dict_for_pull = {k: v for k, v in settings_dict.items() if
+                                          k not in ['records_db']}
+                settings_dict_for_pull[
+                    'new_records_pull'] = False  # adding this separately in `pull` breaks in python2
 
                 print("\nResuming Download...")
                 self.load_records_db(records_db=settings_dict['records_db'])
@@ -1089,7 +1134,8 @@ class CancerImageInterface(object):
             """Mark to conserve the row in the cache if the conversion was successful or DICOMs were saved."""
             iccc, cdip = x['image_count_converted_cache'], x['cached_dicom_images_path']
             any_conversion_success = isinstance(iccc, (int, float)) and iccc > 0
-            raw_dicoms = isinstance(cdip, (list, tuple)) and len(cdip) > 0  # > 0 needed b/c `True and 37 == 37`.
+            raw_dicoms = isinstance(cdip, (list, tuple)) and len(
+                cdip) > 0  # > 0 needed b/c `True and 37 == 37`.
             return any_conversion_success or raw_dicoms
 
         def tcia_duplicates_handler(data_frame):
@@ -1102,7 +1148,9 @@ class CancerImageInterface(object):
             def image_cache_score(row):
                 def images_len(i):
                     return len(i) if isinstance(i, (list, tuple)) else 0
-                return images_len(row['cached_images_path']) + images_len(row['cached_dicom_images_path'])
+
+                return images_len(row['cached_images_path']) + images_len(
+                    row['cached_dicom_images_path'])
 
             data_frame['__image_cache_score__'] = data_frame.apply(image_cache_score, axis=1)
             data_frame = data_frame.sort_values(by=sortby)
@@ -1120,7 +1168,8 @@ class CancerImageInterface(object):
             columns_with_iterables_to_sort = ('cached_images_path', 'cached_dicom_images_path')
             self.cache_records_db = _records_db_merge(interface_name='CancerImageInterface',
                                                       current_records_db=self.cache_records_db,
-                                                      records_db_update=self.records_db.drop(columns_to_drop, axis=1),
+                                                      records_db_update=self.records_db.drop(
+                                                          columns_to_drop, axis=1),
                                                       columns_with_dicts=('query',),
                                                       duplicates=tcia_duplicates_handler,
                                                       rows_to_conserve_func=rows_to_conserve_func,
@@ -1138,21 +1187,25 @@ class CancerImageInterface(object):
         self._API_KEY = api_key
         self._cache_path = cache_path
         self._verbose = verbose
-        self.dicom_modality_abbrevs = CancerImageArchiveParams(cache_path, verbose).dicom_modality_abbreviations('dict')
+        self.dicom_modality_abbrevs = CancerImageArchiveParams(cache_path,
+                                                               verbose).dicom_modality_abbreviations(
+            'dict')
 
         # Root URL to for the Cancer Imaging Archive's REST API
         root_url = 'https://services.cancerimagingarchive.net/services/v3/TCIA'
 
         # Instantiate Classes
-        self._Overview = _CancerImageArchiveOverview(dicom_modality_abbrevs=self.dicom_modality_abbrevs,
-                                                     verbose=verbose,
-                                                     cache_path=cache_path)
+        self._Overview = _CancerImageArchiveOverview(
+            dicom_modality_abbrevs=self.dicom_modality_abbrevs,
+            verbose=verbose,
+            cache_path=cache_path)
 
         self._tcia_overview_df = self._Overview._obtain_tcia_overview()
 
         self._Records = _CancerImageArchiveRecords(api_key=api_key,
                                                    dicom_modality_abbrevs=self.dicom_modality_abbrevs,
-                                                   tcia_overview_df=deepcopy(self._tcia_overview_df),
+                                                   tcia_overview_df=deepcopy(
+                                                       self._tcia_overview_df),
                                                    root_url=root_url)
 
         self._Images = _CancerImageArchiveImages(api_key=api_key,
@@ -1173,8 +1226,9 @@ class CancerImageInterface(object):
         self.pull_success = None
 
         # Path to the `cache_records_db`
-        self._cache_records_db_save_path = os.path.join(self._Images._created_image_dirs['databases'],
-                                                        'tcia_cache_records_db.p')
+        self._cache_records_db_save_path = os.path.join(
+            self._Images._created_image_dirs['databases'],
+            'tcia_cache_records_db.p')
 
         # Load `cache_records_db` if it exists already, else set to None.
         if os.path.isfile(self._cache_records_db_save_path):
@@ -1221,8 +1275,9 @@ class CancerImageInterface(object):
     @property
     def cache_records_db_short(self):
         """Return `cache_records_db` with nonessential columns removed."""
-        return data_frame_col_drop(self.cache_records_db, nonessential_cancer_image_columns, 'cache_records_db')
-    
+        return data_frame_col_drop(self.cache_records_db, nonessential_cancer_image_columns,
+                                   'cache_records_db')
+
     def update_collections(self):
         """Refresh the list of collections provided by the Cancer Imaging Archive."""
         self._tcia_overview_df = self._Overview._obtain_tcia_overview(download_override=True)
@@ -1247,17 +1302,22 @@ class CancerImageInterface(object):
         :rtype: ``None`` or ``Pandas DataFrame``
         """
         # Filter by `collection`
-        if isinstance(collection, (str, list, tuple)) and any(i is not None for i in (cancer_type, location)):
-            raise ValueError("Both `cancer_types` and `location` must be ``None`` if a `collection` name is passed.")
+        if isinstance(collection, (str, list, tuple)) and any(
+                        i is not None for i in (cancer_type, location)):
+            raise ValueError(
+                "Both `cancer_types` and `location` must be ``None`` if a `collection` name is passed.")
         elif isinstance(collection, (str, list, tuple)):
             coll = [collection] if isinstance(collection, str) else collection
-            summary_df = summary_df[summary_df['collection'].str.lower().isin(map(lambda x: cln(x).lower(), coll))]
+            summary_df = summary_df[
+                summary_df['collection'].str.lower().isin(map(lambda x: cln(x).lower(), coll))]
             if summary_df.shape[0] == 0:
-                raise AttributeError("No collection with the name '{0}' could be found.".format(collection))
+                raise AttributeError(
+                    "No collection with the name '{0}' could be found.".format(collection))
             else:
                 return summary_df.reset_index(drop=True)
         elif collection is not None:
-            raise TypeError("'{0}' is an invalid type for `collection`.".format(str(type(collection).__name__)))
+            raise TypeError(
+                "'{0}' is an invalid type for `collection`.".format(str(type(collection).__name__)))
 
     def _search_dict_gen(self, collection, cancer_type, location, modality):
         """
@@ -1274,7 +1334,8 @@ class CancerImageInterface(object):
         :type modality: ``str``, ``iterable`` or ``None``
         """
         # Note: lowered here because this is the behavior upstream.
-        sdict = {'collection': collection, 'cancer_type': cancer_type, 'location': location, 'modality': modality}
+        sdict = {'collection': collection, 'cancer_type': cancer_type, 'location': location,
+                 'modality': modality}
 
         def lower_sdict(v):
             if isinstance(v, str):
@@ -1413,7 +1474,8 @@ class CancerImageInterface(object):
                                                               collections_limit=collections_limit)
 
         # Check for failures
-        download_failures = [collection for (success, collection) in self.pull_success if success is False]
+        download_failures = [collection for (success, collection) in self.pull_success if
+                             success is False]
 
         if len(download_failures) == len(self.pull_success):
             raise IndexError("Data could not be harvested for any of the requested collections.")
@@ -1464,7 +1526,8 @@ class CancerImageInterface(object):
                 return paths
             else:
                 if make_hashable:
-                    return tuple({p: tuple(dicom_to_dict(dicom_file=p).items()) for p in paths}.items())
+                    return tuple(
+                        {p: tuple(dicom_to_dict(dicom_file=p).items()) for p in paths}.items())
                 else:
                     return {p: dicom_to_dict(dicom_file=p) for p in paths}
 

@@ -26,8 +26,9 @@ from biovida.images._interface_support.openi.openi_parameters import (openi_imag
                                                                       openi_image_type_modality_full)
 
 from biovida.images._interface_support.openi._openi_image_id_processing import image_id_short_gen
-from biovida.images._interface_support.openi._openi_text_feature_extraction import (CLINICAL_ARTICLE_TYPES,
-                                                                                    feature_extract)
+from biovida.images._interface_support.openi._openi_text_feature_extraction import (
+    CLINICAL_ARTICLE_TYPES,
+    feature_extract)
 
 # Other BioVida APIs
 from biovida.diagnostics.disease_ont_interface import DiseaseOntInterface
@@ -155,6 +156,7 @@ def _apply_clinical_case_only(data_frame):
     :return: see description.
     :rtype: ``Pandas DataFrame``
     """
+
     def test(article_type):
         if isinstance(article_type, str) and article_type in CLINICAL_ARTICLE_TYPES:
             return True
@@ -164,8 +166,9 @@ def _apply_clinical_case_only(data_frame):
     data_frame = data_frame[data_frame['article_type'].map(test)].reset_index(drop=True)
 
     if data_frame.shape[0] == 0:
-        raise NoResultsFound("\nNo results remained after the `clinical_cases_only=True` restriction was applied.\n"
-                             "Consider setting `pull()`'s `clinical_cases_only` parameter to `False`.")
+        raise NoResultsFound(
+            "\nNo results remained after the `clinical_cases_only=True` restriction was applied.\n"
+            "Consider setting `pull()`'s `clinical_cases_only` parameter to `False`.")
     return data_frame
 
 
@@ -202,7 +205,8 @@ def _df_make_hashable(data_frame):
     """
     # Escape HTML elements in the 'image_caption' and 'image_mention' columns.
     for c in ('image_caption', 'image_mention'):
-        data_frame[c] = data_frame[c].map(lambda x: cln(unescape(x)) if isinstance(x, str) else x, na_action='ignore')
+        data_frame[c] = data_frame[c].map(lambda x: cln(unescape(x)) if isinstance(x, str) else x,
+                                          na_action='ignore')
 
     # Clean mesh terms
     for c in ('mesh_major', 'mesh_minor', 'image_caption_concepts'):
@@ -210,8 +214,9 @@ def _df_make_hashable(data_frame):
 
     # Convert all elements in the 'license_type' and 'license_url' columns to string.
     for c in ('license_type', 'license_url'):
-        data_frame[c] = data_frame[c].map(lambda x: "; ".join(map(str, x)) if isinstance(x, (list, tuple)) else x,
-                                          na_action='ignore')
+        data_frame[c] = data_frame[c].map(
+            lambda x: "; ".join(map(str, x)) if isinstance(x, (list, tuple)) else x,
+            na_action='ignore')
 
     return data_frame
 
@@ -239,7 +244,8 @@ def _data_frame_fill_nan(data_frame):
 
     # Replace the 'replace this - ' placeholder with NaN
     data_frame['image_caption'] = data_frame['image_caption'].map(
-        lambda x: np.NaN if isinstance(x, str) and cln(x).lower().startswith('replace this - ') else x,
+        lambda x: np.NaN if isinstance(x, str) and cln(x).lower().startswith(
+            'replace this - ') else x,
         na_action='ignore')
 
     return data_frame.fillna(np.NaN)
@@ -262,7 +268,8 @@ def _data_frame_clean(data_frame, verbose):
 
     # Clean the 'image_caption'
     data_frame['image_caption'] = data_frame['image_caption'].map(
-        lambda x: cln(BeautifulSoup(x, 'lxml').text) if isinstance(x, str) else x, na_action='ignore')
+        lambda x: cln(BeautifulSoup(x, 'lxml').text) if isinstance(x, str) else x,
+        na_action='ignore')
 
     # Add the full name for modalities (before the 'image_modality_major' values are altered below).
     data_frame['modality_full'] = data_frame['image_modality_major'].map(
@@ -339,10 +346,12 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
     :return: see description.
     :rtype:  ``Pandas DataFrame``
     """
-    data_frame.columns = list(map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
+    data_frame.columns = list(
+        map(lambda x: camel_to_snake_case(x).replace("me_sh", "mesh"), data_frame.columns))
     data_frame = _df_add_missing_columns(data_frame)
 
-    data_frame['article_type'] = data_frame['article_type'].map(article_type_lookup, na_action='ignore')
+    data_frame['article_type'] = data_frame['article_type'].map(article_type_lookup,
+                                                                na_action='ignore')
     data_frame['problems'] = data_frame['problems'].map(problems_cleaner, na_action='ignore')
 
     if clinical_cases_only:
@@ -351,16 +360,21 @@ def openi_raw_extract_and_clean(data_frame, clinical_cases_only, verbose, cache_
     # Ensure the dataframe can be hashed (i.e., ensure pandas.DataFrame.drop_duplicates does not fail).
     data_frame = _df_make_hashable(data_frame)
 
-    list_of_diseases = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()['name'].tolist()
-    unique_image_caption_dict = _unique_image_caption_dict_gen(data_frame=data_frame, verbose=verbose)
+    list_of_diseases = DiseaseOntInterface(cache_path=cache_path, verbose=verbose).pull()[
+        'name'].tolist()
+    unique_image_caption_dict = _unique_image_caption_dict_gen(data_frame=data_frame,
+                                                               verbose=verbose)
 
     def feature_extract_wrapper(row):
-        caption_unique_bool = unique_image_caption_dict.get(row['uid'], {}).get(row['image_caption'], False)
-        return feature_extract(row, list_of_diseases=list_of_diseases, image_caption_unique=caption_unique_bool)
+        caption_unique_bool = unique_image_caption_dict.get(row['uid'], {}).get(
+            row['image_caption'], False)
+        return feature_extract(row, list_of_diseases=list_of_diseases,
+                               image_caption_unique=caption_unique_bool)
 
     # Run Feature Extracting Tool and Join with `data_frame`.
-    extract = [feature_extract_wrapper(row) for _, row in tqdm(data_frame.iterrows(), desc='Processing Records',
-                                                               total=len(data_frame), disable=not verbose)]
+    extract = [feature_extract_wrapper(row) for _, row in
+               tqdm(data_frame.iterrows(), desc='Processing Records',
+                    total=len(data_frame), disable=not verbose)]
     extract_df = pd.DataFrame(extract)
 
     if not any(c in data_frame.columns for c in extract_df.columns):

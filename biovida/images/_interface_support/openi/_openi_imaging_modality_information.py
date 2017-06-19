@@ -26,7 +26,8 @@ terms_dict = {
     "ct": (['ct ', 'ct:', 'ct-', ' ct', ' ct ', '(ct)',
             'computed tomography', '(ct)'], 'Computed Tomography (CT)'),
     "mri": (['mr ', ' mr ', 'mri ', 'mri:', 'mri-', ' mri', ' mri ', '(mri)',
-             'magnetic resonance imag'], 'Magnetic Resonance Imaging (MRI)'),  # 'imag' catches 'es' and 'ing'.
+             'magnetic resonance imag'], 'Magnetic Resonance Imaging (MRI)'),
+# 'imag' catches 'es' and 'ing'.
     "pet": (['pet:', 'pet-', ' pet ', '(pet)',
              'positron emission tomography'], 'Positron Emission Tomography (PET)'),
     "photograph": (['photograph'], 'Photograph'),
@@ -34,7 +35,6 @@ terms_dict = {
     "mammogram": (['mammogram', 'mammograph'], 'Mammography'),
     "x-ray": (['xray', 'x-ray'], 'X-Ray')
 }
-
 
 # ----------------------------------------------------------------------------------------------------------
 # Modality Specific Subtypes
@@ -65,7 +65,6 @@ modality_specific_subtypes = {
     ],
 }
 
-
 # ----------------------------------------------------------------------------------------------------------
 # Modality Subtypes. Not specific & cannot be used to infer the modality (like 'T1', for example).
 # ----------------------------------------------------------------------------------------------------------
@@ -73,7 +72,8 @@ modality_specific_subtypes = {
 
 # Divvy up terms which can be used if a match for ``terms_dict`` is successful,
 # i.e., if the modality is known, these terms can be used to increase specificity.
-contrast = ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast', 'w/contrast', 'with contrast']
+contrast = ['contrast-enhanced', 'contrast enhanced', 'enhanced contrast', 'w/contrast',
+            'with contrast']
 
 ct_mri_xray = [
     ['abdomen', 'abdominal'],
@@ -91,10 +91,11 @@ ct_and_mri = [
 
 # Define a dictionary to use when there is a match for an item in ``terms_dict``.
 modality_subtypes = deepcopy(modality_specific_subtypes)
-modality_subtypes['ct'] += ct_mri_xray + ct_and_mri + [contrast + [' contrast ct ', ' contrast-ct ']]
-modality_subtypes['mri'] += ct_mri_xray + ct_and_mri + [contrast + [' contrast mr ', ' contrast-mr ']]
+modality_subtypes['ct'] += ct_mri_xray + ct_and_mri + [
+    contrast + [' contrast ct ', ' contrast-ct ']]
+modality_subtypes['mri'] += ct_mri_xray + ct_and_mri + [
+    contrast + [' contrast mr ', ' contrast-mr ']]
 modality_subtypes['x-ray'] = ct_mri_xray
-
 
 # ----------------------------------------------------------------------------------------------------------
 # Contradictions

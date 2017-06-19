@@ -104,7 +104,8 @@ def _robust_match_template_loading(image, param_name):
     elif isinstance(image, str):
         return imread(image, flatten=True)
     else:
-        raise ValueError("`{0}` must either be a `ndarray` or a path to an image.".format(param_name))
+        raise ValueError(
+            "`{0}` must either be a `ndarray` or a path to an image.".format(param_name))
 
 
 def _min_base_rescale(base, pattern, base_resizes, round_to=3):
@@ -293,7 +294,8 @@ def robust_match_template(pattern_image,
     pattern = _robust_match_template_loading(pattern_image, "pattern_image")
     base = _robust_match_template_loading(base_image, "base_image")
 
-    match_dict = _matching_engine(base, pattern, base_resizes, base_image_cropping, end_search_threshold)
+    match_dict = _matching_engine(base, pattern, base_resizes, base_image_cropping,
+                                  end_search_threshold)
 
     if len(list(match_dict.keys())):
         best_match = max(list(match_dict.values()), key=lambda x: x[2])
@@ -304,7 +306,8 @@ def robust_match_template(pattern_image,
         match_quality = None
 
     # Return the bounding box, match quality and the size of the base image
-    return {"bounding_box": bounding_box, "match_quality": match_quality, "base_image_shape": base.shape[::-1]}
+    return {"bounding_box": bounding_box, "match_quality": match_quality,
+            "base_image_shape": base.shape[::-1]}
 
 
 def _box_show(base_image_path, pattern_image_path):

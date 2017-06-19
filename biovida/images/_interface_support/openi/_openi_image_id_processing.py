@@ -12,7 +12,6 @@ from collections import defaultdict
 # General Support Tools
 from biovida.support_tools.support_tools import cln, only_numeric, multi_replace
 
-
 _image_id_cleaner_regex = re.compile('\.[A-Za-z]+$')
 _image_id_medpix_regex = re.compile('\d+$')
 _image_id_trail_regex = re.compile('\d+-\d+(?:[a-z])?$')
@@ -210,6 +209,7 @@ def _image_id_short_enforce_unique(data_frame):
         3   PMC4593917              FI0192cr-2        192_2
 
     """
+
     def not_unique_image_id_short(row):
         """Check if elements in the 'image_id_short' series are unique."""
         image_id_short = row['image_id_short'].tolist()
@@ -226,7 +226,7 @@ def _image_id_short_enforce_unique(data_frame):
         if invalid_si_id_dict.get(row['uid']):
             d[row['uid']] += 1
             if isinstance(row['image_id_short'], str):
-                new_name = "{0}_{1}".format(row['image_id_short'],str(d[row['uid']]))
+                new_name = "{0}_{1}".format(row['image_id_short'], str(d[row['uid']]))
                 data_frame.set_value(index, 'image_id_short', new_name)
             else:
                 data_frame.set_value(index, 'image_id_short', str(d[row['uid']]))

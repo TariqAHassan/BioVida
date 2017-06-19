@@ -58,7 +58,7 @@ class DiseaseOntInterface(object):
         :rtype: ``list``
         """
         return list(map(cln, filter(None, q.split("\""))))
-    
+
     def _def_url_parser(self, definition):
         """
 
@@ -74,18 +74,20 @@ class DiseaseOntInterface(object):
         # This seems to be valid currently as this shortcut seems to invariably produce the same
         # result as would be obtained by following the list of mappings at the top of the .obo
         # database file. *This could change*.
-        if definition.count("\"") != 2 or definition.count("[") != 1 or definition.count("]") != 1:
+        if (definition.count("\"") != 2 or
+                    definition.count("[") != 1 or definition.count("]") != 1):
             return [("def", definition), ("def_urls", np.NaN)]
 
         # Separate the quote from the list of URLS
         parsed_definition = self._quote_value_parse(definition)
-    
+
         # Extract the list of urls
-        urls = parsed_definition[1].lower().replace("url:", "").replace("[", "").replace("]", "").split(", ")
-    
+        urls = (parsed_definition[1].lower().replace("url:", "").
+                replace("[", "").replace("]", "").split(", "))
+
         # Remove escape for the colon in the urls
         cleaned_urls = [u.replace("\:/", ":/") for u in urls]
-    
+
         # Return the quote and the urls as separate entities
         return [("def", parsed_definition[0].replace("_", " ")), ("def_urls", cleaned_urls)]
 
@@ -104,8 +106,9 @@ class DiseaseOntInterface(object):
         if " ! " not in is_a:
             return is_a
         parse_input = cln(is_a).split(" ! ")
-        return [("is_a", parse_input[1]), ("is_a_doid", parse_input[0].upper().replace("DOID:", ""))]
-    
+        return [("is_a", parse_input[1]),
+                ("is_a_doid", parse_input[0].upper().replace("DOID:", ""))]
+
     def _value_parser(self, k, v):
         """
 
@@ -153,7 +156,7 @@ class DiseaseOntInterface(object):
             return [(k, parsed_v[0]), ("{0}_{1}".format(k, additional_v[0].lower()), related_info)]
         else:
             return [(k, v)]
-    
+
     def _parsed_term_to_dict(self, parsed_term):
         """
 
@@ -192,9 +195,9 @@ class DiseaseOntInterface(object):
                     else:
                         keys_with_lists.add(kp)
                         d[kp] = [d[kp], vp]
-    
+
         return d, keys_with_lists
-    
+
     def _do_term_parser(self, term):
         """
         
@@ -211,10 +214,10 @@ class DiseaseOntInterface(object):
         """
         # Split the term on line breaks
         split_term = filter(None, cln(term).split("\n"))
-    
+
         # Split each element in `term` on the ": " pattern.
         parsed_term = [i.split(": ", 1) for i in split_term]
-    
+
         # Convert to a dict and return
         return self._parsed_term_to_dict(parsed_term)
 
@@ -241,16 +244,16 @@ class DiseaseOntInterface(object):
         for c in columns_with_lists:
             data_frame[c] = data_frame[c].map(lambda x: "; ".join(x) if isinstance(x, list) else x,
                                               na_action='ignore')
-    
+
         # Lower columns to make it easier to match in the future
         for c in ('name', 'synonym', 'subset', 'is_a'):
             data_frame[c] = data_frame[c].map(lambda x: str(x).lower(), na_action='ignore')
-    
+
         # Convert 'true' in the 'is_obsolete' column to an actual python boolean ``True``.
         data_frame['is_obsolete'] = data_frame['is_obsolete'].map(
             lambda x: True if not items_null(x) and str(x).lower().strip() == 'true' else x,
             na_action='ignore')
-    
+
         return data_frame
 
     def _extract_date_version(self, first_parsed_by_term):
@@ -263,10 +266,12 @@ class DiseaseOntInterface(object):
         """
         try:
             extracted_date = re.search('data-version: (.*)\n', first_parsed_by_term).group(1)
-            extracted_date_cleaned = "".join((i for i in extracted_date if i.isdigit() or i == "-")).strip()
+            extracted_date_cleaned = "".join(
+                (i for i in extracted_date if i.isdigit() or i == "-")).strip()
             self.db_date = datetime.strptime(extracted_date_cleaned, "%Y-%m-%d")
         except:
-            warn("\nCould not extract the date on which the Disease Ontology database was generated.")
+            warn(
+                "\nCould not extract the date on which the Disease Ontology database was generated.")
 
     def _harvest_engine(self, disease_ontology_db_url, **kwargs):
         """
@@ -282,29 +287,30 @@ class DiseaseOntInterface(object):
         else:
             # Open the file and discard [Typedef] information at the end of the file.
             obo_file = requests.get(disease_ontology_db_url, stream=True).text.split("[Typedef]")[0]
-    
+
         # Parse the file by splitting on [Term].
         parsed_by_term = obo_file.split("[Term]\n")
-    
+
         # Extract the date
         self._extract_date_version(parsed_by_term[0])
 
         # Convert to a list of dicts
         fully_parsed_terms = [self._do_term_parser(term) for term in parsed_by_term[1:]]
-    
+
         # Extract the dicts
         list_of_dicts = [i[0] for i in fully_parsed_terms]
-    
+
         # Extract keys (future column names) which contain lists
         keys_with_lists = filter(None, (i[1] for i in fully_parsed_terms))
-    
+
         # Compress `keys_with_lists` to uniques.
         columns_with_lists = set(chain(*keys_with_lists))
-    
+
         # Convert to a DataFrame, Clean and Return
         self.disease_db = self._do_df_cleaner(pd.DataFrame(list_of_dicts), columns_with_lists)
 
-    def pull(self, download_override=False, disease_ontology_db_url='http://purl.obolibrary.org/obo/doid.obo'):
+    def pull(self, download_override=False,
+             disease_ontology_db_url='http://purl.obolibrary.org/obo/doid.obo'):
         """
 
         Pull (i.e., download) the Disease Ontology Database.
@@ -324,7 +330,8 @@ class DiseaseOntInterface(object):
         :return: the Disease Ontology database as a DataFrame.
         :rtype: ``Pandas DataFrame``
         """
-        save_path = os.path.join(self._created_disease_ont_dirs['disease_ontology'], "disease_ontology_db")
+        save_path = os.path.join(self._created_disease_ont_dirs['disease_ontology'],
+                                 "disease_ontology_db")
         db_path = "{0}.p".format(save_path)
         support_path = "{0}_support.p".format(save_path)
 

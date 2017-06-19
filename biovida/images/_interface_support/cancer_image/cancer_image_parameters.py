@@ -32,15 +32,16 @@ class CancerImageArchiveParams(object):
     :param verbose: if ``True`` print additional information. Defaults to ``False``.
     :type verbose: ``bool``
     """
-    
-    def __init__(self, cache_path=None, verbose=False,):
+
+    def __init__(self, cache_path=None, verbose=False):
         self._verbose = verbose
-        
+
         # Define a location to save the data
         _, self._created_image_dirs = package_cache_creator(sub_dir='images', cache_path=cache_path,
-                                                            to_create=['tcia'], nest=[('tcia', 'databases')],
+                                                            to_create=['tcia'],
+                                                            nest=[('tcia', 'databases')],
                                                             verbose=verbose)
-    
+
     def _roll_strs_forward(self, l):
         """
     
@@ -59,7 +60,7 @@ class CancerImageArchiveParams(object):
             elif current_string is not None:
                 l[i] = current_string
         return l
-    
+
     def _contains_all_cols(self, column_names):
         """
     
@@ -69,9 +70,10 @@ class CancerImageArchiveParams(object):
         :type column_names: ``Pandas Series``
         :return:
         """
-        required_colnames = ("resource", "queryendpoint", "query parameters", "format", "description")
+        required_colnames = (
+        "resource", "queryendpoint", "query parameters", "format", "description")
         return all(any(rc in h for rc in required_colnames) for h in column_names.str.lower())
-    
+
     def _extract_on_required(self, q_params):
         """
     
@@ -88,16 +90,16 @@ class CancerImageArchiveParams(object):
         ['Date (R)', 'Collection (R)', 'PatientID']
         """
         req_split = re.split('(\(R\))', cln(q_params))
-    
+
         final = list()
         for i in range(len(req_split)):
             if i != len(req_split) - 1 and req_split[i + 1] == "(R)":
                 final.append([req_split[i] + req_split[i + 1]])
             elif req_split[i] != '(R)':
                 final.append(req_split[i].split())
-    
+
         return list(chain(*final))
-    
+
     def _query_parameters_parser(self, q_params):
         """
     
@@ -115,10 +117,11 @@ class CancerImageArchiveParams(object):
             parsed_q_params = self._extract_on_required(q_params)
         else:
             parsed_q_params = list(map(lambda i: i.strip(), cln(q_params).split("/")))
-    
+
         # Mark params as required
-        return [(p.replace("(R)", "").strip(), 'r') if "(R)" in p else (p, 'o') for p in parsed_q_params]
-    
+        return [(p.replace("(R)", "").strip(), 'r') if "(R)" in p else (p, 'o') for p in
+                parsed_q_params]
+
     def _tcia_api_table_from_html(self, api_ref_loc):
         """
     
@@ -130,25 +133,25 @@ class CancerImageArchiveParams(object):
         :rtype: ``Pandas DataFrame``
         """
         html = requests.get(api_ref_loc).text
-    
+
         # Extract all tables from the page
         all_tables = pd.read_html(str(html), header=0)
-    
+
         # Keep only those tables with valid headers
         valid_tables = [t for t in all_tables if self._contains_all_cols(t.columns)]
-    
+
         if len(valid_tables) != 1:
             raise AttributeError("Multiple Valid API Reference Tables Found.")
-    
+
         # Extract the api reference table
         api_df = valid_tables[0]
-    
+
         # Clean Column Names
         c_names = list(map(lambda i: camel_to_snake_case(cln(i, extent=2)), api_df.columns))
         api_df.columns = list(map(lambda i: n_split(i, n=2)[0].strip(), c_names))
-    
+
         return api_df
-    
+
     def _reference_table(self, api_ref_loc):
         """
     
@@ -161,25 +164,25 @@ class CancerImageArchiveParams(object):
         """
         # Extract the c
         api_df = self._tcia_api_table_from_html(api_ref_loc)
-    
+
         # Roll the strings in 'Resource' forward.
         api_df['resource'] = self._roll_strs_forward(api_df['resource'].tolist())
-    
+
         # Clean all columns
         for c in api_df.columns:
             api_df[c] = [cln(i) if isinstance(i, str) else i for i in api_df[c].tolist()]
-    
+
         # Remove Rows with no 'query_endpoint'
         api_df = api_df[pd.notnull(api_df['query_endpoint'])].reset_index(drop=True)
-    
+
         # Parse the 'format' column
         api_df['format'] = api_df['format'].map(lambda x: x.lower().split("/"), na_action='ignore')
-    
+
         # Parse the 'query_parameters' column
         api_df['query_parameters'] = api_df['query_parameters'].map(self._query_parameters_parser)
-    
+
         return api_df
-    
+
     def _reference_table_as_dict(self, api_df):
         """
     
@@ -200,9 +203,9 @@ class CancerImageArchiveParams(object):
                 nested_dict[qe] = row_data
             else:
                 nested_dict[qe] = combine_dicts(nested_dict[qe], row_data)
-    
+
         return nested_dict
-    
+
     def _dicom_long_rename(self):
         """
         
@@ -217,12 +220,12 @@ class CancerImageArchiveParams(object):
             'Computed Tomography': 'Computed Tomography (CT)'
         }
         return rename_dict
-    
+
     def dicom_modality_abbreviations(self,
                                      rtype='dataframe',
                                      download_override=False,
                                      modality_loc='https://wiki.cancerimagingarchive.net/display/Public/'
-                                                   'DICOM+Modality+Abbreviations'):
+                                                  'DICOM+Modality+Abbreviations'):
         """
         
         Download a dicom Modality Table.
@@ -257,7 +260,8 @@ class CancerImageArchiveParams(object):
         else:
             modality_df = pd.read_pickle(save_path)
 
-        return modality_df if rtype == 'dataframe' else dict(zip(modality_df['short'], modality_df['long']))
+        return modality_df if rtype == 'dataframe' else dict(
+            zip(modality_df['short'], modality_df['long']))
 
     def cancer_image_api_ref(self,
                              rtype='dataframe',
@@ -283,10 +287,10 @@ class CancerImageArchiveParams(object):
         """
         if rtype not in ('dataframe', 'dict'):
             raise ValueError("`rtype` must be either 'dataframe' or 'dict'.")
-    
+
         # Define the path to save the data
         save_path = os.path.join(self._created_image_dirs['databases'], 'tcia_api_reference.p')
-    
+
         if not os.path.isfile(save_path) or download_override:
             if self._verbose:
                 header("Downloading API Reference Table... ", flank=False)
@@ -294,6 +298,7 @@ class CancerImageArchiveParams(object):
             api_reference.to_pickle(save_path)
         else:
             api_reference = pd.read_pickle(save_path)
-    
+
         # Return based on `rtype`.
-        return api_reference if rtype == 'dataframe' else self._reference_table_as_dict(api_reference)
+        return api_reference if rtype == 'dataframe' else self._reference_table_as_dict(
+            api_reference)

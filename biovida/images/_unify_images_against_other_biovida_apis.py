@@ -24,7 +24,8 @@ from biovida.support_tools.support_tools import tqdm, is_int, items_null
 from biovida.images._image_tools import try_fuzzywuzzy_import
 
 # Open-i Specific Tools
-from biovida.images._interface_support.openi.openi_support_tools import possible_openi_image_processing_cols
+from biovida.images._interface_support.openi.openi_support_tools import \
+    possible_openi_image_processing_cols
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -78,7 +79,8 @@ class _ImagesInterfaceIntegration(object):
 
         # Column which provides a guess, based on the text, on which imaging modality created the image.
         db_cln['modality_best_guess'] = db_cln.apply(
-            lambda x: x['imaging_modality_from_text'] if isinstance(x['imaging_modality_from_text'], str) else x[
+            lambda x: x['imaging_modality_from_text'] if isinstance(x['imaging_modality_from_text'],
+                                                                    str) else x[
                 'modality_full'], axis=1)
 
         # Define columns to keep
@@ -225,14 +227,16 @@ class _ImagesInterfaceIntegration(object):
             else:
                 database = getattr(class_instance, db_to_extract)
             if not isinstance(database, pd.DataFrame):
-                raise ValueError("The {0} instance's '{1}' database must be of type DataFrame,\nnot "
-                                 "'{2}'.".format(interface_name, db_to_extract, type(database).__name__))
+                raise ValueError(
+                    "The {0} instance's '{1}' database must be of type DataFrame,\nnot "
+                    "'{2}'.".format(interface_name, db_to_extract, type(database).__name__))
             frames.append(func(database))
 
         self._additional_columns = list()  # reset
 
         combined_df = pd.concat(frames, ignore_index=True)
-        combined_df['disease'] = combined_df['disease'].map(lambda x: x.lower() if isinstance(x, str) else x)
+        combined_df['disease'] = combined_df['disease'].map(
+            lambda x: x.lower() if isinstance(x, str) else x)
 
         return combined_df.fillna(np.NaN)
 
@@ -283,7 +287,8 @@ class _DiseaseOntologyIntegration(object):
             return tuple(s.split(split_on)) if isinstance(s, str) else s
 
         # ToDo: change to iterrows().
-        for name, is_a, disease_synonym, defn in zip(*[ontology_df[c] for c in ('name', 'is_a', 'synonym', 'def')]):
+        for name, is_a, disease_synonym, defn in zip(
+                *[ontology_df[c] for c in ('name', 'is_a', 'synonym', 'def')]):
             disease_synonym_split = str_split(disease_synonym)
             if not items_null(name):
                 # Update `ont_name_dict`
@@ -300,7 +305,8 @@ class _DiseaseOntologyIntegration(object):
                         elif name not in ont_disease_synonym_dict[s]:
                             ont_disease_synonym_dict[s] += [name]
 
-        return ont_name_dict, ont_name_dict_nest_keys, {k: sorted(v) for k, v in ont_disease_synonym_dict.items()}
+        return ont_name_dict, ont_name_dict_nest_keys, {k: sorted(v) for k, v in
+                                                        ont_disease_synonym_dict.items()}
 
     def __init__(self, cache_path=None, verbose=True):
         self.verbose = verbose
@@ -342,7 +348,8 @@ class _DiseaseOntologyIntegration(object):
         disease_info = deepcopy(self.ont_name_dict[ont_dis_names[0]])
         # Remove the synonym from the 'disease_synonym' key and add 'ont_dis_names'
         if isinstance(disease_info['disease_synonym'], tuple):
-            disease_synonym_new = [i for i in disease_info['disease_synonym'] if i != disease_synonym] + ont_dis_names
+            disease_synonym_new = [i for i in disease_info['disease_synonym'] if
+                                   i != disease_synonym] + ont_dis_names
         else:
             disease_synonym_new = [ont_dis_names]
 
@@ -401,7 +408,8 @@ class _DiseaseOntologyIntegration(object):
             return self.ont_name_dict[name_fuzzy_match]
 
         # Try using `ont_disease_synonym_dict`
-        disease_synonym_fuzzy_match, threshold = process.extractOne(disease, self.ont_disease_synonym_dict_keys)
+        disease_synonym_fuzzy_match, threshold = process.extractOne(disease,
+                                                                    self.ont_disease_synonym_dict_keys)
         if threshold >= fuzzy_threshold:
             return self._disease_synonym_match(disease_synonym_fuzzy_match)
         else:
@@ -421,11 +429,13 @@ class _DiseaseOntologyIntegration(object):
         :rtype: ``Pandas DataFrame``
         """
         if fuzzy_threshold is True:
-            raise ValueError("`fuzzy_threshold` cannot be `True`. Please provide a specific integer on ``(0, 100]``.")
+            raise ValueError(
+                "`fuzzy_threshold` cannot be `True`. Please provide a specific integer on ``(0, 100]``.")
 
         # Extract disease information using the Disease Ontology database
         disease_ontology_data = [self._find_disease_info(i, fuzzy_threshold)
-                                 for i in tqdm(data_frame['disease'], desc='Disease Data', disable=not self.verbose)]
+                                 for i in tqdm(data_frame['disease'], desc='Disease Data',
+                                               disable=not self.verbose)]
 
         # Convert `disease_ontology_data` to a dataframe
         disease_ontology_addition = pd.DataFrame(disease_ontology_data)
@@ -497,7 +507,8 @@ def _disease_synonym_match_battery(disease, disease_synonyms, resource_dict, fuz
             return np.NaN  # capitulate
 
 
-def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column_name, verbose, desc):
+def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column_name, verbose,
+                          desc):
     """
 
     Integrates information in ``resource_dict`` into ``data_frame`` as new column (``new_column_name``).
@@ -518,7 +529,8 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
     :rtype: ``Pandas DataFrame``
     """
     if fuzzy_threshold is True:
-        raise ValueError("`fuzzy_threshold` cannot be `True`. Please specify a specific integer on ``(0, 100]``.")
+        raise ValueError(
+            "`fuzzy_threshold` cannot be `True`. Please specify a specific integer on ``(0, 100]``.")
 
     missing_column_error_message = "`data_frame` must contain a '{0}' column.\n" \
                                    "Call ``_DiseaseOntologyIntegration().disease_ont_integration()``"
@@ -530,7 +542,8 @@ def _resource_integration(data_frame, resource_dict, fuzzy_threshold, new_column
 
     # Map gene-disease information onto the dataframe
     matches = list()
-    for _, row in tqdm(data_frame.iterrows(), total=len(data_frame), desc=desc, disable=not verbose):
+    for _, row in tqdm(data_frame.iterrows(), total=len(data_frame), desc=desc,
+                       disable=not verbose):
         match = _disease_synonym_match_battery(disease=row['disease'],
                                                disease_synonyms=row['disease_synonym'],
                                                resource_dict=resource_dict,
@@ -572,7 +585,8 @@ class _DiseaseSymptomsIntegration(object):
         :rtype: ``dict``
         """
         d = defaultdict(set)
-        for disease, symptom in zip(dis_symp_db['common_disease_name'], dis_symp_db['common_symptom_term']):
+        for disease, symptom in zip(dis_symp_db['common_disease_name'],
+                                    dis_symp_db['common_symptom_term']):
             d[disease.lower()].add(symptom.lower())
         return {k: tuple(sorted(v)) for k, v in d.items()}
 
@@ -594,10 +608,12 @@ class _DiseaseSymptomsIntegration(object):
         :return: a series with tuples of 'known_associated_symptoms' found in 'abstract'.
         :rtype: ``Pandas Series``
         """
+
         # ToDo: consider using 'mesh' and 'problems' cols - would have to be added in ``_ImagesInterfaceIntegration()``.
         def match_symptoms(row):
             """Find items in 'known_associated_symptoms' in 'abstract'."""
-            if isinstance(row['known_associated_symptoms'], (list, tuple)) and isinstance(row['abstract'], str):
+            if isinstance(row['known_associated_symptoms'], (list, tuple)) and isinstance(
+                    row['abstract'], str):
                 abstract_lower = row['abstract'].lower()
                 symptoms = [i for i in row['known_associated_symptoms'] if i in abstract_lower]
                 return tuple(symptoms) if len(symptoms) else np.NaN
@@ -739,15 +755,19 @@ def images_unify(instances, db_to_extract='records_db', verbose=True, fuzzy_thre
             break
 
     # Combine Instances
-    combined_df = _ImagesInterfaceIntegration().integration(instances=instances, db_to_extract=db_to_extract)
+    combined_df = _ImagesInterfaceIntegration().integration(instances=instances,
+                                                            db_to_extract=db_to_extract)
 
     # Disease Ontology
-    combined_df = _DiseaseOntologyIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+    combined_df = _DiseaseOntologyIntegration(cache_path, verbose).integration(combined_df,
+                                                                               fuzzy_threshold)
 
     # Disease Symptoms
-    combined_df = _DiseaseSymptomsIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+    combined_df = _DiseaseSymptomsIntegration(cache_path, verbose).integration(combined_df,
+                                                                               fuzzy_threshold)
 
     # Disgenet
-    combined_df = _DisgenetIntegration(cache_path, verbose).integration(combined_df, fuzzy_threshold)
+    combined_df = _DisgenetIntegration(cache_path, verbose).integration(combined_df,
+                                                                        fuzzy_threshold)
 
     return combined_df

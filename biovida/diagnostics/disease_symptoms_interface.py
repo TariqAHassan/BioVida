@@ -181,7 +181,8 @@ class DiseaseSymptomsInterface(object):
         :return: the Rephetio Medline database as a DataFrame.
         :rtype: ``Pandas DataFrame``
         """
-        save_path = os.path.join(self._created_disease_ont_dirs['disease_symptoms'], 'rephetio_medline_db.p')
+        save_path = os.path.join(self._created_disease_ont_dirs['disease_symptoms'],
+                                 'rephetio_medline_db.p')
 
         if self._verbose:
             header("Downloading Rephetio Medline Database... ", flank=False)
@@ -235,7 +236,8 @@ class DiseaseSymptomsInterface(object):
         :return: a combined dataframe with the following columns: 'common_disease_name' and 'common_symptom_term'.
         :rtype: ``Pandas DataFrame``
         """
-        save_path = os.path.join(self._created_disease_ont_dirs['disease_symptoms'], 'combined_ds_db.p')
+        save_path = os.path.join(self._created_disease_ont_dirs['disease_symptoms'],
+                                 'combined_ds_db.p')
 
         if not os.path.isfile(save_path) or download_override:
             self.combined_db = self._combine(download_override)

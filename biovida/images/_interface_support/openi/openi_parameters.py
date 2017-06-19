@@ -36,7 +36,6 @@ openi_video_params = {
     '1': 'true'
 }
 
-
 openi_image_type_params = {
     'c': 'ct',
     'g': 'graphic',
@@ -49,7 +48,6 @@ openi_image_type_params = {
     'xg': 'exclude_graphics',
     'xm': 'exclude_multipanel'
 }
-
 
 openi_image_type_modality_full = {
     # Written to cohere with yield of `cancer_imaging_parameters.py`'s
@@ -64,7 +62,6 @@ openi_image_type_modality_full = {
     'x': 'X-Ray',
 }
 
-
 openi_rankby_params = {
     'r': 'newest',
     'o': 'oldest',
@@ -76,7 +73,6 @@ openi_rankby_params = {
     't': 'treatment'
 }
 
-
 openi_subset_params = {
     'b': 'basic_science',
     'c': 'clinical_journals',
@@ -84,7 +80,6 @@ openi_subset_params = {
     's': 'systematic_reviews',
     'x': 'chest_x_rays'
 }
-
 
 openi_collection_params = {
     'pmc': 'pubmed',
@@ -94,7 +89,6 @@ openi_collection_params = {
     'usc': 'usc_anatomy',
 }
 
-
 openi_fields_params = {
     'a': 'authors',
     'ab': 'abstracts',
@@ -103,7 +97,6 @@ openi_fields_params = {
     'msh': 'mesh',
     't': 'titles'
 }
-
 
 openi_article_type_params = {
     'ab': 'abstract',
@@ -131,7 +124,6 @@ openi_article_type_params = {
     'hs': 'historical_slide',
     'ot': 'other'
 }
-
 
 openi_specialties_params = {
     'b': 'behavioral_sciences',
@@ -171,7 +163,6 @@ openi_specialties_params = {
     'vi': 'virology'
 }
 
-
 openi_api_search_params = {
     'video': ('&vid', openi_video_params),
     'image_type': ('&it', openi_image_type_params),
@@ -197,4 +188,5 @@ def openi_search_information():
     ordered_params = ['query', '&it', '&favor', '&at', '&vid', '&sub', '&coll', '&fields', '&sp']
 
     # Return the openi_api_search_params dict with the dicts nested therein reversed.
-    return {k: (v[0], dict_reverse(v[1])) for k, v in openi_api_search_params.items()}, ordered_params
+    return {k: (v[0], dict_reverse(v[1])) for k, v in
+            openi_api_search_params.items()}, ordered_params

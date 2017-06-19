@@ -11,7 +11,6 @@ import pandas as pd
 from operator import sub
 from functools import reduce
 
-
 from biovida.images._image_tools import load_image_rescale
 
 
@@ -42,7 +41,7 @@ def _deltas(iterable):
     :rtype: ``ndarray``
     """
     # Source: http://stackoverflow.com/a/2400875/4898004.
-    return np.array([abs(j-i) for i, j in zip(iterable, iterable[1:])])
+    return np.array([abs(j - i) for i, j in zip(iterable, iterable[1:])])
 
 
 def _largest_n_values(arr, n):
@@ -76,7 +75,7 @@ def _subsection(iterable, exclude, start, end):
     :return: a list of the desired subsection.
     :rtype: ``list``
     """
-    return iterable[start:exclude] + iterable[exclude+1:end]
+    return iterable[start:exclude] + iterable[exclude + 1:end]
 
 
 def _anomaly_removal(numeric_array, window=2):
@@ -108,7 +107,8 @@ def _anomaly_removal(numeric_array, window=2):
     # Note: the logic is somewhat complex here...a mistake is possible.
 
     if window <= 1 or window > len(numeric_array):
-        raise ValueError("`window` must be greater than 1 and less than the length of `numeric_array`.")
+        raise ValueError(
+            "`window` must be greater than 1 and less than the length of `numeric_array`.")
 
     if window > 2:
         window += 1
@@ -118,17 +118,18 @@ def _anomaly_removal(numeric_array, window=2):
         # if can't look back
         if i < window:
             # If all forward neighbours are the same
-            if len(set(numeric_array[i+1:i+window+1])) == 1:
+            if len(set(numeric_array[i + 1:i + window + 1])) == 1:
                 # Smooth using the next element
-                smoothed.append(numeric_array[i+1])
+                smoothed.append(numeric_array[i + 1])
             else:
                 # if not, leave 'as is'
                 smoothed.append(numeric_array[i])
         # if can look back
         if i >= window:
-            if len(set(_subsection(numeric_array, i, i-window+1, i+window))) == 1:
-                # smooth using the prior element (needed to prevent error at the end of the iterable).
-                smoothed.append(numeric_array[i-1])
+            if len(set(_subsection(numeric_array, i, i - window + 1, i + window))) == 1:
+                # smooth using the prior element (needed to prevent
+                # error at the end of the iterable).
+                smoothed.append(numeric_array[i - 1])
             else:
                 smoothed.append(numeric_array[i])
 
@@ -192,7 +193,7 @@ def _largest_n_changes_with_values(iterable, n):
             neighbours = [-1, 0]
         else:
             neighbours = [-1, 0, 1]
-        options = [(d+i, iterable[d+i]) for i in neighbours]
+        options = [(d + i, iterable[d + i]) for i in neighbours]
         flr = [i for i in options if i[1] == min((j[1] for j in options))][0][0]
         true_smallest.append(flr)
 
@@ -254,7 +255,8 @@ def _largest_median_inflection(averaged_axis_values, axis, n_largest_override=No
     # Compute the how much the signal deviated from the median value (0-1).
     median_deltas = [(i, _expectancy_violation(median, j)) for (i, j) in large_inflections_sorted]
 
-    if isinstance(n_largest_override, int):  # neighborhood search in _largest_n_changes_with_values may --> duplicates.
+    if isinstance(n_largest_override,
+                  int):  # neighborhood search in _largest_n_changes_with_values may --> duplicates.
         return median_deltas
     elif axis == 1:
         return median_deltas[1:]
@@ -304,12 +306,14 @@ def edge_detection(image, axis=0, n_largest_override=None):
     image = _zero_var_axis_elements_remove(image, axis)
 
     # Average the remaining values
-    # ToDo: it's not not clear if ``_array_cleaner()`` helps much...after all, the vector has already been averaged.
+    # ToDo: it's not not clear if ``_array_cleaner()`` helps much...
+    # after all, the vector has already been averaged.
     averaged_axis_values = _array_cleaner(np.mean(image, axis=axis))
     return _largest_median_inflection(averaged_axis_values, axis, n_largest_override)
 
 
-def _weigh_evidence(candidates, axis_size, signal_strength_threshold, min_border_separation, buffer_multiplier=1/15):
+def _weigh_evidence(candidates, axis_size, signal_strength_threshold, min_border_separation,
+                    buffer_multiplier=1 / 15):
     """
 
     Weigh the evidence that a true border has been detected.
@@ -344,7 +348,8 @@ def _weigh_evidence(candidates, axis_size, signal_strength_threshold, min_border
     return conclusion
 
 
-def _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold, cfloor=None):
+def _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold,
+                         cfloor=None):
     """
 
     Executes a single pass looking for a lower bar.
@@ -374,7 +379,8 @@ def _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_th
     lower_image_array = image_array.copy()[cut_off:flr]
 
     lower_bar_candidates = edge_detection(image=lower_image_array, axis=1, n_largest_override=8)
-    thresholded_values = list(set([i[0] + cut_off for i in lower_bar_candidates if i[1] > signal_strength_threshold]))
+    thresholded_values = list(
+        set([i[0] + cut_off for i in lower_bar_candidates if i[1] > signal_strength_threshold]))
 
     if not len(thresholded_values):
         return None
@@ -384,7 +390,8 @@ def _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_th
     return int(mean_thresholded_values)
 
 
-def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_threshold, lower_bar_second_pass):
+def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_threshold,
+                       lower_bar_second_pass):
     """
 
     Executes a two passes looking for a lower bar.
@@ -436,8 +443,9 @@ def lower_bar_analysis(image_array, lower_bar_search_space, signal_strength_thre
         _____________________________
 
     """
-    first_pass_rslt = _lower_bar_detection(image_array, lower_bar_search_space, signal_strength_threshold)
-    
+    first_pass_rslt = _lower_bar_detection(image_array, lower_bar_search_space,
+                                           signal_strength_threshold)
+
     if lower_bar_second_pass:
         second_pass_rslt = _lower_bar_detection(image_array,
                                                 lower_bar_search_space,
@@ -534,20 +542,23 @@ def border_detection(image,
     elif isinstance(image, str):
         image_array = load_image_rescale(image)
     else:
-        raise ValueError("`image_array` must be either a path to an image or the image as a 2D ndarray.")
+        raise ValueError(
+            "`image_array` must be either a path to an image or the image as a 2D ndarray.")
 
     d = dict.fromkeys(['vborder', 'hborder', 'hbar'], None)
 
     v_edge_candidates = edge_detection(image_array, axis=0)
     d['vborder'] = _weigh_evidence(v_edge_candidates,
-                                   image_array.shape[1],      # Note: we have (rows, columns) = (height, width).
+                                   image_array.shape[1],
+                                   # Note: we have (rows, columns) = (height, width).
                                    signal_strength_threshold,
                                    min_border_separation)
 
     h_border_candidates = edge_detection(image_array, axis=1)
 
-    # Run Analysis. This excludes final element in `h_border_candidates` as including a third element
-    # is simply meant to deflect the pull of the lower bar, if present.
+    # Run Analysis. This excludes final element in `h_border_candidates`
+    # as including a third element is simply meant to deflect the pull
+    # of the lower bar, if present.
     d['hborder'] = _weigh_evidence(h_border_candidates[:2],
                                    image_array.shape[0],
                                    signal_strength_threshold,
@@ -561,7 +572,8 @@ def border_detection(image,
     if report_signal_strength:  # ToDo: not working for 'hbar'.
         return d
     else:
-        return {k: tuple([i[0] for i in v]) if isinstance(v, list) else (v[0] if isinstance(v, (list, tuple)) else v)
+        return {k: tuple([i[0] for i in v]) if isinstance(v, list) else (
+            v[0] if isinstance(v, (list, tuple)) else v)
                 for k, v in d.items()}
 
 

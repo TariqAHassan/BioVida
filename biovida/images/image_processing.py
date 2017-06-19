@@ -73,7 +73,8 @@ class OpeniImageProcessing(object):
                                   associated resources) regardless of whether or not these files are already cached.
         :type download_override: ``bool``
         """
-        resources_path = os_join(self.instance._created_image_dirs['aux'], 'image_processing_resources')
+        resources_path = os_join(self.instance._created_image_dirs['aux'],
+                                 'image_processing_resources')
         if not os.path.isdir(resources_path):
             os.makedirs(resources_path)
 
@@ -124,7 +125,8 @@ class OpeniImageProcessing(object):
             return image_dataframe
         else:
             raise TypeError("The '{0}' of `instance` must be of "
-                            "type DataFrame, not: '{1}'.".format(db_to_extract, type(extract).__name__))
+                            "type DataFrame, not: '{1}'.".format(db_to_extract,
+                                                                 type(extract).__name__))
 
     def __init__(self,
                  instance,
@@ -177,7 +179,8 @@ class OpeniImageProcessing(object):
     @property
     def image_dataframe_short(self):
         """Return `image_dataframe` with nonessential columns removed."""
-        return data_frame_col_drop(self.image_dataframe, nonessential_openi_columns, 'image_dataframe')
+        return data_frame_col_drop(self.image_dataframe, nonessential_openi_columns,
+                                   'image_dataframe')
 
     def _pil_load(self, image_paths, convert_to_rgb, status):
         """
@@ -193,8 +196,11 @@ class OpeniImageProcessing(object):
         :return: a list of a. PIL images or b. PIL images in tuples of the form (PIL Image, image path).
         :rtype: ``list``
         """
+
         def conversion(image):
-            return (Image.open(image).convert('RGB'), image) if convert_to_rgb else (Image.open(image), image)
+            return (Image.open(image).convert('RGB'), image) if convert_to_rgb else (
+            Image.open(image), image)
+
         return [conversion(i) for i in tqdm(image_paths, desc="Loading Images", disable=not status)]
 
     def _ndarray_extract(self, zip_with_column=None, reload_override=False):
@@ -210,7 +216,8 @@ class OpeniImageProcessing(object):
         :rtype: ``zip`` or ``list of ndarrays``
         """
         if self._ndarrays_images is None or reload_override:
-            self._ndarrays_images = [imread(i, flatten=True) for i in self.image_dataframe['cached_images_path']]
+            self._ndarrays_images = [imread(i, flatten=True) for i in
+                                     self.image_dataframe['cached_images_path']]
 
         if zip_with_column is not None:
             return list(zip(*[self._ndarrays_images, self.image_dataframe[zip_with_column]]))
@@ -232,7 +239,8 @@ class OpeniImageProcessing(object):
         # See: http://stackoverflow.com/q/23660929/4898004
         if image_path is None or items_null(image_path):
             return np.NaN
-        image = Image.open(image_path)  # ToDo: find way to call only once inside this class (similar to _ndarray_extract())
+        image = Image.open(image_path)
+        # ToDo: find way to call (above) only once inside this class (similar to _ndarray_extract())
         stat = ImageStat.Stat(image.convert("RGB"))
         return np.mean(stat.sum) == stat.sum[0]
 
@@ -255,7 +263,8 @@ class OpeniImageProcessing(object):
         """
         if 'grayscale' not in self.image_dataframe.columns or new_analysis:
             column = self.image_dataframe['cached_images_path']
-            grayscale = [self._grayscale_image(i) for i in tqdm(column, desc='Grayscale Analysis', disable=not status)]
+            grayscale = [self._grayscale_image(i) for i in
+                         tqdm(column, desc='Grayscale Analysis', disable=not status)]
             self.image_dataframe['grayscale'] = grayscale
 
     @staticmethod
@@ -362,7 +371,8 @@ class OpeniImageProcessing(object):
             return None
 
         # Package Params
-        output_params = (match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])
+        output_params = (
+        match_quality_threshold, xy_position_threshold[0], xy_position_threshold[1])
 
         # Load the Pattern. ToDo: Allow for non MedPix logos logos.
         medpix_template_image = imread(self._medpix_path, flatten=True)
@@ -375,9 +385,10 @@ class OpeniImageProcessing(object):
                                          base_image_cropping=base_image_cropping)
 
         # Run the algorithm searching for the medpix logo in the base image
-        self.image_dataframe['medpix_logo_bounding_box'] = self._logo_processor(robust_match_template_wrapper,
-                                                                                output_params=output_params,
-                                                                                status=status)
+        self.image_dataframe['medpix_logo_bounding_box'] = self._logo_processor(
+            robust_match_template_wrapper,
+            output_params=output_params,
+            status=status)
 
     def border_analysis(self,
                         signal_strength_threshold=0.25,
@@ -400,7 +411,8 @@ class OpeniImageProcessing(object):
         :param status: display status bar. Defaults to ``True``.
         :type status: ``bool``
         """
-        if all(x in self.image_dataframe.columns for x in ['hbar', 'hborder', 'vborder']) and not new_analysis:
+        if all(x in self.image_dataframe.columns for x in
+               ['hbar', 'hborder', 'vborder']) and not new_analysis:
             return None
 
         def ba_func(image):
@@ -414,7 +426,8 @@ class OpeniImageProcessing(object):
         to_analyze = self._ndarray_extract()
 
         # Run the analysis
-        border_analysis = [ba_func(i) for i in tqdm(to_analyze, desc='Border Analysis', disable=not status)]
+        border_analysis = [ba_func(i) for i in
+                           tqdm(to_analyze, desc='Border Analysis', disable=not status)]
 
         # Convert to a dataframe
         ba_df = pd.DataFrame(border_analysis).fillna(np.NaN)
@@ -475,17 +488,21 @@ class OpeniImageProcessing(object):
         :param new_analysis: rerun the analysis if it has already been computed. Defaults to ``False``.
         :type new_analysis: ``bool``
         """
-        if all(x in self.image_dataframe.columns for x in ['upper_crop', 'lower_crop']) and not new_analysis:
+        if all(x in self.image_dataframe.columns for x in
+               ['upper_crop', 'lower_crop']) and not new_analysis:
             return None
 
         for i in ('medpix_logo_bounding_box', 'hborder', 'hbar'):
             if i not in self.image_dataframe.columns:
-                raise KeyError("The `image_dataframe` does not contain the\nfollowing required column: '{0}'.\n"
-                               "Please execute the corresponding analysis method to generate it.".format(i))
+                raise KeyError(
+                    "The `image_dataframe` does not contain the\nfollowing required column: '{0}'.\n"
+                    "Please execute the corresponding analysis method to generate it.".format(i))
 
         # Compute Crop location
-        self.image_dataframe['upper_crop'] = self.image_dataframe.apply(self._h_crop_top_decision, axis=1)
-        self.image_dataframe['lower_crop'] = self.image_dataframe.apply(self._h_crop_lower_decision, axis=1)
+        self.image_dataframe['upper_crop'] = self.image_dataframe.apply(self._h_crop_top_decision,
+                                                                        axis=1)
+        self.image_dataframe['lower_crop'] = self.image_dataframe.apply(self._h_crop_lower_decision,
+                                                                        axis=1)
 
     @staticmethod
     def _apply_cropping(cached_images_path,
@@ -560,7 +577,8 @@ class OpeniImageProcessing(object):
             df = self.image_dataframe
 
         all_cropped_images = list()
-        for index, row in tqdm(df.iterrows(), desc='Cropping Images', disable=not status, total=len(df)):
+        for index, row in tqdm(df.iterrows(), desc='Cropping Images', disable=not status,
+                               total=len(df)):
             cropped_image = self._apply_cropping(cached_images_path=row['cached_images_path'],
                                                  lower_crop=row['lower_crop'],
                                                  upper_crop=row['upper_crop'],
@@ -571,7 +589,8 @@ class OpeniImageProcessing(object):
 
         return all_cropped_images
 
-    def visual_image_problems(self, limit_to_known_modalities=True, new_analysis=False, status=True):
+    def visual_image_problems(self, limit_to_known_modalities=True, new_analysis=False,
+                              status=True):
         """
 
         This method is powered by a Convolutional Neural Network which
@@ -609,14 +628,16 @@ class OpeniImageProcessing(object):
         cropped_images_for_analysis = self._cropper(return_as_array=True, status=status)
 
         transformed_images = load_and_scale_images(list_of_images=cropped_images_for_analysis,
-                                                   image_size=self._ircnn.image_shape, status=status,
+                                                   image_size=self._ircnn.image_shape,
+                                                   status=status,
                                                    desc='Preparing Images')
 
         # Scan Images for Visual Problems with Neural Network
-        self.image_dataframe['visual_image_problems'] = self._ircnn.predict(list_of_images=[transformed_images],
-                                                                            status=status, desc='Scanning for Problems')
+        self.image_dataframe['visual_image_problems'] = self._ircnn.predict(
+            list_of_images=[transformed_images],
+            status=status, desc='Scanning for Problems')
 
-        if limit_to_known_modalities:  # ToDo: Temporary. Future: avoid passing through the model in the first place.
+        if limit_to_known_modalities: # ToDo: Temporary. Future: avoid passing through the model in the first place.
             for index, row in self.image_dataframe.iterrows():
                 if row['image_modality_major'] not in self.trained_open_i_modality_types:
                     self.image_dataframe.set_value(index, 'image_modality_major', np.NaN)
@@ -673,13 +694,15 @@ class OpeniImageProcessing(object):
                  in a pandas series so it can be neatly split into two columns when called via. ``DataFrame.apply()``.
         :rtype: ``Pandas Series``
         """
+
         def image_problems_from_text_test(ipft):
             problem = False
             if not isinstance(problems_to_ignore, (list, tuple)) and \
                     isinstance(ipft, (list, tuple)) and len(ipft):
                 problem = True
             elif (isinstance(problems_to_ignore, (list, tuple)) and
-                  isinstance(ipft, (list, tuple)) and len([i for i in ipft if i not in problems_to_ignore])):
+                      isinstance(ipft, (list, tuple)) and len(
+                [i for i in ipft if i not in problems_to_ignore])):
                 problem = True
             return ['image_problems_from_text'] if problem else []
 
@@ -793,9 +816,10 @@ class OpeniImageProcessing(object):
         if not isinstance(output_rule, str) and not callable(output_rule):
             raise TypeError("`output_rule` must be a string or function.")
         if 'invalid_image' not in self.image_dataframe.columns:
-            raise KeyError("`image_dataframe` must contain a 'invalid_image' column which uses booleans to\n"
-                           "indicate whether or not to include an entry in the cleaned dataset.\n"
-                           "To automate this process, consider using the `auto_decision()` method.")
+            raise KeyError(
+                "`image_dataframe` must contain a 'invalid_image' column which uses booleans to\n"
+                "indicate whether or not to include an entry in the cleaned dataset.\n"
+                "To automate this process, consider using the `auto_decision()` method.")
 
     def clean_image_dataframe(self, crop_images=True, convert_to_rgb=False, status=True):
         """
@@ -827,13 +851,15 @@ class OpeniImageProcessing(object):
             self.image_dataframe['invalid_image'] != True].reset_index(drop=True).copy(deep=True)
 
         if crop_images:
-            image_dataframe_cleaned['cleaned_image'] = self._cropper(data_frame=image_dataframe_cleaned,
-                                                                     return_as_array=False,
-                                                                     convert_to_rgb=convert_to_rgb,
-                                                                     status=status)
+            image_dataframe_cleaned['cleaned_image'] = self._cropper(
+                data_frame=image_dataframe_cleaned,
+                return_as_array=False,
+                convert_to_rgb=convert_to_rgb,
+                status=status)
         else:
-            image_dataframe_cleaned['cleaned_image'] = self._pil_load(image_dataframe_cleaned['cached_images_path'],
-                                                                      convert_to_rgb=convert_to_rgb, status=status)
+            image_dataframe_cleaned['cleaned_image'] = self._pil_load(
+                image_dataframe_cleaned['cached_images_path'],
+                convert_to_rgb=convert_to_rgb, status=status)
 
         self.image_dataframe_cleaned = image_dataframe_cleaned
 
@@ -942,7 +968,8 @@ class OpeniImageProcessing(object):
                     return_dict[os_basename(save_target)] += [full_save_path]
                 elif action == 'ndarray':
                     if ndarray_with_path:
-                        return_dict[os_basename(save_target)] += [(np.array(row['cleaned_image']), full_save_path)]
+                        return_dict[os_basename(save_target)] += [
+                            (np.array(row['cleaned_image']), full_save_path)]
                     else:
                         return_dict[os_basename(save_target)] += [np.array(row['cleaned_image'])]
 

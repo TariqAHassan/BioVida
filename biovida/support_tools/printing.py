@@ -45,7 +45,8 @@ def _value_padding(s, len_longest_key, print_mold):
     """
     if not isinstance(s, str):
         return s
-    padding = len_longest_key + (len(print_mold) - 3) + 2  # 2 = 1 space for the colon + 1 space added by `print()`.
+    padding = len_longest_key + (
+    len(print_mold) - 3) + 2  # 2 = 1 space for the colon + 1 space added by `print()`.
     return s.replace("\n", "\n{0}".format(" " * padding))
 
 
@@ -80,7 +81,8 @@ def _value_correction(s, len_longest_key, max_value_length, print_mold):
     true_break_points = [min(spaces, key=lambda x: abs(x - ideal)) for ideal in ideal_break_points]
 
     if len(true_break_points):
-        formatted_string = "".join([c if e not in true_break_points else "\n" for e, c in enumerate(s_cleaned)])
+        formatted_string = "".join(
+            [c if e not in true_break_points else "\n" for e, c in enumerate(s_cleaned)])
     else:
         formatted_string = s_cleaned
 
@@ -172,7 +174,7 @@ def _padding(s, amount, justify):
     if justify == 'left':
         return "%s%s" % (pstr(s), pad)
     elif justify == 'center':
-        return "%s%s%s" % (pad[:int(amount/2)], pstr(s), pad[int(amount/2):])
+        return "%s%s%s" % (pad[:int(amount / 2)], pstr(s), pad[int(amount / 2):])
     else:
         return s
 
@@ -211,7 +213,8 @@ def _pandas_series_alignment(pandas_series, justify):
 
     pandas_series_str = pandas_series.map(series_to_string)
     longest_string = max([len(s) for s in pandas_series_str.astype('unicode')])
-    return [_padding(s, longest_string - len(s), justify) if not items_null(s) else s for s in pandas_series_str]
+    return [_padding(s, longest_string - len(s), justify) if not items_null(s) else s for s in
+            pandas_series_str]
 
 
 def _align_pandas(data_frame, to_align='right'):

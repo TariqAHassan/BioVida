@@ -39,7 +39,8 @@ from biovida.images._interface_support.openi.openi_support_tools import (iter_jo
 # Open-i API Parameters Information
 from biovida.images._interface_support.openi.openi_parameters import openi_search_information
 from biovida.images._interface_support.openi._openi_image_id_processing import image_id_short_gen
-from biovida.images._interface_support.openi.openi_text_processing import openi_raw_extract_and_clean
+from biovida.images._interface_support.openi.openi_text_processing import \
+    openi_raw_extract_and_clean
 
 # Cache Management
 from biovida.support_tools._cache_management import package_cache_creator
@@ -68,8 +69,9 @@ class _OpeniSearch(object):
         self._root_url = 'https://openi.nlm.nih.gov'
         self.current_search = None
         self.search_dict, self.ordered_params = openi_search_information()
-        self.search_params = ('image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
-                              'specialties', 'video', 'exclusions')
+        self.search_params = (
+        'image_type', 'rankby', 'article_type', 'subset', 'collection', 'fields',
+        'specialties', 'video', 'exclusions')
 
     @staticmethod
     def _openi_search_special_case(search_param, blocked, passed):
@@ -140,10 +142,12 @@ class _OpeniSearch(object):
             return args
 
         if any(e not in ['graphics', 'multipanel'] for e in exclusions):
-            raise ValueError("`exclusions` must only include one or all of: 'graphics', 'multipanel'.")
+            raise ValueError(
+                "`exclusions` must only include one or all of: 'graphics', 'multipanel'.")
 
         # Handle handle tuples, then `None`s (with the 'else []').
-        args['image_type'] = list(args['image_type']) if isinstance(args['image_type'], (list, tuple)) else []
+        args['image_type'] = list(args['image_type']) if isinstance(args['image_type'],
+                                                                    (list, tuple)) else []
 
         # Merge `exclusions` with `image_type`
         args['image_type'] += list(map(lambda x: 'exclude_{0}'.format(x), exclusions))
@@ -168,7 +172,8 @@ class _OpeniSearch(object):
         search_term = ""
         for p in self.ordered_params:
             if p in api_search_transform:
-                search_term += "{0}{1}={2}".format(("?" if p == 'query' else ""), p, api_search_transform[p])
+                search_term += "{0}{1}={2}".format(("?" if p == 'query' else ""), p,
+                                                   api_search_transform[p])
 
         return "{0}/retrieve.php{1}".format(self._root_url, search_term)
 
@@ -225,10 +230,12 @@ class _OpeniSearch(object):
             opts = [i.split("_")[1] for i in exclusions]
         else:
             # Get the relevant dict of params
-            search_dict_against_param = self.search_dict.get(cln(search_parameter).strip().lower(), None)
+            search_dict_against_param = self.search_dict.get(cln(search_parameter).strip().lower(),
+                                                             None)
 
             if search_dict_against_param is None:
-                raise ValueError("'{0}' is not a valid parameter to pass to the Open-i API.".format(search_parameter))
+                raise ValueError("'{0}' is not a valid parameter to pass to the Open-i API.".format(
+                    search_parameter))
 
             # Remove exclusions term
             opts = [i for i in search_dict_against_param[1].keys() if i not in exclusions]
@@ -253,7 +260,8 @@ class _OpeniSearch(object):
         :return: ``v`` with the strings it contained cleaned. 
         :rtype: ``list``
         """
-        return [cln(i).replace(' ', '_').lower() for i in v] if k != 'query' and v is not None else v
+        return [cln(i).replace(' ', '_').lower() for i in
+                v] if k != 'query' and v is not None else v
 
     def _api_url_terms(self, k, v):
         """
@@ -350,8 +358,10 @@ class _OpeniSearch(object):
         # Format `api_search_transform`
         search_url = self._search_url_formatter(api_search_transform=api_search_transform)
 
-        # Unpack the probe containing information on the total number of results and list of results to harvest
-        current_search_total, current_search_to_harvest = self._search_probe(search_url, print_results)
+        # Unpack the probe containing information on the total number
+        # of results and list of results to harvest
+        current_search_total, current_search_to_harvest = self._search_probe(search_url,
+                                                                             print_results)
 
         return {"query": args_cleaned,
                 "search_url": search_url,
@@ -481,7 +491,8 @@ class _OpeniRecords(object):
 
         # ToDo: add date format guessing -- e.g., ``pd.to_datetime(..., infer_datetime_format=True)``.
         try:
-            return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(self.date_format)
+            return datetime(cleaned_info[0], cleaned_info[1], cleaned_info[2]).strftime(
+                self.date_format)
         except:
             return None
 
@@ -507,7 +518,8 @@ class _OpeniRecords(object):
         for k, v in request_rslt.items():
             if isinstance(v, str):
                 to_harvest.append(k)
-            elif isinstance(v, dict) and any(dmy in map(lambda x: x.lower(), v.keys()) for dmy in time_units):
+            elif isinstance(v, dict) and any(
+                            dmy in map(lambda x: x.lower(), v.keys()) for dmy in time_units):
                 to_harvest.append(k)
             elif isinstance(v, dict):
                 for i in v.keys():
@@ -559,7 +571,8 @@ class _OpeniRecords(object):
 
         return list_of_dicts
 
-    def _records_pull_engine(self, bounds_list, search_url, to_harvest, records_sleep_time, download_no):
+    def _records_pull_engine(self, bounds_list, search_url, to_harvest, records_sleep_time,
+                             download_no):
         """
         
         Download all records requested by the user.
@@ -584,10 +597,12 @@ class _OpeniRecords(object):
         do_sleep = isinstance(records_sleep_time, (list, tuple)) and len(records_sleep_time) == 2
 
         harvested_data = list()
-        for c, bound in enumerate(tqdm(bounds_list, desc='Obtaining Records', disable=not self._verbose), start=1):
+        for c, bound in enumerate(
+                tqdm(bounds_list, desc='Obtaining Records', disable=not self._verbose), start=1):
             if do_sleep and c % records_sleep_time[0] == 0:
                 sleep_with_noise(amount_of_time=records_sleep_time[1])
-            harvested_data += self.openi_block_harvest(search_url, bound=bound, to_harvest=to_harvest)
+            harvested_data += self.openi_block_harvest(search_url, bound=bound,
+                                                       to_harvest=to_harvest)
 
         return harvested_data
 
@@ -734,7 +749,8 @@ class _OpeniImages(object):
 
         # Generate and clean strings to populate the name format below. Note: 1 = file number
         # (in case medpix has images with multiple segments -- though, it doesn't appear to currently.)
-        replacement_terms = map(lambda x: cln(x), (str(1), b_name, image_size, image_format.replace(".", "")))
+        replacement_terms = map(lambda x: cln(x),
+                                (str(1), b_name, image_size, image_format.replace(".", "")))
 
         # Generate the name for the image
         image_name = "{0}__{1}__{2}.{3}".format(*replacement_terms)
@@ -784,7 +800,8 @@ class _OpeniImages(object):
 
         return image_downloaded
 
-    def _pull_images_engine(self, harvesting_information, images_sleep_time, image_size, use_image_caption):
+    def _pull_images_engine(self, harvesting_information, images_sleep_time, image_size,
+                            use_image_caption):
         """
 
         Use ``_individual_image_harvest()`` to download all of the data (images) in ``harvesting_information``.
@@ -800,14 +817,16 @@ class _OpeniImages(object):
                                   a dataset intended for machine learning. Defaults to ``False``.
         :type use_image_caption: ``bool``
         """
+
         def block_decision(ipt):
             """Decide whether or not to block the downloading."""
             return use_image_caption == True and isinstance(ipt, (list, tuple)) and len(ipt)
 
         do_sleep = isinstance(images_sleep_time, (list, tuple)) and len(images_sleep_time) == 2
-            
+
         download_count = 0
-        for index, image_url, image_problems_text in tqdm(harvesting_information, desc='Obtaining Images',
+        for index, image_url, image_problems_text in tqdm(harvesting_information,
+                                                          desc='Obtaining Images',
                                                           disable=not self._verbose):
             # Generate the save path for the image
             image_save_path = self._title_image(url=image_url, image_size=image_size)
@@ -816,7 +835,8 @@ class _OpeniImages(object):
             download_count += self._individual_image_harvest(index=index,
                                                              image_url=image_url,
                                                              image_save_path=image_save_path,
-                                                             block=block_decision(image_problems_text))
+                                                             block=block_decision(
+                                                                 image_problems_text))
 
             # Sleep when `download_count` 'builds up' to images_sleep_time[0].
             if do_sleep and download_count == images_sleep_time[0]:
@@ -857,7 +877,8 @@ class _OpeniImages(object):
         self._instantiate_real_time_update_db(db_index=self.records_db_images.index)
 
         if image_size not in ('grid150', 'large', 'thumb', 'thumb_large'):
-            raise ValueError("`image_size` must be one of: 'grid150', 'large', 'thumb' or 'thumb_large'.")
+            raise ValueError(
+                "`image_size` must be one of: 'grid150', 'large', 'thumb' or 'thumb_large'.")
         image_column = "img_{0}".format(image_size)
 
         # Extract needed information from the `records_db_images` dataframe to loop over.
@@ -870,7 +891,8 @@ class _OpeniImages(object):
                                  image_size=image_size,
                                  use_image_caption=use_image_caption)
 
-        return _record_update_dbs_joiner(records_db=self.records_db_images, update_db=self.real_time_update_db)
+        return _record_update_dbs_joiner(records_db=self.records_db_images,
+                                         update_db=self.real_time_update_db)
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -906,7 +928,8 @@ class OpeniInterface(object):
         :param load: if ``True`` load the ``cache_records_db`` dataframe in from disk.
         :type load: ``bool``
         """
-        cache_records_db = pd.read_pickle(self._cache_records_db_save_path) if load else self.cache_records_db
+        cache_records_db = pd.read_pickle(
+            self._cache_records_db_save_path) if load else self.cache_records_db
         self.cache_records_db = _prune_rows_with_deleted_images(cache_records_db=cache_records_db,
                                                                 columns=['cached_images_path'],
                                                                 save_path=self._cache_records_db_save_path)
@@ -920,18 +943,21 @@ class OpeniInterface(object):
         """
         if os.path.isdir(self._Images.temp_directory_path):
             temp_dir = self._Images.temp_directory_path
-            latent_pickles = [os.path.join(temp_dir, i) for i in os.listdir(temp_dir) if i.endswith(".p")]
+            latent_pickles = [os.path.join(temp_dir, i) for i in os.listdir(temp_dir) if
+                              i.endswith(".p")]
             if len(latent_pickles):
                 with open(latent_pickles[0], "rb") as f:
                     settings_dict = pickle.load(f)
-                settings_dict_for_pull = {k: v for k, v in settings_dict.items() if k not in ['records_db']}
-                settings_dict_for_pull['new_records_pull'] = False  # adding this separately in `pull` breaks in python2
+                settings_dict_for_pull = {k: v for k, v in settings_dict.items() if
+                                          k not in ['records_db']}
+                settings_dict_for_pull[
+                    'new_records_pull'] = False  # adding this separately in `pull` breaks in python2
 
                 print("\nResuming Download...")
                 self.load_records_db(records_db=settings_dict['records_db'])
                 self.pull(**settings_dict_for_pull)
 
-            # `temp_directory_path` will be destroyed when `pull()` exits successfully
+                # `temp_directory_path` will be destroyed when `pull()` exits successfully
 
     def _openi_cache_records_db_handler(self):
         """
@@ -940,6 +966,7 @@ class OpeniInterface(object):
         2. if cache_records_db.p does exist, merge with ``records_db_update`` and then save to disk.
 
         """
+
         def rows_to_conserve_func(x):
             return x['download_success'] == True
 
@@ -967,7 +994,8 @@ class OpeniInterface(object):
             self.cache_records_db = _records_db_merge(interface_name='OpeniInterface',
                                                       current_records_db=self.cache_records_db,
                                                       records_db_update=self.records_db,
-                                                      columns_with_dicts=('query', 'parsed_abstract'),
+                                                      columns_with_dicts=(
+                                                      'query', 'parsed_abstract'),
                                                       duplicates=openi_duplicates_handler,
                                                       rows_to_conserve_func=rows_to_conserve_func,
                                                       pre_return_func=image_id_short_gen)
@@ -988,7 +1016,8 @@ class OpeniInterface(object):
         _, self._created_image_dirs = package_cache_creator(sub_dir='images',
                                                             cache_path=cache_path,
                                                             to_create=['openi'],
-                                                            nest=[('openi', 'aux'), ('openi', 'raw'),
+                                                            nest=[('openi', 'aux'),
+                                                                  ('openi', 'raw'),
                                                                   ('openi', 'databases')],
                                                             verbose=verbose,
                                                             requires_medpix_logo=True)
@@ -1063,7 +1092,8 @@ class OpeniInterface(object):
     @property
     def cache_records_db_short(self):
         """Return `cache_records_db` with nonessential columns removed."""
-        return data_frame_col_drop(self.cache_records_db, nonessential_openi_columns, 'cache_records_db')
+        return data_frame_col_drop(self.cache_records_db, nonessential_openi_columns,
+                                   'cache_records_db')
 
     def options(self, search_parameter=None, print_options=True):
         """

@@ -35,6 +35,7 @@ from keras.layers import (Convolution2D,
                           merge)
 from keras.optimizers import RMSprop, SGD
 
+
 # Problem: ValueError: Negative dimension size caused by subtracting 2 from 1
 # Solution: replace "tf" with "th" in ~/.keras/keras.json.
 # Note: `MaxPooling2D` has a `dim_ordering` param which can do the same thing.
@@ -73,7 +74,7 @@ class ImageClassificationCNN(object):
     def __init__(self,
                  data_path=None,
                  image_shape=(224, 224),
-                 rescale=1/255.0,
+                 rescale=1 / 255.0,
                  shear_range=0.05,
                  zoom_range=0.30,
                  horizontal_flip=True,
@@ -130,10 +131,11 @@ class ImageClassificationCNN(object):
         validation_datagen = ImageDataGenerator(rescale=self.rescale)
 
         # This is a similar generator, for validation data
-        self._validation_generator = validation_datagen.flow_from_directory(directory=self._validation_data_dir,
-                                                                            target_size=self.image_shape,
-                                                                            class_mode='categorical',
-                                                                            batch_size=self._batch_size)
+        self._validation_generator = validation_datagen.flow_from_directory(
+            directory=self._validation_data_dir,
+            target_size=self.image_shape,
+            class_mode='categorical',
+            batch_size=self._batch_size)
 
     def _data_stream(self):
         """
@@ -155,11 +157,13 @@ class ImageClassificationCNN(object):
             return len(set(b) - set(a)) > 0
 
         # Check for a mismatch of folders between 'train' and 'validation'.
-        chk = [(train_classes, val_classes, "train", "validation"), (val_classes, train_classes, "validation", "train")]
+        chk = [(train_classes, val_classes, "train", "validation"),
+               (val_classes, train_classes, "validation", "train")]
         for (i, j, k, l) in chk:
             if set_diff(i, j):
                 raise ValueError("the `{0}` folder is missing the following"
-                                 " folders found in '{1}': {2}.".format(k, l, ", ".join(map(str, set(j) - set(i)))))
+                                 " folders found in '{1}': {2}.".format(k, l, ", ".join(
+                    map(str, set(j) - set(i)))))
 
         self.data_classes = train_classes
 
@@ -171,10 +175,12 @@ class ImageClassificationCNN(object):
         """
         self.image_shape = list(self.image_shape)
         if self.image_shape[0] != 224:
-            warn("{0} is an invalid image height for vgg_19. Falling back 224.".format(self.image_shape[0]))
+            warn("{0} is an invalid image height for vgg_19. Falling back 224.".format(
+                self.image_shape[0]))
             self.image_shape[0] = 224
         if self.image_shape[1] != 224:
-            warn("{0} is an invalid image width for vgg_19. Falling back to 224.".format(self.image_shape[1]))
+            warn("{0} is an invalid image width for vgg_19. Falling back to 224.".format(
+                self.image_shape[1]))
             self.image_shape[1] = 224
         self.image_shape = tuple(self.image_shape)
 
@@ -261,8 +267,8 @@ class ImageClassificationCNN(object):
         conv_2 = crosschannelnormalization(name="convpool_1")(conv_2)
         conv_2 = ZeroPadding2D((2, 2))(conv_2)
         conv_2 = merge([Convolution2D(128, (5, 5), activation="relu", name='conv_2_' + str(i + 1))(
-                               splittensor(ratio_split=2, id_split=i)(conv_2)
-                           ) for i in range(2)], mode='concat', concat_axis=1, name="conv_2")
+            splittensor(ratio_split=2, id_split=i)(conv_2)
+        ) for i in range(2)], mode='concat', concat_axis=1, name="conv_2")
 
         conv_3 = MaxPooling2D((3, 3), strides=(2, 2))(conv_2)
         conv_3 = crosschannelnormalization()(conv_3)
@@ -271,13 +277,13 @@ class ImageClassificationCNN(object):
 
         conv_4 = ZeroPadding2D((1, 1))(conv_3)
         conv_4 = merge([Convolution2D(192, 3, 3, activation="relu", name='conv_4_' + str(i + 1))(
-                               splittensor(ratio_split=2, id_split=i)(conv_4)
-                           ) for i in range(2)], mode='concat', concat_axis=1, name="conv_4")
+            splittensor(ratio_split=2, id_split=i)(conv_4)
+        ) for i in range(2)], mode='concat', concat_axis=1, name="conv_4")
 
         conv_5 = ZeroPadding2D((1, 1))(conv_4)
         conv_5 = merge([Convolution2D(128, (3, 3), activation="relu", name='conv_5_' + str(i + 1))(
-                               splittensor(ratio_split=2, id_split=i)(conv_5)
-                           ) for i in range(2)], mode='concat', concat_axis=1, name="conv_5")
+            splittensor(ratio_split=2, id_split=i)(conv_5)
+        ) for i in range(2)], mode='concat', concat_axis=1, name="conv_5")
         dense_1 = MaxPooling2D((3, 3), strides=(2, 2), name="convpool_5")(conv_5)
 
         dense_1 = Flatten(name="flatten")(dense_1)
@@ -405,7 +411,8 @@ class ImageClassificationCNN(object):
         """
         self.model = Sequential()
 
-        self.model.add(ZeroPadding2D((1, 1), input_shape=(3, self.image_shape[0], self.image_shape[1])))
+        self.model.add(
+            ZeroPadding2D((1, 1), input_shape=(3, self.image_shape[0], self.image_shape[1])))
         self.model.add(Convolution2D(64, (3, 3), activation='relu'))
         self.model.add(ZeroPadding2D((1, 1)))
         self.model.add(Convolution2D(64, (3, 3), activation='relu'))
@@ -526,7 +533,8 @@ class ImageClassificationCNN(object):
         """
         if self.model is None:
             raise AttributeError("The model cannot be {0} until `ImageClassificationCNN().{1}()` "
-                                 "has been called.{2}".format(first_format, second_format, additional))
+                                 "has been called.{2}".format(first_format, second_format,
+                                                              additional))
 
     def fit(self, epochs=10, min_delta=0.1, patience=3):
         """
@@ -546,7 +554,8 @@ class ImageClassificationCNN(object):
         if not isinstance(epochs, int):
             raise ValueError("`epochs` must be an integer.")
 
-        early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=min_delta, patience=patience, verbose=1)
+        early_stop = callbacks.EarlyStopping(monitor='val_loss', min_delta=min_delta,
+                                             patience=patience, verbose=1)
 
         self.model.fit_generator(generator=self._train_generator,
                                  steps_per_epoch=self._train_generator.samples,
@@ -689,11 +698,14 @@ class ImageClassificationCNN(object):
         if all(is_ndarray):
             images = list_of_images
         elif any(is_ndarray):
-            raise ValueError("Only some of the items in `list_of_images` we found to be `ndarrays`.")
+            raise ValueError(
+                "Only some of the items in `list_of_images` we found to be `ndarrays`.")
         else:
-            images = load_and_scale_images(list_of_images=list_of_images, image_size=self.image_shape,
+            images = load_and_scale_images(list_of_images=list_of_images,
+                                           image_size=self.image_shape,
                                            status=status, grayscale_first=True,
                                            desc='Preparing Images')
 
         # ToDo: tqdm not working properly (see: https://github.com/bstriner/keras-tqdm).
-        return [self._prediction_labels(i) for i in tqdm(self.model.predict(images), desc=desc, disable=not status)]
+        return [self._prediction_labels(i) for i in
+                tqdm(self.model.predict(images), desc=desc, disable=not status)]

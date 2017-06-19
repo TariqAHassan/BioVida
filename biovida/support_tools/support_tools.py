@@ -13,19 +13,17 @@ import numpy as np
 import pandas as pd
 from itertools import chain
 
-
 if sys.version_info.major == 3 and sys.version_info.minor >= 4:
     from html import unescape
 else:
     from six.moves.html_parser import HTMLParser
-    unescape = HTMLParser().unescape
 
+    unescape = HTMLParser().unescape
 
 try:
     import pydicom as dicom
 except ImportError:
     import dicom
-
 
 try:
     __IPYTHON__
@@ -36,7 +34,6 @@ except NameError:
     IN_NOTEBOOK = False
     ipython_display = None
     from tqdm import tqdm
-
 
 _only_numeric_regex = re.compile(r'[^\d.]+')
 _cln_extent_1_regex = re.compile('\s\s+')
@@ -55,7 +52,7 @@ def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
 
     """
     # This is implemented in the `math` module for Python >= 3.5.
-    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+    return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 def dict_reverse(d):
@@ -272,7 +269,7 @@ def header(string, flank=True):
     :type flank: ``bool``
     :return:
     """
-    # Compute seperating line
+    # Compute separating line
     sep_line = "-" * len(string)
 
     # Display

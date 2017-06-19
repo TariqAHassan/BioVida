@@ -17,7 +17,7 @@ from biovida.support_tools.support_tools import combine_dicts, list_to_bulletpoi
 
 def _medpix_logo_download(save_path,
                           verbose,
-                          image_web_address='https://openi.nlm.nih.gov/imgs/512/341/1544/MPX1544_synpic54565.png',):
+                          image_web_address='https://openi.nlm.nih.gov/imgs/512/341/1544/MPX1544_synpic54565.png', ):
     """
 
     Download and save the MedPix logo from a representative image.
@@ -60,10 +60,12 @@ def _sub_directory_creator(root_path, to_create):
         if not os.path.isdir(os.path.join(root_path, sub_dir)):
             os.makedirs(os.path.join(root_path, sub_dir))
             # Record sub_dir's full path
-            created_dirs[(sub_dir, True)] = (os.sep).join(os.path.join(root_path, sub_dir).split(os.sep)[-2:])
+            created_dirs[(sub_dir, True)] = (os.sep).join(
+                os.path.join(root_path, sub_dir).split(os.sep)[-2:])
         else:
             # Note that it was not created
-            created_dirs[(sub_dir, False)] = (os.sep).join(os.path.join(root_path, sub_dir).split(os.sep)[-2:])
+            created_dirs[(sub_dir, False)] = (os.sep).join(
+                os.path.join(root_path, sub_dir).split(os.sep)[-2:])
 
     return created_dirs
 
@@ -105,13 +107,15 @@ def _directory_creator(cache_path=None, verbose=True):
 
     # Clean `cache_path`
     if cache_path is not None and cache_path is not None:
-        cache_path_clean = (cache_path.strip() if not cache_path.endswith(os.sep) else cache_path.strip()[:-1])
+        cache_path_clean = (
+        cache_path.strip() if not cache_path.endswith(os.sep) else cache_path.strip()[:-1])
     else:
         cache_path_clean = cache_path
 
     # Set the base path to the home directory if `cache_path_clean` does not exist
     if isinstance(cache_path_clean, str) and not os.path.isdir(cache_path_clean):
-        raise FileNotFoundError("[Errno 2] No such file or directory: '{0}'.".format(cache_path_clean))
+        raise FileNotFoundError(
+            "[Errno 2] No such file or directory: '{0}'.".format(cache_path_clean))
     elif not (isinstance(cache_path_clean, str) and os.path.isdir(cache_path_clean)):
         base_path = os.path.expanduser("~")
     else:
@@ -127,7 +131,8 @@ def _directory_creator(cache_path=None, verbose=True):
         created_dirs.append("biovida_cache")
 
     # Check if 'search', 'images', 'genomics' and 'diagnostics' caches exist, if not create them.
-    sub_dirs_made = _sub_directory_creator(root_path, ['images_cache', 'genomics_cache', 'diagnostics_cache'])
+    sub_dirs_made = _sub_directory_creator(root_path,
+                                           ['images_cache', 'genomics_cache', 'diagnostics_cache'])
 
     # Record Created Dirs
     created_dirs += {k: v for k, v in sub_dirs_made.items() if k[1] is True}.values()
@@ -159,12 +164,14 @@ def _add_to_create_nest(nest, record_dict, verbose):
             record_dict[new_nested_dir] = new_dir_name
 
     if verbose and len(created):
-        print("The following nested directories were also created:\n{0}\n".format(list_to_bulletpoints(created)))
+        print("The following nested directories were also created:\n{0}\n".format(
+            list_to_bulletpoints(created)))
 
     return record_dict
 
 
-def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbose=True, requires_medpix_logo=False):
+def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbose=True,
+                          requires_medpix_logo=False):
     """
 
     Create a cache for a given ``sub_dir``. If no biovida path exists in ``cache_path``,
@@ -192,7 +199,8 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
     # Check `sub_dir` is an allowed type
     allowed_sub_dirs = ('search', 'images', 'genomics', 'diagnostics')
     if sub_dir not in allowed_sub_dirs:
-        raise ValueError("`sub_dir` must be one of:\n{0}".format(list_to_bulletpoints(allowed_sub_dirs)))
+        raise ValueError(
+            "`sub_dir` must be one of:\n{0}".format(list_to_bulletpoints(allowed_sub_dirs)))
 
     # Check `to_create` is a ``list`` or ``tuple`` with nonzero length
     if not isinstance(to_create, (list, tuple)) or not len(to_create):
@@ -215,16 +223,18 @@ def package_cache_creator(sub_dir, to_create, cache_path=None, nest=None, verbos
         _created_notice(new.values(), root_path)
 
     # Render a hash map of `cache_path` - to - local address
-    record_dict = {k[0]: os.path.join(sub_dir_full_path, v.split(os.sep)[-1]) for k, v in package_created_dirs.items()}
+    record_dict = {k[0]: os.path.join(sub_dir_full_path, v.split(os.sep)[-1]) for k, v in
+                   package_created_dirs.items()}
     record_dict['ROOT_PATH'] = root_path
 
     # Add nested directories, if any
     record_dict_nest = _add_to_create_nest(nest, record_dict, verbose)
-    
+
     # Download the medpix logo to `sub_dir`, if `sub_dir` is 'images'.
     if sub_dir == 'images' and requires_medpix_logo:
         if 'aux' not in record_dict_nest.keys():
-            raise ValueError("`nest` (or `to_create`) must contain 'aux' if `requires_medpix_logo` is `True`.")
+            raise ValueError(
+                "`nest` (or `to_create`) must contain 'aux' if `requires_medpix_logo` is `True`.")
         medpix_logo_location = _medpix_logo_download(record_dict_nest['aux'], verbose=verbose)
         # Add the path to the logo to `record_dict_nest`
         record_dict_nest = combine_dicts(record_dict_nest, medpix_logo_location)

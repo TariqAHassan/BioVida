@@ -7,6 +7,7 @@
 
 """
 import sys
+
 SAVE_PATH = ""
 TRAINING_DATA_PATH = "/biovida_train_val_test"  # path to the training/val/test data
 BIOVIDA_PATH = "/BioVida"  # path to the library -- only needed if BioVida is not installed.
@@ -15,10 +16,10 @@ sys.path.append(BIOVIDA_PATH)
 
 # General Imports
 from keras import backend as K
+
 K.set_image_dim_ordering('th')
 
 from biovida.images.models.image_classification import ImageClassificationCNN
-
 
 models = ['default', 'squeezenet']
 

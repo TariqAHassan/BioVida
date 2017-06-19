@@ -19,7 +19,6 @@ from biovida.support_tools.support_tools import header, camel_to_snake_case, lis
 # BioVida Printing Tools
 from biovida.support_tools.printing import dict_pprint
 
-
 # ---------------------------------------------------------------------------------------------
 # DisGeNET Reference Data
 # ---------------------------------------------------------------------------------------------
@@ -84,7 +83,8 @@ class DisgenetInterface(object):
             with open(save_address, 'wb') as f:
                 f.write(r.content)
             header("The DisGeNET README has been downloaded to:\n\n {0}\n\n"
-                   "Please take the time to review this document.".format(save_address), flank=False)
+                   "Please take the time to review this document.".format(save_address),
+                   flank=False)
 
     def __init__(self, cache_path=None, verbose=True):
         """
@@ -120,8 +120,9 @@ class DisgenetInterface(object):
         :type database: ``str``
         """
         if database not in _disgenet_delimited_databases:
-            raise ValueError("'{0}' is an invalid value for `database`.\n`database` must be one of:\n{1}".format(
-                str(database), list_to_bulletpoints(_disgenet_delimited_databases.keys())))
+            raise ValueError(
+                "'{0}' is an invalid value for `database`.\n`database` must be one of:\n{1}".format(
+                    str(database), list_to_bulletpoints(_disgenet_delimited_databases.keys())))
 
     def options(self, database=None, pretty_print=True):
         """

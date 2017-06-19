@@ -25,7 +25,6 @@ from biovida.support_tools.support_tools import (tqdm,
                                                  InsufficientNumberOfFiles,
                                                  directory_existence_handler)
 
-
 _TVT_GROUPS = ('train', 'validation', 'test')
 
 
@@ -46,7 +45,8 @@ def _subdirectories_in_path(path, to_block):
     :return: see description.
     :rtype: ``list``
     """
-    return [os_join(path, i) for i in os.listdir(path) if os.path.isdir(os_join(path, i)) and i not in to_block]
+    return [os_join(path, i) for i in os.listdir(path) if
+            os.path.isdir(os_join(path, i)) and i not in to_block]
 
 
 def _train_val_test_error_checking(target_dir, action, group_files_dict, tvt, allowed_actions):
@@ -80,11 +80,12 @@ def _train_val_test_error_checking(target_dir, action, group_files_dict, tvt, al
     min_number_of_files = len(tvt.keys()) * len(group_files_dict.keys())
     for k, v in group_files_dict.items():
         if len(v) < min_number_of_files:
-            raise InsufficientNumberOfFiles("\nThe '{0}' subdirectory/subgroup only contains {1} files,\n"
-                                            "which is too few to distribute over {2} target locations.\n"
-                                            "Calculation: len([{3}]) * len([{4}]) = {2}.".format(
-                                            k, len(v), min_number_of_files, ", ".join(tvt.keys()),
-                                            ", ".join(group_files_dict.keys())))
+            raise InsufficientNumberOfFiles(
+                "\nThe '{0}' subdirectory/subgroup only contains {1} files,\n"
+                "which is too few to distribute over {2} target locations.\n"
+                "Calculation: len([{3}]) * len([{4}]) = {2}.".format(
+                    k, len(v), min_number_of_files, ", ".join(tvt.keys()),
+                    ", ".join(group_files_dict.keys())))
 
 
 def _existing_files_dict_gen(directory, to_block):
@@ -188,12 +189,14 @@ def _file_paths_dict_to_ndarrays(dictionary, dimensions, stack, verbose=True):
     :return: the values for the inner nest as replaced with ``ndarrays``.
     :rtype: ``dict``
     """
+
     def identity_func(x):
         return x
 
     if verbose:
         def desc_tqdm(x):
             return tqdm(x, desc='Generating ndarrays')
+
         if dimensions == 1:
             status_inner, status_outer = desc_tqdm, identity_func
         elif dimensions == 2:
@@ -245,7 +248,8 @@ def _print_output_dict_structure(output_dict):
         print("- '{0}':\n{1}".format(k, list_to_bulletpoints(v)))
 
 
-def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_state, allowed_actions, verbose):
+def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_state,
+                           allowed_actions, verbose):
     """
 
     Engine to power ``train_val_test()``.
@@ -296,7 +300,8 @@ def _train_val_test_engine(action, tvt, group_files_dict, target_path, random_st
                 output_dict[k2][k] = out_value
             if action in ('copy', 'move', 'write_ndarray'):
                 desc = 'Processing {0} ({1})'.format(os_basename(k), k2)
-                target = directory_existence_handler(os_join(target_path, os_join(k2, k)), allow_creation=True)
+                target = directory_existence_handler(os_join(target_path, os_join(k2, k)),
+                                                     allow_creation=True)
                 if action in ('copy', 'move'):
                     for i in tqdm(v2, desc=desc, leave=False, disable=not verbose):
                         shutil_func(i, os_join(target, os_basename(i)))
@@ -502,7 +507,8 @@ def train_val_test(data,
     else:
         target_path = None
 
-    existing_dirs = _subdirectories_in_path(data, to_block=_TVT_GROUPS) if isinstance(data, str) else None
+    existing_dirs = _subdirectories_in_path(data, to_block=_TVT_GROUPS) if isinstance(data,
+                                                                                      str) else None
     tvt = _tvt_dict_gen(locals())
 
     if not isinstance(delete_source, bool):
@@ -527,7 +533,8 @@ def train_val_test(data,
     if action in ('copy', 'move'):
         to_return = output_dict
     elif action == 'ndarray':
-        to_return = _file_paths_dict_to_ndarrays(output_dict, dimensions=2, stack=stack, verbose=verbose)
+        to_return = _file_paths_dict_to_ndarrays(output_dict, dimensions=2, stack=stack,
+                                                 verbose=verbose)
 
     if verbose:
         _print_output_dict_structure(output_dict)
@@ -618,6 +625,7 @@ def reverse_train_val_test(data, delete_source=True, verbose=True):
             └── mri_6.png
 
     """
+
     def subclasses(tvt):
         return [os_join(tvt, c) for c in os.listdir(tvt) if os.path.isdir(os_join(tvt, c))]
 
